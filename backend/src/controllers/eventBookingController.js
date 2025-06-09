@@ -1,0 +1,117 @@
+import pool from '../db/config.js';
+
+/**
+ * Get booking information for an event
+ */
+export const getEventBooking = async (req, res) => {
+  const eventId = parseInt(req.params.id);
+  
+  if (!eventId) {
+    return res.status(400).json({ error: 'Event ID is required' });
+  }
+  
+  let connection;
+  try {
+    connection = await pool.getConnection();
+
+    const [rows] = await connection.query(
+      'SELECT * FROM event_booking WHERE event_id = ?',
+      [eventId]
+    );
+    
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Booking information not found for this event' });
+    }
+    
+    res.json(rows[0]);
+  } catch (error) {
+    console.error('Error fetching event booking information:', error);
+    res.status(500).json({ error: 'Failed to fetch booking information' });
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+/**
+ * Create or update booking information for an event
+ */
+export const createOrUpdateEventBooking = async (req, res) => {
+  const eventId = parseInt(req.params.id);
+  const bookingData = req.body;
+  
+  if (!eventId) {
+    return res.status(400).json({ error: 'Event ID is required' });
+  }
+  
+  let connection;
+  try {
+    connection = await pool.getConnection();
+
+    // Check if booking data already exists for this event
+    const [existingRows] = await connection.query(
+      'SELECT id FROM event_booking WHERE event_id = ?',
+      [eventId]
+    );
+    
+    const isUpdate = existingRows.length > 0;
+    let result;
+
+    if (isUpdate) {
+      // Update existing booking data
+      const fields = Object.keys(bookingData).filter(key => key !== 'event_id');
+      if (fields.length > 0) {
+        const setClause = fields.map(field => `${field} = ?`).join(', ');
+        const values = fields.map(f => bookingData[f]);
+        await connection.query(
+          `UPDATE event_booking SET ${setClause} WHERE event_id = ?`,
+          [...values, eventId]
+        );
+      }
+
+      const [updatedRows] = await connection.query(
+        'SELECT * FROM event_booking WHERE event_id = ?',
+        [eventId]
+      );
+
+      result = updatedRows[0];
+      res.json({
+        message: 'Booking information updated successfully',
+        data: result
+      });
+    } else {
+      // Create new booking data
+      const fields = Object.keys(bookingData).filter(key => key !== 'event_id');
+      const placeholders = fields.map(() => '?').join(', ');
+      const values = fields.map(f => bookingData[f]);
+
+      if (fields.length > 0) {
+        await connection.query(
+          `INSERT INTO event_booking (event_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`,
+          [eventId, ...values]
+        );
+      } else {
+        // If no additional fields provided just insert event_id
+        await connection.query(
+          'INSERT INTO event_booking (event_id) VALUES (?)',
+          [eventId]
+        );
+      }
+
+      const [createdRows] = await connection.query(
+        'SELECT * FROM event_booking WHERE event_id = ?',
+        [eventId]
+      );
+
+      result = createdRows[0];
+      res.status(201).json({
+        message: 'Booking information created successfully',
+        data: result
+      });
+    }
+  } catch (error) {
+    console.error('Error saving event booking information:', error);
+    res.status(500).json({ error: 'Failed to save booking information' });
+  } finally {
+    if (connection) connection.release();
+  }
+}; 

@@ -1,0 +1,3104 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Hotel Management API",
+    "description": "API for managing hotels, rooms, events, and users",
+    "version": "1.0.0",
+    "contact": {
+      "name": "API Support"
+    }
+  },
+  "servers": [
+    {
+      "url": "/api",
+      "description": "API Server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Users",
+      "description": "User management operations"
+    },
+    {
+      "name": "Hotels",
+      "description": "Hotel management operations"
+    },
+    {
+      "name": "Rooms",
+      "description": "Room management operations"
+    },
+    {
+      "name": "Events",
+      "description": "Event management operations"
+    }
+  ],
+  "paths": {
+    "/users": {
+      "get": {
+        "summary": "Get all users",
+        "tags": ["Users"],
+        "responses": {
+          "200": {
+            "description": "List of users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SafeUser"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new user",
+        "tags": ["Users"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "userId": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/SafeUser"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Missing required fields: first_name, last_name, email, and password are required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "summary": "Get user by ID",
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "User ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SafeUser"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update user",
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "User ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdateInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "userId": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/SafeUser"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "No fields to update"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete user",
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "User ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/hotels": {
+      "get": {
+        "summary": "Get all hotels",
+        "tags": ["Hotels"],
+        "responses": {
+          "200": {
+            "description": "List of hotels",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Hotel"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new hotel with all details",
+        "tags": ["Hotels"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HotelFullInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Hotel created successfully with all associated information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "hotelId": { "type": "integer", "example": 1 },
+                    "message": { "type": "string", "example": "Hotel created successfully with all associated information." },
+                    "hotel": {
+                      "$ref": "#/components/schemas/HotelFullDetails"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (e.g., Hotel name is required, or VAT for billing is missing)",
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/hotels/{id}": {
+      "get": {
+        "summary": "Get hotel by ID with all details",
+        "tags": ["Hotels"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" },
+            "description": "Hotel ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detailed hotel information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HotelFullDetails"
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/Error" }
+        }
+      },
+      "put": {
+        "summary": "Update hotel with all details",
+        "tags": ["Hotels"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" },
+            "description": "Hotel ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HotelFullInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Hotel updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "hotelId": { "type": "integer", "example": 1 },
+                    "hotel": {
+                      "$ref": "#/components/schemas/HotelFullDetails"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid input", "$ref": "#/components/responses/Error" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/Error" }
+        }
+      },
+      "delete": {
+        "summary": "Delete hotel",
+        "tags": ["Hotels"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Hotel ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Hotel deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/rooms/types": {
+      "get": {
+        "summary": "Get all room types with categories",
+        "tags": ["Rooms"],
+        "responses": {
+          "200": {
+            "description": "List of room types with categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RoomType"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new room type",
+        "tags": ["Rooms"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoomTypeInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Room type created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "roomTypeId": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "roomType": {
+                      "$ref": "#/components/schemas/RoomType"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Name, max occupancy, and base price are required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/rooms/types/{id}": {
+      "get": {
+        "summary": "Get room type by ID with categories",
+        "tags": ["Rooms"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Room type ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Room type details with categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomType"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update room type",
+        "tags": ["Rooms"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Room type ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoomTypeUpdateInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Room type updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "roomTypeId": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "roomType": {
+                      "$ref": "#/components/schemas/RoomType"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "No fields to update"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete room type",
+        "tags": ["Rooms"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Room type ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Room type deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/rooms/types/{roomTypeId}/handling": {
+      "get": {
+        "summary": "Get handling info for a room type",
+        "tags": ["Rooms"],
+        "parameters": [
+          {
+            "name": "roomTypeId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the room type",
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Handling information for the room type",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RoomTypeHandling" } } }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/Error" }
+        }
+      },
+      "post": {
+        "summary": "Create or update handling info for a room type",
+        "tags": ["Rooms"],
+        "parameters": [
+          {
+            "name": "roomTypeId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the room type",
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RoomTypeHandlingInput" } } }
+        },
+        "responses": {
+          "200": {
+            "description": "Handling info saved successfully",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RoomTypeHandling" } } }
+          },
+          "201": { 
+            "description": "Handling info created successfully",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RoomTypeHandling" } } }
+          },
+          "400": { "$ref": "#/components/responses/Error" },
+          "404": { "description": "Room type not found", "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/Error" }
+        }
+      },
+      "put": {
+        "summary": "Create or update handling info for a room type",
+        "tags": ["Rooms"],
+        "parameters": [
+          {
+            "name": "roomTypeId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the room type",
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RoomTypeHandlingInput" } } }
+        },
+        "responses": {
+          "200": {
+            "description": "Handling info saved successfully",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RoomTypeHandling" } } }
+          },
+          "400": { "$ref": "#/components/responses/Error" },
+          "404": { "description": "Room type not found", "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/hotels/{hotelId}/foodbeverage": {
+      "get": {
+        "summary": "List Food & Beverage outlets for a hotel",
+        "tags": ["Hotels"],
+        "parameters": [
+          {
+            "name": "hotelId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the hotel",
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of Food & Beverage outlets",
+            "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/FoodBeverageOutlet" } } } }
+          },
+          "404": { "description": "Hotel not found", "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/Error" }
+        }
+      },
+      "post": {
+        "summary": "Add a Food & Beverage outlet to a hotel",
+        "tags": ["Hotels"],
+        "parameters": [
+          {
+            "name": "hotelId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the hotel",
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/FoodBeverageOutletInput" } } }
+        },
+        "responses": {
+          "201": {
+            "description": "Food & Beverage outlet created",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/FoodBeverageOutlet" } } }
+          },
+          "400": { "$ref": "#/components/responses/Error" },
+          "404": { "description": "Hotel not found", "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/hotels/{hotelId}/foodbeverage/{outletId}": {
+      "get": {
+        "summary": "Get a specific Food & Beverage outlet",
+        "tags": ["Hotels"],
+        "parameters": [
+          {
+            "name": "hotelId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the hotel",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "outletId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the Food & Beverage outlet",
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Details of the Food & Beverage outlet",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/FoodBeverageOutlet" } } }
+          },
+          "404": { "description": "Hotel or Outlet not found", "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/Error" }
+        }
+      },
+      "put": {
+        "summary": "Update a Food & Beverage outlet",
+        "tags": ["Hotels"],
+        "parameters": [
+          {
+            "name": "hotelId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the hotel",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "outletId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the Food & Beverage outlet",
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/FoodBeverageOutletInput" } } }
+        },
+        "responses": {
+          "200": {
+            "description": "Food & Beverage outlet updated",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/FoodBeverageOutlet" } } }
+          },
+          "400": { "$ref": "#/components/responses/Error" },
+          "404": { "description": "Hotel or Outlet not found", "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/Error" }
+        }
+      },
+      "delete": {
+        "summary": "Delete a Food & Beverage outlet",
+        "tags": ["Hotels"],
+        "parameters": [
+          {
+            "name": "hotelId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the hotel",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "outletId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the Food & Beverage outlet",
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Outlet deleted successfully",
+            "content": { "application/json": { "schema": { "type": "object", "properties": {"success": {"type": "boolean", "example": true}} } } }
+          },
+          "404": { "description": "Hotel or Outlet not found", "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/events": {
+      "get": {
+        "summary": "Get all events",
+        "tags": ["Events"],
+        "responses": {
+          "200": {
+            "description": "List of all events with hotel name",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EventMain"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new event",
+        "tags": ["Events"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventMainInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Event created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "eventId": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "event": {
+                      "$ref": "#/components/schemas/EventMain"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (e.g., Hotel ID is required)",
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "description": "Hotel not found",
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/events/hotel/{hotelId}": {
+      "get": {
+        "summary": "Get events by hotel ID",
+        "tags": ["Events"],
+        "parameters": [
+          {
+            "name": "hotelId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID of the hotel to retrieve events for"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of events for the specified hotel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EventMain"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Hotel not found",
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/events/{id}": {
+      "get": {
+        "summary": "Get event by ID",
+        "tags": ["Events"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Event ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Event details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventMain"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Event not found",
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an event",
+        "tags": ["Events"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Event ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventMainInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Event updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "eventId": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "event": {
+                      "$ref": "#/components/schemas/EventMain"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (e.g., No fields to update)",
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "description": "Event or Hotel not found",
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete an event",
+        "tags": ["Events"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Event ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Event deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Event not found",
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "/events/{eventId}/equipment": {
+        "get": {
+          "summary": "Get all AV equipment for an event",
+          "tags": ["Events"],
+          "parameters": [
+            {
+              "name": "eventId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              },
+              "description": "ID of the event to retrieve AV equipment for"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "List of AV equipment for the event",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/EventAvEquipment"
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Event not found",
+              "$ref": "#/components/responses/NotFound"
+            },
+            "500": {
+              "$ref": "#/components/responses/Error"
+            }
+          }
+        },
+        "post": {
+          "summary": "Create AV equipment for an event",
+          "tags": ["Events"],
+          "parameters": [
+            {
+              "name": "eventId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              },
+              "description": "ID of the event to add equipment to"
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventAvEquipmentInput"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "AV equipment created successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean",
+                        "example": true
+                      },
+                      "equipmentId": {
+                        "type": "integer",
+                        "example": 1
+                      },
+                      "equipment": {
+                        "$ref": "#/components/schemas/EventAvEquipment"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid input (e.g., Event ID and equipment name are required)",
+              "$ref": "#/components/responses/Error"
+            },
+            "404": {
+              "description": "Event not found",
+              "$ref": "#/components/responses/NotFound"
+            },
+            "500": {
+              "$ref": "#/components/responses/Error"
+            }
+          }
+        }
+      },
+      "/events/{eventId}/equipment/bulk": {
+        "post": {
+          "summary": "Bulk create AV equipment for an event",
+          "tags": ["Events"],
+          "parameters": [
+            {
+              "name": "eventId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              },
+              "description": "ID of the event to add equipment to"
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["event_id", "equipment"],
+                  "properties": {
+                    "event_id": {
+                      "type": "integer",
+                      "description": "Should match the eventId in path"
+                    },
+                    "equipment": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/EventAvEquipmentInput"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "AV equipment created successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean",
+                        "example": true
+                      },
+                      "equipment": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/EventAvEquipment"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid input (e.g., Event ID and equipment array are required)",
+              "$ref": "#/components/responses/Error"
+            },
+            "404": {
+              "description": "Event not found",
+              "$ref": "#/components/responses/NotFound"
+            },
+            "500": {
+              "$ref": "#/components/responses/Error"
+            }
+          }
+        }
+      },
+      "/events/equipment/{id}": {
+        "get": {
+          "summary": "Get AV equipment by ID",
+          "tags": ["Events"],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              },
+              "description": "AV Equipment ID"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "AV equipment details",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/EventAvEquipment"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "AV equipment not found",
+              "$ref": "#/components/responses/NotFound"
+            },
+            "500": {
+              "$ref": "#/components/responses/Error"
+            }
+          }
+        },
+        "put": {
+          "summary": "Update AV equipment",
+          "tags": ["Events"],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              },
+              "description": "AV Equipment ID"
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventAvEquipmentUpdateInput"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "AV equipment updated successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean",
+                        "example": true
+                      },
+                      "equipmentId": {
+                        "type": "integer",
+                        "example": 1
+                      },
+                      "equipment": {
+                        "$ref": "#/components/schemas/EventAvEquipment"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid input (e.g., No fields to update)",
+              "$ref": "#/components/responses/Error"
+            },
+            "404": {
+              "description": "AV equipment not found",
+              "$ref": "#/components/responses/NotFound"
+            },
+            "500": {
+              "$ref": "#/components/responses/Error"
+            }
+          }
+        },
+        "delete": {
+          "summary": "Delete AV equipment",
+          "tags": ["Events"],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              },
+              "description": "AV Equipment ID"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "AV equipment deleted successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean",
+                        "example": true
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "AV equipment not found",
+              "$ref": "#/components/responses/NotFound"
+            },
+            "500": {
+              "$ref": "#/components/responses/Error"
+            }
+          }
+        }
+      },
+      "/events/{eventId}/contracting": {
+        "get": {
+          "summary": "Get contracting info for an event",
+          "tags": ["Events"],
+          "parameters": [
+            {
+              "name": "eventId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              },
+              "description": "ID of the event"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Contracting information for the event",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/EventContracting"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Event or Contracting information not found",
+              "$ref": "#/components/responses/NotFound"
+            },
+            "500": {
+              "$ref": "#/components/responses/Error"
+            }
+          }
+        },
+        "post": {
+          "summary": "Create or update contracting info for an event",
+          "tags": ["Events"],
+          "parameters": [
+            {
+              "name": "eventId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              },
+              "description": "ID of the event"
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventContractingInput"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Contracting info created or updated successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean",
+                        "example": true
+                      },
+                      "contracting": {
+                        "$ref": "#/components/schemas/EventContracting"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid input (e.g., Event ID is required)",
+              "$ref": "#/components/responses/Error"
+            },
+            "404": {
+              "description": "Event not found",
+              "$ref": "#/components/responses/NotFound"
+            },
+            "500": {
+              "$ref": "#/components/responses/Error"
+            }
+          }
+        },
+        "put": {
+          "summary": "Create or update contracting info for an event (identical to POST)",
+          "tags": ["Events"],
+          "parameters": [
+            {
+              "name": "eventId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              },
+              "description": "ID of the event"
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventContractingInput"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Contracting info created or updated successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean",
+                        "example": true
+                      },
+                      "contracting": {
+                        "$ref": "#/components/schemas/EventContracting"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid input (e.g., Event ID is required)",
+              "$ref": "#/components/responses/Error"
+            },
+            "404": {
+              "description": "Event not found",
+              "$ref": "#/components/responses/NotFound"
+            },
+            "500": {
+              "$ref": "#/components/responses/Error"
+            }
+          }
+        }
+      },
+      "/events/{eventId}/technical": {
+        "get": {
+          "summary": "Get technical info for an event",
+          "tags": ["Events"],
+          "parameters": [
+            {
+              "name": "eventId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              },
+              "description": "ID of the event"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Technical information for the event",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/EventTechnical"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Event or Technical information not found",
+              "$ref": "#/components/responses/NotFound"
+            },
+            "500": {
+              "$ref": "#/components/responses/Error"
+            }
+          }
+        },
+        "post": {
+          "summary": "Create or update technical info for an event",
+          "tags": ["Events"],
+          "parameters": [
+            {
+              "name": "eventId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              },
+              "description": "ID of the event"
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventTechnicalInput"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Technical info created or updated successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean",
+                        "example": true
+                      },
+                      "technical": {
+                        "$ref": "#/components/schemas/EventTechnical"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid input (e.g., Event ID is required)",
+              "$ref": "#/components/responses/Error"
+            },
+            "404": {
+              "description": "Event not found",
+              "$ref": "#/components/responses/NotFound"
+            },
+            "500": {
+              "$ref": "#/components/responses/Error"
+            }
+          }
+        },
+        "put": {
+          "summary": "Create or update technical info for an event (identical to POST)",
+          "tags": ["Events"],
+          "parameters": [
+            {
+              "name": "eventId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              },
+              "description": "ID of the event"
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventTechnicalInput"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Technical info created or updated successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean",
+                        "example": true
+                      },
+                      "technical": {
+                        "$ref": "#/components/schemas/EventTechnical"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid input (e.g., Event ID is required)",
+              "$ref": "#/components/responses/Error"
+            },
+            "404": {
+              "description": "Event not found",
+              "$ref": "#/components/responses/NotFound"
+            },
+            "500": {
+              "$ref": "#/components/responses/Error"
+            }
+          }
+        }
+      },
+      "/events/{eventId}/handling": {
+        "get": {
+          "summary": "Get handling info for an event",
+          "tags": ["Events"],
+          "parameters": [
+            {
+              "name": "eventId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              },
+              "description": "ID of the event"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Handling information for the event",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/EventHandling"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Event or Handling information not found",
+              "$ref": "#/components/responses/NotFound"
+            },
+            "500": {
+              "$ref": "#/components/responses/Error"
+            }
+          }
+        },
+        "post": {
+          "summary": "Create or update handling info for an event",
+          "tags": ["Events"],
+          "parameters": [
+            {
+              "name": "eventId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              },
+              "description": "ID of the event"
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventHandlingInput"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Handling info created or updated successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean",
+                        "example": true
+                      },
+                      "handling": {
+                        "$ref": "#/components/schemas/EventHandling"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid input (e.g., Event ID is required)",
+              "$ref": "#/components/responses/Error"
+            },
+            "404": {
+              "description": "Event not found",
+              "$ref": "#/components/responses/NotFound"
+            },
+            "500": {
+              "$ref": "#/components/responses/Error"
+            }
+          }
+        },
+        "put": {
+          "summary": "Create or update handling info for an event (identical to POST)",
+          "tags": ["Events"],
+          "parameters": [
+            {
+              "name": "eventId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              },
+              "description": "ID of the event"
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventHandlingInput"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Handling info created or updated successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean",
+                        "example": true
+                      },
+                      "handling": {
+                        "$ref": "#/components/schemas/EventHandling"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid input (e.g., Event ID is required)",
+              "$ref": "#/components/responses/Error"
+            },
+            "404": {
+              "description": "Event not found",
+              "$ref": "#/components/responses/NotFound"
+            },
+            "500": {
+              "$ref": "#/components/responses/Error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "first_name": {
+            "type": "string",
+            "example": "John"
+          },
+          "last_name": {
+            "type": "string",
+            "example": "Doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "john.doe@example.com"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "example": "secret"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SafeUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "first_name": {
+            "type": "string",
+            "example": "John"
+          },
+          "last_name": {
+            "type": "string",
+            "example": "Doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "john.doe@example.com"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UserInput": {
+        "type": "object",
+        "required": ["first_name", "last_name", "email", "password"],
+        "properties": {
+          "first_name": {
+            "type": "string",
+            "example": "John"
+          },
+          "last_name": {
+            "type": "string",
+            "example": "Doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "john.doe@example.com"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "example": "secret"
+          }
+        }
+      },
+      "UserUpdateInput": {
+        "type": "object",
+        "properties": {
+          "first_name": {
+            "type": "string",
+            "example": "John"
+          },
+          "last_name": {
+            "type": "string",
+            "example": "Doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "john.doe@example.com"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "example": "newsecret"
+          }
+        }
+      },
+      "Hotel": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "street": { "type": "string", "nullable": true },
+          "postal_code": { "type": "string", "nullable": true },
+          "city": { "type": "string", "nullable": true },
+          "country": { "type": "string", "nullable": true },
+          "phone": { "type": "string", "maxLength": 30, "nullable": true, "description": "Main hotel phone number" },
+          "star_rating": { "type": "integer", "nullable": true },
+          "category": { "type": "string", "nullable": true },
+          "opening_date": { "type": "integer", "nullable": true, "description": "Year of opening" },
+          "latest_renovation_date": { "type": "integer", "nullable": true, "description": "Year of latest renovation" },
+          "pms_system": { "type": "string", "nullable": true },
+          "planned_changes": { "type": "string", "nullable": true },
+          "attraction_in_the_area": { "type": "string", "nullable": true },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "HotelContactInput": {
+        "type": "object",
+        "properties": {
+          "phone": { "type": "string", "maxLength": 30, "nullable": true, "description": "Specific or secondary contact phone" },
+          "email": { "type": "string", "format": "email", "maxLength": 100, "nullable": true },
+          "website": { "type": "string", "format": "url", "maxLength": 255, "nullable": true }
+        }
+      },
+      "HotelBillingInput": {
+        "type": "object",
+        "required": ["billing_address_vat"],
+        "properties": {
+          "billing_address_name": { "type": "string", "maxLength": 100, "nullable": true },
+          "billing_address_street": { "type": "string", "maxLength": 255, "nullable": true },
+          "billing_address_zip": { "type": "string", "maxLength": 8, "nullable": true },
+          "billing_address_city": { "type": "string", "maxLength": 50, "nullable": true },
+          "billing_address_vat": { "type": "string", "maxLength": 30 }
+        }
+      },
+      "HotelParkingInput": {
+        "type": "object",
+        "properties": {
+          "no_of_parking_spaces": { "type": "integer", "nullable": true },
+          "no_of_parking_spaces_garage": { "type": "integer", "nullable": true },
+          "no_of_parking_spaces_electric": { "type": "integer", "nullable": true },
+          "no_of_parking_spaces_bus": { "type": "integer", "nullable": true },
+          "no_of_parking_spaces_outside": { "type": "integer", "nullable": true },
+          "no_of_parking_spaces_disabled": { "type": "integer", "nullable": true },
+          "parking_cost_per_hour": { "type": "number", "format": "float", "nullable": true },
+          "parking_cost_per_day": { "type": "number", "format": "float", "nullable": true }
+        }
+      },
+      "HotelDistanceInput": {
+        "type": "object",
+        "properties": {
+          "distance_to_airport_km": { "type": "integer", "nullable": true },
+          "distance_to_highway_km": { "type": "integer", "nullable": true },
+          "distance_to_fair_km": { "type": "integer", "nullable": true },
+          "distance_to_train_station": { "type": "integer", "nullable": true },
+          "distance_to_public_transport": { "type": "integer", "nullable": true }
+        }
+      },
+      "HotelAmenityLinkInput": {
+        "type": "object",
+        "required": ["amenity_id"],
+        "properties": {
+          "amenity_id": { "type": "integer", "description": "ID of the amenity type" },
+          "details": { "type": "string", "maxLength": 255, "nullable": true },
+          "opening_hours": { "type": "string", "maxLength": 50, "nullable": true }
+        }
+      },
+      "HotelFullInput": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string", "maxLength": 255 },
+          "street": { "type": "string", "maxLength": 255, "nullable": true },
+          "postal_code": { "type": "string", "maxLength": 20, "nullable": true },
+          "city": { "type": "string", "maxLength": 100, "nullable": true },
+          "country": { "type": "string", "maxLength": 50, "nullable": true },
+          "phone": { "type": "string", "maxLength": 30, "nullable": true, "description": "Main hotel phone number" },
+          "star_rating": { "type": "integer", "nullable": true },
+          "category": { "type": "string", "maxLength": 100, "nullable": true },
+          "opening_date": { "type": "integer", "nullable": true, "description": "Year of opening" },
+          "latest_renovation_date": { "type": "integer", "nullable": true, "description": "Year of latest renovation" },
+          "pms_system": { "type": "string", "nullable": true },
+          "planned_changes": { "type": "string", "nullable": true },
+          "attraction_in_the_area": { "type": "string", "nullable": true },
+          "contact_info": { "$ref": "#/components/schemas/HotelContactInput", "nullable": true },
+          "billing_info": { "$ref": "#/components/schemas/HotelBillingInput", "nullable": true },
+          "parking_info": { "$ref": "#/components/schemas/HotelParkingInput", "nullable": true },
+          "distances_info": { "$ref": "#/components/schemas/HotelDistanceInput", "nullable": true },
+          "amenities": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/HotelAmenityLinkInput" },
+            "nullable": true
+          }
+        }
+      },
+      "RoomType": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "hotel_id": {
+            "type": "integer",
+            "example": 1,
+            "description": "ID of the hotel this room type belongs to."
+          },
+          "name": {
+            "type": "string",
+            "example": "Standard"
+          },
+          "max_occupancy": {
+            "type": "integer",
+            "example": 2
+          },
+          "base_price": {
+            "type": "number",
+            "format": "float",
+            "example": 100.00
+          },
+          "description": {
+            "type": "string",
+            "example": "Standard room with basic amenities"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoomCategory"
+            }
+          }
+        }
+      },
+      "RoomCategory": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "room_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "category_name": {
+            "type": "string",
+            "example": "Standard Single"
+          },
+          "pms_name": {
+            "type": "string",
+            "example": "STD1"
+          },
+          "num_rooms": {
+            "type": "integer",
+            "example": 10
+          },
+          "size": {
+            "type": "integer",
+            "example": 20
+          },
+          "bed_type": {
+            "type": "string",
+            "example": "Single"
+          },
+          "surcharges_upsell": {
+            "type": "string",
+            "example": "Premium bedding: $20"
+          },
+          "room_features": {
+            "type": "string",
+            "example": "City view"
+          },
+          "second_person_surcharge": {
+            "type": "number",
+            "format": "float",
+            "example": 25.00
+          },
+          "extra_bed_surcharge": {
+            "type": "number",
+            "format": "float",
+            "example": 30.00
+          },
+          "baby_bed_available": {
+            "type": "boolean",
+            "example": true
+          },
+          "extra_bed_available": {
+            "type": "boolean",
+            "example": false
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RoomTypeInput": {
+        "type": "object",
+        "required": ["hotel_id", "name", "max_occupancy", "base_price"],
+        "properties": {
+          "hotel_id": {
+            "type": "integer",
+            "description": "ID of the hotel this room type belongs to."
+          },
+          "name": {
+            "type": "string",
+            "example": "Deluxe"
+          },
+          "max_occupancy": {
+            "type": "integer",
+            "example": 3
+          },
+          "base_price": {
+            "type": "number",
+            "format": "float",
+            "example": 150.00
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "example": "Deluxe room with premium amenities"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoomCategoryInput"
+            },
+            "nullable": true,
+            "description": "Optional list of categories to create with this room type."
+          }
+        }
+      },
+      "RoomCategoryInput": {
+        "type": "object",
+        "required": ["category_name"],
+        "properties": {
+          "category_name": {
+            "type": "string",
+            "example": "Standard Double"
+          },
+          "pms_name": {
+            "type": "string",
+            "nullable": true,
+            "example": "STDDBL"
+          },
+          "num_rooms": {
+            "type": "integer",
+            "default": 0
+          },
+          "size": {
+            "type": "integer",
+            "default": 0,
+            "description": "Size in square meters or feet"
+          },
+          "bed_type": {
+            "type": "string",
+            "nullable": true,
+            "example": "Double"
+          },
+          "surcharges_upsell": {
+            "type": "string",
+            "nullable": true
+          },
+          "room_features": {
+            "type": "string",
+            "nullable": true,
+            "description": "Text description of room features"
+          },
+          "second_person_surcharge": {
+            "type": "number",
+            "format": "float",
+            "default": 0
+          },
+          "extra_bed_surcharge": {
+            "type": "number",
+            "format": "float",
+            "default": 0
+          },
+          "baby_bed_available": {
+            "type": "boolean",
+            "default": false
+          },
+          "extra_bed_available": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "RoomTypeUpdateInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Deluxe Plus"
+          },
+          "max_occupancy": {
+            "type": "integer",
+            "example": 4
+          },
+          "base_price": {
+            "type": "number",
+            "format": "float",
+            "example": 175.00
+          },
+          "description": {
+            "type": "string",
+            "example": "Updated description for deluxe room"
+          }
+        }
+      },
+      "EventMain": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "hotel_id": { "type": "integer", "example": 1 },
+          "hotel_name": { "type": "string", "example": "Grand Hotel", "description": "Name of the hotel (joined from hotels table)" },
+          "contact_name": { "type": "string", "example": "Jane Doe" },
+          "contact_phone": { "type": "string", "example": "+1 555-123-4567" },
+          "contact_email": { "type": "string", "format": "email", "example": "jane.doe@example.com" },
+          "contact_position": { "type": "string", "example": "Event Coordinator" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventCategory"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "EventMainInput": {
+        "type": "object",
+        "required": ["hotel_id"],
+        "properties": {
+          "hotel_id": { "type": "integer", "example": 1 },
+          "contact_name": { "type": "string", "example": "Jane Doe", "nullable": true },
+          "contact_phone": { "type": "string", "example": "+1 555-123-4567", "nullable": true },
+          "contact_email": { "type": "string", "format": "email", "example": "jane.doe@example.com", "nullable": true },
+          "contact_position": { "type": "string", "example": "Event Coordinator", "nullable": true },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventCategoryInput"
+            },
+            "nullable": true,
+            "description": "Optional list of categories for this event."
+          }
+        }
+      },
+      "EventCategoryInput": {
+        "type": "object",
+        "required": ["category_name"],
+        "properties": {
+          "category_name": {
+            "type": "string",
+            "example": "Conference Session"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "example": "Main hall presentation"
+          }
+        }
+      },
+      "EventCategory": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "event_id": { "type": "integer" },
+          "category_name": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "EventAvEquipment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "event_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "equipment_name": {
+            "type": "string",
+            "example": "Projector"
+          },
+          "quantity": {
+            "type": "integer",
+            "example": 2,
+            "default": 0
+          },
+          "price_per_unit": {
+            "type": "number",
+            "format": "float",
+            "example": 50.00,
+            "default": 0
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "EventAvEquipmentInput": {
+        "type": "object",
+        "required": ["equipment_name"],
+        "properties": {
+          "equipment_name": {
+            "type": "string",
+            "example": "Microphone"
+          },
+          "quantity": {
+            "type": "integer",
+            "example": 5,
+            "default": 0
+          },
+          "price_per_unit": {
+            "type": "number",
+            "format": "float",
+            "example": 10.00,
+            "default": 0
+          }
+        }
+      },
+      "EventAvEquipmentUpdateInput": {
+        "type": "object",
+        "properties": {
+          "equipment_name": {
+            "type": "string",
+            "example": "Speakers"
+          },
+          "quantity": {
+            "type": "integer",
+            "example": 4
+          },
+          "price_per_unit": {
+            "type": "number",
+            "format": "float",
+            "example": 25.00
+          }
+        }
+      },
+      "EventContracting": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "event_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "contracted_companies": {
+            "type": "string",
+            "nullable": true,
+            "example": "AV Company X, Catering Y"
+          },
+          "refused_requests": {
+            "type": "string",
+            "nullable": true,
+            "example": "Request for specific DJ denied"
+          },
+          "unwanted_marketing_tools": {
+            "type": "string",
+            "nullable": true,
+            "example": "No cold calls"
+          },
+          "first_second_option": {
+            "type": "boolean",
+            "default": false
+          },
+          "split_options": {
+            "type": "boolean",
+            "default": false
+          },
+          "option_hold_duration": {
+            "type": "string",
+            "nullable": true,
+            "example": "7 days"
+          },
+          "overbooking_policy": {
+            "type": "boolean",
+            "default": false
+          },
+          "deposit_required": {
+            "type": "boolean",
+            "default": false
+          },
+          "accepted_payment_methods": {
+            "type": "string",
+            "nullable": true,
+            "example": "Credit Card, Bank Transfer"
+          },
+          "commission_rules": {
+            "type": "string",
+            "nullable": true,
+            "example": "10% on total booking value"
+          },
+          "second_signature_required": {
+            "type": "boolean",
+            "default": false
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "EventContractingInput": {
+        "type": "object",
+        "properties": {
+          "contracted_companies": {
+            "type": "string",
+            "nullable": true,
+            "example": "AV Company X, Catering Y"
+          },
+          "refused_requests": {
+            "type": "string",
+            "nullable": true,
+            "example": "Request for specific DJ denied"
+          },
+          "unwanted_marketing_tools": {
+            "type": "string",
+            "nullable": true,
+            "example": "No cold calls"
+          },
+          "first_second_option": {
+            "type": "boolean",
+            "default": false
+          },
+          "split_options": {
+            "type": "boolean",
+            "default": false
+          },
+          "option_hold_duration": {
+            "type": "string",
+            "nullable": true,
+            "example": "7 days"
+          },
+          "overbooking_policy": {
+            "type": "boolean",
+            "default": false
+          },
+          "deposit_required": {
+            "type": "boolean",
+            "default": false
+          },
+          "accepted_payment_methods": {
+            "type": "string",
+            "nullable": true,
+            "example": "Credit Card, Bank Transfer"
+          },
+          "commission_rules": {
+            "type": "string",
+            "nullable": true,
+            "example": "10% on total booking value"
+          },
+          "second_signature_required": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "EventTechnical": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "event_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "beamer_lumens": {
+            "type": "string",
+            "nullable": true,
+            "example": "5000 ANSI"
+          },
+          "copy_cost": {
+            "type": "number",
+            "format": "float",
+            "default": 0,
+            "example": 0.10
+          },
+          "software_presentation": {
+            "type": "string",
+            "nullable": true,
+            "example": "PowerPoint, Keynote"
+          },
+          "wifi_data_rate": {
+            "type": "string",
+            "nullable": true,
+            "example": "100 Mbps"
+          },
+          "has_ac_or_ventilation": {
+            "type": "boolean",
+            "default": false
+          },
+          "has_blackout_curtains": {
+            "type": "boolean",
+            "default": false
+          },
+          "is_soundproof": {
+            "type": "boolean",
+            "default": false
+          },
+          "has_daylight": {
+            "type": "boolean",
+            "default": false
+          },
+          "is_hybrid_meeting_possible": {
+            "type": "boolean",
+            "default": false
+          },
+          "technical_support_available": {
+            "type": "boolean",
+            "default": false
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "EventTechnicalInput": {
+        "type": "object",
+        "properties": {
+          "beamer_lumens": {
+            "type": "string",
+            "nullable": true,
+            "example": "5000 ANSI"
+          },
+          "copy_cost": {
+            "type": "number",
+            "format": "float",
+            "default": 0,
+            "example": 0.10
+          },
+          "software_presentation": {
+            "type": "string",
+            "nullable": true,
+            "example": "PowerPoint, Keynote"
+          },
+          "wifi_data_rate": {
+            "type": "string",
+            "nullable": true,
+            "example": "100 Mbps"
+          },
+          "has_ac_or_ventilation": {
+            "type": "boolean",
+            "default": false
+          },
+          "has_blackout_curtains": {
+            "type": "boolean",
+            "default": false
+          },
+          "is_soundproof": {
+            "type": "boolean",
+            "default": false
+          },
+          "has_daylight": {
+            "type": "boolean",
+            "default": false
+          },
+          "is_hybrid_meeting_possible": {
+            "type": "boolean",
+            "default": false
+          },
+          "technical_support_available": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "EventHandling": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "event_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "sold_with_rooms_only": {
+            "type": "boolean",
+            "default": false
+          },
+          "last_minute_lead_time": {
+            "type": "string",
+            "nullable": true,
+            "example": "24 hours"
+          },
+          "sent_over_time_material": {
+            "type": "boolean",
+            "default": false
+          },
+          "lunch_location": {
+            "type": "string",
+            "nullable": true,
+            "example": "Restaurant A"
+          },
+          "min_participants_package": {
+            "type": "integer",
+            "default": 0,
+            "example": 10
+          },
+          "coffee_break_location": {
+            "type": "string",
+            "nullable": true,
+            "example": "Lobby Area"
+          },
+          "advance_days_for_material": {
+            "type": "integer",
+            "default": 0,
+            "example": 3
+          },
+          "room_drop_cost": {
+            "type": "number",
+            "format": "float",
+            "default": 0,
+            "example": 5.00
+          },
+          "hotel_exclusive_clients": {
+            "type": "boolean",
+            "default": false
+          },
+          "minimum_spent": {
+            "type": "boolean",
+            "default": false
+          },
+          "storage_room": {
+            "type": "boolean",
+            "default": false
+          },
+          "deposit_needed_event": {
+            "type": "boolean",
+            "default": false
+          },
+          "deposit_rules_event": {
+            "type": "string",
+            "nullable": true,
+            "example": "50% upfront"
+          },
+          "deposit_invoice_creator": {
+            "type": "string",
+            "nullable": true,
+            "example": "Finance Department"
+          },
+          "informational_invoice_created": {
+            "type": "boolean",
+            "default": false
+          },
+          "payment_methods_events": {
+            "type": "object",
+            "nullable": true,
+            "description": "JSON object for payment methods",
+            "example": {
+              "credit_card": true,
+              "bank_transfer": true
+            }
+          },
+          "final_invoice_handling_event": {
+            "type": "string",
+            "nullable": true,
+            "example": "Sent via email to contact person"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "EventHandlingInput": {
+        "type": "object",
+        "properties": {
+          "sold_with_rooms_only": {
+            "type": "boolean",
+            "default": false
+          },
+          "last_minute_lead_time": {
+            "type": "string",
+            "nullable": true,
+            "example": "24 hours"
+          },
+          "sent_over_time_material": {
+            "type": "boolean",
+            "default": false
+          },
+          "lunch_location": {
+            "type": "string",
+            "nullable": true,
+            "example": "Restaurant A"
+          },
+          "min_participants_package": {
+            "type": "integer",
+            "default": 0,
+            "example": 10
+          },
+          "coffee_break_location": {
+            "type": "string",
+            "nullable": true,
+            "example": "Lobby Area"
+          },
+          "advance_days_for_material": {
+            "type": "integer",
+            "default": 0,
+            "example": 3
+          },
+          "room_drop_cost": {
+            "type": "number",
+            "format": "float",
+            "default": 0,
+            "example": 5.00
+          },
+          "hotel_exclusive_clients": {
+            "type": "boolean",
+            "default": false
+          },
+          "minimum_spent": {
+            "type": "boolean",
+            "default": false
+          },
+          "storage_room": {
+            "type": "boolean",
+            "default": false
+          },
+          "deposit_needed_event": {
+            "type": "boolean",
+            "default": false
+          },
+          "deposit_rules_event": {
+            "type": "string",
+            "nullable": true,
+            "example": "50% upfront"
+          },
+          "deposit_invoice_creator": {
+            "type": "string",
+            "nullable": true,
+            "example": "Finance Department"
+          },
+          "informational_invoice_created": {
+            "type": "boolean",
+            "default": false
+          },
+          "payment_methods_events": {
+            "type": "object",
+            "nullable": true,
+            "description": "JSON object for payment methods, e.g. {\"credit_card\": true}",
+            "example": {
+              "credit_card": true,
+              "bank_transfer": true
+            }
+          },
+          "final_invoice_handling_event": {
+            "type": "string",
+            "nullable": true,
+            "example": "Sent via email to contact person"
+          }
+        }
+      },
+      "RoomTypeHandlingInput": {
+        "type": "object",
+        "properties": {
+          "example_handling_policy": {
+            "type": "string",
+            "nullable": true,
+            "example": "Daily cleaning between 10 AM and 2 PM."
+          },
+          "min_stay_nights": {
+            "type": "integer",
+            "default": 1,
+            "example": 2
+          },
+          "turnaround_time_minutes": {
+            "type": "integer",
+            "nullable": true,
+            "example": 60,
+            "description": "Time in minutes to prepare room for next guest."
+          }
+        }
+      },
+      "RoomTypeHandling": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "room_type_id": { "type": "integer" },
+          "example_handling_policy": { "type": "string", "nullable": true },
+          "min_stay_nights": { "type": "integer", "default": 1 },
+          "turnaround_time_minutes": { "type": "integer", "nullable": true },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "FoodBeverageOutletInput": {
+        "type": "object",
+        "required": ["outlet_type", "name"],
+        "properties": {
+          "outlet_type": {
+            "type": "string",
+            "enum": ["RESTAURANT", "BAR", "CAFE", "ROOM_SERVICE", "OTHER"],
+            "example": "RESTAURANT"
+          },
+          "name": {
+            "type": "string",
+            "example": "The Grand Dining Room"
+          },
+          "description": { "type": "string", "nullable": true },
+          "cuisine_type": { "type": "string", "nullable": true, "example": "Italian" },
+          "opening_hours": { "type": "string", "nullable": true, "example": "Mon-Fri 12 PM - 10 PM; Sat-Sun 10 AM - 11 PM" },
+          "menu_url": { "type": "string", "format": "url", "nullable": true },
+          "has_vegetarian_options": { "type": "boolean", "default": false }
+        }
+      },
+      "FoodBeverageOutlet": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "hotel_id": { "type": "integer" },
+          "outlet_type": { "type": "string", "enum": ["RESTAURANT", "BAR", "CAFE", "ROOM_SERVICE", "OTHER"] },
+          "name": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "cuisine_type": { "type": "string", "nullable": true },
+          "opening_hours": { "type": "string", "nullable": true },
+          "menu_url": { "type": "string", "format": "url", "nullable": true },
+          "has_vegetarian_options": { "type": "boolean", "default": false },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "HotelContact": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "hotel_id": { "type": "integer" },
+          "phone": { "type": "string", "maxLength": 30, "nullable": true, "description": "Specific or secondary contact phone" },
+          "email": { "type": "string", "format": "email", "maxLength": 100, "nullable": true },
+          "website": { "type": "string", "format": "url", "maxLength": 255, "nullable": true },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "HotelBilling": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "hotel_id": { "type": "integer" },
+          "billing_address_name": { "type": "string", "maxLength": 100, "nullable": true },
+          "billing_address_street": { "type": "string", "maxLength": 255, "nullable": true },
+          "billing_address_zip": { "type": "string", "maxLength": 8, "nullable": true },
+          "billing_address_city": { "type": "string", "maxLength": 50, "nullable": true },
+          "billing_address_vat": { "type": "string", "maxLength": 30 },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "HotelParking": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "hotel_id": { "type": "integer" },
+          "no_of_parking_spaces": { "type": "integer", "nullable": true },
+          "no_of_parking_spaces_garage": { "type": "integer", "nullable": true },
+          "no_of_parking_spaces_electric": { "type": "integer", "nullable": true },
+          "no_of_parking_spaces_bus": { "type": "integer", "nullable": true },
+          "no_of_parking_spaces_outside": { "type": "integer", "nullable": true },
+          "no_of_parking_spaces_disabled": { "type": "integer", "nullable": true },
+          "parking_cost_per_hour": { "type": "number", "format": "float", "nullable": true },
+          "parking_cost_per_day": { "type": "number", "format": "float", "nullable": true },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "HotelDistance": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "hotel_id": { "type": "integer" },
+          "distance_to_airport_km": { "type": "integer", "nullable": true },
+          "distance_to_highway_km": { "type": "integer", "nullable": true },
+          "distance_to_fair_km": { "type": "integer", "nullable": true },
+          "distance_to_train_station": { "type": "integer", "nullable": true },
+          "distance_to_public_transport": { "type": "integer", "nullable": true },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "HotelAmenityLink": {
+        "type": "object",
+        "properties": {
+          "amenity_id": { "type": "integer" },
+          "name": { "type": "string", "description": "Name of the amenity (joined from amenity_types)" },
+          "details": { "type": "string", "maxLength": 255, "nullable": true },
+          "opening_hours": { "type": "string", "maxLength": 50, "nullable": true },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "HotelFullDetails": {
+        "type": "object",
+        "allOf": [ { "$ref": "#/components/schemas/Hotel" } ],
+        "properties": {
+          "contact_info": { "$ref": "#/components/schemas/HotelContact", "nullable": true },
+          "billing_info": { "$ref": "#/components/schemas/HotelBilling", "nullable": true },
+          "parking_info": { "$ref": "#/components/schemas/HotelParking", "nullable": true },
+          "distances_info": { "$ref": "#/components/schemas/HotelDistance", "nullable": true },
+          "amenities": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/HotelAmenityLink" },
+            "nullable": true
+          }
+        }
+      }
+    },
+    "responses": {
+      "Error": {
+        "description": "Error response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "Resource not found"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+} 
