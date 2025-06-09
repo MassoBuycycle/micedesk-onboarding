@@ -13,9 +13,14 @@ import roleRoutes from './routes/roleRoutes.js';
 import approvalRoutes from './routes/approvalRoutes.js';
 import secureDataRoutes from './routes/secureDataRoutes.js';
 import announcementRoutes from './routes/announcementRoutes.js';
+import informationPoliciesRoutes from './routes/informationPoliciesRoutes.js';
+// @ts-ignore
 import { errorHandler } from './middleware/errorHandler.js';
+// @ts-ignore
 import { notFound } from './middleware/notFound.js';
+// @ts-ignore
 import { requestLogger } from './middleware/requestLogger.js';
+// @ts-ignore
 import { authenticate } from './middleware/auth.js';
 
 // Load environment variables
@@ -55,6 +60,7 @@ app.use('/api/files', authenticate, fileRoutes);
 app.use('/api/user-hotels', authenticate, userHotelRoutes);
 app.use('/api/roles', authenticate, roleRoutes);
 app.use('/api/approval', authenticate, approvalRoutes);
+app.use('/api/information-policies', authenticate, informationPoliciesRoutes);
 app.use('/api', authenticate, secureDataRoutes);
 app.use('/api', authenticate, announcementRoutes);
 
@@ -88,8 +94,8 @@ app.use(notFound);
 // Error handler
 app.use(errorHandler);
 
-// Start server only if not in test environment
-if (process.env.NODE_ENV !== 'test') {
+// Start server only if not in test environment and not in Vercel
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });

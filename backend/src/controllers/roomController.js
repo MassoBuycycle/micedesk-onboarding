@@ -1,8 +1,9 @@
 import pool from '../db/config.js';
+import { extractDataForTable } from '../utils/dataMapping.js';
 
 // Field group constants based on the new schema
 // These define which incoming data fields map to which table
-const ROOMS_BASE_FIELDS = ['hotel_id', 'main_contact_name', 'reception_hours']; // REMOVED 'main_contact_position'
+const ROOMS_BASE_FIELDS = ['hotel_id', 'main_contact_name', 'main_contact_position', 'reception_hours'];
 const ROOM_CONTACTS_FIELDS = ['phone', 'email'];
 const ROOM_POLICIES_FIELDS = [
     'check_in', 'check_out', 'early_check_in_cost', 'late_check_out_cost',
@@ -30,19 +31,6 @@ const ROOM_OPERATIONAL_HANDLING_FIELDS = [
     'requires_deposit', 'deposit_rules', 'payment_methods_room_handling', 'final_invoice_handling',
     'deposit_invoice_responsible', 'info_invoice_created'
 ];
-
-// Helper to extract data for a specific set of fields
-const extractDataForTable = (sourceData, fields) => {
-    const extracted = {};
-    let hasData = false;
-    fields.forEach(field => {
-        if (sourceData[field] !== undefined) {
-            extracted[field] = sourceData[field];
-            hasData = true;
-        }
-    });
-    return hasData ? extracted : null;
-};
 
 // Helper function for upserting into related tables (1-to-1 with rooms table based on room_id)
 const upsertRelatedData = async (connection, tableName, tableFields, allData, roomId) => {
@@ -93,8 +81,50 @@ export const createOrUpdateMainRoomConfig = async (req, res, next) => {
         }
 
         let roomId;
+        /* =========================================================
+         *  Map / flatten UI payload keys to align with DB columns.
+         *  The front-end uses camelCase and nested objects, whereas
+         *  the DB columns are snake_case and mostly flat.
+         *  We translate only the keys we know are used so the rest
+         *  of the original logic can remain unchanged.
+         * ========================================================= */
+        const data = { ...allRoomData }; // we will mutate `data` then keep using it
+
+        // Contact block
+        if (data.contact) {
+            if (data.contact.name !== undefined) data.main_contact_name = data.contact.name;
+            if (data.contact.position !== undefined) data.main_contact_position = data.contact.position;
+            if (data.contact.phone !== undefined) data.phone = data.contact.phone;
+            if (data.contact.email !== undefined) data.email = data.contact.email;
+        }
+
+        // Check-in/out policies block (times / policies)
+        if (data.checkInTime !== undefined) data.check_in = data.checkInTime;
+        if (data.checkOutTime !== undefined) data.check_out = data.checkOutTime;
+        if (data.earlyCheckInPolicy !== undefined) data.early_check_in_time_frame = data.earlyCheckInPolicy;
+        if (data.lateCheckOutPolicy !== undefined) data.late_check_out_time = data.lateCheckOutPolicy;
+
+        // Payment methods array → JSON string (room_policies.payment_methods)
+        if (Array.isArray(data.paymentMethods)) {
+            data.payment_methods = JSON.stringify(data.paymentMethods);
+        }
+
+        // Pet policy block
+        if (data.petsAllowed !== undefined) data.is_dogs_allowed = data.petsAllowed;
+        if (data.petFee !== undefined) data.dog_fee = data.petFee;
+        if (data.petRestrictions !== undefined) data.dog_fee_inclusions = data.petRestrictions;
+
+        // Room counts (if supplied)
+        if (data.singleRooms !== undefined) data.amt_single_rooms = data.singleRooms;
+        if (data.doubleRooms !== undefined) data.amt_double_rooms = data.doubleRooms;
+        if (data.connectingRooms !== undefined) data.amt_connecting_rooms = data.connectingRooms;
+        if (data.accessibleRooms !== undefined) data.amt_handicapped_accessible_rooms = data.accessibleRooms;
+
+        // Replace the original reference so the rest of the function works with transformed keys
+        const allRoomDataMapped = data;
+
         // baseRoomData will only contain fields defined in ROOMS_BASE_FIELDS (hotel_id, main_contact_name, reception_hours)
-        const baseRoomDataForRoomsTable = extractDataForTable(allRoomData, ROOMS_BASE_FIELDS);
+        const baseRoomDataForRoomsTable = extractDataForTable(allRoomDataMapped, ROOMS_BASE_FIELDS);
         
         // Data to be actually inserted/updated into the `rooms` table.
         // Exclude hotel_id for UPDATE SET clause, include for INSERT.
@@ -126,10 +156,10 @@ export const createOrUpdateMainRoomConfig = async (req, res, next) => {
             roomId = result.insertId;
         }
 
-        const contactsData = await upsertRelatedData(connection, 'room_contacts', ROOM_CONTACTS_FIELDS, allRoomData, roomId);
-        const policiesData = await upsertRelatedData(connection, 'room_policies', ROOM_POLICIES_FIELDS, allRoomData, roomId);
-        const inventoryData = await upsertRelatedData(connection, 'room_inventory', ROOM_INVENTORY_FIELDS, allRoomData, roomId);
-        const petPoliciesData = await upsertRelatedData(connection, 'room_pet_policies', ROOM_PET_POLICIES_FIELDS, allRoomData, roomId);
+        const contactsData = await upsertRelatedData(connection, 'room_contacts', ROOM_CONTACTS_FIELDS, allRoomDataMapped, roomId);
+        const policiesData = await upsertRelatedData(connection, 'room_policies', ROOM_POLICIES_FIELDS, allRoomDataMapped, roomId);
+        const inventoryData = await upsertRelatedData(connection, 'room_inventory', ROOM_INVENTORY_FIELDS, allRoomDataMapped, roomId);
+        const petPoliciesData = await upsertRelatedData(connection, 'room_pet_policies', ROOM_PET_POLICIES_FIELDS, allRoomDataMapped, roomId);
 
         await connection.commit();
 

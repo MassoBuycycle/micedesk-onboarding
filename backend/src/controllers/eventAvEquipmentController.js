@@ -13,7 +13,7 @@ export const getAvEquipmentByEventId = async (req, res, next) => {
     
     // Check if event exists
     const [events] = await connection.query(
-      'SELECT id FROM event_main WHERE id = ?',
+      'SELECT id FROM events WHERE id = ?',
       [eventId]
     );
     
@@ -23,7 +23,7 @@ export const getAvEquipmentByEventId = async (req, res, next) => {
     
     // Get equipment for this event
     const [equipment] = await connection.query(
-      'SELECT * FROM event_av_equipment WHERE event_id = ?',
+      'SELECT * FROM event_equipment WHERE event_id = ?',
       [eventId]
     );
     
@@ -47,7 +47,7 @@ export const getAvEquipmentById = async (req, res, next) => {
     const equipmentId = parseInt(req.params.id);
     
     const [equipment] = await connection.query(
-      'SELECT * FROM event_av_equipment WHERE id = ?',
+      'SELECT * FROM event_equipment WHERE id = ?',
       [equipmentId]
     );
     

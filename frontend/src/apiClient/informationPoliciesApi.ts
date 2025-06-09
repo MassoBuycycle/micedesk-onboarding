@@ -1,0 +1,66 @@
+import { apiGet, apiPost, apiPut, apiDelete } from './apiClient';
+
+// Types for Information Policies
+export interface InformationPolicyItemDetail {
+  id?: number;
+  name: string;
+  description?: string;
+}
+
+export interface InformationPolicyItem {
+  id?: number;
+  title: string;
+  is_condition: boolean;
+  details: InformationPolicyItemDetail[];
+}
+
+export interface InformationPolicy {
+  id?: number;
+  hotel_id: string;
+  type: 'room_information' | 'service_information' | 'general_policies';
+  items: InformationPolicyItem[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface CreateInformationPolicyInput {
+  hotel_id: string;
+  type: 'room_information' | 'service_information' | 'general_policies';
+  items?: InformationPolicyItem[];
+}
+
+export interface UpdateInformationPolicyInput {
+  type?: 'room_information' | 'service_information' | 'general_policies';
+  items?: InformationPolicyItem[];
+}
+
+// API Functions
+export const getInformationPoliciesByHotel = async (hotelId: string): Promise<InformationPolicy[]> => {
+  return await apiGet(`/information-policies/hotel/${hotelId}`, 'Failed to fetch information policies');
+};
+
+export const getInformationPoliciesByType = async (
+  hotelId: string, 
+  type: string
+): Promise<InformationPolicy[]> => {
+  return await apiGet(`/information-policies/hotel/${hotelId}/type/${type}`, 'Failed to fetch information policies by type');
+};
+
+export const createInformationPolicy = async (
+  data: CreateInformationPolicyInput
+): Promise<{ success: boolean; data: { id: number; hotel_id: string; type: string }; message: string }> => {
+  return await apiPost('/information-policies', data, 'Failed to create information policy');
+};
+
+export const updateInformationPolicy = async (
+  id: number,
+  data: UpdateInformationPolicyInput
+): Promise<{ success: boolean; message: string }> => {
+  return await apiPut(`/information-policies/${id}`, data, 'Failed to update information policy');
+};
+
+export const deleteInformationPolicy = async (
+  id: number
+): Promise<{ success: boolean; message: string }> => {
+  return await apiDelete(`/information-policies/${id}`, 'Failed to delete information policy');
+}; 

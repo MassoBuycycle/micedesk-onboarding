@@ -9,7 +9,7 @@ const HOTEL_TABLE_FIELDS = [
 
 // Define fields for each table based on the new schema
 const HOTEL_FIELDS = [
-  'cisbox_id',
+  'hotel_id',
   'name', 'street', 'postal_code', 'city', 'country', 'description',
   'star_rating', 'category', 'opening_year', 'latest_renovation_year',
   'total_rooms', 'conference_rooms', 'pms_system',
@@ -134,6 +134,31 @@ export const createHotel = async (req, res, next) => {
 
     const [result] = await connection.query(`INSERT INTO hotels (${fields.join(', ')}) VALUES (${placeholders})`, values);
     const hotelId = result.insertId;
+
+    /*
+     * Optional: persist common lookup tables if the client passed them in the payload.
+     * These tables are global (no hotel_id reference) in the current schema, so we simply
+     * replace their contents with the provided arrays.
+     */
+
+    // 1) Standard room features
+    if (Array.isArray(data.standard_features)) {
+      // Refresh the table so that it reflects exactly what the client sent
+      await connection.query('DELETE FROM standard_features');
+      if (data.standard_features.length > 0) {
+        const insertValues = data.standard_features.map(f => [f]);
+        await connection.query('INSERT INTO standard_features (name) VALUES ?', [insertValues]);
+      }
+    }
+
+    // 2) Payment methods
+    if (Array.isArray(data.payment_methods)) {
+      await connection.query('DELETE FROM payment_methods');
+      if (data.payment_methods.length > 0) {
+        const insertValues = data.payment_methods.map(method => [method, true]);
+        await connection.query('INSERT INTO payment_methods (name, enabled) VALUES ?', [insertValues]);
+      }
+    }
 
     await connection.commit();
 

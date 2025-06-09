@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "outDir": "dist",
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "sourceMap": true,
+    "strict": true,
+    "noEmit": false,
+    "noImplicitAny": false,
+    "allowImportingTsExtensions": false,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "types": ["node"]
+  },
+  "include": ["src/server.ts", "src/db/config.ts"],
+  "exclude": ["src/main.tsx", "src/vite-env.d.ts", "**/*.test.ts", "node_modules"]
+} 

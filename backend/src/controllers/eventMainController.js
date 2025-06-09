@@ -1,4 +1,5 @@
 import pool from '../db/config.js';
+import { extractDataForTable } from '../utils/dataMapping.js';
 
 // Field group constants based on the new schema and your INSERT examples
 const EVENTS_MAIN_FIELDS = ['hotel_id', 'contact_name', 'contact_phone', 'contact_email', 'contact_position'];
@@ -66,19 +67,6 @@ const EVENT_SPACES_FIELDS = [ // For creating a single primary event space. Mult
 
 // event_equipment will be handled by its own controller/endpoint as it has composite PK and equipment_types dependency
 
-// Helper (ensure this is defined or imported if it's in a shared utility)
-const extractDataForTable = (sourceData, fields) => {
-    const extracted = {};
-    let hasData = false;
-    fields.forEach(field => {
-        if (sourceData[field] !== undefined) {
-            extracted[field] = sourceData[field];
-            hasData = true;
-        }
-    });
-    return hasData ? extracted : null;
-};
-
 /**
  * Get all events
  * @param {import('express').Request} req - Express request object
@@ -89,9 +77,9 @@ export const getAllEvents = async (req, res, next) => {
   const connection = await pool.getConnection();
   try {
     const [events] = await connection.query(`
-      SELECT em.*, h.name as hotel_name 
-      FROM event_main em
-      JOIN hotels h ON em.hotel_id = h.id
+      SELECT e.*, h.name as hotel_name 
+      FROM events e
+      JOIN hotels h ON e.hotel_id = h.id
     `);
     res.status(200).json(events);
   } catch (error) {
@@ -123,7 +111,7 @@ export const getEventsByHotelId = async (req, res, next) => {
     }
     
     const [events] = await connection.query(
-      'SELECT * FROM event_main WHERE hotel_id = ?',
+      'SELECT * FROM events WHERE hotel_id = ?',
       [hotelId]
     );
     
@@ -147,10 +135,10 @@ export const getEventById = async (req, res, next) => {
     const eventId = parseInt(req.params.id);
     
     const [events] = await connection.query(`
-      SELECT em.*, h.name as hotel_name 
-      FROM event_main em
-      JOIN hotels h ON em.hotel_id = h.id
-      WHERE em.id = ?
+      SELECT e.*, h.name as hotel_name 
+      FROM events e
+      JOIN hotels h ON e.hotel_id = h.id
+      WHERE e.id = ?
     `, [eventId]);
     
     if (events.length === 0) {
@@ -176,12 +164,36 @@ export const createEvent = async (req, res, next) => {
     try {
         await connection.beginTransaction();
 
+        /* =========================================================
+         *  Front-end → DB field mapping for common keys.
+         *  If the incoming payload uses camelCase, translate it to
+         *  the exact column names expected by the queries below.
+         * ========================================================= */
+        const data = { ...allEventData };
+
+        // Contact block
+        if (data.contactName !== undefined) data.contact_name = data.contactName;
+        if (data.contactPhone !== undefined) data.contact_phone = data.contactPhone;
+        if (data.contactEmail !== undefined) data.contact_email = data.contactEmail;
+        if (data.contactPosition !== undefined) data.contact_position = data.contactPosition;
+
+        // Replace reference used later in the function
+        const eventDataMapped = data;
+
         // 1. Insert into `events` (main table)
-        const eventsMainData = extractDataForTable(allEventData, EVENTS_MAIN_FIELDS);
+        const eventsMainData = extractDataForTable(eventDataMapped, EVENTS_MAIN_FIELDS);
         if (!eventsMainData || !eventsMainData.hotel_id) {
             await connection.rollback();
             return res.status(400).json({ error: 'hotel_id is required for creating an event.' });
         }
+
+        // NEW: Verify that the referenced hotel actually exists before inserting
+        const [hotelRows] = await connection.query('SELECT id FROM hotels WHERE id = ?', [eventsMainData.hotel_id]);
+        if (hotelRows.length === 0) {
+            await connection.rollback();
+            return res.status(400).json({ error: `Hotel with id ${eventsMainData.hotel_id} does not exist.` });
+        }
+
         const eventFields = Object.keys(eventsMainData);
         const eventPlaceholders = eventFields.map(() => '?').join(', ');
         const eventValues = eventFields.map(f => eventsMainData[f]);
@@ -192,7 +204,7 @@ export const createEvent = async (req, res, next) => {
         const eventId = eventResult.insertId;
 
         // 2. Insert into `event_booking`
-        const bookingData = extractDataForTable(allEventData, EVENT_BOOKING_FIELDS);
+        const bookingData = extractDataForTable(eventDataMapped, EVENT_BOOKING_FIELDS);
         if (bookingData) {
             const fields = Object.keys(bookingData);
             if (fields.length > 0) {
@@ -206,7 +218,7 @@ export const createEvent = async (req, res, next) => {
         }
 
         // 3. Insert into `event_financials`
-        const financialsData = extractDataForTable(allEventData, EVENT_FINANCIALS_FIELDS);
+        const financialsData = extractDataForTable(eventDataMapped, EVENT_FINANCIALS_FIELDS);
         if (financialsData) {
             if (financialsData.payment_methods && typeof financialsData.payment_methods !== 'string') {
                 financialsData.payment_methods = JSON.stringify(financialsData.payment_methods);
@@ -223,7 +235,7 @@ export const createEvent = async (req, res, next) => {
         }
 
         // 4. Insert into `event_operations`
-        const operationsData = extractDataForTable(allEventData, EVENT_OPERATIONS_FIELDS);
+        const operationsData = extractDataForTable(eventDataMapped, EVENT_OPERATIONS_FIELDS);
         if (operationsData) {
             // Handle JSON field
             if (operationsData.payment_methods_events && typeof operationsData.payment_methods_events !== 'string') {
@@ -242,7 +254,7 @@ export const createEvent = async (req, res, next) => {
         }
         
         // 5. Insert into `event_spaces` (handling for a single space if data present)
-        const spaceData = extractDataForTable(allEventData, EVENT_SPACES_FIELDS);
+        const spaceData = extractDataForTable(eventDataMapped, EVENT_SPACES_FIELDS);
         let createdSpace = null;
         if (spaceData && spaceData.name) { // 'name' is NOT NULL for event_spaces
             const fields = Object.keys(spaceData);
@@ -274,7 +286,7 @@ export const createEvent = async (req, res, next) => {
         await connection.rollback();
         console.error('Error in createEvent:', error);
         if (error.code === 'ER_NO_REFERENCED_ROW_2') {
-            return res.status(400).json({ error: `Invalid hotel_id: ${allEventData.hotel_id}` });
+            return res.status(400).json({ error: `Invalid hotel_id: ${eventDataMapped.hotel_id}` });
         }
         next(error);
     } finally {
@@ -358,7 +370,7 @@ export const deleteEvent = async (req, res, next) => {
     
     // Check if event exists
     const [existingEvents] = await connection.query(
-      'SELECT id FROM event_main WHERE id = ?',
+      'SELECT id FROM events WHERE id = ?',
       [eventId]
     );
     
@@ -368,7 +380,7 @@ export const deleteEvent = async (req, res, next) => {
     
     // Delete the event (cascade will delete related records)
     await connection.query(
-      'DELETE FROM event_main WHERE id = ?',
+      'DELETE FROM events WHERE id = ?',
       [eventId]
     );
     

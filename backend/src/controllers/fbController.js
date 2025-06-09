@@ -1,19 +1,7 @@
 import pool from '../db/config.js';
+import { extractDataForTable } from '../utils/dataMapping.js';
 
 const FB_CONTACTS_FIELDS = ['contact_name', 'contact_position', 'contact_phone', 'contact_email'];
-
-// Helper to extract data for a specific set of fields
-const extractDataForTable = (sourceData, fields) => {
-    const extracted = {};
-    let hasData = false;
-    fields.forEach(field => {
-        if (sourceData[field] !== undefined) {
-            extracted[field] = sourceData[field];
-            hasData = true;
-        }
-    });
-    return hasData ? extracted : null;
-};
 
 /**
  * Create or Update F&B Contact information for a hotel

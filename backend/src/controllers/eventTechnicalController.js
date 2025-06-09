@@ -13,7 +13,7 @@ export const getTechnicalByEventId = async (req, res, next) => {
     
     // Check if event exists
     const [events] = await connection.query(
-      'SELECT id FROM event_main WHERE id = ?',
+      'SELECT id FROM events WHERE id = ?',
       [eventId]
     );
     
@@ -58,7 +58,7 @@ export const createOrUpdateTechnical = async (req, res, next) => {
     
     // Check if event exists
     const [events] = await connection.query(
-      'SELECT id FROM event_main WHERE id = ?',
+      'SELECT id FROM events WHERE id = ?',
       [eventId]
     );
     
