@@ -14,13 +14,9 @@ import approvalRoutes from './routes/approvalRoutes.js';
 import secureDataRoutes from './routes/secureDataRoutes.js';
 import announcementRoutes from './routes/announcementRoutes.js';
 import informationPoliciesRoutes from './routes/informationPoliciesRoutes.js';
-// @ts-ignore
 import { errorHandler } from './middleware/errorHandler.js';
-// @ts-ignore
 import { notFound } from './middleware/notFound.js';
-// @ts-ignore
 import { requestLogger } from './middleware/requestLogger.js';
-// @ts-ignore
 import { authenticate } from './middleware/auth.js';
 
 // Load environment variables
@@ -94,8 +90,8 @@ app.use(notFound);
 // Error handler
 app.use(errorHandler);
 
-// Start server only if not in test environment and not in Vercel
-if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
+// Start server only if not in test environment
+if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });

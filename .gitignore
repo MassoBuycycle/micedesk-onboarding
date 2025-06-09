@@ -1,14 +1,5 @@
-# Dependencies
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Production builds
-/dist/
-/build/
-backend/dist/
-frontend/dist/
+# Vercel
+.vercel
 
 # Environment variables
 .env
@@ -16,15 +7,41 @@ frontend/dist/
 .env.development.local
 .env.test.local
 .env.production.local
+frontend/.env.production
+backend/.env.production
 
-# IDEs and editors
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Build outputs
+dist/
+build/
+*/dist/
+*/build/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
 
-# OS generated files
+# OS
 .DS_Store
 .DS_Store?
 ._*
@@ -33,20 +50,10 @@ frontend/dist/
 ehthumbs.db
 Thumbs.db
 
-# Logs
-logs
-*.log
-
 # Temporary files
-tmp/
-temp/
+*.tmp
+*.temp
 
-# Coverage directory used by tools like istanbul
-coverage/
-
-# Vercel
-.vercel
-
-# Local database files
-*.sqlite
+# Database
 *.db
+*.sqlite

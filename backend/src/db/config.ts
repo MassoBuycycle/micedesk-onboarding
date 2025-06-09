@@ -1,75 +1,16 @@
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore – no type definitions available for this package
-import tunnel from 'tunnel-ssh';
 
 dotenv.config();
 
-// -------------------------------------------------------------
-// 1. Optional SSH tunnel (for production on Vercel)
-// -------------------------------------------------------------
-async function ensureSshTunnel() {
-  const {
-    SSH_HOST,
-    SSH_PORT = '22',
-    SSH_USERNAME,
-    SSH_KEY,
-    SSH_KEY_B64,
-    SSH_TUNNEL_LOCAL_PORT = '3307',
-    DB_PORT = '3306',
-  } = process.env;
-
-  if (!SSH_HOST) return; // nothing to do for local dev or direct DB access
-
-  const privateKey = SSH_KEY
-    ? SSH_KEY
-    : SSH_KEY_B64
-    ? Buffer.from(SSH_KEY_B64, 'base64').toString('utf8')
-    : undefined;
-
-  if (!privateKey) {
-    throw new Error('SSH tunnel requested but no SSH_KEY / SSH_KEY_B64 provided');
-  }
-
-  const tunnelConfig: any = {
-    host: SSH_HOST,
-    port: Number(SSH_PORT),
-    username: SSH_USERNAME,
-    privateKey,
-    dstHost: '127.0.0.1', // MySQL runs locally on remote host
-    dstPort: Number(DB_PORT),
-    localHost: '127.0.0.1',
-    localPort: Number(SSH_TUNNEL_LOCAL_PORT),
-    keepAlive: true,
-  } as any;
-
-  await new Promise<void>((resolve, reject) => {
-    tunnel(tunnelConfig, (err: any) => {
-      if (err) reject(err);
-      else resolve();
-    });
-  });
-
-  // Rewrite connection vars for mysql2
-  process.env.DB_HOST = '127.0.0.1';
-  process.env.DB_PORT = SSH_TUNNEL_LOCAL_PORT;
-}
-
-await ensureSshTunnel();
-
-// -------------------------------------------------------------
-// 2. Create MySQL pool *after* tunnel is ready
-// -------------------------------------------------------------
 const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
-  port: Number(process.env.DB_PORT || 3306),
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'hotel_cms',
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0,
+  queueLimit: 0
 });
 
 // ------------------------------------------------------------------
