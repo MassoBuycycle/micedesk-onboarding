@@ -72,7 +72,7 @@ const PolicyFormDialog = ({
   }, [open, policy, form]);
 
   const onSubmit = async (data: PolicyFormValues) => {
-    if (!hotel?.hotel_id) {
+    if (!hotel?.system_hotel_id) {
       toast.error(t("policies.hotelIdRequired"));
       return;
     }
@@ -88,7 +88,7 @@ const PolicyFormDialog = ({
       } else {
         // Create new policy
         await createInformationPolicy({
-          hotel_id: hotel.hotel_id,
+          system_hotel_id: hotel.system_hotel_id,
           type: data.type,
           items: []
         });
