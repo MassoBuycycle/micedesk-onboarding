@@ -113,33 +113,97 @@ export function useHotelFormState() {
   };
 
   const setHotelDataFromApi = async (apiData: any) => {
+    console.log("=== SETTING HOTEL DATA FROM API ===");
+    console.log("Raw API data received:", apiData);
+    
+    // Transform hotel data from snake_case to camelCase for form compatibility
+    const transformHotelData = (hotelData: any) => {
+      if (!hotelData) return {};
+      
+      return {
+        id: hotelData.id,
+        systemHotelId: hotelData.system_hotel_id || hotelData.hotel_id,
+        name: hotelData.name,
+        street: hotelData.street,
+        postalCode: hotelData.postal_code,
+        city: hotelData.city,
+        country: hotelData.country,
+        phone: hotelData.phone,
+        fax: hotelData.fax,
+        email: hotelData.email,
+        website: hotelData.website,
+        description: hotelData.description,
+        billingAddressName: hotelData.billing_address_name,
+        billingAddressStreet: hotelData.billing_address_street,
+        billingAddressZip: hotelData.billing_address_zip,
+        billingAddressCity: hotelData.billing_address_city,
+        billingAddressVat: hotelData.billing_address_vat,
+        externalBillingId: hotelData.external_billing_id,
+        starRating: hotelData.star_rating,
+        category: hotelData.category,
+        openingDate: hotelData.opening_year || hotelData.opening_date,
+        latestRenovationDate: hotelData.latest_renovation_year || hotelData.latest_renovation_date,
+        totalRooms: hotelData.total_rooms,
+        conferenceRooms: hotelData.conference_rooms,
+        pmsSystem: hotelData.pms_system,
+        distanceToAirportKm: hotelData.distance_to_airport_km,
+        distanceToHighwayKm: hotelData.distance_to_highway_km,
+        distanceToFairKm: hotelData.distance_to_fair_km,
+        distanceToTrainStation: hotelData.distance_to_train_station,
+        distanceToPublicTransport: hotelData.distance_to_public_transport,
+        noOfParkingSpaces: hotelData.no_of_parking_spaces,
+        noOfParkingSpacesGarage: hotelData.no_of_parking_spaces_garage,
+        noOfParkingSpacesElectric: hotelData.no_of_parking_spaces_electric,
+        noOfParkingSpacesBus: hotelData.no_of_parking_spaces_bus,
+        noOfParkingSpacesOutside: hotelData.no_of_parking_spaces_outside,
+        noOfParkingSpacesDisabled: hotelData.no_of_parking_spaces_disabled,
+        parkingCostPerHour: hotelData.parking_cost_per_hour,
+        parkingCostPerDay: hotelData.parking_cost_per_day,
+        openingTimePool: hotelData.opening_time_pool,
+        openingTimeFitnessCenter: hotelData.opening_time_fitness_center,
+        equipmentFitnessCenter: hotelData.equipment_fitness_center,
+        openingTimeSpaArea: hotelData.opening_time_spa_area,
+        equipmentSpaArea: hotelData.equipment_spa_area,
+        attractionInTheArea: hotelData.attraction_in_the_area,
+        plannedChanges: hotelData.planned_changes,
+      };
+    };
+    
+    const transformedHotel = transformHotelData(apiData.hotel);
+    console.log("Transformed hotel data:", transformedHotel);
+    
     const newFormData: HotelFormData = {
-      hotel: apiData.hotel || {},
-      roomInfo: apiData.roomInfo || {},
+      hotel: transformedHotel,
+      roomInfo: apiData.rooms || apiData.roomInfo || {},  // API uses 'rooms' not 'roomInfo'
       roomCategories: apiData.roomCategories || [],
-      roomHandling: apiData.roomHandling || {},
+      roomHandling: apiData.roomOperational || apiData.roomHandling || {},  // API uses 'roomOperational'
       eventsInfo: apiData.eventsInfo || {},
       eventSpaces: apiData.eventSpaces || [],
-      foodBeverage: apiData.foodBeverage || {},
+      foodBeverage: apiData.fnb || apiData.foodBeverage || {},  // API uses 'fnb' not 'foodBeverage'
       informationPolicies: apiData.informationPolicies || [],
     };
-      setFormData(newFormData);
-      setTempFormData(newFormData);
+    
+    console.log("Final mapped form data:", newFormData);
+    
+    setFormData(newFormData);
+    setTempFormData(newFormData);
       
     const newCompletedSteps: CompletedSteps = {
       hotel: !!apiData.hotel,
-      roomInfo: !!apiData.roomInfo,
+      roomInfo: !!(apiData.rooms || apiData.roomInfo),
       roomCategories: !!(
         apiData.roomCategories && apiData.roomCategories.length > 0
       ),
-      roomHandling: !!apiData.roomHandling,
+      roomHandling: !!(apiData.roomOperational || apiData.roomHandling),
       eventsInfo: !!apiData.eventsInfo,
       eventSpaces: !!(apiData.eventSpaces && apiData.eventSpaces.length > 0),
-      foodBeverage: !!apiData.foodBeverage,
+      foodBeverage: !!(apiData.fnb || apiData.foodBeverage),
       informationPolicies: !!(
         apiData.informationPolicies && apiData.informationPolicies.length > 0
       ),
     };
+    
+    console.log("Completed steps:", newCompletedSteps);
     setCompletedSteps(newCompletedSteps);
   };
 
