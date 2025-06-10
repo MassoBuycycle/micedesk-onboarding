@@ -190,12 +190,20 @@ export function useHotelFormState() {
       
     const newCompletedSteps: CompletedSteps = {
       hotel: !!apiData.hotel,
-      roomInfo: !!(apiData.rooms || apiData.roomInfo),
+      // For edit mode, be more lenient about what constitutes "completed"
+      roomInfo: !!(apiData.rooms || apiData.roomInfo || 
+        (apiData.hotel && (apiData.hotel.total_rooms || apiData.hotel.conference_rooms))),
       roomCategories: !!(
-        apiData.roomCategories && apiData.roomCategories.length > 0
+        (apiData.roomCategories && apiData.roomCategories.length > 0) ||
+        // Consider it completed if we have basic room data
+        (apiData.hotel && apiData.hotel.total_rooms)
       ),
-      roomHandling: !!(apiData.roomOperational || apiData.roomHandling),
-      eventsInfo: !!apiData.eventsInfo,
+      roomHandling: !!(apiData.roomOperational || apiData.roomHandling ||
+        // Consider completed if we have any room-related operational data
+        (apiData.hotel && (apiData.hotel.check_in_time || apiData.hotel.check_out_time))),
+      eventsInfo: !!(apiData.eventsInfo || 
+        // Consider completed if we have conference rooms
+        (apiData.hotel && apiData.hotel.conference_rooms)),
       eventSpaces: !!(apiData.eventSpaces && apiData.eventSpaces.length > 0),
       foodBeverage: !!(apiData.fnb || apiData.foodBeverage),
       informationPolicies: !!(
