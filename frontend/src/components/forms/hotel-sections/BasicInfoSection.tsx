@@ -21,7 +21,7 @@ const BasicInfoSection = ({ form }: BasicInfoSectionProps) => {
       <TwoColumnGrid>
         <TextField
           form={form}
-          name="hotelId"
+          name="systemHotelId"
           label={`${t("hotel.hotelId")}*`}
           placeholder={t("hotel.hotelIdPlaceholder")}
           className="text-sm"

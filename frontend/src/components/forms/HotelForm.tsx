@@ -159,6 +159,18 @@ const HotelForm = ({ initialData = {}, onNext, onChange, mode = 'add' }: HotelFo
     }
   });
 
+  // Watch form errors for debugging
+  useEffect(() => {
+    const errors = form.formState.errors;
+    if (Object.keys(errors).length > 0) {
+      console.log("=== FORM VALIDATION ERRORS ===");
+      console.log("Form errors:", errors);
+      Object.entries(errors).forEach(([field, error]) => {
+        console.log(`Field "${field}":`, error?.message);
+      });
+    }
+  }, [form.formState.errors]);
+
   // Watch form values for onChange callback
   useEffect(() => {
     if (onChange) {
@@ -180,8 +192,14 @@ const HotelForm = ({ initialData = {}, onNext, onChange, mode = 'add' }: HotelFo
   };
 
   const onSubmit = async (data: HotelFormValues) => {
+    console.log("=== HOTEL FORM SUBMIT STARTED ===");
+    console.log("Form data received:", data);
+    console.log("isSubmitting:", isSubmitting);
+    
     setIsSubmitting(true);
     try {
+      console.log("Processing form submission...");
+      
       // Transform the form data to match the database schema (this mapping might still be useful for preparing data for useHotelFormState)
       const hotelDataFromForm = {
         name: data.name,
@@ -227,6 +245,8 @@ const HotelForm = ({ initialData = {}, onNext, onChange, mode = 'add' }: HotelFo
         external_billing_id: data.externalBillingId || '',
       };
 
+      console.log("Transformed hotel data:", hotelDataFromForm);
+
       // TODO: Review if hotelDataFromForm transformation is still fully needed here.
       // The data is passed to useHotelFormState via onNext(data), 
       // and useHotelFormState now handles the API call with HotelInput.
@@ -235,6 +255,7 @@ const HotelForm = ({ initialData = {}, onNext, onChange, mode = 'add' }: HotelFo
 
       // const result = await createOrUpdateHotel(hotelDataFromForm); // OLD API CALL - REMOVED
       
+      console.log("About to show success toast...");
       toast.success(mode === 'edit' ? t("messages.success.hotelInfoUpdated") : t("messages.success.hotelInfoCompleted"));
       
       // Set isSubmitted to true and fetch or set hotel ID if available
@@ -243,14 +264,21 @@ const HotelForm = ({ initialData = {}, onNext, onChange, mode = 'add' }: HotelFo
       const newHotelId = data.id || 1;
       setHotelId(newHotelId); 
       
+      console.log("About to call onNext with data:", data);
+      console.log("onNext function:", onNext);
+      
       // onNext passes the raw form data (HotelFormValues) to useHotelFormState
       // useHotelFormState then uses its formData.hotel (which this data becomes)
       // to construct the HotelInput for the actual API call on the final step.
       onNext(data); 
+      
+      console.log("=== HOTEL FORM SUBMIT COMPLETED ===");
     } catch (error) {
+      console.error('=== ERROR IN HOTEL FORM SUBMIT ===');
       console.error('Error in HotelForm onSubmit:', error);
       toast.error(t("messages.error.failedToProcessHotelInfo"));
     } finally {
+      console.log("Setting isSubmitting to false");
       setIsSubmitting(false);
     }
   };
@@ -276,6 +304,15 @@ const HotelForm = ({ initialData = {}, onNext, onChange, mode = 'add' }: HotelFo
     toast.success(t("messages.success.fileUploaded"));
   };
 
+  const handleSubmitClick = () => {
+    console.log("=== SUBMIT BUTTON CLICKED ===");
+    console.log("Current form values:", form.getValues());
+    console.log("Form state:", form.formState);
+    console.log("Is form valid?", form.formState.isValid);
+    console.log("Form errors:", form.formState.errors);
+    console.log("isSubmitting:", isSubmitting);
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -288,7 +325,12 @@ const HotelForm = ({ initialData = {}, onNext, onChange, mode = 'add' }: HotelFo
           <AdditionalInfoSection form={form} />
 
           <div className="flex justify-end">
-            <Button type="submit" className="gap-1" disabled={isSubmitting}>
+            <Button 
+              type="submit" 
+              className="gap-1" 
+              disabled={isSubmitting}
+              onClick={handleSubmitClick}
+            >
               {isSubmitting ? t("common.saving") : mode === 'edit' ? t("common.update") : t("common.next")} <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
