@@ -1,4 +1,14 @@
 import pool from '../db/config.js';
+import { extractDataForTable } from '../utils/dataMapping.js';
+
+// Define allowed fields for event_handling table
+const EVENT_HANDLING_FIELDS = [
+  'event_id', 'sold_with_rooms_only', 'last_minute_lead_time', 'sent_over_time_material',
+  'lunch_location', 'min_participants_package', 'coffee_break_location', 'advance_days_for_material',
+  'room_drop_cost', 'hotel_exclusive_clients', 'minimum_spent', 'storage_room',
+  'deposit_needed_event', 'deposit_rules_event', 'deposit_invoice_creator',
+  'informational_invoice_created', 'payment_methods_events', 'final_invoice_handling_event'
+];
 
 /**
  * Get handling info for an event
@@ -80,9 +90,16 @@ export const createOrUpdateHandling = async (req, res, next) => {
       handlingData.payment_methods_events = JSON.stringify(handlingData.payment_methods_events);
     }
     
-    // Extract fields and values from handlingData
-    const fields = Object.keys(handlingData);
-    const values = Object.values(handlingData);
+    // Filter only allowed fields to prevent unknown column errors
+    const filteredData = extractDataForTable(handlingData, EVENT_HANDLING_FIELDS);
+    
+    if (!filteredData) {
+      return res.status(400).json({ error: 'No valid fields provided for event handling' });
+    }
+    
+    // Extract fields and values from filtered data
+    const fields = Object.keys(filteredData);
+    const values = Object.values(filteredData);
     
     let result;
     
