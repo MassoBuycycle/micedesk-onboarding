@@ -534,15 +534,15 @@ export function useHotelFormState() {
           break;
 
         case "eventsInfo":
-          if (!createdHotelId) {
-            console.error("No hotel ID found! createdHotelId is null or undefined");
+          if (!currentHotelId) {
+            console.error("No hotel ID found! currentHotelId is null or undefined");
             toast.error("Hotel ID not found. Cannot create event.");
             setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
             return;
           }
           
           console.log("==== EVENT INFO STEP ====");
-          console.log("createdHotelId:", createdHotelId);
+          console.log("currentHotelId:", currentHotelId);
           console.log("createdEventId:", createdEventId);
           console.log("newFormData.eventsInfo:", newFormData.eventsInfo);
           
@@ -554,7 +554,7 @@ export function useHotelFormState() {
               
               // Extract contact data from the nested structure
               const contactData = {
-                hotel_id: createdHotelId,
+                hotel_id: currentHotelId,
                 contact_name: evData.contact?.contact_name || '',
                 contact_phone: evData.contact?.contact_phone || '',
                 contact_email: evData.contact?.contact_email || '',
