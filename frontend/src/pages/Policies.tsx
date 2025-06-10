@@ -43,11 +43,13 @@ const Policies = () => {
   const loadHotels = async () => {
     try {
       const hotelsData = await getAllHotels();
-      // Filter hotels to only include those with system_hotel_id
-      const hotelsWithId = hotelsData.filter(hotel => hotel.system_hotel_id && hotel.system_hotel_id.trim() !== '');
+      // Ensure hotelsData is an array and filter hotels with system_hotel_id
+      const hotelsArray = Array.isArray(hotelsData) ? hotelsData : [];
+      const hotelsWithId = hotelsArray.filter(hotel => hotel.system_hotel_id && hotel.system_hotel_id.trim() !== '');
       setHotels(hotelsWithId);
     } catch (error) {
       console.error("Error loading hotels:", error);
+      setHotels([]); // Ensure we set an empty array on error
       toast.error(t("messages.error.failedToLoad"));
     }
   };
@@ -56,9 +58,11 @@ const Policies = () => {
     setLoading(true);
     try {
       const policiesData = await getInformationPoliciesByHotel(systemHotelId);
-      setPolicies(policiesData);
+      // Ensure policiesData is always an array
+      setPolicies(Array.isArray(policiesData) ? policiesData : []);
     } catch (error) {
       console.error("Error loading policies:", error);
+      setPolicies([]); // Ensure we set an empty array on error
       toast.error(t("policies.failedToUpdateItems"));
     } finally {
       setLoading(false);
@@ -189,7 +193,7 @@ const Policies = () => {
                   } />
                 </SelectTrigger>
                 <SelectContent>
-                  {hotels.map((hotel) => (
+                  {(hotels || []).map((hotel) => (
                     <SelectItem key={hotel.id} value={hotel.id?.toString() || ''}>
                       <div className="flex items-center gap-2">
                         <Building2 className="h-4 w-4 text-muted-foreground" />
@@ -235,7 +239,7 @@ const Policies = () => {
               <div className="flex items-center justify-center py-8">
                 <div className="text-muted-foreground">{t("common.loading")}</div>
               </div>
-            ) : policies.length === 0 ? (
+            ) : (policies || []).length === 0 ? (
               <div className="text-center py-8">
                 <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                 <h3 className="text-lg font-medium mb-2">{t("policies.noPoliciesFound")}</h3>
@@ -249,7 +253,7 @@ const Policies = () => {
               </div>
             ) : (
               <div className="grid gap-4">
-                {policies.map((policy) => (
+                {(policies || []).map((policy) => (
                   <Card key={policy.id} className="border-l-4 border-l-blue-500">
                     <CardContent className="pt-6">
                       <div className="flex items-start justify-between">
@@ -262,7 +266,7 @@ const Policies = () => {
                               {getPolicyTypeLabel(policy.type)}
                             </Badge>
                             <span className="text-sm text-muted-foreground">
-                              {policy.items?.length || 0} {t("common.items")}
+                              {(policy.items && Array.isArray(policy.items) ? policy.items.length : 0)} {t("common.items")}
                             </span>
                           </div>
                           <div className="text-sm text-muted-foreground">

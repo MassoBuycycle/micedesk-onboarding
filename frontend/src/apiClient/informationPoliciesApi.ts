@@ -36,8 +36,15 @@ export interface UpdateInformationPolicyInput {
 
 // API Functions
 export const getInformationPoliciesByHotel = async (systemHotelId: string): Promise<InformationPolicy[]> => {
-  const response = await apiGet(`/information-policies/hotel/${systemHotelId}`);
-  return response.data;
+  try {
+    const response = await apiGet(`/information-policies/hotel/${systemHotelId}`);
+    // Safely extract data array, fallback to empty array if undefined
+    return Array.isArray(response?.data) ? response.data : (Array.isArray(response) ? response : []);
+  } catch (error) {
+    console.error('Error fetching policies:', error);
+    // Return empty array on error to prevent undefined issues
+    return [];
+  }
 };
 
 export const getInformationPoliciesByType = async (
