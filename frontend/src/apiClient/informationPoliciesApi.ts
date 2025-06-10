@@ -24,7 +24,7 @@ export interface InformationPolicy {
 }
 
 export interface CreateInformationPolicyInput {
-  hotel_id: string;
+  system_hotel_id: string;
   type: 'room_information' | 'service_information' | 'general_policies';
   items?: InformationPolicyItem[];
 }

@@ -193,7 +193,7 @@ export function useHotelFormState() {
             return;
           }
           const hotelInput: HotelInput = {
-            hotel_id: formHotelData.hotelId,
+            system_hotel_id: formHotelData.systemHotelId,
             name: formHotelData.name,
             street: formHotelData.street,
             postal_code: formHotelData.postalCode,
@@ -634,8 +634,8 @@ export function useHotelFormState() {
 
         case "informationPolicies":
           const hotelData = newFormData.hotel as HotelFormValues;
-          if (!hotelData.hotelId) {
-            toast.error("Hotel ID not found. Please complete the Hotel step first.");
+          if (!hotelData.systemHotelId) {
+            toast.error("System Hotel ID not found. Please complete the Hotel step first.");
             setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
             return;
           }
@@ -648,7 +648,7 @@ export function useHotelFormState() {
               for (const policy of newFormData.informationPolicies) {
                 if (policy.type && policy.items && policy.items.length > 0) {
                   const policyData = {
-                    hotel_id: hotelData.hotelId,
+                    system_hotel_id: hotelData.systemHotelId,
                     type: policy.type,
                     items: policy.items
                   };
