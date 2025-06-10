@@ -19,11 +19,11 @@ export const upsertHotelAnnouncement = async (req, res, next) => {
     const [existing] = await connection.query('SELECT id FROM hotel_announcements WHERE hotel_id = ?', [hotelId]);
     if (existing.length > 0) {
       // update
-      await connection.query('UPDATE hotel_announcements SET message = ?, active = ?, updated_at = NOW() WHERE hotel_id = ?', [message, active, hotelId]);
+      await connection.query('UPDATE hotel_announcements SET message = ?, is_active = ?, updated_at = NOW() WHERE hotel_id = ?', [message, active, hotelId]);
       return res.json({ success: true, updated: true });
     }
     // insert
-    await connection.query('INSERT INTO hotel_announcements (hotel_id, message, active, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())', [hotelId, message, active]);
+    await connection.query('INSERT INTO hotel_announcements (hotel_id, message, is_active, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())', [hotelId, message, active]);
     res.status(201).json({ success: true, created: true });
   } catch (err) {
     next(err);
@@ -40,7 +40,7 @@ export const getHotelAnnouncement = async (req, res, next) => {
   try {
     const hotelId = parseInt(req.params.hotelId);
     if (isNaN(hotelId)) return res.status(400).json({ error: 'Invalid hotel ID' });
-    const [[row]] = await connection.query('SELECT id, message FROM hotel_announcements WHERE hotel_id = ? AND active = 1', [hotelId]);
+    const [[row]] = await connection.query('SELECT id, message FROM hotel_announcements WHERE hotel_id = ? AND is_active = 1', [hotelId]);
     res.json(row || null);
   } catch (err) { next(err); } finally { connection.release(); }
 };
@@ -68,7 +68,7 @@ export const listActiveAnnouncements = async (req, res, next) => {
         GROUP BY hotel_id
       ) assign ON assign.hotel_id = h.id
       LEFT JOIN users u ON u.id = assign.user_id
-      WHERE a.active = 1
+      WHERE a.is_active = 1
       GROUP BY a.id
       ORDER BY a.updated_at DESC`);
 

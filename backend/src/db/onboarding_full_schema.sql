@@ -128,6 +128,7 @@ CREATE TABLE IF NOT EXISTS onboarding_hotels (
   id INT AUTO_INCREMENT PRIMARY KEY,
   hotel_id VARCHAR(50) UNIQUE COMMENT 'External hotel ID',
   name VARCHAR(255) NOT NULL,
+  description TEXT,
   street VARCHAR(255),
   postal_code VARCHAR(20),
   city VARCHAR(100),
@@ -142,6 +143,8 @@ CREATE TABLE IF NOT EXISTS onboarding_hotels (
   billing_address_vat VARCHAR(50),
   star_rating INT DEFAULT 0,
   category VARCHAR(100),
+  opening_year INT,
+  latest_renovation_year INT,
   opening_date INT,
   latest_renovation_date INT,
   total_rooms INT DEFAULT 0,
@@ -798,6 +801,21 @@ INSERT IGNORE INTO onboarding_permissions (code, name, description, category) VA
 -- Map default permissions to Admin role
 INSERT IGNORE INTO onboarding_role_permissions (role_id, permission_id)
 SELECT r.id, p.id FROM onboarding_roles r, onboarding_permissions p WHERE r.name = 'Admin';
+
+-- ------------------------------------------------------------
+-- (12) HOTEL ANNOUNCEMENTS
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS onboarding_hotel_announcements (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  hotel_id INT NOT NULL,
+  message TEXT NOT NULL,
+  is_active BOOLEAN DEFAULT TRUE,
+  created_by INT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (hotel_id) REFERENCES onboarding_hotels(id) ON DELETE CASCADE,
+  FOREIGN KEY (created_by) REFERENCES onboarding_users(id) ON DELETE SET NULL
+);
 
 -- ------------------------------------------------------------
 -- End of file.
