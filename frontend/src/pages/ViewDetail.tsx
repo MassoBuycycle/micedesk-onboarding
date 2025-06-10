@@ -118,6 +118,7 @@ const mockHotelDetail = {
 
 const ViewDetail = () => {
   const params = useParams();
+  const navigate = useNavigate();
   
   // Extract type from URL path or parameters
   const type = params.type || (window.location.pathname.includes('/view/hotel/') ? 'hotel' : undefined);
