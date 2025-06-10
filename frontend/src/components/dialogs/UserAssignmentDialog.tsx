@@ -14,6 +14,7 @@ interface UserAssignmentDialogProps {
   onAssignmentUpdate?: () => void;
 }
 
+
 const UserAssignmentDialog: React.FC<UserAssignmentDialogProps> = ({
   hotelId,
   hotelName,
