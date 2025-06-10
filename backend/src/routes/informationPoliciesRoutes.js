@@ -10,10 +10,10 @@ import {
 const router = express.Router();
 
 // Get all information policies for a hotel
-router.get('/hotel/:hotelId', getInformationPoliciesByHotel);
+router.get('/hotel/:systemHotelId', getInformationPoliciesByHotel);
 
 // Get information policies by type for a hotel
-router.get('/hotel/:hotelId/type/:type', getInformationPoliciesByType);
+router.get('/hotel/:systemHotelId/type/:type', getInformationPoliciesByType);
 
 // Create a new information policy
 router.post('/', createInformationPolicy);

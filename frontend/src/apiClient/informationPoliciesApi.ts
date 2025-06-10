@@ -16,7 +16,7 @@ export interface InformationPolicyItem {
 
 export interface InformationPolicy {
   id?: number;
-  hotel_id: string;
+  system_hotel_id: string;
   type: 'room_information' | 'service_information' | 'general_policies';
   items: InformationPolicyItem[];
   created_at?: string;
@@ -35,8 +35,9 @@ export interface UpdateInformationPolicyInput {
 }
 
 // API Functions
-export const getInformationPoliciesByHotel = async (hotelId: string): Promise<InformationPolicy[]> => {
-  return await apiGet(`/information-policies/hotel/${hotelId}`, 'Failed to fetch information policies');
+export const getInformationPoliciesByHotel = async (systemHotelId: string): Promise<InformationPolicy[]> => {
+  const response = await apiGet(`/information-policies/hotel/${systemHotelId}`);
+  return response.data;
 };
 
 export const getInformationPoliciesByType = async (

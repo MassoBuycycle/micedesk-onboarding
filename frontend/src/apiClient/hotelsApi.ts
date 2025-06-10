@@ -4,7 +4,7 @@ import { apiGet, apiPost, apiPut, apiDelete } from './apiClient';
 // Schemas from OpenAPI spec for Hotels
 export interface Hotel {
   id?: number;
-  hotel_id?: string;
+  system_hotel_id?: string; // External system identifier (e.g. HB4I2, 57392, H5425)
   name?: string;
   street?: string;
   postal_code?: string;
@@ -50,7 +50,7 @@ export interface Hotel {
 }
 
 export interface HotelInput {
-  hotel_id?: string;
+  system_hotel_id?: string; // External system identifier (e.g. HB4I2, 57392, H5425)
   name: string;
   street?: string;
   postal_code?: string;

@@ -1,11 +1,9 @@
 export interface Room {
   id: number;
   hotel_id: number;
-  main_contact_name: string;
-  reception_hours: string;
-  created_at?: Date;
   main_contact_name?: string;
   main_contact_position?: string;
+  reception_hours?: string;
   phone?: string;
   email?: string;
   check_in?: string;
@@ -13,9 +11,8 @@ export interface Room {
   early_check_in_cost?: number;
   late_check_out_cost?: number;
   early_check_in_time_frame?: string;
-  late_check_out_tme?: string;
-  reception_hours?: string;
-  payment_methods?: string; // JSON string
+  late_check_out_time?: string;
+  payment_methods?: string[];
   amt_single_rooms?: number;
   amt_double_rooms?: number;
   amt_connecting_rooms?: number;
@@ -64,7 +61,7 @@ export interface MainRoomConfigInput {
   late_check_out_cost?: number;
   early_check_in_time_frame?: string;
   late_check_out_time?: string;
-  payment_methods?: string; // JSON string
+  payment_methods?: string[];
   amt_single_rooms?: number;
   amt_double_rooms?: number;
   amt_connecting_rooms?: number;
@@ -77,5 +74,14 @@ export interface MainRoomConfigInput {
 
 export interface RoomCategoryInput {
   category_name?: string;
-  // ... existing code ...
+  pms_name?: string;
+  num_rooms?: number;
+  size?: number;
+  bed_type?: string;
+  surcharges_upsell?: number;
+  room_features?: string;
+  second_person_surcharge?: number;
+  extra_bed_surcharge?: number;
+  baby_bed_available?: boolean;
+  extra_bed_available?: boolean;
 } 

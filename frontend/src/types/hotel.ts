@@ -1,5 +1,6 @@
 export interface Hotel {
   id?: number;
+  system_hotel_id?: string; // External system identifier (e.g. HB4I2, 57392, H5425)
   name: string;
   street: string;
   postal_code: string;

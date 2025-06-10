@@ -27,8 +27,8 @@ const createHotelFormSchema = (t: any) => z.object({
   // ID (optional, for existing hotels)
   id: z.number().optional(),
   
-  // External Hotel ID (required for information policies)
-  hotelId: z.string().min(1, { message: t("forms.validation.hotelIdRequired") }),
+  // External System Hotel ID (required for information policies)
+  systemHotelId: z.string().min(1, { message: t("forms.validation.systemHotelIdRequired") }),
   
   // Basic Information
   name: z.string().min(2, { message: t("forms.validation.hotelNameRequired") }),
@@ -111,7 +111,7 @@ const HotelForm = ({ initialData = {}, onNext, onChange, mode = 'add' }: HotelFo
     resolver: zodResolver(hotelFormSchema),
     defaultValues: {
       id: undefined,
-      hotelId: "",
+      systemHotelId: "",
       name: "",
       street: "",
       postalCode: "",

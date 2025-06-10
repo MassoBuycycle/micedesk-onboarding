@@ -39,8 +39,8 @@ const HotelView = () => {
 
   const { data: policies } = useQuery<InformationPolicy[]>({
     queryKey: ["hotelPolicies", hotelId],
-    queryFn: () => getInformationPoliciesByHotel(hotelData?.hotel?.hotel_id || ''),
-    enabled: !!hotelData?.hotel?.hotel_id
+    queryFn: () => getInformationPoliciesByHotel(hotelData?.hotel?.system_hotel_id || ''),
+    enabled: !!hotelData?.hotel?.system_hotel_id
   });
 
   const hotel = hotelData?.hotel;

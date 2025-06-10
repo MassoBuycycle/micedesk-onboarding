@@ -4,11 +4,11 @@
 -- Main information policies table
 CREATE TABLE IF NOT EXISTS information_policies (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  hotel_id VARCHAR(50) NOT NULL COMMENT 'External hotel ID (e.g. HB4I2, 57392, H5425)',
+  system_hotel_id VARCHAR(50) NOT NULL COMMENT 'External system hotel ID (e.g. HB4I2, 57392, H5425)',
   type ENUM('room_information', 'service_information', 'general_policies') NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  INDEX idx_hotel_id (hotel_id),
+  INDEX idx_system_hotel_id (system_hotel_id),
   INDEX idx_type (type)
 );
 

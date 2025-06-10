@@ -9,7 +9,7 @@ const HOTEL_TABLE_FIELDS = [
 
 // Define fields for each table based on the new schema
 const HOTEL_FIELDS = [
-  'hotel_id',
+  'system_hotel_id',
   'name', 'street', 'postal_code', 'city', 'country', 'description',
   'star_rating', 'category', 'opening_year', 'latest_renovation_year',
   'total_rooms', 'conference_rooms', 'pms_system',

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -29,7 +29,7 @@ const policyItemSchema = z.object({
 
 // Define schema for information policies
 const informationPolicySchema = z.object({
-  hotel_id: z.string().min(1, "Hotel ID is required"),
+  system_hotel_id: z.string().min(1, "System Hotel ID is required"),
   type: z.enum(['room_information', 'service_information', 'general_policies'], {
     required_error: "Policy type is required"
   }),
@@ -60,7 +60,7 @@ const InformationPoliciesForm = ({
   const form = useForm<InformationPolicyFormValues>({
     resolver: zodResolver(informationPolicySchema),
     defaultValues: {
-      hotel_id: hotelId || "",
+      system_hotel_id: hotelId || "",
       type: "room_information",
       items: [],
       ...initialData
@@ -147,13 +147,13 @@ const InformationPoliciesForm = ({
           title="Information Policies" 
           description="Define hotel information policies, service details, and general policies"
         >
-          {/* Hotel ID Field */}
+          {/* System Hotel ID Field */}
           <FormField
             control={form.control}
-            name="hotel_id"
+            name="system_hotel_id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Hotel ID*</FormLabel>
+                <FormLabel>System Hotel ID*</FormLabel>
                 <FormControl>
                   <Input 
                     {...field} 
@@ -161,6 +161,9 @@ const InformationPoliciesForm = ({
                     className="text-sm"
                   />
                 </FormControl>
+                <FormDescription>
+                  External system identifier for this hotel used in policies
+                </FormDescription>
                 <FormMessage className="text-xs" />
               </FormItem>
             )}

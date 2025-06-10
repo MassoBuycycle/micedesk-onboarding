@@ -33,8 +33,8 @@ const Policies = () => {
 
   // Load policies when hotel is selected
   useEffect(() => {
-    if (selectedHotel?.hotel_id) {
-      loadPolicies(selectedHotel.hotel_id);
+    if (selectedHotel?.system_hotel_id) {
+      loadPolicies(selectedHotel.system_hotel_id);
     } else {
       setPolicies([]);
     }
@@ -43,8 +43,8 @@ const Policies = () => {
   const loadHotels = async () => {
     try {
       const hotelsData = await getAllHotels();
-      // Filter hotels to only include those with hotel_id
-      const hotelsWithId = hotelsData.filter(hotel => hotel.hotel_id && hotel.hotel_id.trim() !== '');
+      // Filter hotels to only include those with system_hotel_id
+      const hotelsWithId = hotelsData.filter(hotel => hotel.system_hotel_id && hotel.system_hotel_id.trim() !== '');
       setHotels(hotelsWithId);
     } catch (error) {
       console.error("Error loading hotels:", error);
@@ -52,10 +52,10 @@ const Policies = () => {
     }
   };
 
-  const loadPolicies = async (hotelId: string) => {
+  const loadPolicies = async (systemHotelId: string) => {
     setLoading(true);
     try {
-      const policiesData = await getInformationPoliciesByHotel(hotelId);
+      const policiesData = await getInformationPoliciesByHotel(systemHotelId);
       setPolicies(policiesData);
     } catch (error) {
       console.error("Error loading policies:", error);
@@ -71,7 +71,7 @@ const Policies = () => {
   };
 
   const handleCreatePolicy = () => {
-    if (!selectedHotel?.hotel_id) {
+    if (!selectedHotel?.system_hotel_id) {
       toast.error(t("policies.selectHotelFirst"));
       return;
     }
@@ -94,8 +94,8 @@ const Policies = () => {
     try {
       await deleteInformationPolicy(policy.id);
       toast.success(t("policies.policyDeleted"));
-      if (selectedHotel?.hotel_id) {
-        loadPolicies(selectedHotel.hotel_id);
+      if (selectedHotel?.system_hotel_id) {
+        loadPolicies(selectedHotel.system_hotel_id);
       }
     } catch (error) {
       console.error("Error deleting policy:", error);
@@ -111,16 +111,16 @@ const Policies = () => {
   const handlePolicyFormSuccess = () => {
     setIsFormDialogOpen(false);
     setEditingPolicy(null);
-    if (selectedHotel?.hotel_id) {
-      loadPolicies(selectedHotel.hotel_id);
+    if (selectedHotel?.system_hotel_id) {
+      loadPolicies(selectedHotel.system_hotel_id);
     }
   };
 
   const handleItemsSuccess = () => {
     setIsItemsDialogOpen(false);
     setSelectedPolicy(null);
-    if (selectedHotel?.hotel_id) {
-      loadPolicies(selectedHotel.hotel_id);
+    if (selectedHotel?.system_hotel_id) {
+      loadPolicies(selectedHotel.system_hotel_id);
     }
   };
 
@@ -195,7 +195,7 @@ const Policies = () => {
                         <Building2 className="h-4 w-4 text-muted-foreground" />
                         <span>{hotel.name}</span>
                         <Badge variant="secondary" className="ml-2">
-                          {hotel.hotel_id}
+                          {hotel.system_hotel_id}
                         </Badge>
                       </div>
                     </SelectItem>
@@ -220,9 +220,9 @@ const Policies = () => {
             <CardTitle className="flex items-center gap-2">
               <Building2 className="h-5 w-5" />
               {t("policies.policiesFor")} {selectedHotel.name}
-              {selectedHotel.hotel_id && (
+              {selectedHotel.system_hotel_id && (
                 <Badge variant="outline" className="ml-2">
-                  {selectedHotel.hotel_id}
+                  {selectedHotel.system_hotel_id}
                 </Badge>
               )}
             </CardTitle>

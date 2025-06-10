@@ -9,7 +9,7 @@ import pool from '../db/config.js';
 export const getInformationPoliciesByHotel = async (req, res, next) => {
   const connection = await pool.getConnection();
   try {
-    const { hotelId } = req.params;
+    const { systemHotelId } = req.params;
     
     const [policies] = await connection.query(`
       SELECT 
@@ -34,10 +34,10 @@ export const getInformationPoliciesByHotel = async (req, res, next) => {
         ) as items
       FROM information_policies ip
       LEFT JOIN information_policy_items ipi ON ip.id = ipi.information_policy_id
-      WHERE ip.hotel_id = ?
+      WHERE ip.system_hotel_id = ?
       GROUP BY ip.id
       ORDER BY ip.type, ip.created_at
-    `, [hotelId]);
+    `, [systemHotelId]);
     
     res.status(200).json(policies);
   } catch (error) {
@@ -56,7 +56,7 @@ export const getInformationPoliciesByHotel = async (req, res, next) => {
 export const getInformationPoliciesByType = async (req, res, next) => {
   const connection = await pool.getConnection();
   try {
-    const { hotelId, type } = req.params;
+    const { systemHotelId, type } = req.params;
     
     const [policies] = await connection.query(`
       SELECT 
@@ -81,10 +81,10 @@ export const getInformationPoliciesByType = async (req, res, next) => {
         ) as items
       FROM information_policies ip
       LEFT JOIN information_policy_items ipi ON ip.id = ipi.information_policy_id
-      WHERE ip.hotel_id = ? AND ip.type = ?
+      WHERE ip.system_hotel_id = ? AND ip.type = ?
       GROUP BY ip.id
       ORDER BY ip.created_at
-    `, [hotelId, type]);
+    `, [systemHotelId, type]);
     
     res.status(200).json(policies);
   } catch (error) {
@@ -105,14 +105,14 @@ export const createInformationPolicy = async (req, res, next) => {
   try {
     await connection.beginTransaction();
     
-    const { hotel_id, type, items } = req.body;
+    const { system_hotel_id, type, items } = req.body;
     
     // Validate required fields
-    if (!hotel_id || !type) {
+    if (!system_hotel_id || !type) {
       await connection.rollback();
       return res.status(400).json({ 
         success: false, 
-        error: 'Hotel ID and type are required' 
+        error: 'System Hotel ID and type are required' 
       });
     }
     
@@ -128,8 +128,8 @@ export const createInformationPolicy = async (req, res, next) => {
     
     // Create the information policy
     const [policyResult] = await connection.query(
-      'INSERT INTO information_policies (hotel_id, type) VALUES (?, ?)',
-      [hotel_id, type]
+      'INSERT INTO information_policies (system_hotel_id, type) VALUES (?, ?)',
+      [system_hotel_id, type]
     );
     
     const policyId = policyResult.insertId;
@@ -160,7 +160,7 @@ export const createInformationPolicy = async (req, res, next) => {
     
     res.status(201).json({
       success: true,
-      data: { id: policyId, hotel_id, type },
+      data: { id: policyId, system_hotel_id, type },
       message: 'Information policy created successfully'
     });
   } catch (error) {

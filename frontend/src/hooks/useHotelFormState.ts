@@ -123,9 +123,9 @@ export function useHotelFormState() {
       foodBeverage: apiData.foodBeverage || {},
       informationPolicies: apiData.informationPolicies || [],
     };
-    setFormData(newFormData);
-    setTempFormData(newFormData);
-
+      setFormData(newFormData);
+      setTempFormData(newFormData);
+      
     const newCompletedSteps: CompletedSteps = {
       hotel: !!apiData.hotel,
       roomInfo: !!apiData.roomInfo,
@@ -272,27 +272,30 @@ export function useHotelFormState() {
 
             const payload: MainRoomConfigInput = {
               hotel_id: createdHotelId,
-              standard_features: formValues.standard_features,
+              standard_features: formValues.standard_features || [],
               main_contact_name: formValues.main_contact_name_room, 
               reception_hours: formValues.reception_hours,
-              phone: formValues.room_phone, 
-              email: formValues.room_email, 
-              check_in: formValues.check_in_time, 
-              check_out: formValues.check_out_time, 
-              early_check_in_cost: formValues.early_checkin_fee, 
-              late_check_out_cost: formValues.late_checkout_fee, 
+              phone: formValues.room_phone,
+              email: formValues.room_email,
+              check_in: formValues.check_in_time,
+              check_out: formValues.check_out_time,
+              early_check_in_cost: formValues.early_checkin_fee,
+              late_check_out_cost: formValues.late_checkout_fee,
               early_check_in_time_frame: formValues.early_check_in_time_frame,
-              late_check_out_time: formValues.late_check_out_tme, 
-              payment_methods: formValues.payment_methods, 
+              late_check_out_time: formValues.late_check_out_tme,
+              payment_methods: formValues.payment_methods || [],
               amt_single_rooms: formValues.single_rooms,
               amt_double_rooms: formValues.double_rooms,
-              amt_connecting_rooms: formValues.connected_rooms, 
-              amt_handicapped_accessible_rooms: formValues.accessible_rooms, 
-              is_dogs_allowed: formValues.dogs_allowed,
-              dog_fee: formValues.dog_fee,
-              dog_fee_inclusions: formValues.dog_fee_inclusions,
+              amt_connecting_rooms: formValues.connected_rooms,
+              amt_handicapped_accessible_rooms: formValues.accessible_rooms,
+              is_dogs_allowed: formValues.dogs_allowed || false,
+              dog_fee: formValues.dog_fee || 0,
+              dog_fee_inclusions: formValues.dog_fee_inclusions
             };
-            
+
+            console.log("Hotel ID being sent:", createdHotelId);
+            console.log("Room creation payload:", payload);
+
             Object.keys(payload).forEach(key => {
               if (payload[key as keyof MainRoomConfigInput] === undefined) {
                 delete payload[key as keyof MainRoomConfigInput];

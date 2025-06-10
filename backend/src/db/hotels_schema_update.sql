@@ -1,10 +1,10 @@
--- Add external hotel_id field to hotels table
+-- Add external system_hotel_id field to hotels table
 -- This field stores the external hotel identifier (e.g. HB4I2, 57392, H5425)
 
-ALTER TABLE hotels ADD COLUMN hotel_id VARCHAR(50) UNIQUE COMMENT 'External hotel ID (e.g. HB4I2, 57392, H5425)';
+ALTER TABLE hotels ADD COLUMN system_hotel_id VARCHAR(50) UNIQUE COMMENT 'External system hotel ID (e.g. HB4I2, 57392, H5425)';
 
 -- Add index for better performance
-CREATE INDEX idx_hotels_hotel_id ON hotels(hotel_id);
+CREATE INDEX idx_hotels_system_hotel_id ON hotels(system_hotel_id);
 
 -- Add columns for hotel main contact and room information that were previously missing but are used by backend controllers
 -- Contact details
