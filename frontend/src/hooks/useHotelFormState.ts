@@ -181,6 +181,9 @@ export function useHotelFormState() {
     const isLastStep = currentIndex === FORM_STEPS.length - 1;
     let nextStepKey: FormStep | null = isLastStep ? null : FORM_STEPS[currentIndex + 1];
 
+    // Store the hotel ID for immediate use
+    let currentHotelId = createdHotelId;
+
     try {
       toast.info(`Processing ${currentStep}...`);
       
@@ -251,9 +254,12 @@ export function useHotelFormState() {
               console.log("hotelResponse.success:", hotelResponse.success);
               
               if (hotelResponse.hotelId) {
+                // Update both state and local variable for immediate use
+                currentHotelId = hotelResponse.hotelId;
                 setCreatedHotelId(hotelResponse.hotelId);
                 console.log("=== HOTEL ID SET SUCCESSFULLY ===");
                 console.log("createdHotelId set to:", hotelResponse.hotelId);
+                console.log("currentHotelId set to:", currentHotelId);
                 toast.success(`Hotel "${hotelResponse.name}" created (ID: ${hotelResponse.hotelId}).`);
               } else {
                 console.error("=== HOTEL ID NOT FOUND IN RESPONSE ===");
@@ -270,6 +276,7 @@ export function useHotelFormState() {
               return;
             }
           } else {
+            currentHotelId = createdHotelId;
             // Determine if user requires approval
             const requiresApproval = permissions.includes('edit_with_approval') && !permissions.includes('edit_all');
             if (requiresApproval) {
@@ -287,12 +294,13 @@ export function useHotelFormState() {
 
         case "roomInfo":
           console.log("=== ROOM INFO STEP STARTED ===");
-          console.log("createdHotelId:", createdHotelId);
+          console.log("createdHotelId from state:", createdHotelId);
+          console.log("currentHotelId (immediate):", currentHotelId);
           console.log("newFormData.roomInfo:", newFormData.roomInfo);
           
-          if (!createdHotelId) {
+          if (!currentHotelId) {
             console.error("=== HOTEL ID MISSING ===");
-            console.error("createdHotelId is null or undefined");
+            console.error("currentHotelId is null or undefined");
             console.error("This means hotel creation step failed or hotel ID wasn't set properly");
             toast.error("Hotel ID not found. Please complete the Hotel step first.");
             setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
@@ -300,7 +308,7 @@ export function useHotelFormState() {
           }
           
           console.log("=== HOTEL ID FOUND ===");
-          console.log("Using hotel ID:", createdHotelId);
+          console.log("Using hotel ID:", currentHotelId);
           
           if (newFormData.roomInfo && Object.keys(newFormData.roomInfo).length > 0) {
             const formValues = newFormData.roomInfo as any; 
@@ -308,31 +316,31 @@ export function useHotelFormState() {
             console.log("Form values received:", formValues);
 
             const payload: MainRoomConfigInput = {
-              hotel_id: createdHotelId,
+              hotel_id: currentHotelId,
               main_contact_name: formValues.main_contact_name_room, 
               reception_hours: formValues.reception_hours,
-              phone: formValues.room_phone,
-              email: formValues.room_email,
-              check_in: formValues.check_in_time,
-              check_out: formValues.check_out_time,
-              early_check_in_cost: formValues.early_checkin_fee,
-              late_check_out_cost: formValues.late_checkout_fee,
+              phone: formValues.room_phone, 
+              email: formValues.room_email, 
+              check_in: formValues.check_in_time, 
+              check_out: formValues.check_out_time, 
+              early_check_in_cost: formValues.early_checkin_fee, 
+              late_check_out_cost: formValues.late_checkout_fee, 
               early_check_in_time_frame: formValues.early_check_in_time_frame,
-              late_check_out_time: formValues.late_check_out_tme,
+              late_check_out_time: formValues.late_check_out_tme, 
               payment_methods: formValues.payment_methods || [],
               amt_single_rooms: formValues.single_rooms,
               amt_double_rooms: formValues.double_rooms,
-              amt_connecting_rooms: formValues.connected_rooms,
-              amt_handicapped_accessible_rooms: formValues.accessible_rooms,
+              amt_connecting_rooms: formValues.connected_rooms, 
+              amt_handicapped_accessible_rooms: formValues.accessible_rooms, 
               is_dogs_allowed: formValues.dogs_allowed || false,
               dog_fee: formValues.dog_fee || 0,
               dog_fee_inclusions: formValues.dog_fee_inclusions
             };
 
             console.log("=== ROOM CREATION PAYLOAD ===");
-            console.log("Hotel ID being sent:", createdHotelId);
+            console.log("Hotel ID being sent:", currentHotelId);
             console.log("Complete room creation payload:", payload);
-
+            
             Object.keys(payload).forEach(key => {
               if (payload[key as keyof MainRoomConfigInput] === undefined) {
                 delete payload[key as keyof MainRoomConfigInput];
