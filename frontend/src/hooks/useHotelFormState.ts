@@ -262,13 +262,26 @@ export function useHotelFormState() {
           break;
 
         case "roomInfo":
+          console.log("=== ROOM INFO STEP STARTED ===");
+          console.log("createdHotelId:", createdHotelId);
+          console.log("newFormData.roomInfo:", newFormData.roomInfo);
+          
           if (!createdHotelId) {
+            console.error("=== HOTEL ID MISSING ===");
+            console.error("createdHotelId is null or undefined");
+            console.error("This means hotel creation step failed or hotel ID wasn't set properly");
             toast.error("Hotel ID not found. Please complete the Hotel step first.");
             setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
             return;
           }
+          
+          console.log("=== HOTEL ID FOUND ===");
+          console.log("Using hotel ID:", createdHotelId);
+          
           if (newFormData.roomInfo && Object.keys(newFormData.roomInfo).length > 0) {
             const formValues = newFormData.roomInfo as any; 
+            console.log("=== ROOM INFO FORM VALUES ===");
+            console.log("Form values received:", formValues);
 
             const payload: MainRoomConfigInput = {
               hotel_id: createdHotelId,
@@ -293,8 +306,9 @@ export function useHotelFormState() {
               dog_fee_inclusions: formValues.dog_fee_inclusions
             };
 
+            console.log("=== ROOM CREATION PAYLOAD ===");
             console.log("Hotel ID being sent:", createdHotelId);
-            console.log("Room creation payload:", payload);
+            console.log("Complete room creation payload:", payload);
 
             Object.keys(payload).forEach(key => {
               if (payload[key as keyof MainRoomConfigInput] === undefined) {
@@ -302,26 +316,44 @@ export function useHotelFormState() {
               }
             });
 
+            console.log("=== CLEANED PAYLOAD ===");
+            console.log("Payload after removing undefined values:", payload);
             console.log("Calling createRoom (for MainRoomConfig) with data:", payload);
+            
             try {
               const roomConfigResponse = await createRoom(payload);
+              console.log("=== ROOM CREATION RESPONSE ===");
+              console.log("Room creation response:", roomConfigResponse);
+              
               if (roomConfigResponse.data && roomConfigResponse.data.roomId) {
                 setCreatedRoomTypeId(roomConfigResponse.data.roomId);
+                console.log("=== ROOM ID SET SUCCESSFULLY ===");
+                console.log("Room ID set to:", roomConfigResponse.data.roomId);
                 toast.success(`Main Room Configuration saved (ID: ${roomConfigResponse.data.roomId}).`);
                 const mergedData = { ...newFormData, roomInfo: roomConfigResponse.data as Partial<MainRoomConfigInput> }; 
                 setFormData(mergedData);
                 setTempFormData(mergedData);
               } else {
+                console.error("=== ROOM ID NOT FOUND IN RESPONSE ===");
+                console.error("Room creation response structure:", roomConfigResponse);
                 toast.error("Failed to save Main Room Configuration: No Room ID returned.");
                 setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
                 return;
               }
             } catch (error: any) {
+              console.error("=== ERROR CREATING ROOM ===");
+              console.error("Room creation failed:", error);
+              console.error("Error details:", error.message);
+              if (error.response) {
+                console.error("Error response:", error.response.data);
+              }
               toast.error(`Failed to save Main Room Configuration: ${error.message}`);
               setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
               return;
             }
           } else {
+            console.log("=== NO ROOM INFO DATA ===");
+            console.log("Skipping room creation - no data provided");
             toast.info("Skipping Main Room Configuration save (no data provided).");
           }
           break;
