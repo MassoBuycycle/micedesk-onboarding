@@ -13,4 +13,80 @@ const pool = mysql.createPool({
   queueLimit: 0
 });
 
+// ------------------------------------------------------------------
+// Automatic table-name prefixing to use onboarding_ tables
+// ------------------------------------------------------------------
+const TABLE_PREFIX = process.env.TABLE_PREFIX || 'onboarding_';
+
+// Complete list of table names used throughout the application (without prefix)
+const TABLES_TO_PREFIX = [
+  // Core hotel & user tables
+  'hotels', 'hotel_info', 'users', 'roles', 'permissions', 'role_permissions',
+  'user_roles', 'resource_permissions', 'user_hotel_assignments', 'user_all_hotels_access',
+  
+  // Room management tables  
+  'rooms', 'room_contacts', 'room_policies', 'room_inventory', 'room_pet_policies',
+  'room_category_infos', 'room_operational_handling', 'room_standard_features',
+  
+  // Event management tables
+  'events', 'event_booking', 'event_financials', 'event_operations', 'event_spaces',
+  'event_equipment', 'event_av_equipment', 'event_contracting', 'event_technical', 
+  'event_handling',
+  
+  // Food & beverage tables
+  'food_beverage_details',
+  
+  // File management tables
+  'files', 'file_types',
+  
+  // Information policies tables
+  'information_policies', 'information_policy_items', 'information_policy_item_details',
+  
+  // Lookup tables
+  'payment_methods', 'standard_features', 'equipment_types',
+  
+  // Announcements & secure data (actively used)
+  'hotel_announcements', 'hotel_secure_data',
+  
+  // Approval system tables
+  'entry_assignments', 'pending_changes'
+];
+
+function prefixSQL(sql) {
+  let modified = sql;
+  TABLES_TO_PREFIX.forEach((tbl) => {
+    const regex = new RegExp(`\\b${tbl}\\b`, 'gi');
+    modified = modified.replace(regex, `${TABLE_PREFIX}${tbl}`);
+  });
+  return modified;
+}
+
+// Patch a single connection so that every .query() call prefixes tables
+function patchConnection(conn) {
+  const origQuery = conn.query.bind(conn);
+  conn.query = (...args) => {
+    if (typeof args[0] === 'string') {
+      args[0] = prefixSQL(args[0]);
+    }
+    return origQuery.apply(conn, args);
+  };
+}
+
+// Patch pool.query (shortcut without explicit connection checkout)
+const origPoolQuery = pool.query.bind(pool);
+pool.query = (...args) => {
+  if (typeof args[0] === 'string') {
+    args[0] = prefixSQL(args[0]);
+  }
+  return origPoolQuery.apply(pool, args);
+};
+
+// Override pool.getConnection so that every acquired connection is patched
+const origGetConnection = pool.getConnection.bind(pool);
+pool.getConnection = async (...args) => {
+  const connection = await origGetConnection.apply(pool, args);
+  patchConnection(connection);
+  return connection;
+};
+
 export default pool; 

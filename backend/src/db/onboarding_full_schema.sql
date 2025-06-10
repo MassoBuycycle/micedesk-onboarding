@@ -376,12 +376,58 @@ CREATE TABLE IF NOT EXISTS onboarding_payment_methods (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-- Seed payment methods
+INSERT IGNORE INTO onboarding_payment_methods (name, enabled) VALUES
+('Cash', true),
+('Credit Card (Visa)', true),
+('Credit Card (Mastercard)', true),
+('Credit Card (American Express)', true),
+('Debit Card', true),
+('Bank Transfer', true),
+('PayPal', true),
+('Apple Pay', false),
+('Google Pay', false),
+('Check', true),
+('Invoice (30 days)', true),
+('Corporate Account', true);
+
 CREATE TABLE IF NOT EXISTS onboarding_standard_features (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255) NOT NULL UNIQUE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+-- Seed standard features
+INSERT IGNORE INTO onboarding_standard_features (name) VALUES
+('WiFi'),
+('Air Conditioning'),
+('Heating'),
+('Private Bathroom'),
+('Shower'),
+('Bathtub'),
+('Hair Dryer'),
+('TV'),
+('Cable/Satellite TV'),
+('Telephone'),
+('Safe'),
+('Minibar'),
+('Refrigerator'),
+('Coffee Maker'),
+('Kettle'),
+('Desk'),
+('Balcony'),
+('Terrace'),
+('Room Service'),
+('Housekeeping'),
+('Allergy-Friendly Bedding'),
+('Extra Bed Available'),
+('Baby Bed Available'),
+('City View'),
+('Garden View'),
+('Pool View'),
+('Mountain View'),
+('Sea View');
 
 -- ------------------------------------------------------------
 -- (5) USER ↔ HOTEL ASSIGNMENTS
@@ -455,6 +501,35 @@ CREATE TABLE IF NOT EXISTS onboarding_food_beverage_details (
 -- ------------------------------------------------------------
 -- (7) EVENTS & MEETINGS SECTION
 -- ------------------------------------------------------------
+
+-- Equipment types lookup table (missing from original schema)
+CREATE TABLE IF NOT EXISTS onboarding_equipment_types (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  equipment_name VARCHAR(100) NOT NULL,
+  description TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Seed equipment types
+INSERT IGNORE INTO onboarding_equipment_types (equipment_name, description) VALUES
+('Projector', 'Digital projector for presentations'),
+('Screen', 'Projection screen'),
+('Microphone', 'Wireless microphone'),
+('Speaker System', 'Audio speaker system'),
+('Laptop', 'Laptop computer'),
+('Flip Chart', 'Flip chart stand with paper'),
+('Whiteboard', 'Portable whiteboard'),
+('Extension Cord', 'Power extension cord'),
+('Laser Pointer', 'Presentation laser pointer'),
+('Conference Phone', 'Conference call phone system'),
+('Video Camera', 'Video recording camera'),
+('Lighting Equipment', 'Professional lighting setup'),
+('PA System', 'Public address system'),
+('Stage', 'Portable stage platform'),
+('Podium', 'Speaker podium'),
+('AV Cart', 'Mobile AV equipment cart');
+
 -- Core event record (formerly `events`)
 CREATE TABLE IF NOT EXISTS onboarding_events (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -582,10 +657,11 @@ CREATE TABLE IF NOT EXISTS onboarding_event_spaces (
 -- Event equipment mapping
 CREATE TABLE IF NOT EXISTS onboarding_event_equipment (
   event_id INT NOT NULL,
-  equipment_type VARCHAR(100) NOT NULL,
+  equipment_id INT NOT NULL,
   quantity INT DEFAULT 0,
-  PRIMARY KEY(event_id, equipment_type),
-  FOREIGN KEY (event_id) REFERENCES onboarding_events(id) ON DELETE CASCADE
+  PRIMARY KEY(event_id, equipment_id),
+  FOREIGN KEY (event_id) REFERENCES onboarding_events(id) ON DELETE CASCADE,
+  FOREIGN KEY (equipment_id) REFERENCES onboarding_equipment_types(id) ON DELETE CASCADE
 );
 
 -- AV equipment (stand-alone table if required)

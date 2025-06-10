@@ -2,10 +2,40 @@
 
 This document provides a comprehensive overview of all database tables used by the Hotel Onboarding Tool API.
 
+## ⚡ **IMPORTANT UPDATE**
+**The API now automatically targets `onboarding_` prefixed tables!**
+
 ## Database Connection
 - **Database**: `hotel_cms` 
-- **Schema**: Uses non-prefixed table names (regular operational tables)
-- **Note**: The `onboarding_` prefixed tables in `onboarding_full_schema.sql` appear to be for a separate onboarding workflow system
+- **Schema**: Uses `onboarding_` prefixed table names (onboarding workflow system)
+- **Automatic Prefixing**: All SQL queries are automatically prefixed with `onboarding_`
+- **Configuration**: Set via `TABLE_PREFIX` environment variable (defaults to `onboarding_`)
+
+## How Table Prefixing Works
+
+The API automatically converts table names in SQL queries:
+```sql
+-- What you write in controllers:
+SELECT * FROM hotels WHERE id = ?
+
+-- What actually gets executed:
+SELECT * FROM onboarding_hotels WHERE id = ?
+```
+
+**Tables Covered by Auto-Prefixing:**
+- ✅ Core: `hotels` → `onboarding_hotels`
+- ✅ Rooms: `rooms`, `room_contacts`, `room_policies`, etc. → `onboarding_rooms`, `onboarding_room_contacts`, etc.
+- ✅ Events: `events`, `event_spaces`, `event_equipment`, etc. → `onboarding_events`, `onboarding_event_spaces`, etc.
+- ✅ Lookup: `payment_methods`, `standard_features`, `equipment_types` → `onboarding_payment_methods`, etc.
+- ✅ Files: `files`, `file_types` → `onboarding_files`, `onboarding_file_types`
+- ✅ Users: `users`, `roles`, `permissions` → `onboarding_users`, `onboarding_roles`, etc.
+
+## Testing the Configuration
+
+Run this command to verify table prefixing is working:
+```bash
+npm run test:prefixing
+```
 
 ## Tables Used by API Endpoints
 
