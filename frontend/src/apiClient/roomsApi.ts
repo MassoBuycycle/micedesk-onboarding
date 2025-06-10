@@ -83,6 +83,8 @@ export interface MainRoomConfigInput {
   is_dogs_allowed?: boolean;
   dog_fee?: number;
   dog_fee_inclusions?: string;
+  // Standard room features (missing from backend - needs to be added)
+  standard_features?: string[];
   // Any other fields that RoomForm.tsx collects and should be saved with the main room config
 }
 

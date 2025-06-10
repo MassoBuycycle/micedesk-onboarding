@@ -14,6 +14,13 @@ const ROOM_INVENTORY_FIELDS = [
     'amt_single_rooms', 'amt_double_rooms', 'amt_connecting_rooms', 'amt_handicapped_accessible_rooms'
 ];
 const ROOM_PET_POLICIES_FIELDS = ['is_dogs_allowed', 'dog_fee', 'dog_fee_inclusions'];
+// Standard room features - these will be converted from array to individual boolean columns
+const ROOM_STANDARD_FEATURES_FIELDS = [
+    'shower_toilet', 'bathtub_toilet', 'open_bathroom', 'balcony', 'safe',
+    'air_condition', 'heating', 'hair_dryer', 'ironing_board', 'tv',
+    'telephone', 'wifi', 'desk', 'coffee_maker', 'kettle',
+    'minibar', 'fridge', 'allergy_friendly_bedding'
+];
 
 // ROOM_CATEGORY_INFOS_FIELDS and ROOM_OPERATIONAL_HANDLING_FIELDS remain for other functions
 const ROOM_CATEGORY_INFOS_FIELDS = [
@@ -61,6 +68,46 @@ const upsertRelatedData = async (connection, tableName, tableFields, allData, ro
         return dataForTable;
     }
     return null;
+};
+
+// Special helper function for handling standard room features
+// Converts array of feature IDs to individual boolean columns
+const upsertStandardFeatures = async (connection, allData, roomId) => {
+    if (!allData.standard_features || !Array.isArray(allData.standard_features)) {
+        return null;
+    }
+
+    // Convert array of feature IDs to boolean object
+    const featureData = {};
+    ROOM_STANDARD_FEATURES_FIELDS.forEach(field => {
+        // Check if this feature is in the array (handle both snake_case and with variations)
+        const variations = [
+            field,
+            field.replace('_', ''), // remove underscores
+            field === 'telefon' ? 'telephone' : field, // handle telefon/telephone variation
+            field === 'allergy_friendly_bedding' ? 'allergy_friendly_bed_linen' : field // handle bedding/bed_linen variation
+        ];
+        
+        featureData[field] = allData.standard_features.some(feature => 
+            variations.includes(feature)
+        );
+    });
+
+    const fields = Object.keys(featureData);
+    const values = fields.map(key => featureData[key]);
+
+    const [existing] = await connection.query(`SELECT id FROM room_standard_features WHERE room_id = ?`, [roomId]);
+
+    if (existing.length > 0) { // Update
+        const setClause = fields.map(key => `${key} = ?`).join(', ');
+        await connection.query(`UPDATE room_standard_features SET ${setClause} WHERE room_id = ?`, [...values, roomId]);
+    } else { // Insert
+        const insertFields = ['room_id', ...fields];
+        const insertPlaceholders = insertFields.map(() => '?').join(', ');
+        await connection.query(`INSERT INTO room_standard_features (${insertFields.join(', ')}) VALUES (${insertPlaceholders})`, [roomId, ...values]);
+    }
+    
+    return featureData;
 };
 
 /**
@@ -160,6 +207,7 @@ export const createOrUpdateMainRoomConfig = async (req, res, next) => {
         const policiesData = await upsertRelatedData(connection, 'room_policies', ROOM_POLICIES_FIELDS, allRoomDataMapped, roomId);
         const inventoryData = await upsertRelatedData(connection, 'room_inventory', ROOM_INVENTORY_FIELDS, allRoomDataMapped, roomId);
         const petPoliciesData = await upsertRelatedData(connection, 'room_pet_policies', ROOM_PET_POLICIES_FIELDS, allRoomDataMapped, roomId);
+        const standardFeaturesData = await upsertStandardFeatures(connection, allRoomDataMapped, roomId);
 
         await connection.commit();
 
@@ -171,7 +219,8 @@ export const createOrUpdateMainRoomConfig = async (req, res, next) => {
             contacts: contactsData || {},
             policies: policiesData || {},
             inventory: inventoryData || {},
-            pet_policies: petPoliciesData || {}
+            pet_policies: petPoliciesData || {},
+            standard_features: standardFeaturesData || {}
         };
         // Correctly include hotel_id in the base part of the response if it came from baseRoomDataForRoomsTable
         if(baseRoomDataForRoomsTable && baseRoomDataForRoomsTable.hotel_id) responseData.hotel_id = baseRoomDataForRoomsTable.hotel_id;

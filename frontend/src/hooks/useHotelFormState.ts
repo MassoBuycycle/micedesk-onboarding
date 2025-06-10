@@ -400,6 +400,7 @@ export function useHotelFormState() {
               early_check_in_time_frame: formValues.early_check_in_time_frame,
               late_check_out_time: formValues.late_check_out_tme, 
               payment_methods: formValues.payment_methods || [],
+              standard_features: formValues.standard_features || [],
               amt_single_rooms: formValues.single_rooms,
               amt_double_rooms: formValues.double_rooms,
               amt_connecting_rooms: formValues.connected_rooms, 
