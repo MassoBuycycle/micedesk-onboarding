@@ -104,6 +104,12 @@ const PolicyItemsDialog = ({
   const addDetailToItem = (itemIndex: number) => {
     const currentItems = form.getValues("items");
     const updatedItems = [...currentItems];
+    
+    // Ensure details array exists
+    if (!updatedItems[itemIndex].details) {
+      updatedItems[itemIndex].details = [];
+    }
+    
     updatedItems[itemIndex].details.push({
       name: "",
       description: ""
@@ -114,8 +120,12 @@ const PolicyItemsDialog = ({
   const removeDetailFromItem = (itemIndex: number, detailIndex: number) => {
     const currentItems = form.getValues("items");
     const updatedItems = [...currentItems];
-    updatedItems[itemIndex].details.splice(detailIndex, 1);
-    form.setValue("items", updatedItems);
+    
+    // Ensure details array exists before trying to splice
+    if (updatedItems[itemIndex].details) {
+      updatedItems[itemIndex].details.splice(detailIndex, 1);
+      form.setValue("items", updatedItems);
+    }
   };
 
   const onSubmit = async (data: PolicyItemsFormValues) => {

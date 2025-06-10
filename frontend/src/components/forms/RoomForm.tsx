@@ -428,10 +428,11 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                               <Checkbox
                                 checked={field.value?.includes(feature.id)}
                                 onCheckedChange={checked => {
+                                  const currentValue = field.value || [];
                                   return checked
-                                    ? field.onChange([...field.value, feature.id])
+                                    ? field.onChange([...currentValue, feature.id])
                                     : field.onChange(
-                                        field.value?.filter(
+                                        currentValue.filter(
                                           value => value !== feature.id
                                         )
                                       );
@@ -480,10 +481,11 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                                 <Checkbox
                                   checked={field.value?.includes(method.id)}
                                   onCheckedChange={(checked) => {
+                                    const currentValue = field.value || [];
                                     return checked
-                                      ? field.onChange([...field.value, method.id])
+                                      ? field.onChange([...currentValue, method.id])
                                       : field.onChange(
-                                          field.value?.filter(
+                                          currentValue.filter(
                                             (value) => value !== method.id
                                           )
                                         )
