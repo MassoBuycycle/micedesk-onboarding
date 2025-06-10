@@ -37,6 +37,7 @@ const roomFormSchema = z.object({
   late_check_out_tme: z.string().optional(),
   reception_hours: z.string().optional(),
   payment_methods: z.array(z.string()).default([]),
+  standard_features: z.array(z.string()).default([]),
   single_rooms: z.coerce.number().min(0).default(0),
   double_rooms: z.coerce.number().min(0).default(0),
   connected_rooms: z.coerce.number().min(0).default(0),
@@ -92,7 +93,6 @@ const paymentMethodOptions = [
 
 const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChange, mode }: RoomFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
   
   const form = useForm<RoomFormValues>({
     resolver: zodResolver(roomFormSchema),
@@ -109,6 +109,7 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
       late_check_out_tme: '',
       reception_hours: '24/7',
       payment_methods: [],
+      standard_features: [],
       single_rooms: 0,
       double_rooms: 0,
       connected_rooms: 0,
@@ -130,29 +131,16 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
     }
   }, [form, onChange]);
 
-  const toggleFeature = (featureId: string) => {
-    setSelectedFeatures(prev => {
-      if (prev.includes(featureId)) {
-        return prev.filter(id => id !== featureId);
-      } else {
-        return [...prev, featureId];
-      }
-    });
-  };
-
   const onSubmit = async (data: RoomFormValues) => {
     setIsSubmitting(true);
     
     try {
-      const payload = mapRoomFormToApi(selectedHotel.id, data);
-      await saveMainRoomConfig(payload);
-      // TODO: Endpoint for standard features once backend ready
+      // Remove old API call - let useHotelFormState handle room creation
+      toast.success("Room information captured.");
       
-      toast.success("Room information saved.");
-      
-      onNext(data); // Proceed to next step, data is passed to useHotelFormState
+      onNext(data); // Pass data to useHotelFormState
     } catch (error) {
-      console.error('Error in RoomForm onSubmit (old logic might be present):', error);
+      console.error('Error in RoomForm onSubmit:', error);
       toast.error("An error occurred in the room form step.");
     } finally {
       setIsSubmitting(false);
@@ -420,18 +408,47 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
             <CardDescription>Select all features available in standard rooms</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {standardRoomFeatures.map(feature => (
-                <div key={feature.id} className="flex items-center space-x-2">
-                  <Checkbox 
-                    id={feature.id} 
-                    checked={selectedFeatures.includes(feature.id)}
-                    onCheckedChange={() => toggleFeature(feature.id)}
-                  />
-                  <Label htmlFor={feature.id}>{feature.label}</Label>
-                </div>
-              ))}
-            </div>
+            <FormField
+              control={form.control}
+              name="standard_features"
+              render={() => (
+                <FormItem>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    {standardRoomFeatures.map(feature => (
+                      <FormField
+                        key={feature.id}
+                        control={form.control}
+                        name="standard_features"
+                        render={({ field }) => (
+                          <FormItem
+                            key={feature.id}
+                            className="flex flex-row items-start space-x-3 space-y-0"
+                          >
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value?.includes(feature.id)}
+                                onCheckedChange={checked => {
+                                  return checked
+                                    ? field.onChange([...field.value, feature.id])
+                                    : field.onChange(
+                                        field.value?.filter(
+                                          value => value !== feature.id
+                                        )
+                                      );
+                                }}
+                              />
+                            </FormControl>
+                            <FormLabel className="font-normal">
+                              {feature.label}
+                            </FormLabel>
+                          </FormItem>
+                        )}
+                      />
+                    ))}
+                  </div>
+                </FormItem>
+              )}
+            />
           </CardContent>
         </Card>
 
@@ -566,15 +583,9 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
           <ArrowLeft className="h-4 w-4" /> Previous
         </Button>
           
-          <Button type="submit" className="gap-1" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <>Submitting...</>
-            ) : (
-              <>
-          Next <ArrowRight className="h-4 w-4" />
-              </>
-            )}
-        </Button>
+          <Button type="submit" className="gap-1">
+            Next <ArrowRight className="h-4 w-4" />
+          </Button>
       </div>
       </form>
     </Form>
