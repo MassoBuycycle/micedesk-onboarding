@@ -1,1 +1,17 @@
-{"name":"onboarding-tool","version":"1.0.0","scripts":{"dev":"concurrently \"cd backend && npm run dev\" \"cd frontend && npm run dev\""},"devDependencies":{"concurrently":"^9.1.2"},"dependencies":{"axios":"^1.9.0"}}
+{
+  "name": "onboarding-tool",
+  "version": "1.0.0",
+  "description": "Hotel Onboarding Tool - Full Stack Application",
+  "scripts": {
+    "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run dev\"",
+    "build": "cd backend && npm run build && cd ../frontend && npm run build",
+    "start": "cd backend && npm start",
+    "setup": "chmod +x scripts/setup-deployment.sh && ./scripts/setup-deployment.sh"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

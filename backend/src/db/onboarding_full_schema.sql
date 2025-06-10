@@ -200,8 +200,138 @@ CREATE TABLE IF NOT EXISTS onboarding_hotel_info (
   FOREIGN KEY (hotel_id) REFERENCES onboarding_hotels(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS onboarding_standard_room_features (
+-- ------------------------------------------------------------
+-- (4.1) ROOM MANAGEMENT TABLES
+-- ------------------------------------------------------------
+
+-- Main rooms table - core information
+CREATE TABLE IF NOT EXISTS onboarding_rooms (
   id INT AUTO_INCREMENT PRIMARY KEY,
+  hotel_id INT NOT NULL,
+  main_contact_name VARCHAR(255),
+  main_contact_position VARCHAR(255),
+  reception_hours VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (hotel_id) REFERENCES onboarding_hotels(id) ON DELETE CASCADE
+);
+
+-- Room contacts information
+CREATE TABLE IF NOT EXISTS onboarding_room_contacts (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  room_id INT NOT NULL,
+  phone VARCHAR(20),
+  email VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (room_id) REFERENCES onboarding_rooms(id) ON DELETE CASCADE
+);
+
+-- Room check-in/check-out policies
+CREATE TABLE IF NOT EXISTS onboarding_room_policies (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  room_id INT NOT NULL,
+  check_in TIME,
+  check_out TIME,
+  early_check_in_cost DECIMAL(10,2),
+  late_check_out_cost DECIMAL(10,2),
+  early_check_in_time_frame VARCHAR(20),
+  late_check_out_time VARCHAR(20),
+  payment_methods JSON,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (room_id) REFERENCES onboarding_rooms(id) ON DELETE CASCADE
+);
+
+-- Room inventory information
+CREATE TABLE IF NOT EXISTS onboarding_room_inventory (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  room_id INT NOT NULL,
+  amt_single_rooms INT,
+  amt_double_rooms INT,
+  amt_connecting_rooms INT,
+  amt_handicapped_accessible_rooms INT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (room_id) REFERENCES onboarding_rooms(id) ON DELETE CASCADE
+);
+
+-- Room pet policies
+CREATE TABLE IF NOT EXISTS onboarding_room_pet_policies (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  room_id INT NOT NULL,
+  is_dogs_allowed BOOLEAN DEFAULT FALSE,
+  dog_fee DECIMAL(10,2),
+  dog_fee_inclusions TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (room_id) REFERENCES onboarding_rooms(id) ON DELETE CASCADE
+);
+
+-- Room category info table
+CREATE TABLE IF NOT EXISTS onboarding_room_category_infos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  room_id INT NOT NULL,
+  category_name VARCHAR(100),
+  pms_name VARCHAR(255),
+  num_rooms INT,
+  size INT,
+  bed_type VARCHAR(255),
+  surcharges_upsell TEXT,
+  room_features TEXT,
+  second_person_surcharge DECIMAL(10,2),
+  extra_bed_surcharge DECIMAL(10,2),
+  baby_bed_available BOOLEAN DEFAULT FALSE,
+  extra_bed_available BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (room_id) REFERENCES onboarding_rooms(id) ON DELETE CASCADE
+);
+
+-- Room operational handling table
+CREATE TABLE IF NOT EXISTS onboarding_room_operational_handling (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  room_id INT NOT NULL,
+  revenue_manager_name VARCHAR(255),
+  revenue_contact_details VARCHAR(255),
+  demand_calendar BOOLEAN DEFAULT FALSE,
+  demand_calendar_infos VARCHAR(255),
+  revenue_call BOOLEAN DEFAULT FALSE,
+  revenue_calls_infos TEXT,
+  group_request_min_rooms INT,
+  group_reservation_category VARCHAR(255),
+  group_rates_check BOOLEAN DEFAULT FALSE,
+  group_rates TEXT,
+  breakfast_share BOOLEAN DEFAULT FALSE,
+  first_second_option BOOLEAN DEFAULT FALSE,
+  shared_options BOOLEAN DEFAULT FALSE,
+  first_option_hold_duration VARCHAR(255),
+  overbooking BOOLEAN DEFAULT FALSE,
+  overbooking_info TEXT,
+  min_stay_weekends BOOLEAN DEFAULT FALSE,
+  min_stay_weekends_infos TEXT,
+  call_off_quota BOOLEAN DEFAULT FALSE,
+  call_off_method VARCHAR(255),
+  call_off_deadlines TEXT,
+  commission_rules TEXT,
+  free_spot_policy_leisure_groups TEXT,
+  restricted_dates TEXT,
+  handled_by_mice_desk BOOLEAN DEFAULT FALSE,
+  requires_deposit BOOLEAN DEFAULT FALSE,
+  deposit_rules TEXT,
+  payment_methods_room_handling JSON,
+  final_invoice_handling TEXT,
+  deposit_invoice_responsible VARCHAR(255),
+  info_invoice_created BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (room_id) REFERENCES onboarding_rooms(id) ON DELETE CASCADE
+);
+
+-- Updated standard room features table (now linked to specific rooms)
+CREATE TABLE IF NOT EXISTS onboarding_room_standard_features (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  room_id INT NOT NULL,
   shower_toilet BOOLEAN DEFAULT FALSE,
   bathtub_toilet BOOLEAN DEFAULT FALSE,
   open_bathroom BOOLEAN DEFAULT FALSE,
@@ -221,8 +351,22 @@ CREATE TABLE IF NOT EXISTS onboarding_standard_room_features (
   fridge BOOLEAN DEFAULT FALSE,
   allergy_friendly_bedding BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (room_id) REFERENCES onboarding_rooms(id) ON DELETE CASCADE
 );
+
+-- Drop the old standalone standard_room_features table if it exists
+DROP TABLE IF EXISTS onboarding_standard_room_features;
+
+-- Create indexes for room tables
+CREATE INDEX idx_onboarding_rooms_hotel_id ON onboarding_rooms(hotel_id);
+CREATE INDEX idx_onboarding_room_contacts_room_id ON onboarding_room_contacts(room_id);
+CREATE INDEX idx_onboarding_room_policies_room_id ON onboarding_room_policies(room_id);
+CREATE INDEX idx_onboarding_room_inventory_room_id ON onboarding_room_inventory(room_id);
+CREATE INDEX idx_onboarding_room_pet_policies_room_id ON onboarding_room_pet_policies(room_id);
+CREATE INDEX idx_onboarding_room_category_infos_room_id ON onboarding_room_category_infos(room_id);
+CREATE INDEX idx_onboarding_room_operational_handling_room_id ON onboarding_room_operational_handling(room_id);
+CREATE INDEX idx_onboarding_room_standard_features_room_id ON onboarding_room_standard_features(room_id);
 
 CREATE TABLE IF NOT EXISTS onboarding_payment_methods (
   id INT AUTO_INCREMENT PRIMARY KEY,

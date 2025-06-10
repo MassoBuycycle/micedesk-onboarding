@@ -1,141 +1,133 @@
-# Hotel Onboarding Tool
+# 🏨 Onboarding Tool
 
-A comprehensive hotel management system with both frontend and backend components.
+A comprehensive hotel onboarding and management system built with modern web technologies.
 
-## Running the Application
+## 🚀 Features
 
-You have multiple options to run both the backend and frontend servers simultaneously:
+- **Hotel Management**: Complete hotel profile creation and management
+- **User Authentication**: Secure role-based access control  
+- **Event Management**: Meeting rooms, equipment, and booking systems
+- **Food & Beverage**: Restaurant and catering management
+- **Document Management**: File uploads and policy management
+- **Multi-language Support**: Internationalization ready
 
-### Option 1: Using Make (Recommended)
+## 🛠️ Tech Stack
 
-We've created a Makefile with useful commands to simplify development.
+**Frontend**: React + TypeScript + Vite + Tailwind CSS  
+**Backend**: Node.js + Express + TypeScript  
+**Database**: MySQL with automatic table prefixing (`onboarding_`)  
+**Authentication**: JWT + bcrypt  
+**File Storage**: AWS S3 (optional)
 
-```bash
-# Run both backend and frontend in development mode
-make dev
+## 📦 Project Structure
 
-# Build both backend and frontend
-make build
-
-# Run in production mode
-make start
-
-# Install all dependencies
-make install
+```
+onboarding-tool/
+├── frontend/          # React application
+├── backend/           # Express API server
+├── scripts/           # Deployment utilities
+└── DEPLOYMENT.md      # Production deployment guide
 ```
 
-### Option 2: Using the Dev Script
+## 🏃‍♂️ Quick Start
 
-We also provide a simple bash script:
-
-```bash
-# First make it executable (only needed once)
-chmod +x dev.sh
-
-# Then run it
-./dev.sh
-```
-
-### Option 3: Manual Method
-
-If you prefer to run the servers manually in separate terminals:
+### Development Setup
 
 ```bash
-# Terminal 1 - Backend
-cd backend
-npm run dev
+# Install dependencies
+npm install
+cd frontend && npm install
+cd ../backend && npm install
 
-# Terminal 2 - Frontend
-cd frontend
+# Start development servers
 npm run dev
 ```
 
-## Accessing the Application
+This starts:
+- Frontend: http://localhost:5173
+- Backend: http://localhost:3001
 
-- Frontend: http://localhost:5173 (or the port shown in the console)
-- Backend API: http://localhost:3001 
+### Production Deployment
 
-# Hotel Management System - File Upload Functionality
+```bash
+# Generate deployment configuration
+npm run setup
 
-This document describes the file upload functionality that has been added to the hotel management system.
-
-## Overview
-
-The file upload system allows users to:
-
-1. Upload and manage files for hotels, events, rooms, and F&B
-2. Create and manage file types with specific extensions and size limitations
-3. Organize files by entity type, entity ID, category, and file type
-4. View and download files via pre-signed S3 URLs
-
-## Technical Implementation
-
-### Backend
-
-- Uses AWS S3 for secure, scalable file storage
-- PostgreSQL for file metadata and file type definitions
-- Express routes for file operations (upload, delete, list)
-- Multer and multer-s3 for handling file uploads
-
-### Frontend
-
-- React components for file upload with drag-and-drop
-- File browser with download and delete capabilities
-- File type management interface
-- Progress indicators for uploads
-
-## Configuration
-
-To use the file upload system, you need to set the following environment variables:
-
-```
-# AWS S3 Configuration
-AWS_ACCESS_KEY_ID=your_access_key_id
-AWS_SECRET_ACCESS_KEY=your_secret_access_key
-AWS_REGION=eu-central-1  # or your preferred region
-AWS_S3_BUCKET=micedesk-onboarding  # or your bucket name
+# Follow the deployment guide
+open DEPLOYMENT.md
 ```
 
-## File Structure in S3
+**Deployment Architecture**:
+- **Frontend**: Vercel (Static hosting)
+- **Backend**: Railway (Node.js hosting)  
+- **Database**: Your existing MySQL database
 
-Files are organized in S3 with the following structure:
+## 📖 Documentation
 
+- **[Deployment Guide](DEPLOYMENT.md)**: Complete production deployment instructions
+- **[API Documentation](backend/API_DOCUMENTATION.md)**: Backend API reference
+- **Database Schema**: Auto-generated tables with `onboarding_` prefix
+
+## 🔧 Configuration
+
+### Environment Variables
+
+**Frontend** (`.env`):
+```bash
+VITE_API_BASE_URL=http://localhost:3001/api
+VITE_API_LOGGING_ENABLED=true
 ```
-micedesk-onboarding/
-  hotels/
-    {hotel_id}/
-      {category}/
-        {file_type}/
-          {timestamp}_{filename}
-  events/
-    {event_id}/
-    ...
+
+**Backend** (`.env`):
+```bash
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_password
+DB_NAME=hotel_cms
+TABLE_PREFIX=onboarding_
+JWT_SECRET=your-secret-key
 ```
 
-## Database Schema
+## 🔒 Security Features
 
-Two tables manage the file system:
+- **JWT Authentication**: Secure token-based auth
+- **Role-based Access**: Admin, Editor, Contributor, Viewer roles
+- **Data Encryption**: Sensitive data encryption
+- **CORS Protection**: Configurable cross-origin policies
+- **Input Validation**: Comprehensive request validation
 
-1. `file_types` - Defines allowable file types and their properties
-2. `files` - Stores metadata about uploaded files
+## 🚀 Deployment
 
-## API Endpoints
+The application is designed for cloud deployment:
 
-### File Types
+1. **Generate Config**: `npm run setup`
+2. **Deploy Backend**: Railway (auto-deploys from GitHub)
+3. **Deploy Frontend**: Vercel (auto-deploys from GitHub)
+4. **Configure Database**: Direct MySQL connection (no SSH tunnels needed)
 
-- GET `/api/files/types` - Get all file types
-- GET `/api/files/types/category/:category` - Get file types by category
-- POST `/api/files/types` - Create a new file type
-- PUT `/api/files/types/:id` - Update a file type
-- DELETE `/api/files/types/:id` - Delete a file type
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
 
-### Files
+## 📊 Database Schema
 
-- GET `/api/files/:entityType/:entityId` - Get all files for an entity
-- GET `/api/files/:entityType/:entityId/:category` - Get files by category
-- POST `/api/files/upload/:entityType/:entityId/:category/:fileTypeCode` - Upload a file
-- DELETE `/api/files/id/:fileId` - Delete a file
+The system automatically creates tables with the `onboarding_` prefix:
+- `onboarding_hotels` - Hotel information
+- `onboarding_users` - User accounts and authentication
+- `onboarding_events` - Meeting and event spaces
+- `onboarding_files` - Document and media management
+- And more...
 
-## Usage
+## 🤝 Contributing
 
-The file upload functionality is accessible through the admin interface at `/admin/files`. 
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## 📝 License
+
+This project is proprietary software. All rights reserved.
+
+---
+
+**Ready to deploy?** See [DEPLOYMENT.md](DEPLOYMENT.md) for step-by-step instructions. 

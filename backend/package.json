@@ -1,35 +1,29 @@
 {
-  "name": "hotel-api",
+  "name": "onboarding-tool-backend",
   "version": "1.0.0",
-  "description": "API for Hotel Data Hub",
-  "main": "dist/server.js",
+  "description": "Backend API for Onboarding Tool",
+  "main": "src/server.js",
   "type": "module",
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/server.js",
-    "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node --esm src/server.ts'",
+    "build": "echo 'No build step needed - using plain JS'",
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
     "lint": "eslint . --ext .ts",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
-    "create-env": "ts-node --esm src/create-env.ts",
-    "create-file-tables": "node scripts/create-file-tables.js",
-    "update-users-schema": "node scripts/update-users-schema.js",
-    "init-permissions": "node scripts/init-permissions.js",
-    "init-approval-system": "node scripts/init-approval-system.js"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "keywords": [
     "hotel",
     "api",
-    "express"
+    "express",
+    "onboarding"
   ],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.808.0",
     "@aws-sdk/s3-request-presigner": "^3.808.0",
-    "@prisma/client": "^6.7.0",
     "@types/bcrypt": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.9",
-    "aws-sdk": "^2.1692.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
@@ -37,8 +31,7 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.2",
     "multer-s3": "^3.0.1",
-    "mysql2": "^3.6.0",
-    "react-dropzone": "^14.3.8"
+    "mysql2": "^3.6.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.13",
@@ -52,5 +45,8 @@
     "ts-jest": "^29.3.2",
     "ts-node": "^10.9.1",
     "typescript": "^5.1.6"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

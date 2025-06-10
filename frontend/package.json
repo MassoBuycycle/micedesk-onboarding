@@ -1,18 +1,13 @@
 {
-  "name": "hotel-api",
+  "name": "onboarding-tool-frontend",
   "private": true,
   "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:dev": "vite build --mode development",
-    "build:server": "tsc --project tsconfig.server.json",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "api": "npm run build:server && node dist/server.js",
-    "api:dev": "nodemon --watch 'src/**/*.ts' --exec 'npm run api'",
-    "setup-db": "mysql -u root -p < src/db/api_tables.sql"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -44,23 +39,17 @@
     "@radix-ui/react-toggle-group": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.4",
     "@tanstack/react-query": "^5.56.2",
-    "@types/bcrypt": "^5.0.2",
-    "bcrypt": "^5.1.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
-    "cors": "^2.8.5",
     "date-fns": "^3.6.0",
-    "dotenv": "^16.4.5",
     "embla-carousel-react": "^8.3.0",
-    "express": "^4.18.3",
     "i18next": "^25.2.1",
     "i18next-browser-languagedetector": "^8.1.0",
     "input-otp": "^1.2.4",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.462.0",
-    "mysql2": "^3.9.2",
     "next-themes": "^0.3.0",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
@@ -80,8 +69,6 @@
   "devDependencies": {
     "@eslint/js": "^9.9.0",
     "@tailwindcss/typography": "^0.5.15",
-    "@types/cors": "^2.8.17",
-    "@types/express": "^4.17.21",
     "@types/node": "^22.14.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
@@ -91,13 +78,13 @@
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.9",
     "globals": "^15.9.0",
-    "lovable-tagger": "^1.1.7",
-    "nodemon": "^3.1.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.11",
-    "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.0.1",
     "vite": "^5.4.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
