@@ -39,82 +39,7 @@ import HotelPermissions from '@/components/HotelPermissions';
 import { useAuth } from '@/context/AuthContext';
 import { getUserResourcePermissions } from '@/apiClient/permissionsApi';
 import { useQuery } from '@tanstack/react-query';
-
-// Sample data - this would normally come from an API
-const mockHotelDetail = {
-  id: "1",
-  name: "Grand Hotel Berlin",
-  category: "Luxury",
-  starRating: 5,
-  address: "Unter den Linden 77, 10117 Berlin",
-  city: "Berlin",
-  country: "Germany",
-  contactName: "Johannes Schmidt",
-  contactPhone: "+49 30 555 7890",
-  contactEmail: "reservations@grandhotelberlin.com",
-  description: "A prestigious 5-star luxury hotel in the heart of Berlin, offering exceptional service and elegant accommodations. The hotel features spacious rooms, fine dining restaurants, a full-service spa, and state-of-the-art conference facilities.",
-  rooms: {
-    singleRooms: 50,
-    doubleRooms: 75,
-    suites: 25,
-    connectingRooms: 10,
-    features: "AC, WiFi, Safe, Minibar, Room Service"
-  },
-  facilities: [
-    "Indoor Pool",
-    "Spa & Wellness Center",
-    "Fitness Center",
-    "Business Center",
-    "Concierge Service",
-    "Valet Parking"
-  ],
-  events: {
-    spaces: 3,
-    maxCapacity: 500,
-    equipment: true,
-    coordinator: "Emma Johnson"
-  },
-  fnb: {
-    restaurants: 3,
-    bars: 2,
-    roomService: true,
-    contact: "Chef Michael Weber"
-  },
-  images: [
-    {
-      type: "image", 
-      url: "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
-      title: "Hotel Exterior"
-    },
-    {
-      type: "image", 
-      url: "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
-      title: "Lobby"
-    },
-    {
-      type: "image", 
-      url: "https://images.unsplash.com/photo-1611892440504-42a792e24d32?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
-      title: "Deluxe Room"
-    },
-    {
-      type: "floorPlan", 
-      url: "https://images.unsplash.com/photo-1536895058696-a69b1c7ba34f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
-      title: "Hotel Floor Plan"
-    }
-  ],
-  documents: [
-    {
-      type: "brochure",
-      name: "Hotel Brochure 2023.pdf",
-      size: "2.4 MB"
-    },
-    {
-      type: "menu",
-      name: "Restaurant Menu.pdf",
-      size: "1.1 MB"
-    }
-  ]
-};
+import { getFullHotelDetails, updateHotel, type FullHotelResponse } from '@/apiClient/hotelsApi';
 
 const ViewDetail = () => {
   const params = useParams();
@@ -147,27 +72,90 @@ const ViewDetail = () => {
   
   const { user } = useAuth();
   
+  // Load hotel data using React Query
+  const { data: hotelData, isLoading, error } = useQuery<FullHotelResponse>({
+    queryKey: ['hotelFull', id],
+    queryFn: () => getFullHotelDetails(parseInt(id!)),
+    enabled: !!id && type === 'hotel',
+  });
+  
   // Check if user has permission to manage this hotel
   const { data: userPermissions = [] } = useQuery({
-    queryKey: ['userHotelPermissions', user?.id, parseInt(id)],
+    queryKey: ['userHotelPermissions', user?.id, parseInt(id || '0')],
     queryFn: () => getUserResourcePermissions(user!.id, 'hotel'),
     enabled: !!user?.id && !!id
   });
 
   const canManageHotel = userPermissions.some(
-    p => p.resource_id === parseInt(id) && 
+    p => p.resource_id === parseInt(id || '0') && 
       (p.permission_type === 'manage' || p.permission_type === 'edit')
   );
   
+  // Update detail when hotelData changes
   useEffect(() => {
-    // This would be replaced with an actual API call
-    setLoading(true);
-    setTimeout(() => {
-      setDetail(mockHotelDetail);
+    if (hotelData && hotelData.hotel) {
+      const hotel = hotelData.hotel;
+      const transformedDetail = {
+        id: hotel.id?.toString() || id,
+        name: hotel.name || '',
+        category: hotel.category || '',
+        starRating: hotel.star_rating || 0,
+        address: hotel.street || '',
+        city: hotel.city || '',
+        country: 'Germany', // Default for now
+        contactName: 'Contact Person', // Default for now
+        contactPhone: hotel.phone || '',
+        contactEmail: hotel.email || '',
+        description: 'Hotel description', // Default for now
+        rooms: {
+          singleRooms: Math.floor((hotel.total_rooms || 0) * 0.4),
+          doubleRooms: Math.floor((hotel.total_rooms || 0) * 0.5),
+          suites: Math.floor((hotel.total_rooms || 0) * 0.1),
+          connectingRooms: Math.floor((hotel.total_rooms || 0) * 0.1),
+          features: "AC, WiFi, Safe, Minibar, Room Service"
+        },
+        facilities: [
+          "Indoor Pool",
+          "Spa & Wellness Center", 
+          "Fitness Center",
+          "Business Center",
+          "Concierge Service",
+          "Valet Parking"
+        ],
+        events: {
+          spaces: hotelData.eventSpaces?.length || 0,
+          maxCapacity: 500,
+          equipment: true,
+          coordinator: "Event Coordinator"
+        },
+        fnb: {
+          restaurants: 2,
+          bars: 1,
+          roomService: true,
+          contact: "F&B Manager"
+        },
+        images: hotelData.files?.filter(f => f.mime_type?.startsWith('image')).map(f => ({
+          type: "image",
+          url: f.url || '',
+          title: f.original_name || 'Hotel Image'
+        })) || [],
+        documents: hotelData.files?.filter(f => !f.mime_type?.startsWith('image')).map(f => ({
+          type: "document",
+          name: f.original_name || 'Document',
+          size: f.size ? `${Math.round(f.size / 1024 / 1024 * 10) / 10} MB` : 'Unknown'
+        })) || []
+      };
+      
+      setDetail(transformedDetail);
       setLoading(false);
-    }, 500);
-  }, [id, type]);
+    }
+  }, [hotelData, id]);
   
+  // Set loading state
+  useEffect(() => {
+    setLoading(isLoading);
+  }, [isLoading]);
+
   // Update form values when detail data changes
   useEffect(() => {
     if (detail) {
@@ -258,10 +246,26 @@ const ViewDetail = () => {
     }
   };
   
-  const handleSave = (formData: any) => {
+  const handleSave = async (formData: any) => {
     try {
-      // In a real app, you would send this to your API
-      // For now, we'll just update the local state
+      if (!id) {
+        toast.error("No hotel ID available for update");
+        return;
+      }
+
+      const updateData = {
+        name: formData.name,
+        category: formData.category,
+        star_rating: formData.starRating,
+        street: formData.address,
+        city: formData.city,
+        phone: formData.contactPhone,
+        email: formData.contactEmail,
+      };
+
+      await updateHotel(parseInt(id), updateData);
+      
+      // Update local state with new data
       const updatedDetail = {
         ...detail,
         ...formData,
@@ -270,9 +274,9 @@ const ViewDetail = () => {
       setDetail(updatedDetail);
       setIsEditing(false);
       toast.success("Hotel details updated successfully");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving hotel details:", error);
-      toast.error("Failed to update hotel details");
+      toast.error(error.message || "Failed to update hotel details");
     }
   };
 
