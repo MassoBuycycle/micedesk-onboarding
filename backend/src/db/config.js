@@ -43,7 +43,7 @@ const TABLES_TO_PREFIX = [
   'information_policies', 'information_policy_items', 'information_policy_item_details',
   
   // Lookup tables
-  'payment_methods', 'standard_features', 'equipment_types',
+  // 'payment_methods', 'standard_features', 'equipment_types', // Removed to prevent incorrect prefixing in SET clauses. Manually prefixed in controllers.
   
   // Announcements & secure data (actively used)
   'hotel_announcements', 'hotel_secure_data',

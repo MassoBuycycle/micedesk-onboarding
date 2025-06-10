@@ -7,7 +7,7 @@ export const getAllEquipmentTypes = async (req, res, next) => {
   const connection = await pool.getConnection();
   try {
     const [equipmentTypes] = await connection.query(
-      'SELECT id, equipment_name, description FROM equipment_types ORDER BY equipment_name'
+      'SELECT id, equipment_name, description FROM onboarding_equipment_types ORDER BY equipment_name'
     );
     
     res.status(200).json(equipmentTypes);
@@ -39,7 +39,7 @@ export const getEventEquipment = async (req, res, next) => {
     const [equipment] = await connection.query(
       `SELECT ee.equipment_id, et.equipment_name, ee.quantity, ee.price 
        FROM event_equipment ee
-       JOIN equipment_types et ON ee.equipment_id = et.id
+       JOIN onboarding_equipment_types et ON ee.equipment_id = et.id
        WHERE ee.event_id = ?`,
       [eventId]
     );
@@ -96,7 +96,7 @@ export const upsertEventEquipment = async (req, res, next) => {
     const [updatedEquipment] = await connection.query(
       `SELECT ee.equipment_id, et.equipment_name, ee.quantity, ee.price 
        FROM event_equipment ee
-       JOIN equipment_types et ON ee.equipment_id = et.id
+       JOIN onboarding_equipment_types et ON ee.equipment_id = et.id
        WHERE ee.event_id = ?`,
       [eventId]
     );
@@ -105,6 +105,22 @@ export const upsertEventEquipment = async (req, res, next) => {
       success: true,
       equipment: updatedEquipment
     });
+  } catch (error) {
+    next(error);
+  } finally {
+    connection.release();
+  }
+};
+
+/**
+ * Get equipment types
+ * @param {import('express').NextFunction} next - Express next middleware function
+ */
+export const getEquipmentTypes = async (req, res, next) => {
+  const connection = await pool.getConnection();
+  try {
+    const [rows] = await connection.query('SELECT * FROM onboarding_equipment_types');
+    res.status(200).json(rows);
   } catch (error) {
     next(error);
   } finally {

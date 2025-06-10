@@ -144,19 +144,19 @@ export const createHotel = async (req, res, next) => {
     // 1) Standard room features
     if (Array.isArray(data.standard_features)) {
       // Refresh the table so that it reflects exactly what the client sent
-      await connection.query('DELETE FROM standard_features');
+      await connection.query('DELETE FROM onboarding_standard_features');
       if (data.standard_features.length > 0) {
         const insertValues = data.standard_features.map(f => [f]);
-        await connection.query('INSERT INTO standard_features (name) VALUES ?', [insertValues]);
+        await connection.query('INSERT INTO onboarding_standard_features (name) VALUES ?', [insertValues]);
       }
     }
 
     // 2) Payment methods
     if (Array.isArray(data.payment_methods)) {
-      await connection.query('DELETE FROM payment_methods');
+      await connection.query('DELETE FROM onboarding_payment_methods');
       if (data.payment_methods.length > 0) {
         const insertValues = data.payment_methods.map(method => [method, true]);
-        await connection.query('INSERT INTO payment_methods (name, enabled) VALUES ?', [insertValues]);
+        await connection.query('INSERT INTO onboarding_payment_methods (name, enabled) VALUES ?', [insertValues]);
       }
     }
 
