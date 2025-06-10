@@ -242,9 +242,33 @@ export function useHotelFormState() {
 
           if (createdHotelId === null) {
             console.log("Calling createHotel with transformed data:", hotelInput);
-            const hotelResponse = await createHotel(hotelInput);
-            setCreatedHotelId(hotelResponse.hotelId);
-            toast.success(`Hotel "${hotelResponse.name}" created (ID: ${hotelResponse.hotelId}).`);
+            try {
+              const hotelResponse = await createHotel(hotelInput);
+              console.log("=== HOTEL CREATION RESPONSE ===");
+              console.log("Full hotel response:", hotelResponse);
+              console.log("hotelResponse.hotelId:", hotelResponse.hotelId);
+              console.log("hotelResponse.name:", hotelResponse.name);
+              console.log("hotelResponse.success:", hotelResponse.success);
+              
+              if (hotelResponse.hotelId) {
+                setCreatedHotelId(hotelResponse.hotelId);
+                console.log("=== HOTEL ID SET SUCCESSFULLY ===");
+                console.log("createdHotelId set to:", hotelResponse.hotelId);
+                toast.success(`Hotel "${hotelResponse.name}" created (ID: ${hotelResponse.hotelId}).`);
+              } else {
+                console.error("=== HOTEL ID NOT FOUND IN RESPONSE ===");
+                console.error("Could not find hotel ID in response");
+                toast.error("Hotel created but ID not found in response. Please check the backend.");
+                setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
+                return;
+              }
+            } catch (createError: any) {
+              console.error("=== ERROR CREATING HOTEL ===");
+              console.error("Hotel creation failed:", createError);
+              toast.error(`Failed to create hotel: ${createError.message}`);
+              setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
+              return;
+            }
           } else {
             // Determine if user requires approval
             const requiresApproval = permissions.includes('edit_with_approval') && !permissions.includes('edit_all');
@@ -285,7 +309,6 @@ export function useHotelFormState() {
 
             const payload: MainRoomConfigInput = {
               hotel_id: createdHotelId,
-              standard_features: formValues.standard_features || [],
               main_contact_name: formValues.main_contact_name_room, 
               reception_hours: formValues.reception_hours,
               phone: formValues.room_phone,
