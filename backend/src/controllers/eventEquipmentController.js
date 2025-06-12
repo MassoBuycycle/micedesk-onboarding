@@ -59,14 +59,24 @@ export const upsertEventEquipment = async (req, res, next) => {
   const connection = await pool.getConnection();
   try {
     const eventId = parseInt(req.params.id);
-    const equipmentItems = req.body;
-    
-    if (!eventId) {
-      return res.status(400).json({ error: 'Event ID missing' });
+    const equipmentItemsRaw = req.body;
+    // Allow payload to be either [{equipment_id, quantity, price}] or [{equipment_name, quantity, price}]
+    const equipmentItems = [];
+    for(const item of equipmentItemsRaw){
+      if(item.equipment_id){
+        equipmentItems.push({...item});
+      }else if(item.equipment_name){
+        // look up id
+        const [[typeRow]] = await connection.query('SELECT id FROM onboarding_equipment_types WHERE equipment_name = ?', [item.equipment_name]);
+        if(typeRow){
+          equipmentItems.push({equipment_id:typeRow.id, quantity: parseInt(item.quantity)||0, price: parseFloat(item.price)||0});
+        } else {
+          console.warn(`Unknown equipment name ${item.equipment_name} – skipping`);
+        }
+      }
     }
-    
-    if (!Array.isArray(equipmentItems)) {
-      return res.status(400).json({ error: 'Equipment items must be an array' });
+    if(equipmentItems.length===0){
+      return res.status(400).json({error:'No valid equipment items'});
     }
     
     // Check if event exists
