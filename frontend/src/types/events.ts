@@ -90,6 +90,13 @@ export interface EventSpaceInput {
 export interface EventEquipmentInput {
   equipment_name: string;
   quantity?: number;
+  /**
+   * Preferred field matching backend column name
+   */
+  price_per_unit?: number;
+  /**
+   * Legacy alias used in some form code; still accepted by backend
+   */
   price?: number;
 }
 

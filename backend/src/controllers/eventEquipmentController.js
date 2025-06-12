@@ -37,10 +37,9 @@ export const getEventEquipment = async (req, res, next) => {
     
     // Get equipment items with their names from equipment_types
     const [equipment] = await connection.query(
-      `SELECT ee.equipment_type_id AS equipment_id, et.equipment_name, ee.quantity, ee.price 
-       FROM event_equipment ee
-       JOIN onboarding_equipment_types et ON ee.equipment_type_id = et.id
-       WHERE ee.event_id = ?`,
+      `SELECT id, equipment_name, quantity, price_per_unit
+       FROM event_av_equipment
+       WHERE event_id = ?`,
       [eventId]
     );
     
@@ -59,24 +58,19 @@ export const upsertEventEquipment = async (req, res, next) => {
   const connection = await pool.getConnection();
   try {
     const eventId = parseInt(req.params.id);
-    const equipmentItemsRaw = req.body;
-    // Allow payload to be either [{equipment_id, quantity, price}] or [{equipment_name, quantity, price}]
-    const equipmentItems = [];
-    for(const item of equipmentItemsRaw){
-      if(item.equipment_id){
-        equipmentItems.push({...item});
-      }else if(item.equipment_name){
-        // look up id
-        const [[typeRow]] = await connection.query('SELECT id FROM onboarding_equipment_types WHERE equipment_name = ?', [item.equipment_name]);
-        if(typeRow){
-          equipmentItems.push({equipment_id:typeRow.id, quantity: parseInt(item.quantity)||0, price: parseFloat(item.price)||0});
-        } else {
-          console.warn(`Unknown equipment name ${item.equipment_name} – skipping`);
-        }
-      }
-    }
-    if(equipmentItems.length===0){
-      return res.status(400).json({error:'No valid equipment items'});
+    const equipmentItemsRaw = req.body; // Expect array of {equipment_name, quantity, price_per_unit}
+
+    // Normalize incoming data
+    const equipmentItems = (Array.isArray(equipmentItemsRaw) ? equipmentItemsRaw : [])
+      .map(item => ({
+        equipment_name: item.equipment_name?.trim(),
+        quantity: parseInt(item.quantity) || 0,
+        price_per_unit: parseFloat(item.price_per_unit ?? item.price) || 0
+      }))
+      .filter(item => item.equipment_name);
+
+    if (equipmentItems.length === 0) {
+      return res.status(400).json({ error: 'No valid equipment items provided' });
     }
     
     // Check if event exists
@@ -86,17 +80,17 @@ export const upsertEventEquipment = async (req, res, next) => {
     }
     
     // Clear existing equipment for this event
-    await connection.query('DELETE FROM event_equipment WHERE event_id = ?', [eventId]);
+    await connection.query('DELETE FROM event_av_equipment WHERE event_id = ?', [eventId]);
     
     // Insert new equipment items
     if (equipmentItems.length > 0) {
       const insertValues = equipmentItems
-        .filter(item => item.equipment_id && (item.quantity > 0 || item.price > 0))
-        .map(item => [eventId, item.equipment_id, item.quantity || 0, item.price || 0]);
+        .filter(item => (item.quantity > 0 || item.price_per_unit > 0))
+        .map(item => [eventId, item.equipment_name, item.quantity, item.price_per_unit]);
       
       if (insertValues.length > 0) {
         await connection.query(
-          'INSERT INTO event_equipment (event_id, equipment_type_id, quantity, price) VALUES ?',
+          'INSERT INTO event_av_equipment (event_id, equipment_name, quantity, price_per_unit) VALUES ?',
           [insertValues]
         );
       }
@@ -104,10 +98,9 @@ export const upsertEventEquipment = async (req, res, next) => {
     
     // Return updated equipment with names
     const [updatedEquipment] = await connection.query(
-      `SELECT ee.equipment_type_id AS equipment_id, et.equipment_name, ee.quantity, ee.price 
-       FROM event_equipment ee
-       JOIN onboarding_equipment_types et ON ee.equipment_type_id = et.id
-       WHERE ee.event_id = ?`,
+      `SELECT id, equipment_name, quantity, price_per_unit
+       FROM event_av_equipment
+       WHERE event_id = ?`,
       [eventId]
     );
     

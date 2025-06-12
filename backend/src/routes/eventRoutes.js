@@ -2,7 +2,9 @@ import express from 'express';
 import { 
   getAllEvents,
   createEvent,
-  getEventsByHotelId
+  getEventsByHotelId,
+  getEventById,
+  updateEvent
 } from '../controllers/eventMainController.js';
 
 import { 
@@ -68,5 +70,11 @@ router.post('/:id/spaces', createEventSpace);
 router.get('/:id/spaces/:spaceId', getEventSpaceById);
 router.put('/:id/spaces/:spaceId', updateEventSpace);
 router.delete('/:id/spaces/:spaceId', deleteEventSpace);
+
+// --------------------------------------------------
+// Generic single event routes (placed after sub-routes)
+// --------------------------------------------------
+router.get('/:id', getEventById);
+router.put('/:id', updateEvent);
 
 export default router; 
