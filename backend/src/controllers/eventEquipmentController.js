@@ -67,7 +67,7 @@ export const upsertEventEquipment = async (req, res, next) => {
         equipmentItems.push({...item});
       }else if(item.equipment_name){
         // look up id
-        const [[typeRow]] = await connection.query('SELECT id FROM onboarding_equipment_types WHERE equipment_name = ?', [item.equipment_name]);
+        const [[typeRow]] = await connection.query('SELECT id FROM equipment_types WHERE equipment_name = ?', [item.equipment_name]);
         if(typeRow){
           equipmentItems.push({equipment_id:typeRow.id, quantity: parseInt(item.quantity)||0, price: parseFloat(item.price)||0});
         } else {
