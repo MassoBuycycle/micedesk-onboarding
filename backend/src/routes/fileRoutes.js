@@ -45,4 +45,6 @@ router.post(
   uploadFile         // Process after upload and save metadata
 );
 
+router.get('/hotels/:hotelId/room', getRoomFilesByHotel);
+
 export default router; 

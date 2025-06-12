@@ -270,4 +270,33 @@ export const assignTemporaryFiles = async (req, res) => {
     console.error(`Error assigning temporary files for ${entityType} ${entityId}:`, error);
     res.status(500).json({ error: 'Failed to assign temporary files' });
   }
+};
+
+/**
+ * Get all room-category files for every room belonging to a hotel
+ */
+export const getRoomFilesByHotel = async (req, res) => {
+  const { hotelId } = req.params;
+  if (!hotelId) return res.status(400).json({ error: 'hotelId required' });
+  try {
+    const [rows] = await pool.query(
+      `SELECT f.*, ft.name as file_type_name, ft.code as file_type_code, ft.category, r.id AS room_id 
+       FROM files f
+       JOIN file_types ft ON ft.id = f.file_type_id
+       JOIN rooms r ON r.id = f.entity_id
+       WHERE r.hotel_id = ? AND f.entity_type = 'rooms' AND ft.category = 'room'
+       ORDER BY f.created_at DESC`,
+      [hotelId]
+    );
+
+    const filesWithUrls = await Promise.all(rows.map(async file => ({
+      ...file,
+      url: await getSignedUrl(file.storage_path)
+    })));
+
+    res.json(filesWithUrls);
+  } catch (err) {
+    console.error('Error getRoomFilesByHotel', err);
+    res.status(500).json({ error: 'Failed to get room files for hotel' });
+  }
 }; 

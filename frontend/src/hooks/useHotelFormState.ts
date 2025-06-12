@@ -172,14 +172,68 @@ export function useHotelFormState() {
     const transformedHotel = transformHotelData(apiData.hotel);
     console.log("Transformed hotel data:", transformedHotel);
     
+    // NEW helper to transform first room entry
+    const transformRoomData = (roomAgg:any)=>{
+      if(!roomAgg) return {};
+      const out:any={};
+      out.main_contact_name_room = roomAgg.main_contact_name;
+      out.main_contact_position_room = roomAgg.main_contact_position;
+      out.reception_hours = roomAgg.reception_hours;
+      if(roomAgg.contacts){
+        out.room_phone = roomAgg.contacts.phone;
+        out.room_email = roomAgg.contacts.email;
+      }
+      if(roomAgg.policies){
+        out.check_in_time = roomAgg.policies.check_in;
+        out.check_out_time = roomAgg.policies.check_out;
+        out.early_checkin_fee = roomAgg.policies.early_check_in_cost;
+        out.late_checkout_fee = roomAgg.policies.late_check_out_cost;
+        out.early_check_in_time_frame = roomAgg.policies.early_check_in_time_frame;
+        out.late_check_out_tme = roomAgg.policies.late_check_out_time;
+        out.payment_methods = roomAgg.policies.payment_methods || [];
+      }
+      if(roomAgg.inventory){
+        out.single_rooms = roomAgg.inventory.amt_single_rooms;
+        out.double_rooms = roomAgg.inventory.amt_double_rooms;
+        out.connected_rooms = roomAgg.inventory.amt_connecting_rooms;
+        out.accessible_rooms = roomAgg.inventory.amt_handicapped_accessible_rooms;
+      }
+      if(roomAgg.pet_policies){
+        out.dogs_allowed = roomAgg.pet_policies.is_dogs_allowed;
+        out.dog_fee = roomAgg.pet_policies.dog_fee;
+        out.dog_fee_inclusions = roomAgg.pet_policies.dog_fee_inclusions;
+      }
+      if(Array.isArray(roomAgg.standard_features)){
+        out.standard_features = roomAgg.standard_features;
+      }
+      return out;
+    }
+
+    // transform roomOperational to handling form
+    const transformRoomHandling = (handling:any)=>{
+      if(!handling) return {};
+      const boolToState=(v:any)=>typeof v==='number'?Boolean(v):v;
+      const out={...handling};
+      // convert numeric bools
+      Object.keys(out).forEach(k=>{ if(typeof out[k]==='number' && (out[k]===0||out[k]===1)) out[k]=Boolean(out[k]); });
+      if(out.payment_methods_room_handling && typeof out.payment_methods_room_handling==='string'){
+        try{ out.payment_methods_room_handling = JSON.parse(out.payment_methods_room_handling);}catch{}
+      }
+      return out;
+    }
+
+    const firstRoom = Array.isArray(apiData.rooms)? apiData.rooms[0]:undefined;
+    const roomInfoForm = transformRoomData(firstRoom);
+    const roomHandlingForm = transformRoomHandling(Array.isArray(apiData.roomOperational)?apiData.roomOperational[0]:apiData.roomHandling);
+
     const newFormData: HotelFormData = {
       hotel: transformedHotel,
-      roomInfo: apiData.rooms || apiData.roomInfo || {},  // API uses 'rooms' not 'roomInfo'
+      roomInfo: roomInfoForm,
       roomCategories: apiData.roomCategories || [],
-      roomHandling: apiData.roomOperational || apiData.roomHandling || {},  // API uses 'roomOperational'
+      roomHandling: roomHandlingForm,
       eventsInfo: apiData.eventsInfo || {},
       eventSpaces: apiData.eventSpaces || [],
-      foodBeverage: apiData.fnb || apiData.foodBeverage || {},  // API uses 'fnb' not 'foodBeverage'
+      foodBeverage: apiData.fnb || apiData.foodBeverage || {},
       informationPolicies: apiData.informationPolicies || [],
     };
     
