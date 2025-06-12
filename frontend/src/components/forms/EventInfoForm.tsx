@@ -514,6 +514,7 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
           
           // Import all the GET functions we need
           const { 
+            getEventById,
             getEventBooking, 
             getEventOperations, 
             getEventFinancials,
@@ -522,8 +523,12 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
           } = await import('@/apiClient/eventsApi');
           
           // Fetch all event data in parallel
-          console.log("📡 Fetching data from 4 endpoints in parallel...");
-          const [bookingData, operationsData, financialsData, equipmentData] = await Promise.all([
+          console.log("📡 Fetching data from 5 endpoints in parallel...");
+          const [mainData, bookingData, operationsData, financialsData, equipmentData] = await Promise.all([
+            getEventById(createdEventId).catch(err=>{
+              console.error("❌ Failed to fetch main event data:", err.message||err);
+              return null;
+            }),
             getEventBooking(createdEventId).catch(err => {
               console.error("❌ Failed to fetch booking data:", err.message || err);
               return null;
@@ -577,6 +582,16 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
             });
           } else {
             console.log("⚠️ No equipment data received");
+          }
+          
+          if(mainData){
+            console.log("✅ Main event data fetched:", JSON.stringify(mainData,null,2));
+            form.setValue("contact.contact_name", mainData.contact_name||"");
+            form.setValue("contact.contact_phone", mainData.contact_phone||"");
+            form.setValue("contact.contact_email", mainData.contact_email||"");
+            form.setValue("contact.contact_position", mainData.contact_position||"");
+          } else {
+            console.log("⚠️ No main event data received");
           }
           
           // Technical and Contracting data would go here once the backend endpoints are implemented
