@@ -37,9 +37,9 @@ export const getEventEquipment = async (req, res, next) => {
     
     // Get equipment items with their names from equipment_types
     const [equipment] = await connection.query(
-      `SELECT ee.equipment_id, et.equipment_name, ee.quantity, ee.price 
+      `SELECT ee.equipment_type_id AS equipment_id, et.equipment_name, ee.quantity, ee.price 
        FROM event_equipment ee
-       JOIN onboarding_equipment_types et ON ee.equipment_id = et.id
+       JOIN onboarding_equipment_types et ON ee.equipment_type_id = et.id
        WHERE ee.event_id = ?`,
       [eventId]
     );
@@ -96,7 +96,7 @@ export const upsertEventEquipment = async (req, res, next) => {
       
       if (insertValues.length > 0) {
         await connection.query(
-          'INSERT INTO event_equipment (event_id, equipment_id, quantity, price) VALUES ?',
+          'INSERT INTO event_equipment (event_id, equipment_type_id, quantity, price) VALUES ?',
           [insertValues]
         );
       }
@@ -104,9 +104,9 @@ export const upsertEventEquipment = async (req, res, next) => {
     
     // Return updated equipment with names
     const [updatedEquipment] = await connection.query(
-      `SELECT ee.equipment_id, et.equipment_name, ee.quantity, ee.price 
+      `SELECT ee.equipment_type_id AS equipment_id, et.equipment_name, ee.quantity, ee.price 
        FROM event_equipment ee
-       JOIN onboarding_equipment_types et ON ee.equipment_id = et.id
+       JOIN onboarding_equipment_types et ON ee.equipment_type_id = et.id
        WHERE ee.event_id = ?`,
       [eventId]
     );
