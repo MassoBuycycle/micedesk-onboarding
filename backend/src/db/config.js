@@ -16,7 +16,7 @@ const pool = mysql.createPool({
 // ------------------------------------------------------------------
 // Automatic table-name prefixing to use onboarding_ tables
 // ------------------------------------------------------------------
-const TABLE_PREFIX = process.env.TABLE_PREFIX || '';
+const TABLE_PREFIX = process.env.TABLE_PREFIX || 'onboarding_';
 
 // Complete list of table names used throughout the application (without prefix)
 const TABLES_TO_PREFIX = [
