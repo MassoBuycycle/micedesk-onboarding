@@ -289,6 +289,11 @@ export function useHotelFormState() {
     
     console.log("Completed steps:", newCompletedSteps);
     setCompletedSteps(newCompletedSteps);
+
+    // If backend provided events, store first event ID for edit flow
+    if (apiData.events && Array.isArray(apiData.events) && apiData.events.length > 0) {
+      setCreatedEventId(apiData.events[0].id);
+    }
   };
 
   const updateFormData = (step: FormStep, data: any) => {

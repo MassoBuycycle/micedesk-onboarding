@@ -57,6 +57,9 @@ export const getFullHotelDetails = async (req, res, next) => {
       [roomCategories] = await connection.query('SELECT * FROM room_category_infos WHERE room_id IN (?)', [roomIds]);
     }
 
+    // Events for this hotel (main info only)
+    const [events] = await connection.query('SELECT * FROM events WHERE hotel_id = ?', [hotelId]);
+
     // Event spaces via events table
     const [eventSpaces] = await connection.query(
       `SELECT es.* FROM event_spaces es 
@@ -136,6 +139,7 @@ export const getFullHotelDetails = async (req, res, next) => {
         rooms,
         roomCategories,
         roomOperational,
+        events,
         eventSpaces,
         contacts,
         billing,
