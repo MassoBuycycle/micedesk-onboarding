@@ -104,10 +104,32 @@ export function useHotelFormState() {
 
   const fetchAndSetHotelData = async (hotelId: number) => {
     try {
+      // Fetch core hotel data
       const hotelData = await getHotelById(hotelId);
-      const apiData = { hotel: hotelData }; // Adjust if more data needs to be fetched
+
+      // Try to fetch any existing events for this hotel
+      let events = [] as any[];
+      try {
+        const { getEventsByHotelId } = await import('@/apiClient/eventsApi');
+        events = await getEventsByHotelId(hotelId);
+      } catch (err) {
+        console.warn('Could not fetch events for hotel', hotelId, err);
+      }
+
+      // If at least one event exists, remember its ID so EventInfoForm will auto-load it
+      if (events && events.length > 0) {
+        setCreatedEventId(events[0].id);
+      }
+
+      const apiData: any = { hotel: hotelData };
+      // Optionally attach events array so transform can use it later if needed
+      if (events && events.length) {
+        apiData.events = events;
+      }
+
       setHotelDataFromApi(apiData);
     } catch (error) {
+      console.error('fetchAndSetHotelData error', error);
       toast.error('Failed to fetch hotel data.');
     }
   };
