@@ -37,7 +37,6 @@ export const getEventBooking = async (req, res) => {
  */
 export const createOrUpdateEventBooking = async (req, res) => {
   const eventId = parseInt(req.params.id);
-  const bookingData = req.body;
   
   if (!eventId) {
     return res.status(400).json({ error: 'Event ID is required' });
@@ -55,6 +54,34 @@ export const createOrUpdateEventBooking = async (req, res) => {
     
     const isUpdate = existingRows.length > 0;
     let result;
+
+    // Map incoming body into only the columns that really exist in the DB
+    const ALLOWED_FIELDS = [
+      'has_options',
+      'allows_split_options',
+      'option_duration',
+      'allows_overbooking',
+      'rooms_only',
+      'last_minute_leadtime',
+      'contracted_companies',
+      'refused_requests',
+      'unwanted_marketing',
+      'requires_second_signature',
+      'exclusive_clients'
+    ];
+
+    // Build a clean data object so we never attempt to insert / update an unknown column
+    const bookingData = {};
+    for (const [key, value] of Object.entries(req.body || {})) {
+      if (ALLOWED_FIELDS.includes(key)) {
+        bookingData[key] = value;
+      }
+    }
+
+    // Handle possible alternative naming coming from the UI (snake-case vs camel-case)
+    if (req.body.last_minute_lead_time !== undefined) {
+      bookingData.last_minute_leadtime = req.body.last_minute_lead_time;
+    }
 
     if (isUpdate) {
       // Update existing booking data
