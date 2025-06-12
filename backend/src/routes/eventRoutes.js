@@ -1,7 +1,8 @@
 import express from 'express';
 import { 
   getAllEvents,
-  createEvent
+  createEvent,
+  getEventsByHotelId
 } from '../controllers/eventMainController.js';
 
 import { 
@@ -38,6 +39,9 @@ const router = express.Router();
 // Event main routes
 router.get('/', getAllEvents);
 router.post('/', createEvent);
+
+// Get events for a specific hotel
+router.get('/hotel/:hotelId', getEventsByHotelId);
 
 // Equipment types route
 router.get('/equipment-types', getAllEquipmentTypes);
