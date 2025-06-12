@@ -14,7 +14,8 @@ import {
   getFilesByEntity,
   getFilesByEntityAndCategory,
   getFileById,
-  deleteFileById
+  deleteFileById,
+  getRoomFilesByHotel
 } from '../controllers/fileController.js';
 import { uploadMiddleware } from '../services/s3Service.js';
 
