@@ -195,6 +195,15 @@ const HotelForm = ({ initialData = {}, onNext, onChange, mode = 'add' }: HotelFo
     console.log("=== HOTEL FORM SUBMIT STARTED ===");
     console.log("Form data received:", data);
     console.log("isSubmitting:", isSubmitting);
+    console.log("onNext function type:", typeof onNext);
+    console.log("onNext function:", onNext);
+    
+    // Safety check for onNext callback
+    if (typeof onNext !== 'function') {
+      console.error("onNext is not a function:", onNext);
+      toast.error("Form submission error: Invalid callback function");
+      return;
+    }
     
     setIsSubmitting(true);
     try {
@@ -270,7 +279,14 @@ const HotelForm = ({ initialData = {}, onNext, onChange, mode = 'add' }: HotelFo
       // onNext passes the raw form data (HotelFormValues) to useHotelFormState
       // useHotelFormState then uses its formData.hotel (which this data becomes)
       // to construct the HotelInput for the actual API call on the final step.
-      onNext(data); 
+      try {
+        onNext(data);
+        console.log("onNext called successfully");
+      } catch (onNextError) {
+        console.error("Error calling onNext:", onNextError);
+        toast.error("Error proceeding to next step. Please try again.");
+        return;
+      }
       
       console.log("=== HOTEL FORM SUBMIT COMPLETED ===");
     } catch (error) {

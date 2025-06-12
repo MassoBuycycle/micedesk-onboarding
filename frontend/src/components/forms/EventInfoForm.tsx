@@ -326,9 +326,12 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
   // Mapping helper will build the flattened payload for backend
   const buildEventPayload = (): Record<string, any> => {
     const values = form.getValues();
+    const BACKUP_HOTEL_ID = 28;
+    const hotelId = selectedHotel?.id || BACKUP_HOTEL_ID;
+    
     const fullData: EventInfoData = {
       contact: {
-        hotel_id: selectedHotel?.id || 0,
+        hotel_id: hotelId,
         ...values.contact,
       },
       booking: values.booking,

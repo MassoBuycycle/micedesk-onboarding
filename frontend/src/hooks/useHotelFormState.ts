@@ -243,6 +243,18 @@ export function useHotelFormState() {
   };
 
   const handleNext = async (currentStep: FormStep, data: any) => {
+    console.log("=== handleNext called ===");
+    console.log("currentStep:", currentStep);
+    console.log("data:", data);
+    console.log("typeof onNext:", typeof handleNext);
+    
+    // Safety check to ensure we have valid data
+    if (!data) {
+      console.error("No data provided to handleNext");
+      toast.error("Invalid form data received");
+      return;
+    }
+
     const newFormData = { ...formData, [currentStep]: data };
     setFormData(newFormData);
     setTempFormData(newFormData);
@@ -318,6 +330,11 @@ export function useHotelFormState() {
           if (createdHotelId === null) {
             console.log("Calling createHotel with transformed data:", hotelInput);
             try {
+              // Safety check for createHotel function
+              if (typeof createHotel !== 'function') {
+                throw new Error('createHotel is not a function');
+              }
+              
               const hotelResponse = await createHotel(hotelInput);
               console.log("=== HOTEL CREATION RESPONSE ===");
               console.log("Full hotel response:", hotelResponse);
@@ -352,14 +369,42 @@ export function useHotelFormState() {
             // Determine if user requires approval
             const requiresApproval = permissions.includes('edit_with_approval') && !permissions.includes('edit_all');
             if (requiresApproval) {
-              // Fetch original data for diff
-              const originalHotel = await getHotelById(createdHotelId);
-              await submitChanges(createdHotelId, 'hotel', hotelInput, originalHotel);
-              toast.success('Update request submitted for approval.');
+              try {
+                // Safety check for getHotelById function
+                if (typeof getHotelById !== 'function') {
+                  throw new Error('getHotelById is not a function');
+                }
+                // Safety check for submitChanges function
+                if (typeof submitChanges !== 'function') {
+                  throw new Error('submitChanges is not a function');
+                }
+                
+                // Fetch original data for diff
+                const originalHotel = await getHotelById(createdHotelId);
+                await submitChanges(createdHotelId, 'hotel', hotelInput, originalHotel);
+                toast.success('Update request submitted for approval.');
+              } catch (approvalError: any) {
+                console.error("Error in approval workflow:", approvalError);
+                toast.error(`Failed to submit for approval: ${approvalError.message}`);
+                setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
+                return;
+              }
             } else {
-              console.log(`Calling updateHotel for ID ${createdHotelId} with transformed data:`, hotelInput);
-              await updateHotel(createdHotelId, hotelInput);
-              toast.success(`Hotel "${hotelInput.name || 'Details'}" updated (ID: ${createdHotelId}).`);
+              try {
+                // Safety check for updateHotel function
+                if (typeof updateHotel !== 'function') {
+                  throw new Error('updateHotel is not a function');
+                }
+                
+                console.log(`Calling updateHotel for ID ${createdHotelId} with transformed data:`, hotelInput);
+                await updateHotel(createdHotelId, hotelInput);
+                toast.success(`Hotel "${hotelInput.name || 'Details'}" updated (ID: ${createdHotelId}).`);
+              } catch (updateError: any) {
+                console.error("Error updating hotel:", updateError);
+                toast.error(`Failed to update hotel: ${updateError.message}`);
+                setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
+                return;
+              }
             }
           }
           break;
@@ -873,6 +918,7 @@ export function useHotelFormState() {
     setHotelIdForEdit,
     fetchAndSetHotelData,
     setHotelDataFromApi,
+    setCreatedHotelId,
   };
 }
 

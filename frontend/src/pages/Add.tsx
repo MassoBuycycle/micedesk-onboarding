@@ -45,45 +45,63 @@ const Add = ({ mode = 'add' }: AddProps) => {
   // Load hotel data when in edit mode
   useEffect(() => {
     const loadHotelData = async () => {
-      // Only load data if we haven't loaded it before and we're in edit mode with an ID
       if (mode === 'edit' && id && !hasLoadedRef.current) {
+        hasLoadedRef.current = true;
+        
         try {
-          hasLoadedRef.current = true; // Mark as loaded to prevent duplicate loads
+          console.log("Loading hotel data for edit mode, ID:", id);
           
-          // Check if user is authenticated
-          const authToken = getAuthToken();
-          if (!authToken) {
-            console.log("No authentication token found - loading basic hotel data only");
-            // You might want to load just basic hotel data here
-            // For now, we'll just set the hotel ID
-            setCreatedHotelId(parseInt(id));
-            toast.info("Loading basic data only - login for full access");
-            return;
+          // Safety check for getFullHotelDetails function
+          if (typeof getFullHotelDetails !== 'function') {
+            throw new Error('getFullHotelDetails is not a function');
           }
           
-          const fullDetails = await getFullHotelDetails(parseInt(id));
-          await setHotelDataFromApi(fullDetails);
-          setCreatedHotelId(parseInt(id));
+          const hotelId = parseInt(id);
+          if (isNaN(hotelId)) {
+            throw new Error('Invalid hotel ID');
+          }
+          
+          const hotelData = await getFullHotelDetails(hotelId);
+          console.log("Hotel data loaded:", hotelData);
+          
+          if (!hotelData || !hotelData.hotel) {
+            throw new Error('Hotel data not found');
+          }
+          
+          // Safety check for setHotelDataFromApi function
+          if (typeof setHotelDataFromApi !== 'function') {
+            throw new Error('setHotelDataFromApi is not a function');
+          }
+          
+          // Safety check for setCreatedHotelId function
+          if (typeof setCreatedHotelId !== 'function') {
+            throw new Error('setCreatedHotelId is not a function');
+          }
+          
+          await setHotelDataFromApi(hotelData);
+          setCreatedHotelId(hotelId);
+          
+          console.log("Hotel data set successfully for edit mode");
           toast.success(t("pages.add.loadedForEditing"));
         } catch (error: any) {
-          console.error("Failed to load hotel data:", error);
-          
-          // Check if it's an authentication error
-          if (error.message?.includes('401') || error.message?.includes('Unauthorized')) {
-            // Still allow editing but with limited data
-            setCreatedHotelId(parseInt(id));
-            toast.warning("Login required to load full hotel data");
-          } else {
-            toast.error(t("pages.add.failedToLoad"));
-            navigate("/view");
-          }
+          console.error("Error loading hotel data:", error);
+          toast.error(t("pages.add.failedToLoad") + ": " + error.message);
+          // Navigate back to hotel list on error
+          navigate('/view');
         }
       }
     };
 
     loadHotelData();
-  }, [mode, id, setHotelDataFromApi, setCreatedHotelId, navigate, t]);
-  
+  }, [mode, id, setHotelDataFromApi, setCreatedHotelId, t, navigate]);
+
+  // Log the effective hotel ID for debugging
+  useEffect(() => {
+    console.log("Effective hotel ID changed:", effectiveHotelId);
+    console.log("createdHotelId:", createdHotelId);
+    console.log("routeHotelId:", routeHotelId);
+  }, [effectiveHotelId, createdHotelId, routeHotelId]);
+
   // If we're on the events step, double-check we have a valid hotel ID
   useEffect(() => {
     if (activeStep === 'eventsInfo' && (!effectiveHotelId || effectiveHotelId === 0)) {

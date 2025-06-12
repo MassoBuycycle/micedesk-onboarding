@@ -1,4 +1,22 @@
 import pool from '../db/config.js';
+import { extractDataForTable } from '../utils/dataMapping.js';
+
+const EVENT_OPERATIONS_FIELDS = [
+  'sold_with_rooms_only', 'last_minute_lead_time', 'sent_over_time_material', 'lunch_location',
+  'min_participants_package', 'coffee_break_location', 'advance_days_for_material', 'room_drop_cost',
+  'hotel_exclusive_clients', 'minimum_spent', 'storage_room', 'deposit_needed_event',
+  'deposit_rules_event', 'deposit_invoice_creator', 'informational_invoice_created',
+  'payment_methods_events', 'final_invoice_handling_event',
+  'contracted_companies', 'refused_requests', 'unwanted_marketing_tools',
+  'first_second_option', 'split_options', 'option_hold_duration', 'overbooking_policy',
+  'deposit_required', 'accepted_payment_methods', 'commission_rules', 'second_signature_required',
+  'has_overtime_material', 'min_participants', 'coffee_location', 'material_advance_days',
+  'room_drop_fee', 'has_storage', 'has_minimum_spent'
+];
+
+const BOOLEAN_FIELDS = [
+  'sold_with_rooms_only','sent_over_time_material','hotel_exclusive_clients','minimum_spent','storage_room','has_overtime_material','has_storage','deposit_needed_event','informational_invoice_created','first_second_option','split_options','overbooking_policy','deposit_required','second_signature_required','has_minimum_spent'
+];
 
 /**
  * Get operations information for an event
@@ -27,6 +45,18 @@ export const getEventOperations = async (req, res) => {
       if (operations.length === 0) {
         return res.status(404).json({ error: 'Operations information not found for this event' });
       }
+      
+      // Parse JSON field if stored as string
+      if (operations[0].payment_methods_events && typeof operations[0].payment_methods_events === 'string') {
+        try {
+          operations[0].payment_methods_events = JSON.parse(operations[0].payment_methods_events);
+        } catch(e) { /* ignore */ }
+      }
+      
+      // Convert numeric tinyint values to booleans
+      BOOLEAN_FIELDS.forEach(f=>{
+        if (operations[0][f]!==undefined) operations[0][f]=Boolean(operations[0][f]);
+      });
       
       res.status(200).json(operations[0]);
     } finally {
@@ -58,37 +88,12 @@ export const createOrUpdateEventOperations = async (req, res) => {
       
       console.log('Received operations data:', JSON.stringify(req.body));
       
-      // Extract and process all fields from request body
-      const operationsData = {};
+      // Build data object automatically based on allowed field list
+      const operationsData = extractDataForTable(req.body, EVENT_OPERATIONS_FIELDS) || {};
       
-      // Boolean fields
-      if (req.body.has_overtime_material !== undefined)
-        operationsData.has_overtime_material = req.body.has_overtime_material;
-      
-      if (req.body.has_storage !== undefined)
-        operationsData.has_storage = req.body.has_storage;
-      
-      // String fields
-      if ('lunch_location' in req.body)
-        operationsData.lunch_location = req.body.lunch_location || '';
-      
-      if ('coffee_location' in req.body)
-        operationsData.coffee_location = req.body.coffee_location || '';
-      
-      // Numeric fields
-      if ('min_participants' in req.body) {
-        const minParticipants = parseInt(req.body.min_participants);
-        operationsData.min_participants = isNaN(minParticipants) ? 0 : minParticipants;
-      }
-      
-      if ('material_advance_days' in req.body) {
-        const advanceDays = parseInt(req.body.material_advance_days);
-        operationsData.material_advance_days = isNaN(advanceDays) ? 0 : advanceDays;
-      }
-      
-      if ('room_drop_fee' in req.body) {
-        const dropFee = parseFloat(req.body.room_drop_fee);
-        operationsData.room_drop_fee = isNaN(dropFee) ? 0 : dropFee;
+      // Convert JSON field if necessary
+      if (operationsData.payment_methods_events !== undefined && typeof operationsData.payment_methods_events !== 'string') {
+        operationsData.payment_methods_events = JSON.stringify(operationsData.payment_methods_events);
       }
       
       console.log('Processed operations data:', JSON.stringify(operationsData));
@@ -126,6 +131,11 @@ export const createOrUpdateEventOperations = async (req, res) => {
         'SELECT * FROM event_operations WHERE event_id = ?',
         [eventId]
       );
+      
+      // Convert numeric tinyint values to booleans
+      BOOLEAN_FIELDS.forEach(f=>{
+        if (operationsRows[0][f]!==undefined) operationsRows[0][f]=Boolean(operationsRows[0][f]);
+      });
       
       res.status(200).json({
         success: true,

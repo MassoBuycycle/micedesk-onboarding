@@ -17,11 +17,12 @@ import UserAssignmentDialog from "@/components/dialogs/UserAssignmentDialog";
 import UserAvatarGroup from "@/components/user/UserAvatarGroup";
 import { mockUsers } from "@/components/user/UserAssignmentSelect";
 import { User, UserRole } from "@/pages/UserManagement";
-import { getAllHotels, Hotel } from "@/apiClient/hotelsApi";
+import { getAllHotels, Hotel, deleteHotel } from "@/apiClient/hotelsApi";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { UserWithAssignmentInfo, getUsersByHotelId } from "@/apiClient/userHotelsApi";
 import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
 
 interface HotelListProps {
   searchQuery?: string;
@@ -131,6 +132,27 @@ const HotelList = ({ searchQuery = "" }: HotelListProps) => {
   const getAssignedUsers = (hotelId: number | undefined): User[] => {
     if (!hotelId) return [];
     return hotelUsers[hotelId.toString()] || [];
+  };
+
+  // Handle hotel deletion
+  const handleDelete = async (hotel: Hotel) => {
+    if (!hotel.id || !hotel.name) return;
+    
+    if (!confirm(t("hotels.confirmDelete"))) {
+      return;
+    }
+
+    try {
+      await deleteHotel(hotel.id);
+      toast.success(t("hotels.deleted"));
+      
+      // Refresh the hotel list
+      const data = await getAllHotels();
+      setHotels(data);
+    } catch (error: any) {
+      console.error("Error deleting hotel:", error);
+      toast.error(error.message || t("hotels.deleteFailed"));
+    }
   };
 
   // Render hotel name with main image (if any)
@@ -259,6 +281,7 @@ const HotelList = ({ searchQuery = "" }: HotelListProps) => {
                           variant="ghost"
                           size="icon"
                           title={t("pages.view.deleteHotel")}
+                          onClick={() => handleDelete(hotel)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

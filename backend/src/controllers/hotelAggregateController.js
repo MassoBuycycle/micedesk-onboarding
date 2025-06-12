@@ -19,6 +19,37 @@ export const getFullHotelDetails = async (req, res, next) => {
     // Rooms (main config)
     const [rooms] = await connection.query('SELECT * FROM rooms WHERE hotel_id = ?', [hotelId]);
 
+    // Enhance each room with its related one-to-one tables and features
+    for (const room of rooms) {
+      const rid = room.id;
+      // Contacts
+      const [[contactsRow]] = await connection.query('SELECT phone, email FROM room_contacts WHERE room_id = ?', [rid]);
+      room.contacts = contactsRow || {};
+      // Policies with JSON parse & bool conv
+      const [[policyRow]] = await connection.query('SELECT * FROM room_policies WHERE room_id = ?', [rid]);
+      if (policyRow) {
+        if (policyRow.payment_methods && typeof policyRow.payment_methods === 'string') {
+          try { policyRow.payment_methods = JSON.parse(policyRow.payment_methods); } catch(e){}
+        }
+        room.policies = policyRow;
+      } else { room.policies = {}; }
+      // Inventory
+      const [[invRow]] = await connection.query('SELECT * FROM room_inventory WHERE room_id = ?', [rid]);
+      room.inventory = invRow || {};
+      // Pet policies
+      const [[petRow]] = await connection.query('SELECT * FROM room_pet_policies WHERE room_id = ?', [rid]);
+      if (petRow) {
+        petRow.is_dogs_allowed = Boolean(petRow.is_dogs_allowed);
+      }
+      room.pet_policies = petRow || {};
+      // Standard features – convert row to array of keys where value = 1
+      const [[featRow]] = await connection.query('SELECT * FROM room_standard_features WHERE room_id = ?', [rid]);
+      if (featRow) {
+        const { id, room_id, created_at, updated_at, ...flags } = featRow;
+        room.standard_features = Object.keys(flags).filter(k => flags[k] === 1);
+      } else { room.standard_features = []; }
+    }
+
     // For each room get categories
     const roomIds = rooms.map(r => r.id);
     let roomCategories = [];

@@ -18,8 +18,8 @@ const ROOM_PET_POLICIES_FIELDS = ['is_dogs_allowed', 'dog_fee', 'dog_fee_inclusi
 const ROOM_STANDARD_FEATURES_FIELDS = [
     'shower_toilet', 'bathtub_toilet', 'open_bathroom', 'balcony', 'safe',
     'air_condition', 'heating', 'hair_dryer', 'ironing_board', 'tv',
-    'telephone', 'wifi', 'desk', 'coffee_maker', 'kettle',
-    'minibar', 'fridge', 'allergy_friendly_bedding'
+    'telefon', 'wifi', 'desk', 'coffee_maker', 'kettle',
+    'minibar', 'fridge', 'allergy_friendly_bed_linen'
 ];
 
 // ROOM_CATEGORY_INFOS_FIELDS and ROOM_OPERATIONAL_HANDLING_FIELDS remain for other functions
@@ -80,12 +80,16 @@ const upsertStandardFeatures = async (connection, allData, roomId) => {
     // Convert array of feature IDs to boolean object
     const featureData = {};
     ROOM_STANDARD_FEATURES_FIELDS.forEach(field => {
-        // Check if this feature is in the array (handle both snake_case and with variations)
+        // Check if this feature is in the array (handle both snake_case and variations)
         const variations = [
             field,
             field.replace('_', ''), // remove underscores
-            field === 'telefon' ? 'telephone' : field, // handle telefon/telephone variation
-            field === 'allergy_friendly_bedding' ? 'allergy_friendly_bed_linen' : field // handle bedding/bed_linen variation
+            // Handle specific field name mappings between frontend and database
+            field === 'telefon' ? 'telephone' : field, // database has 'telefon', frontend might send 'telephone'
+            field === 'allergy_friendly_bed_linen' ? 'allergy_friendly_bedding' : field, // database has 'allergy_friendly_bed_linen', frontend might send 'allergy_friendly_bedding'
+            // Also handle the reverse mappings
+            field === 'telephone' ? 'telefon' : field,
+            field === 'allergy_friendly_bedding' ? 'allergy_friendly_bed_linen' : field
         ];
         
         featureData[field] = allData.standard_features.some(feature => 
@@ -151,9 +155,17 @@ export const createOrUpdateMainRoomConfig = async (req, res, next) => {
         if (data.earlyCheckInPolicy !== undefined) data.early_check_in_time_frame = data.earlyCheckInPolicy;
         if (data.lateCheckOutPolicy !== undefined) data.late_check_out_time = data.lateCheckOutPolicy;
 
+        // FIX: Add missing mappings for early check-in and late check-out FEES
+        if (data.early_check_in_cost !== undefined) data.early_check_in_cost = data.early_check_in_cost;
+        if (data.late_check_out_cost !== undefined) data.late_check_out_cost = data.late_check_out_cost;
+
         // Payment methods array → JSON string (room_policies.payment_methods)
         if (Array.isArray(data.paymentMethods)) {
             data.payment_methods = JSON.stringify(data.paymentMethods);
+        }
+        // FIX: Also handle payment_methods directly (not nested in paymentMethods)
+        if (Array.isArray(data.payment_methods)) {
+            data.payment_methods = JSON.stringify(data.payment_methods);
         }
 
         // Pet policy block
@@ -365,6 +377,20 @@ export const getOperationalHandlingByRoomId = async (req, res, next) => {
       });
     }
     
+    if (results[0].payment_methods_room_handling && typeof results[0].payment_methods_room_handling === 'string') {
+      try {
+        results[0].payment_methods_room_handling = JSON.parse(results[0].payment_methods_room_handling);
+      } catch (e) { /* ignore */ }
+    }
+    
+    // after results[0] parse JSON
+    const BOOLEAN_FIELDS_RH = [
+      'demand_calendar','revenue_call','breakfast_share','first_second_option','shared_options','overbooking','min_stay_weekends','call_off_quota','requires_deposit','demand_calendar','handled_by_mice_desk','info_invoice_created'
+    ];
+    BOOLEAN_FIELDS_RH.forEach(f=>{
+      if(results[0][f]!==undefined) results[0][f]=Boolean(results[0][f]);
+    });
+    
     res.json({
       success: true,
       data: results[0]
@@ -468,13 +494,21 @@ export const createOrUpdateOperationalHandling = async (req, res, next) => {
     
     await connection.commit();
     
+    let responsePayload = {
+      room_id: parseInt(roomId),
+      ...operationalHandlingData
+    };
+
+    if (responsePayload.payment_methods_room_handling && typeof responsePayload.payment_methods_room_handling === 'string') {
+      try {
+        responsePayload.payment_methods_room_handling = JSON.parse(responsePayload.payment_methods_room_handling);
+      } catch(e) {}
+    }
+
     res.status(200).json({
       success: true,
       message: 'Room operational handling information saved successfully',
-      data: {
-        room_id: parseInt(roomId),
-        ...operationalHandlingData
-      }
+      data: responsePayload
     });
   } catch (error) {
     if (connection) await connection.rollback();
