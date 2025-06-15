@@ -77,6 +77,14 @@ const BasicInfoSection = ({ form }: BasicInfoSectionProps) => {
         
         <TextField
           form={form}
+          name="fax"
+          label={t("hotel.fax")}
+          placeholder={t("forms.placeholders.enterFax")}
+          className="text-sm"
+        />
+        
+        <TextField
+          form={form}
           name="email"
           label={`${t("hotel.email")}*`}
           type="email"
