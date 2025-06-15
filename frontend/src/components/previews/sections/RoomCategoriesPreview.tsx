@@ -12,9 +12,9 @@ const RoomCategoriesPreview = ({ roomCategories }: RoomCategoriesPreviewProps) =
     return (
       <div className="mt-4 pt-4 border-t">
         <h3 className="text-sm font-medium mb-2 flex items-center gap-1.5 pb-1 border-b">
-          <DoorOpen className="h-4 w-4" /> Room Categories
+          <DoorOpen className="h-4 w-4" /> Zimmerkategorien
         </h3>
-        <p className="text-sm italic text-muted-foreground">No room categories added yet.</p>
+        <p className="text-sm italic text-muted-foreground">Noch keine Zimmerkategorien hinzugefügt.</p>
       </div>
     );
   }
@@ -22,7 +22,7 @@ const RoomCategoriesPreview = ({ roomCategories }: RoomCategoriesPreviewProps) =
   return (
     <div className="mt-4 pt-4 border-t">
       <h3 className="text-sm font-medium mb-2 flex items-center gap-1.5 pb-1 border-b">
-        <DoorOpen className="h-4 w-4" /> Room Categories
+        <DoorOpen className="h-4 w-4" /> Zimmerkategorien
       </h3>
       <div className="space-y-4">
         {roomCategories.map((category, index) => (
@@ -32,21 +32,21 @@ const RoomCategoriesPreview = ({ roomCategories }: RoomCategoriesPreviewProps) =
               {category.category_name || `Category ${index + 1}`}
             </p>
             <div className="space-y-0.5 mt-1">
-              {category.pms_name && <p><span className="text-foreground">PMS Name:</span> {category.pms_name}</p>}
+              {category.pms_name && <p><span className="text-foreground">PMS-Bezeichnung:</span> {category.pms_name}</p>}
               {/* RoomCategoryInput uses num_rooms, size as numbers - they are displayed directly */}
-              {category.num_rooms !== undefined && <p><span className="text-foreground">Number of Rooms:</span> {category.num_rooms}</p>}
-              {category.size !== undefined && <p><span className="text-foreground">Size:</span> {category.size} sqm</p>}
-              {category.bed_type && <p><span className="text-foreground">Bed Type:</span> {category.bed_type}</p>}
-              {category.room_features && <p><span className="text-foreground">Features:</span> {category.room_features}</p>}
-              {category.surcharges_upsell && <p><span className="text-foreground">Upsell Costs:</span> {category.surcharges_upsell}</p>}
-              {category.second_person_surcharge !== undefined && <p><span className="text-foreground">2nd Person Surcharge:</span> €{category.second_person_surcharge}</p>}
+              {category.num_rooms !== undefined && <p><span className="text-foreground">Anzahl Zimmer:</span> {category.num_rooms}</p>}
+              {category.size !== undefined && <p><span className="text-foreground">Größe:</span> {category.size} m²</p>}
+              {category.bed_type && <p><span className="text-foreground">Bettentyp:</span> {category.bed_type}</p>}
+              {category.room_features && <p><span className="text-foreground">Ausstattungsmerkmale:</span> {category.room_features}</p>}
+              {category.surcharges_upsell && <p><span className="text-foreground">Upsell-Kosten:</span> {category.surcharges_upsell}</p>}
+              {category.second_person_surcharge !== undefined && <p><span className="text-foreground">Aufpreis 2. Person:</span> €{category.second_person_surcharge}</p>}
               {category.extra_bed_available && (
                 <p>
-                  <span className="text-foreground">Extra Bed:</span> Available
-                  {category.extra_bed_surcharge !== undefined && <span> (Surcharge: €{category.extra_bed_surcharge})</span>}
+                  <span className="text-foreground">Zustellbett:</span> Verfügbar
+                  {category.extra_bed_surcharge !== undefined && <span> (Aufpreis: €{category.extra_bed_surcharge})</span>}
                 </p>
               )}
-              {category.baby_bed_available && <p><span className="text-foreground">Baby Bed:</span> Available</p>}
+              {category.baby_bed_available && <p><span className="text-foreground">Babybett:</span> Verfügbar</p>}
             </div>
           </div>
         ))}

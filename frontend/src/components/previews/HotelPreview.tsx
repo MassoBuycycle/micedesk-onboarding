@@ -75,16 +75,16 @@ const HotelPreview: React.FC<HotelPreviewProps> = ({
   return (
     <div className="bg-gradient-to-br from-accent/5 via-accent/10 to-accent/20 rounded-lg border-0 shadow-[0_4px_15px_rgba(0,0,0,0.06)]">
       <div className="p-4">
-        <h3 className="text-lg font-semibold">Preview: {hotelName}</h3>
+        <h3 className="text-lg font-semibold">Vorschau: {hotelName}</h3>
         <p className="text-xs text-muted-foreground">
-          Real-time preview of your hotel information
+          Echtzeit-Vorschau Ihrer Hotelinformationen
         </p>
       </div>
 
       <Tabs value={activeTabValue} className="w-full">
         <TabsList className="w-full grid grid-cols-5 rounded-none">
           <TabsTrigger value="info">Info</TabsTrigger>
-          <TabsTrigger value="rooms">Rooms</TabsTrigger>
+          <TabsTrigger value="rooms">Zimmer</TabsTrigger>
           <TabsTrigger value="events">Events</TabsTrigger>
           <TabsTrigger value="food">F&B</TabsTrigger>
         </TabsList>
@@ -133,7 +133,7 @@ const HotelPreview: React.FC<HotelPreviewProps> = ({
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
-                    User assignments will be available after the hotel is created.
+                    Benutzerzuweisungen sind verfügbar, nachdem das Hotel erstellt wurde.
                   </p>
                 </CardContent>
               </Card>

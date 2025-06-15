@@ -1,4 +1,3 @@
-
 import { UtensilsCrossed } from "lucide-react";
 
 interface FoodBeveragePreviewProps {
@@ -16,18 +15,18 @@ const FoodBeveragePreview = ({ foodBeverage }: FoodBeveragePreviewProps) => {
       <div className="text-sm text-muted-foreground space-y-1.5">
         {foodBeverage?.restaurants && <p><span className="text-foreground font-medium">Restaurants:</span> {foodBeverage.restaurants}</p>}
         {foodBeverage?.bars && <p><span className="text-foreground font-medium">Bars:</span> {foodBeverage.bars}</p>}
-        {foodBeverage?.cuisine && <p><span className="text-foreground font-medium">Cuisine:</span> {foodBeverage.cuisine}</p>}
-        {foodBeverage?.specialDiets && <p><span className="text-foreground font-medium">Special Diets:</span> {foodBeverage.specialDiets}</p>}
+        {foodBeverage?.cuisine && <p><span className="text-foreground font-medium">Küche:</span> {foodBeverage.cuisine}</p>}
+        {foodBeverage?.specialDiets && <p><span className="text-foreground font-medium">Spezialdiäten:</span> {foodBeverage.specialDiets}</p>}
         {foodBeverage?.roomService !== undefined && (
-          <p><span className="text-foreground font-medium">Room Service:</span> {foodBeverage.roomService ? 'Available' : 'Not Available'}</p>
+          <p><span className="text-foreground font-medium">Roomservice:</span> {foodBeverage.roomService ? 'Verfügbar' : 'Nicht verfügbar'}</p>
         )}
         {foodBeverage?.minibar !== undefined && (
-          <p><span className="text-foreground font-medium">Minibar:</span> {foodBeverage.minibar ? 'Available' : 'Not Available'}</p>
+          <p><span className="text-foreground font-medium">Minibar:</span> {foodBeverage.minibar ? 'Verfügbar' : 'Nicht verfügbar'}</p>
         )}
         {foodBeverage?.breakfast !== undefined && (
-          <p><span className="text-foreground font-medium">Breakfast:</span> {foodBeverage.breakfast ? 'Available' : 'Not Available'}</p>
+          <p><span className="text-foreground font-medium">Frühstück:</span> {foodBeverage.breakfast ? 'Verfügbar' : 'Nicht verfügbar'}</p>
         )}
-        {foodBeverage?.breakfastStyle && <p><span className="text-foreground font-medium">Breakfast Style:</span> {foodBeverage.breakfastStyle}</p>}
+        {foodBeverage?.breakfastStyle && <p><span className="text-foreground font-medium">Frühstücksart:</span> {foodBeverage.breakfastStyle}</p>}
       </div>
     </div>
   );
