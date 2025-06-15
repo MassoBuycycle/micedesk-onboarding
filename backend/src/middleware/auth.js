@@ -23,6 +23,7 @@ export const authenticate = async (req, res, next) => {
     // Verify token
     const decoded = jwt.verify(token, JWT_SECRET);
     
+    
     // Get user from database (we need to ensure they still exist and are active)
     const connection = await pool.getConnection();
     try {
