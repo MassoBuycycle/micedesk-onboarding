@@ -583,7 +583,36 @@
     "petPolicy": "Haustier-Richtlinie",
     "petPolicyDescription": "Informationen zur Unterbringung von Haustieren",
     "previous": "Zurück",
-    "next": "Weiter"
+    "next": "Weiter",
+    "features": {
+      "showerToilet": "Dusche/Toilette",
+      "bathtubToilet": "Badewanne/Toilette",
+      "openBathroom": "Offenes Badezimmer",
+      "balcony": "Balkon",
+      "safe": "Safe",
+      "airCondition": "Klimaanlage",
+      "heating": "Heizung",
+      "hairDryer": "Haartrockner",
+      "ironingBoard": "Bügelbrett",
+      "tv": "TV",
+      "telephone": "Telefon",
+      "wifi": "WLAN",
+      "desk": "Schreibtisch",
+      "coffeeMaker": "Kaffeemaschine",
+      "kettle": "Wasserkocher",
+      "minibar": "Minibar",
+      "fridge": "Kühlschrank",
+      "allergyFriendlyBedLinen": "Allergikerfreundliche Bettwäsche"
+    },
+    "paymentMethodsList": {
+      "cash": "Barzahlung",
+      "creditCard": "Kreditkarte",
+      "debitCard": "Debitkarte",
+      "bankTransfer": "Banküberweisung",
+      "paypal": "PayPal",
+      "applePay": "Apple Pay",
+      "googlePay": "Google Pay"
+    }
   },
   "events": {
     "title": "Veranstaltungen",

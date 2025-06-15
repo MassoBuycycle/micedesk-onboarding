@@ -59,39 +59,6 @@ interface RoomFormProps {
   mode?: 'add' | 'edit';
 }
 
-// Standard room features options
-const standardRoomFeatures = [
-  { id: 'shower_toilet', label: 'Shower Toilet' },
-  { id: 'bathtub_toilet', label: 'Bathtub Toilet' },
-  { id: 'open_bathroom', label: 'Open Bathroom' },
-  { id: 'balcony', label: 'Balcony' },
-  { id: 'safe', label: 'Safe' },
-  { id: 'air_condition', label: 'Air Condition' },
-  { id: 'heating', label: 'Heating' },
-  { id: 'hair_dryer', label: 'Hair Dryer' },
-  { id: 'ironing_board', label: 'Ironing Board' },
-  { id: 'tv', label: 'TV' },
-  { id: 'telefon', label: 'Telephone' },
-  { id: 'wifi', label: 'WiFi' },
-  { id: 'desk', label: 'Desk' },
-  { id: 'coffee_maker', label: 'Coffee Maker' },
-  { id: 'kettle', label: 'Kettle' },
-  { id: 'minibar', label: 'Minibar' },
-  { id: 'fridge', label: 'Fridge' },
-  { id: 'allergy_friendly_bed_linen', label: 'Allergy-Friendly Bed Linen' },
-];
-
-// Payment method options
-const paymentMethodOptions = [
-  { id: 'cash', label: 'Cash' },
-  { id: 'credit_card', label: 'Credit Card' },
-  { id: 'debit_card', label: 'Debit Card' },
-  { id: 'bank_transfer', label: 'Bank Transfer' },
-  { id: 'paypal', label: 'PayPal' },
-  { id: 'apple_pay', label: 'Apple Pay' },
-  { id: 'google_pay', label: 'Google Pay' },
-];
-
 const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChange, mode }: RoomFormProps) => {
   const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -148,6 +115,38 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
       setIsSubmitting(false);
     }
   };
+
+  // build translated arrays
+  const standardRoomFeatures = [
+    { id: 'shower_toilet', label: t('rooms.features.showerToilet') },
+    { id: 'bathtub_toilet', label: t('rooms.features.bathtubToilet') },
+    { id: 'open_bathroom', label: t('rooms.features.openBathroom') },
+    { id: 'balcony', label: t('rooms.features.balcony') },
+    { id: 'safe', label: t('rooms.features.safe') },
+    { id: 'air_condition', label: t('rooms.features.airCondition') },
+    { id: 'heating', label: t('rooms.features.heating') },
+    { id: 'hair_dryer', label: t('rooms.features.hairDryer') },
+    { id: 'ironing_board', label: t('rooms.features.ironingBoard') },
+    { id: 'tv', label: t('rooms.features.tv') },
+    { id: 'telephone', label: t('rooms.features.telephone') },
+    { id: 'wifi', label: t('rooms.features.wifi') },
+    { id: 'desk', label: t('rooms.features.desk') },
+    { id: 'coffee_maker', label: t('rooms.features.coffeeMaker') },
+    { id: 'kettle', label: t('rooms.features.kettle') },
+    { id: 'minibar', label: t('rooms.features.minibar') },
+    { id: 'fridge', label: t('rooms.features.fridge') },
+    { id: 'allergy_friendly_bed_linen', label: t('rooms.features.allergyFriendlyBedLinen') },
+  ];
+
+  const paymentMethodOptions = [
+    { id: 'cash', label: t('rooms.paymentMethodsList.cash') },
+    { id: 'credit_card', label: t('rooms.paymentMethodsList.creditCard') },
+    { id: 'debit_card', label: t('rooms.paymentMethodsList.debitCard') },
+    { id: 'bank_transfer', label: t('rooms.paymentMethodsList.bankTransfer') },
+    { id: 'paypal', label: t('rooms.paymentMethodsList.paypal') },
+    { id: 'apple_pay', label: t('rooms.paymentMethodsList.applePay') },
+    { id: 'google_pay', label: t('rooms.paymentMethodsList.googlePay') },
+  ];
 
   return (
     <Form {...form}>
@@ -422,10 +421,7 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                         control={form.control}
                         name="standard_features"
                         render={({ field }) => (
-                          <FormItem
-                            key={feature.id}
-                            className="flex flex-row items-start space-x-3 space-y-0"
-                          >
+                          <FormItem key={feature.id} className="flex flex-row items-start space-x-3 space-y-0">
                             <FormControl>
                               <Checkbox
                                 checked={field.value?.includes(feature.id)}
@@ -433,17 +429,11 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                                   const currentValue = field.value || [];
                                   return checked
                                     ? field.onChange([...currentValue, feature.id])
-                                    : field.onChange(
-                                        currentValue.filter(
-                                          value => value !== feature.id
-                                        )
-                                      );
+                                    : field.onChange(currentValue.filter(value => value !== feature.id));
                                 }}
                               />
                             </FormControl>
-                            <FormLabel className="font-normal">
-                              {feature.label}
-                            </FormLabel>
+                            <FormLabel className="font-normal">{feature.label}</FormLabel>
                           </FormItem>
                         )}
                       />
@@ -468,38 +458,27 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
               render={() => (
                 <FormItem>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    {paymentMethodOptions.map((method) => (
+                    {paymentMethodOptions.map(method => (
                       <FormField
                         key={method.id}
                         control={form.control}
                         name="payment_methods"
-                        render={({ field }) => {
-                          return (
-                            <FormItem
-                              key={method.id}
-                              className="flex flex-row items-start space-x-3 space-y-0"
-                            >
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(method.id)}
-                                  onCheckedChange={(checked) => {
-                                    const currentValue = field.value || [];
-                                    return checked
-                                      ? field.onChange([...currentValue, method.id])
-                                      : field.onChange(
-                                          currentValue.filter(
-                                            (value) => value !== method.id
-                                          )
-                                        )
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                {method.label}
-                              </FormLabel>
-                            </FormItem>
-                          )
-                        }}
+                        render={({ field }) => (
+                          <FormItem key={method.id} className="flex flex-row items-start space-x-3 space-y-0">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value?.includes(method.id)}
+                                onCheckedChange={checked => {
+                                  const currentValue = field.value || [];
+                                  return checked
+                                    ? field.onChange([...currentValue, method.id])
+                                    : field.onChange(currentValue.filter(value => value !== method.id));
+                                }}
+                              />
+                            </FormControl>
+                            <FormLabel className="font-normal">{method.label}</FormLabel>
+                          </FormItem>
+                        )}
                       />
                     ))}
                   </div>
