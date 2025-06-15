@@ -22,10 +22,10 @@ import { toast } from 'sonner';
 import { RoomOperationalHandlingInput } from '@/types/roomOperational';
 
 const paymentMethodOptions = [
-  { id: 'cash', label: 'Cash' },
-  { id: 'credit_card', label: 'Credit Card' },
-  { id: 'debit_card', label: 'Debit Card' },
-  { id: 'bank_transfer', label: 'Bank Transfer' },
+  { id: 'cash', label: 'Barzahlung' },
+  { id: 'credit_card', label: 'Kreditkarte' },
+  { id: 'debit_card', label: 'Debitkarte' },
+  { id: 'bank_transfer', label: 'Banküberweisung' },
   { id: 'paypal', label: 'PayPal' },
   { id: 'apple_pay', label: 'Apple Pay' },
   { id: 'google_pay', label: 'Google Pay' },
@@ -129,10 +129,10 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
   const onSubmit = async (data: OperationalFormValues) => {
     setIsSubmitting(true);
     try {
-      toast.success('Operational handling captured.');
+      toast.success('Operatives Handling erfasst.');
       onNext(data);
     } catch (error) {
-      toast.error('Could not process operational handling data.');
+      toast.error('Daten zum operativen Handling konnten nicht verarbeitet werden.');
     } finally {
       setIsSubmitting(false);
     }
@@ -145,7 +145,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
         <Card>
           <CardHeader>
             <CardTitle>Revenue Management</CardTitle>
-            <CardDescription>Who oversees revenue and how is demand tracked?</CardDescription>
+            <CardDescription>Wer überwacht den Umsatz und wie wird die Nachfrage verfolgt?</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -154,7 +154,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
                 name="revenue_manager_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Revenue Manager Name</FormLabel>
+                    <FormLabel>Name Revenue Manager</FormLabel>
                     <FormControl>
                       <Input placeholder="Name" {...field} />
                     </FormControl>
@@ -167,7 +167,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
                 name="revenue_contact_details"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Contact Details</FormLabel>
+                    <FormLabel>Kontaktdaten</FormLabel>
                     <FormControl>
                       <Textarea placeholder="Phone / Email" {...field} />
                     </FormControl>
@@ -184,8 +184,8 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div>
-                    <FormLabel>Demand Calendar available?</FormLabel>
-                    <FormDescription>Enable if hotel provides a demand calendar.</FormDescription>
+                    <FormLabel>Demand-Kalender verfügbar?</FormLabel>
+                    <FormDescription>Aktivieren, falls das Hotel einen Demand-Kalender bereitstellt.</FormDescription>
                   </div>
                   <FormControl>
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -199,7 +199,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
                 name="demand_calendar_infos"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Demand Calendar Information</FormLabel>
+                    <FormLabel>Informationen zum Demand-Kalender</FormLabel>
                     <FormControl>
                       <Textarea {...field} className="min-h-[100px]" />
                     </FormControl>
@@ -216,7 +216,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
       <div>
-                    <FormLabel>Regular Revenue Calls?</FormLabel>
+                    <FormLabel>Regelmäßige Revenue Calls?</FormLabel>
                   </div>
                   <FormControl>
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -230,7 +230,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
                 name="revenue_calls_infos"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Revenue Call Infos</FormLabel>
+                    <FormLabel>Informationen zu Revenue Calls</FormLabel>
                     <FormControl>
                       <Textarea {...field} className="min-h-[100px]" />
                     </FormControl>
@@ -245,7 +245,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
         {/* Group Handling */}
         <Card>
           <CardHeader>
-            <CardTitle>Group Handling & Rates</CardTitle>
+            <CardTitle>Gruppenhandling & Raten</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -254,7 +254,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
                 name="group_request_min_rooms"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Min. Rooms for Group Request</FormLabel>
+                    <FormLabel>Min. Zimmer für Gruppenanfrage</FormLabel>
                     <FormControl>
                       <Input type="number" min="0" {...field} />
                     </FormControl>
@@ -267,7 +267,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
                 name="group_reservation_category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Reservation Category</FormLabel>
+                    <FormLabel>Reservierungskategorie</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -281,7 +281,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
               name="group_rates_check"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <FormLabel>Group Rates need Approval?</FormLabel>
+                  <FormLabel>Gruppenraten genehmigungspflichtig?</FormLabel>
                   <FormControl>
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
@@ -293,7 +293,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
               name="group_rates"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Group Rates Details</FormLabel>
+                  <FormLabel>Details zu Gruppenraten</FormLabel>
                   <FormControl>
                     <Textarea {...field} className="min-h-[100px]" />
                   </FormControl>
@@ -306,7 +306,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
                 name="breakfast_share"
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <FormLabel>Breakfast share applicable?</FormLabel>
+                    <FormLabel>Frühstücksanteil anwendbar?</FormLabel>
                     <FormControl>
                       <Switch checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
@@ -318,7 +318,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
                 name="first_second_option"
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <FormLabel>Offer 1st & 2nd Options?</FormLabel>
+                    <FormLabel>1. & 2. Option anbieten?</FormLabel>
                     <FormControl>
                       <Switch checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
@@ -332,7 +332,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
               name="shared_options"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <FormLabel>Shared Options allowed?</FormLabel>
+                  <FormLabel>Geteilte Optionen erlaubt?</FormLabel>
                   <FormControl>
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
@@ -344,9 +344,9 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
               name="first_option_hold_duration"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>1st Option Hold Duration</FormLabel>
+                  <FormLabel>Haltefrist 1. Option</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. 7 days" {...field} />
+                    <Input placeholder="z.B. 7 Tage" {...field} />
                   </FormControl>
                 </FormItem>
               )}
@@ -357,7 +357,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
         {/* Overbooking & Weekend Policies */}
         <Card>
           <CardHeader>
-            <CardTitle>Overbooking & Stay Policies</CardTitle>
+            <CardTitle>Überbuchung & Aufenthaltsrichtlinien</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <FormField
@@ -365,7 +365,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
               name="overbooking"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <FormLabel>Overbooking allowed?</FormLabel>
+                  <FormLabel>Überbuchung erlaubt?</FormLabel>
                   <FormControl>
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
@@ -378,7 +378,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
                 name="overbooking_info"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Overbooking Information</FormLabel>
+                    <FormLabel>Informationen zur Überbuchung</FormLabel>
                     <FormControl>
                       <Textarea {...field} className="min-h-[100px]" />
                     </FormControl>
@@ -391,7 +391,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
               name="min_stay_weekends"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <FormLabel>Min. Stay on Weekends?</FormLabel>
+                  <FormLabel>Mindestaufenthalt an Wochenenden?</FormLabel>
                   <FormControl>
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
@@ -404,7 +404,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
                 name="min_stay_weekends_infos"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Weekend Stay Info</FormLabel>
+                    <FormLabel>Informationen zum Wochenendaufenthalt</FormLabel>
                     <FormControl>
                       <Textarea {...field} className="min-h-[100px]" />
                     </FormControl>
@@ -418,7 +418,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
         {/* Call-off & Commission */}
         <Card>
           <CardHeader>
-            <CardTitle>Call-off & Commission</CardTitle>
+            <CardTitle>Abruf & Kommission</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <FormField
@@ -426,7 +426,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
               name="call_off_quota"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <FormLabel>Call-off Quota defined?</FormLabel>
+                  <FormLabel>Abrufkontingent definiert?</FormLabel>
                   <FormControl>
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
@@ -439,7 +439,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
                 name="call_off_method"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Method</FormLabel>
+                    <FormLabel>Methode</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -451,7 +451,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
                 name="call_off_deadlines"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Deadlines</FormLabel>
+                    <FormLabel>Fristen</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -464,7 +464,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
               name="commission_rules"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Commission Rules</FormLabel>
+                  <FormLabel>Kommissionsregeln</FormLabel>
                   <FormControl>
                     <Textarea {...field} className="min-h-[100px]" />
                   </FormControl>
@@ -476,7 +476,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
               name="free_spot_policy_leisure_groups"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Free Spot Policy (Leisure Groups)</FormLabel>
+                  <FormLabel>Freiplatzregelung (Leisure Groups)</FormLabel>
                   <FormControl>
                     <Textarea {...field} className="min-h-[100px]" />
                   </FormControl>
@@ -489,7 +489,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
         {/* Deposit & Payment */}
         <Card>
           <CardHeader>
-            <CardTitle>Deposit & Payment</CardTitle>
+            <CardTitle>Deposit & Zahlung</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <FormField
@@ -497,7 +497,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
               name="requires_deposit"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <FormLabel>Deposit Required?</FormLabel>
+                  <FormLabel>Deposit erforderlich?</FormLabel>
                   <FormControl>
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
@@ -510,7 +510,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
                 name="deposit_rules"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Deposit Rules</FormLabel>
+                    <FormLabel>Deposit-Regelungen</FormLabel>
                     <FormControl>
                       <Textarea {...field} className="min-h-[100px]" />
                     </FormControl>
@@ -523,7 +523,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
               name="payment_methods_room_handling"
               render={() => (
                 <FormItem>
-                  <FormLabel>Accepted Payment Methods</FormLabel>
+                  <FormLabel>Akzeptierte Zahlungsmethoden</FormLabel>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-2">
                     {paymentMethodOptions.map((method) => (
                       <FormField
@@ -559,7 +559,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
                 name="final_invoice_handling"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Final Invoice Handling</FormLabel>
+                    <FormLabel>Handling Abschlussrechnung</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -571,7 +571,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
                 name="deposit_invoice_responsible"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Deposit Invoice Responsible</FormLabel>
+                    <FormLabel>Verantwortlich für Depositrechnung</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -584,7 +584,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
               name="info_invoice_created"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <FormLabel>Email when Invoice created?</FormLabel>
+                  <FormLabel>E-Mail bei Rechnungserstellung?</FormLabel>
                   <FormControl>
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
@@ -597,7 +597,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
         {/* Additional Info */}
         <Card>
           <CardHeader>
-            <CardTitle>Additional & Restrictions</CardTitle>
+            <CardTitle>Zusätzliches & Restriktionen</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <FormField
@@ -605,7 +605,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
               name="restricted_dates"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Restricted Dates</FormLabel>
+                  <FormLabel>Sperrdaten</FormLabel>
                   <FormControl>
                     <Textarea {...field} className="min-h-[100px]" />
                   </FormControl>
@@ -617,7 +617,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
               name="handled_by_mice_desk"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <FormLabel>Handled by MICE desk?</FormLabel>
+                  <FormLabel>Durch MICE Desk bearbeitet?</FormLabel>
                   <FormControl>
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
@@ -629,10 +629,10 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
 
       <div className="flex justify-between mt-8">
           <Button type="button" variant="outline" onClick={() => onPrevious(form.getValues())} className="gap-1">
-          <ArrowLeft className="h-4 w-4" /> Previous
+          <ArrowLeft className="h-4 w-4" /> Zurück
         </Button>
           <Button type="submit" disabled={isSubmitting} className="gap-1">
-            {isSubmitting ? 'Saving...' : <>Next <ArrowRight className="h-4 w-4" /> </>}
+            {isSubmitting ? 'Speichern...' : <>Weiter <ArrowRight className="h-4 w-4" /> </>}
         </Button>
       </div>
       </form>

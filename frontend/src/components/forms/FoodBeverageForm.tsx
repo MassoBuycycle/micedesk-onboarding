@@ -241,21 +241,21 @@ const FoodBeverageForm = ({
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold">Food & Beverage Information</h2>
+        <h2 className="text-2xl font-bold">Food & Beverage Informationen</h2>
         <p className="text-muted-foreground">
-          Enter F&B information for {selectedHotel.name || "this hotel"}
+          Geben Sie F&B-Informationen für {selectedHotel.name || "dieses Hotel"} ein
         </p>
       </div>
 
       {/* Contact */}
       <Card>
         <CardHeader>
-          <CardTitle>F&B Contact</CardTitle>
-          <CardDescription>Contact responsible for F&B</CardDescription>
+          <CardTitle>F&B Ansprechpartner</CardTitle>
+          <CardDescription>Verantwortlicher Kontakt für F&B</CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="fnb_contact_name">Contact Name</Label>
+            <Label htmlFor="fnb_contact_name">Name Ansprechpartner</Label>
             <Input id="fnb_contact_name" value={formData.fnb_contact_name} onChange={(e)=>updateField("fnb_contact_name", e.target.value)} />
           </div>
           <div className="space-y-2">
@@ -263,11 +263,11 @@ const FoodBeverageForm = ({
             <Input id="fnb_contact_position" value={formData.fnb_contact_position} onChange={(e)=>updateField("fnb_contact_position", e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="fnb_contact_phone">Phone</Label>
+            <Label htmlFor="fnb_contact_phone">Telefon</Label>
             <Input id="fnb_contact_phone" value={formData.fnb_contact_phone} onChange={(e)=>updateField("fnb_contact_phone", e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="fnb_contact_email">Email</Label>
+            <Label htmlFor="fnb_contact_email">E-Mail</Label>
             <Input id="fnb_contact_email" type="email" value={formData.fnb_contact_email} onChange={(e)=>updateField("fnb_contact_email", e.target.value)} />
           </div>
         </CardContent>
@@ -276,7 +276,7 @@ const FoodBeverageForm = ({
       {/* Restaurant Details */}
       <Card>
         <CardHeader>
-          <CardTitle>Restaurant Details</CardTitle>
+          <CardTitle>Restaurant-Details</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-2">
@@ -284,25 +284,25 @@ const FoodBeverageForm = ({
             <Input id="restaurant_name" value={formData.restaurant_name} onChange={(e)=>updateField("restaurant_name", e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="restaurant_cuisine">Cuisine</Label>
+            <Label htmlFor="restaurant_cuisine">Küche</Label>
             <Input id="restaurant_cuisine" value={formData.restaurant_cuisine} onChange={(e)=>updateField("restaurant_cuisine", e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="restaurant_seats">Seats</Label>
+            <Label htmlFor="restaurant_seats">Sitzplätze</Label>
             <Input id="restaurant_seats" type="number" min="0" value={formData.restaurant_seats} onChange={(e)=>updateField("restaurant_seats", e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="restaurant_opening_hours">Opening Hours</Label>
+            <Label htmlFor="restaurant_opening_hours">Öffnungszeiten</Label>
             <Input id="restaurant_opening_hours" value={formData.restaurant_opening_hours} onChange={(e)=>updateField("restaurant_opening_hours", e.target.value)} />
           </div>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label htmlFor="restaurant_exclusive">Exclusive Hire</Label>
+              <Label htmlFor="restaurant_exclusive">Exklusiv buchbar</Label>
               <Switch id="restaurant_exclusive" checked={formData.restaurant_exclusive} onCheckedChange={(val)=>updateField("restaurant_exclusive", val)} />
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="restaurant_price_minimum">Minimum Revenue (€)</Label>
+            <Label htmlFor="restaurant_price_minimum">Mindestumsatz (€)</Label>
             <Input id="restaurant_price_minimum" type="number" min="0" value={formData.restaurant_price_minimum} onChange={(e)=>updateField("restaurant_price_minimum", e.target.value)} />
           </div>
         </CardContent>
@@ -311,7 +311,7 @@ const FoodBeverageForm = ({
       {/* Bar Details */}
       <Card>
         <CardHeader>
-          <CardTitle>Bar Details</CardTitle>
+          <CardTitle>Bar-Details</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-2">
@@ -319,27 +319,27 @@ const FoodBeverageForm = ({
             <Input id="bar_name" value={formData.bar_name} onChange={(e)=>updateField("bar_name", e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="bar_seats">Seats</Label>
+            <Label htmlFor="bar_seats">Sitzplätze</Label>
             <Input id="bar_seats" type="number" min="0" value={formData.bar_seats} onChange={(e)=>updateField("bar_seats", e.target.value)} />
           </div>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label htmlFor="bar_exclusive">Exclusive Hire</Label>
+              <Label htmlFor="bar_exclusive">Exklusiv buchbar</Label>
               <Switch id="bar_exclusive" checked={formData.bar_exclusive} onCheckedChange={(val)=>updateField("bar_exclusive", val)} />
             </div>
           </div>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label htmlFor="bar_snacks_available">Snacks Available</Label>
+              <Label htmlFor="bar_snacks_available">Snacks verfügbar</Label>
               <Switch id="bar_snacks_available" checked={formData.bar_snacks_available} onCheckedChange={(val)=>updateField("bar_snacks_available", val)} />
             </div>
           </div>
           <div className="space-y-2 col-span-2 md:col-span-1">
-            <Label htmlFor="bar_opening_hours">Opening Hours</Label>
+            <Label htmlFor="bar_opening_hours">Öffnungszeiten</Label>
             <Input id="bar_opening_hours" value={formData.bar_opening_hours} onChange={(e)=>updateField("bar_opening_hours", e.target.value)} />
           </div>
           <div className="space-y-2 col-span-2 md:col-span-1">
-            <Label htmlFor="service_times">Roomservice Service Times</Label>
+            <Label htmlFor="service_times">Roomservice Zeiten</Label>
             <Input id="service_times" value={formData.service_times} onChange={(e)=>updateField("service_times", e.target.value)} />
           </div>
         </CardContent>
@@ -348,50 +348,50 @@ const FoodBeverageForm = ({
       {/* Breakfast Details */}
       <Card>
         <CardHeader>
-          <CardTitle>Breakfast</CardTitle>
+          <CardTitle>Frühstück</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="breakfast_restaurant_name">Restaurant Name</Label>
+            <Label htmlFor="breakfast_restaurant_name">Restaurantname</Label>
             <Input id="breakfast_restaurant_name" value={formData.breakfast_restaurant_name} onChange={(e)=>updateField("breakfast_restaurant_name", e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="breakfast_start_time">Breakfast Times</Label>
+            <Label htmlFor="breakfast_start_time">Frühstückszeiten</Label>
             <Input id="breakfast_start_time" value={formData.breakfast_start_time} onChange={(e)=>updateField("breakfast_start_time", e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="breakfast_cost_per_person">Price per Adult (€)</Label>
+            <Label htmlFor="breakfast_cost_per_person">Preis pro Erwachsener (€)</Label>
             <Input id="breakfast_cost_per_person" type="number" min="0" value={formData.breakfast_cost_per_person} onChange={(e)=>updateField("breakfast_cost_per_person", e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="breakfast_cost_per_child">Price per Child (€)</Label>
+            <Label htmlFor="breakfast_cost_per_child">Preis pro Kind (€)</Label>
             <Input id="breakfast_cost_per_child" type="number" min="0" value={formData.breakfast_cost_per_child} onChange={(e)=>updateField("breakfast_cost_per_child", e.target.value)} />
           </div>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label htmlFor="breakfast_event_available">Room usable for Events?</Label>
+              <Label htmlFor="breakfast_event_available">Raum für Events nutzbar?</Label>
               <Switch id="breakfast_event_available" checked={formData.breakfast_event_available} onCheckedChange={(val)=>updateField("breakfast_event_available", val)} />
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Operational Handling */}
+      {/* Operatives Handling */}
       <Card>
         <CardHeader>
-          <CardTitle>Operational Handling</CardTitle>
+          <CardTitle>Operatives Handling</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="operational_lead_time">Staff Planning Lead Time</Label>
+            <Label htmlFor="operational_lead_time">Vorlaufzeit Personalplanung</Label>
             <Input id="operational_lead_time" value={formData.operational_lead_time} onChange={(e)=>updateField("operational_lead_time", e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="allergy_diet_deadline">Special Diets/Allergies Deadline</Label>
+            <Label htmlFor="allergy_diet_deadline">Frist für Spezialdiäten/Allergien</Label>
             <Input id="allergy_diet_deadline" value={formData.allergy_diet_deadline} onChange={(e)=>updateField("allergy_diet_deadline", e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="buffet_minimum_persons">Buffet offered from X persons</Label>
+            <Label htmlFor="buffet_minimum_persons">Buffet ab X Personen</Label>
             <Input id="buffet_minimum_persons" type="number" min="0" value={formData.buffet_minimum_persons} onChange={(e)=>updateField("buffet_minimum_persons", e.target.value)} />
           </div>
         </CardContent>
@@ -400,31 +400,31 @@ const FoodBeverageForm = ({
       {/* F&B Packages */}
       <Card>
         <CardHeader>
-          <CardTitle>F&B Packages</CardTitle>
+          <CardTitle>F&B Pakete</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label htmlFor="fnb_packages_available">Packages Bookable?</Label>
+              <Label htmlFor="fnb_packages_available">Pakete buchbar?</Label>
               <Switch id="fnb_packages_available" checked={formData.fnb_packages_available} onCheckedChange={(val)=>updateField("fnb_packages_available", val)} />
             </div>
           </div>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label htmlFor="extra_packages_customized">Packages customizable?</Label>
+              <Label htmlFor="extra_packages_customized">Pakete anpassbar?</Label>
               <Switch id="extra_packages_customized" checked={formData.extra_packages_customized} onCheckedChange={(val)=>updateField("extra_packages_customized", val)} />
             </div>
           </div>
           <div className="space-y-2 col-span-2">
-            <Label htmlFor="coffee_break_items">Coffee Break Inclusions</Label>
+            <Label htmlFor="coffee_break_items">Kaffeepausen-Inklusivleistungen</Label>
             <Textarea id="coffee_break_items" value={formData.coffee_break_items} onChange={(e)=>updateField("coffee_break_items", e.target.value)} />
           </div>
           <div className="space-y-2 col-span-2">
-            <Label htmlFor="lunch_standard_items">Standard Lunch Items</Label>
+            <Label htmlFor="lunch_standard_items">Standard-Mittagessen Inhalte</Label>
             <Textarea id="lunch_standard_items" value={formData.lunch_standard_items} onChange={(e)=>updateField("lunch_standard_items", e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="buffet_minimum_for_lunch">Buffet Lunch from X persons</Label>
+            <Label htmlFor="buffet_minimum_for_lunch">Mittagsbuffet ab X Personen</Label>
             <Input id="buffet_minimum_for_lunch" type="number" min="0" value={formData.buffet_minimum_for_lunch} onChange={(e)=>updateField("buffet_minimum_for_lunch", e.target.value)} />
           </div>
         </CardContent>
@@ -433,27 +433,27 @@ const FoodBeverageForm = ({
       {/* Functions */}
       <Card>
         <CardHeader>
-          <CardTitle>Functions</CardTitle>
+          <CardTitle>Funktionen</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="function_created_by">Functions created by</Label>
+            <Label htmlFor="function_created_by">Funktionen erstellt von</Label>
             <Input id="function_created_by" value={formData.function_created_by} onChange={(e)=>updateField("function_created_by", e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="function_completion_time">Functions ready by (lead time)</Label>
+            <Label htmlFor="function_completion_time">Funktionen fertig bis (Vorlaufzeit)</Label>
             <Input id="function_completion_time" value={formData.function_completion_time} onChange={(e)=>updateField("function_completion_time", e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="function_meeting_people">Who attends Function Meeting?</Label>
+            <Label htmlFor="function_meeting_people">Wer nimmt am Function-Meeting teil?</Label>
             <Input id="function_meeting_people" value={formData.function_meeting_people} onChange={(e)=>updateField("function_meeting_people", e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="function_required_depts">Departments needing Functions</Label>
+            <Label htmlFor="function_required_depts">Abteilungen, die Funktionen benötigen</Label>
             <Input id="function_required_depts" value={formData.function_required_depts} onChange={(e)=>updateField("function_required_depts", e.target.value)} />
           </div>
           <div className="space-y-2 col-span-2">
-            <Label htmlFor="mice_desk_involvement">MICE Desk involvement</Label>
+            <Label htmlFor="mice_desk_involvement">Beteiligung MICE Desk</Label>
             <Textarea id="mice_desk_involvement" value={formData.mice_desk_involvement} onChange={(e)=>updateField("mice_desk_involvement", e.target.value)} />
           </div>
         </CardContent>
@@ -464,8 +464,8 @@ const FoodBeverageForm = ({
           <div className="flex items-center space-x-3">
             <UtensilsCrossed className="h-5 w-5 text-primary" />
             <div>
-              <CardTitle>Restaurant & Bar Information</CardTitle>
-              <CardDescription>Enter details about the dining options</CardDescription>
+              <CardTitle>Restaurant- & Bar-Informationen</CardTitle>
+              <CardDescription>Geben Sie Details zu den gastronomischen Angeboten ein</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -473,31 +473,31 @@ const FoodBeverageForm = ({
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="restaurants">Number of Restaurants*</Label>
+              <Label htmlFor="restaurants">Anzahl Restaurants*</Label>
               <Input 
                 id="restaurants" 
                 type="number" 
                 min="0" 
-                placeholder="Number of restaurants" 
+                placeholder="Anzahl Restaurants" 
                 value={formData.restaurants}
                 onChange={(e) => updateField("restaurants", e.target.value)}
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="bars">Number of Bars</Label>
+              <Label htmlFor="bars">Anzahl Bars</Label>
               <Input 
                 id="bars" 
                 type="number" 
                 min="0" 
-                placeholder="Number of bars/lounges" 
+                placeholder="Anzahl Bars/Lounges" 
                 value={formData.bars}
                 onChange={(e) => updateField("bars", e.target.value)}
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="restaurantNames">Restaurant Names</Label>
+              <Label htmlFor="restaurantNames">Restaurantnamen</Label>
               <Textarea 
                 id="restaurantNames" 
                 placeholder="List restaurant names" 
@@ -507,7 +507,7 @@ const FoodBeverageForm = ({
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="barNames">Bar Names</Label>
+              <Label htmlFor="barNames">Barnamen</Label>
               <Textarea 
                 id="barNames" 
                 placeholder="List bar/lounge names" 
@@ -517,7 +517,7 @@ const FoodBeverageForm = ({
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="cuisine">Cuisine Types</Label>
+              <Label htmlFor="cuisine">Küchenarten</Label>
               <Textarea 
                 id="cuisine" 
                 placeholder="Describe cuisine types offered" 
@@ -527,7 +527,7 @@ const FoodBeverageForm = ({
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="specialDiets">Special Dietary Options</Label>
+              <Label htmlFor="specialDiets">Besondere Ernährungsoptionen</Label>
               <Textarea 
                 id="specialDiets" 
                 placeholder="List available dietary options (vegetarian, vegan, gluten-free, etc.)" 
@@ -539,7 +539,7 @@ const FoodBeverageForm = ({
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="breakfastHours">Breakfast Hours</Label>
+              <Label htmlFor="breakfastHours">Frühstückszeiten</Label>
               <Input 
                 id="breakfastHours" 
                 placeholder="e.g., 6:30-10:30" 
@@ -549,7 +549,7 @@ const FoodBeverageForm = ({
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="lunchHours">Lunch Hours</Label>
+              <Label htmlFor="lunchHours">Mittagszeiten</Label>
               <Input 
                 id="lunchHours" 
                 placeholder="e.g., 12:00-14:30" 
@@ -559,7 +559,7 @@ const FoodBeverageForm = ({
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="dinnerHours">Dinner Hours</Label>
+              <Label htmlFor="dinnerHours">Abendessenzeiten</Label>
               <Input 
                 id="dinnerHours" 
                 placeholder="e.g., 18:00-22:00" 
@@ -572,7 +572,7 @@ const FoodBeverageForm = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label htmlFor="roomService">Room Service Available</Label>
+                <Label htmlFor="roomService">Roomservice verfügbar</Label>
                 <Switch 
                   id="roomService" 
                   checked={formData.roomService}
@@ -582,7 +582,7 @@ const FoodBeverageForm = ({
               
               {formData.roomService && (
                 <div className="space-y-2 pl-6 border-l-2 border-primary/20">
-                  <Label htmlFor="roomServiceHours">Room Service Hours</Label>
+                  <Label htmlFor="roomServiceHours">Roomservice Zeiten</Label>
                   <Input 
                     id="roomServiceHours" 
                     placeholder="e.g., 6:00-23:00 or 24 hours" 
@@ -595,7 +595,7 @@ const FoodBeverageForm = ({
             
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label htmlFor="minibar">Minibar Available</Label>
+                <Label htmlFor="minibar">Minibar verfügbar</Label>
                 <Switch 
                   id="minibar" 
                   checked={formData.minibar}
@@ -605,7 +605,7 @@ const FoodBeverageForm = ({
               
               {formData.minibar && (
                 <div className="space-y-2 pl-6 border-l-2 border-primary/20">
-                  <Label htmlFor="minibarItems">Minibar Items</Label>
+                  <Label htmlFor="minibarItems">Minibar-Inhalte</Label>
                   <Textarea 
                     id="minibarItems" 
                     placeholder="List standard minibar items" 
@@ -640,7 +640,7 @@ const FoodBeverageForm = ({
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="banquetCapacity">Banquet Capacity</Label>
+              <Label htmlFor="banquetCapacity">Bankettkapazität</Label>
               <Input 
                 id="banquetCapacity" 
                 placeholder="Maximum banquet capacity" 
@@ -651,7 +651,7 @@ const FoodBeverageForm = ({
             
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label htmlFor="outdoorDining">Outdoor Dining</Label>
+                <Label htmlFor="outdoorDining">Außengastronomie</Label>
                 <Switch 
                   id="outdoorDining" 
                   checked={formData.outdoorDining}
@@ -661,7 +661,7 @@ const FoodBeverageForm = ({
               
               {formData.outdoorDining && (
                 <div className="space-y-2 pl-6 border-l-2 border-primary/20">
-                  <Label htmlFor="outdoorDiningDetails">Outdoor Dining Details</Label>
+                  <Label htmlFor="outdoorDiningDetails">Details Außengastronomie</Label>
                   <Textarea 
                     id="outdoorDiningDetails" 
                     placeholder="Describe outdoor dining options" 
@@ -674,7 +674,7 @@ const FoodBeverageForm = ({
             
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label htmlFor="alcoholServed">Alcohol Served</Label>
+                <Label htmlFor="alcoholServed">Alkohol angeboten</Label>
                 <Switch 
                   id="alcoholServed" 
                   checked={formData.alcoholServed}
@@ -684,7 +684,7 @@ const FoodBeverageForm = ({
               
               {formData.alcoholServed && (
                 <div className="space-y-2 pl-6 border-l-2 border-primary/20">
-                  <Label htmlFor="alcoholTypes">Alcohol Types</Label>
+                  <Label htmlFor="alcoholTypes">Alkoholarten</Label>
                   <Textarea 
                     id="alcoholTypes" 
                     placeholder="Describe alcohol selection (beer, wine, spirits, etc.)" 
@@ -696,7 +696,7 @@ const FoodBeverageForm = ({
             </div>
             
             <div className="space-y-2 col-span-2">
-              <Label htmlFor="localPartners">Local Partners</Label>
+              <Label htmlFor="localPartners">Lokale Partner</Label>
               <Textarea 
                 id="localPartners" 
                 placeholder="List any local food suppliers or partners" 
@@ -711,11 +711,11 @@ const FoodBeverageForm = ({
 
       <div className="flex justify-between mt-8">
         <Button type="button" variant="outline" onClick={handlePrevious} className="gap-1">
-          <ArrowLeft className="h-4 w-4" /> Previous
+          <ArrowLeft className="h-4 w-4" /> Zurück
         </Button>
         
         <Button type="button" onClick={handleNext} className="gap-1">
-          Next <ArrowRight className="h-4 w-4" />
+          Weiter <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
     </div>
