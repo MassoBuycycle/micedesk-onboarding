@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import React, { useEffect } from 'react';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from "@/components/ui/button";
@@ -8,9 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, ArrowRight, PlusCircle, Trash2 } from 'lucide-react';
-import RoomCategoryCard, { RoomCategory } from "./room-sections/RoomCategoryCard";
+// import RoomCategoryCard, { RoomCategory } from "./room-sections/RoomCategoryCard"; // Unused for now
 
 // Corresponds to RoomCategoryInput in apiClient, but for form use (strings for numbers initially)
 const roomCategoryFormSchema = z.object({
@@ -115,7 +115,7 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
         {fields.map((item, index) => (
           <Card key={item.id} className="relative">
             <CardHeader>
-              <CardTitle>Room Category {index + 1}</CardTitle>
+              <CardTitle>{`Zimmerkategorie ${index + 1}`}</CardTitle>
               {fields.length > 1 && (
                 <Button 
                   type="button" 
@@ -124,7 +124,7 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                   className="absolute top-4 right-4 text-destructive hover:bg-destructive/10"
                   onClick={() => remove(index)}
                 >
-                  <Trash2 className="h-4 w-4 mr-1" /> Remove
+                  <Trash2 className="h-4 w-4 mr-1" /> Entfernen
                 </Button>
               )}
             </CardHeader>
@@ -134,8 +134,8 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                 name={`categories.${index}.category_name`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category Name*</FormLabel>
-                    <FormControl><Input placeholder="e.g., Double Room Sea View" {...field} value={field.value || ''} /></FormControl>
+                    <FormLabel>Kategoriename*</FormLabel>
+                    <FormControl><Input placeholder="z.B. Doppelzimmer Meerblick" {...field} value={field.value || ''} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -146,8 +146,8 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                   name={`categories.${index}.pms_name`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>PMS Name</FormLabel>
-                      <FormControl><Input placeholder="Internal PMS Code" {...field} value={field.value || ''} /></FormControl>
+                      <FormLabel>PMS-Bezeichnung</FormLabel>
+                      <FormControl><Input placeholder="Interner PMS-Code" {...field} value={field.value || ''} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -157,7 +157,7 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                   name={`categories.${index}.num_rooms`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Amount of Rooms</FormLabel>
+                      <FormLabel>Anzahl Zimmer</FormLabel>
                       <FormControl><Input type="number" min="0" placeholder="0" {...field} value={field.value || '0'} /></FormControl>
                       <FormMessage />
                     </FormItem>
@@ -170,7 +170,7 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                   name={`categories.${index}.size`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Size (sqm)</FormLabel>
+                      <FormLabel>Größe (m²)</FormLabel>
                       <FormControl><Input type="number" min="0" placeholder="0" {...field} value={field.value || '0'} /></FormControl>
                       <FormMessage />
                     </FormItem>
@@ -181,9 +181,9 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                   name={`categories.${index}.bed_type`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Bed Type</FormLabel>
+                      <FormLabel>Bettentyp</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl><SelectTrigger><SelectValue placeholder="Select bed type" /></SelectTrigger></FormControl>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Bettentyp auswählen" /></SelectTrigger></FormControl>
                         <SelectContent>
                           {bedTypes.map(bt => <SelectItem key={bt.value} value={bt.value}>{bt.label}</SelectItem>)}
                         </SelectContent>
@@ -198,8 +198,8 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                 name={`categories.${index}.room_features`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Room Features</FormLabel>
-                    <FormControl><Textarea placeholder="e.g., Balcony, Minibar, Jacuzzi" {...field} value={field.value || ''} /></FormControl>
+                    <FormLabel>Spezielle Ausstattungsmerkmale</FormLabel>
+                    <FormControl><Textarea placeholder="z.B. Balkon, Minibar, Jacuzzi" {...field} value={field.value || ''} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -210,8 +210,8 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                   name={`categories.${index}.surcharges_upsell`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Cost for Upsell (€)</FormLabel>
-                      <FormControl><Input placeholder="e.g., Ocean view +20" {...field} value={field.value || ''} /></FormControl>
+                      <FormLabel>Upsell-Kosten (€)</FormLabel>
+                      <FormControl><Input placeholder="z.B. Meerblick +20" {...field} value={field.value || ''} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -221,7 +221,7 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                   name={`categories.${index}.second_person_surcharge`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Surcharge 2nd Person (€)</FormLabel>
+                      <FormLabel>Aufpreis 2. Person (€)</FormLabel>
                       <FormControl><Input type="number" min="0" step="0.01" placeholder="0.00" {...field} value={field.value || '0'} /></FormControl>
                       <FormMessage />
                     </FormItem>
@@ -232,7 +232,7 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                   name={`categories.${index}.extra_bed_surcharge`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Surcharge Extra Bed (€)</FormLabel>
+                      <FormLabel>Aufpreis Zustellbett (€)</FormLabel>
                       <FormControl>
                         <Input 
                           type="number" 
@@ -256,7 +256,7 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                   name={`categories.${index}.baby_bed_available`}
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center space-x-2 justify-between rounded-lg border p-3 shadow-sm">
-                      <FormLabel className="!mt-0">Baby Bed Available?</FormLabel>
+                      <FormLabel className="!mt-0">Babybett verfügbar?</FormLabel>
                       <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                     </FormItem>
                   )}
@@ -266,7 +266,7 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                   name={`categories.${index}.extra_bed_available`}
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center space-x-2 justify-between rounded-lg border p-3 shadow-sm">
-                      <FormLabel className="!mt-0">Additional Bed Available?</FormLabel>
+                      <FormLabel className="!mt-0">Zustellbett verfügbar?</FormLabel>
                       <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                     </FormItem>
                   )}
@@ -276,7 +276,7 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                   name={`categories.${index}.isAccessible`}
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center space-x-2 justify-between rounded-lg border p-3 shadow-sm">
-                      <FormLabel className="!mt-0">Accessible Category?</FormLabel>
+                      <FormLabel className="!mt-0">Barrierefrei?</FormLabel>
                       <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                     </FormItem>
                   )}
@@ -286,7 +286,7 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                   name={`categories.${index}.hasBalcony`}
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center space-x-2 justify-between rounded-lg border p-3 shadow-sm">
-                      <FormLabel className="!mt-0">Balcony?</FormLabel>
+                      <FormLabel className="!mt-0">Balkon?</FormLabel>
                       <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                     </FormItem>
                   )}
@@ -313,7 +313,7 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
           })} 
           className="mt-4 gap-1.5"
         >
-          <PlusCircle className="h-4 w-4" /> Add Another Category
+          <PlusCircle className="h-4 w-4" /> Weitere Kategorie hinzufügen
         </Button>
 
         <div className="flex justify-between mt-8">
@@ -323,11 +323,11 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
             onClick={() => onPrevious(form.getValues().categories)}
             className="gap-1"
           >
-            <ArrowLeft className="h-4 w-4" /> Previous
+            <ArrowLeft className="h-4 w-4" /> Zurück
           </Button>
           
           <Button type="submit" className="gap-1">
-             Next <ArrowRight className="h-4 w-4" />
+             Weiter <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
       </form>
