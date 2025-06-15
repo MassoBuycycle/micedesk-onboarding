@@ -20,7 +20,7 @@ const HOTEL_FIELDS = [
   'billing_address_name', 'billing_address_street', 'billing_address_zip',
   'billing_address_city', 'billing_address_vat',
   // Contacts
-  'phone', 'email', 'website',
+  'phone', 'general_manager_name', 'general_manager_phone', 'general_manager_email', 'email', 'website',
   // Distances
   'distance_to_airport_km', 'distance_to_highway_km', 'distance_to_fair_km',
   'distance_to_train_station', 'distance_to_public_transport',
@@ -36,7 +36,7 @@ const HOTEL_FIELDS = [
   'pets_allowed', 'pet_fee', 'pet_inclusions'
 ];
 
-const HOTEL_CONTACTS_FIELDS = ['phone', 'email', 'website'];
+const HOTEL_CONTACTS_FIELDS = ['phone', 'general_manager_name', 'general_manager_phone', 'general_manager_email', 'email', 'website'];
 const HOTEL_BILLING_FIELDS = ['billing_address_name', 'billing_address_street', 'billing_address_zip', 'billing_address_city', 'billing_address_vat'];
 const HOTEL_PARKING_FIELDS = [
   'no_of_parking_spaces', 'no_of_parking_spaces_garage', 'no_of_parking_spaces_electric',

@@ -77,14 +77,6 @@ const BasicInfoSection = ({ form }: BasicInfoSectionProps) => {
         
         <TextField
           form={form}
-          name="fax"
-          label={t("hotel.fax")}
-          placeholder={t("forms.placeholders.enterFax")}
-          className="text-sm"
-        />
-        
-        <TextField
-          form={form}
           name="email"
           label={`${t("hotel.email")}*`}
           type="email"
@@ -98,6 +90,32 @@ const BasicInfoSection = ({ form }: BasicInfoSectionProps) => {
           label={t("hotel.website")}
           type="url"
           placeholder={t("forms.placeholders.enterWebsite")}
+          className="text-sm"
+        />
+
+        {/* General Manager Information */}
+        <TextField
+          form={form}
+          name="generalManagerName"
+          label={t("hotel.generalManagerName")}
+          placeholder={t("forms.placeholders.enterName")}
+          className="text-sm"
+        />
+
+        <TextField
+          form={form}
+          name="generalManagerPhone"
+          label={t("hotel.generalManagerPhone")}
+          placeholder={t("forms.placeholders.enterPhone")}
+          className="text-sm"
+        />
+
+        <TextField
+          form={form}
+          name="generalManagerEmail"
+          label={t("hotel.generalManagerEmail")}
+          type="email"
+          placeholder={t("forms.placeholders.enterEmail")}
           className="text-sm"
         />
       </TwoColumnGrid>

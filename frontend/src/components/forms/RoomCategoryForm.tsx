@@ -25,6 +25,8 @@ const roomCategoryFormSchema = z.object({
   extra_bed_available: z.boolean().default(false).nullable(),
   extra_bed_surcharge: z.coerce.number().optional().nullable(),
   baby_bed_available: z.boolean().default(false).nullable(),
+  isAccessible: z.boolean().default(false).nullable(),
+  hasBalcony: z.boolean().default(false).nullable(),
   // baby_bed_price: z.string().optional(), // Not in DDL, omitting for now
 });
 
@@ -80,6 +82,8 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
         surcharges_upsell: '0',
         second_person_surcharge: 0,
         extra_bed_surcharge: 0,
+        isAccessible: false,
+        hasBalcony: false,
        }],
     },
   });
@@ -267,7 +271,26 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                     </FormItem>
                   )}
                 />
-                {/* Conditional input for baby_bed_price could be added here if DDL is updated */}
+                <FormField
+                  control={form.control}
+                  name={`categories.${index}.isAccessible`}
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center space-x-2 justify-between rounded-lg border p-3 shadow-sm">
+                      <FormLabel className="!mt-0">Accessible Category?</FormLabel>
+                      <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name={`categories.${index}.hasBalcony`}
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center space-x-2 justify-between rounded-lg border p-3 shadow-sm">
+                      <FormLabel className="!mt-0">Balcony?</FormLabel>
+                      <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                    </FormItem>
+                  )}
+                />
               </div>
             </CardContent>
           </Card>
@@ -285,6 +308,8 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
             surcharges_upsell: '0',
             second_person_surcharge: 0,
             extra_bed_surcharge: 0,
+            isAccessible: false,
+            hasBalcony: false,
           })} 
           className="mt-4 gap-1.5"
         >
