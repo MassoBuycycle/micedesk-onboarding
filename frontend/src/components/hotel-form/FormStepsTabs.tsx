@@ -1,6 +1,7 @@
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Building, DoorOpen, Clock, CalendarCheck, CalendarRange, UtensilsCrossed, Check } from "lucide-react";
 import { CompletedSteps, FormStep } from "@/hooks/useHotelFormState";
+import { useTranslation } from "react-i18next";
 
 interface FormStepsTabsProps {
   activeStep: FormStep;
@@ -9,6 +10,7 @@ interface FormStepsTabsProps {
 }
 
 const FormStepsTabs = ({ activeStep, completedSteps, onTabChange }: FormStepsTabsProps) => {
+  const { t } = useTranslation();
   return (
     <TabsList className="w-full h-auto p-0 bg-accent/50 rounded-lg mb-4 overflow-x-auto flex-nowrap">
       <TabsTrigger 
@@ -23,7 +25,7 @@ const FormStepsTabs = ({ activeStep, completedSteps, onTabChange }: FormStepsTab
             </span>
           )}
         </div>
-        <span className="text-xs">Hotel Info</span>
+        <span className="text-xs">{t("hotel.title")}</span>
       </TabsTrigger>
       <TabsTrigger 
         value="roomInfo" 
@@ -37,7 +39,7 @@ const FormStepsTabs = ({ activeStep, completedSteps, onTabChange }: FormStepsTab
             </span>
           )}
         </div>
-        <span className="text-xs">Room Info</span>
+        <span className="text-xs">{t("rooms.title")}</span>
       </TabsTrigger>
       <TabsTrigger 
         value="roomCategories" 
@@ -51,7 +53,7 @@ const FormStepsTabs = ({ activeStep, completedSteps, onTabChange }: FormStepsTab
             </span>
           )}
         </div>
-        <span className="text-xs">Room Types</span>
+        <span className="text-xs">{t("rooms.categories")}</span>
       </TabsTrigger>
       <TabsTrigger 
         value="roomHandling" 
@@ -65,7 +67,7 @@ const FormStepsTabs = ({ activeStep, completedSteps, onTabChange }: FormStepsTab
             </span>
           )}
         </div>
-        <span className="text-xs">Room Handling</span>
+        <span className="text-xs">{t("rooms.operationalInfo")}</span>
       </TabsTrigger>
       <TabsTrigger 
         value="eventsInfo" 
@@ -79,7 +81,7 @@ const FormStepsTabs = ({ activeStep, completedSteps, onTabChange }: FormStepsTab
             </span>
           )}
         </div>
-        <span className="text-xs">Events Info</span>
+        <span className="text-xs">{t("events.title")}</span>
       </TabsTrigger>
       <TabsTrigger 
         value="eventSpaces" 
@@ -93,7 +95,7 @@ const FormStepsTabs = ({ activeStep, completedSteps, onTabChange }: FormStepsTab
             </span>
           )}
         </div>
-        <span className="text-xs">Event Spaces</span>
+        <span className="text-xs">{t("events.eventSpaces")}</span>
       </TabsTrigger>
       <TabsTrigger 
         value="foodBeverage" 
@@ -107,7 +109,7 @@ const FormStepsTabs = ({ activeStep, completedSteps, onTabChange }: FormStepsTab
             </span>
           )}
         </div>
-        <span className="text-xs">F&B</span>
+        <span className="text-xs">{t("hotels.foodBeverage")}</span>
       </TabsTrigger>
     </TabsList>
   );
