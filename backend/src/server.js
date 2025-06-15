@@ -14,6 +14,7 @@ import approvalRoutes from './routes/approvalRoutes.js';
 import secureDataRoutes from './routes/secureDataRoutes.js';
 import announcementRoutes from './routes/announcementRoutes.js';
 import informationPoliciesRoutes from './routes/informationPoliciesRoutes.js';
+import translationsRouter from './routes/translations.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { notFound } from './middleware/notFound.js';
 import { requestLogger } from './middleware/requestLogger.js';
@@ -59,6 +60,7 @@ app.use('/api/approval', authenticate, approvalRoutes);
 app.use('/api/information-policies', authenticate, informationPoliciesRoutes);
 app.use('/api', authenticate, secureDataRoutes);
 app.use('/api', authenticate, announcementRoutes);
+app.use('/api/translations', translationsRouter);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

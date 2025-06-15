@@ -21,6 +21,7 @@ import PendingApprovalsPage from "./pages/admin/PendingApprovalsPage";
 import UserSettings from "./pages/UserSettings";
 import { ThemeProvider } from "./context/ThemeContext";
 import "./i18n";
+import TranslationManager from "./pages/TranslationManager";
 
 const queryClient = new QueryClient();
 
@@ -96,6 +97,11 @@ const AuthApp = () => {
           <Route path="/admin/approvals" element={
             <ProtectedRoute>
               <AppLayout><PendingApprovalsPage /></AppLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/translations" element={
+            <ProtectedRoute>
+              <AppLayout><TranslationManager /></AppLayout>
             </ProtectedRoute>
           } />
           <Route path="/settings" element={
