@@ -22,6 +22,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { useTranslation } from 'react-i18next';
 
 // Schema for form validation
 const roomFormSchema = z.object({
@@ -92,6 +93,7 @@ const paymentMethodOptions = [
 ];
 
 const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChange, mode }: RoomFormProps) => {
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const form = useForm<RoomFormValues>({
@@ -151,17 +153,17 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold">Room Information</h2>
+        <h2 className="text-2xl font-bold">{t('rooms.title')}</h2>
         <p className="text-muted-foreground">
-            Enter details about the rooms and guest facilities for {selectedHotel?.name || "this hotel"}.
+            {t('rooms.formIntro', { hotelName: selectedHotel?.name || '' })}
         </p>
       </div>
 
         {/* Contact Information */}
         <Card>
           <CardHeader>
-            <CardTitle>Contact Information</CardTitle>
-            <CardDescription>Main contact person for room-related inquiries</CardDescription>
+            <CardTitle>{t('rooms.mainContact')}</CardTitle>
+            <CardDescription>{t('rooms.mainContactDescription')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -170,7 +172,7 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                 name="main_contact_name_room"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Contact Name*</FormLabel>
+                    <FormLabel>{t('rooms.mainContact')}*</FormLabel>
                     <FormControl>
                       <Input placeholder="Enter name" {...field} />
                     </FormControl>
@@ -184,7 +186,7 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                 name="main_contact_position_room"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Position*</FormLabel>
+                    <FormLabel>{t('rooms.position')}*</FormLabel>
                     <FormControl>
                       <Input placeholder="e.g. Front Desk Manager" {...field} />
                     </FormControl>
@@ -198,7 +200,7 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                 name="room_phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone Number*</FormLabel>
+                    <FormLabel>{t('rooms.phone')}*</FormLabel>
                     <FormControl>
                       <Input placeholder="+123 456 7890" {...field} />
                     </FormControl>
@@ -212,7 +214,7 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                 name="room_email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email*</FormLabel>
+                    <FormLabel>{t('rooms.email')}*</FormLabel>
                     <FormControl>
                       <Input placeholder="contact@example.com" {...field} />
                     </FormControl>
@@ -227,8 +229,8 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
         {/* Check-in/Check-out Information */}
         <Card>
           <CardHeader>
-            <CardTitle>Check-in & Check-out</CardTitle>
-            <CardDescription>Room availability and policies</CardDescription>
+            <CardTitle>{t('rooms.checkInOutSection')}</CardTitle>
+            <CardDescription>{t('rooms.checkInOutDescription')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -237,7 +239,7 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                 name="check_in_time"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Check-in Time*</FormLabel>
+                    <FormLabel>{t('rooms.checkInTime')}*</FormLabel>
                     <FormControl>
                       <Input type="time" {...field} />
                     </FormControl>
@@ -251,7 +253,7 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                 name="check_out_time"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Check-out Time*</FormLabel>
+                    <FormLabel>{t('rooms.checkOutTime')}*</FormLabel>
                     <FormControl>
                       <Input type="time" {...field} />
                     </FormControl>
@@ -265,11 +267,11 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                 name="early_check_in_time_frame"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Early Check-in Time Frame</FormLabel>
+                    <FormLabel>{t('rooms.earlyCheckInTimeFrame')}</FormLabel>
                     <FormControl>
                       <Input placeholder="e.g. 10:00-14:00" {...field} />
                     </FormControl>
-                    <FormDescription>Time window for early check-in</FormDescription>
+                    <FormDescription>{t('rooms.earlyCheckInTimeFrameDescription')}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -280,7 +282,7 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                 name="early_checkin_fee"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Early Check-in Fee</FormLabel>
+                    <FormLabel>{t('rooms.earlyCheckInFee')}</FormLabel>
                     <FormControl>
                       <Input type="number" min="0" step="0.01" {...field} />
                     </FormControl>
@@ -294,7 +296,7 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                 name="late_check_out_tme"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Late Check-out Time</FormLabel>
+                    <FormLabel>{t('rooms.lateCheckOutTime')}</FormLabel>
                     <FormControl>
                       <Input placeholder="e.g. 14:00" {...field} />
                     </FormControl>
@@ -308,7 +310,7 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                 name="late_checkout_fee"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Late Check-out Fee</FormLabel>
+                    <FormLabel>{t('rooms.lateCheckOutFee')}</FormLabel>
                     <FormControl>
                       <Input type="number" min="0" step="0.01" {...field} />
                     </FormControl>
@@ -322,7 +324,7 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                 name="reception_hours"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Reception Hours</FormLabel>
+                    <FormLabel>{t('rooms.receptionHours')}</FormLabel>
                     <FormControl>
                       <Input placeholder="e.g. 24/7 or 06:00-22:00" {...field} />
                     </FormControl>
@@ -337,8 +339,8 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
         {/* Room Counts */}
         <Card>
           <CardHeader>
-            <CardTitle>Room Information</CardTitle>
-            <CardDescription>Details about room types and quantities</CardDescription>
+            <CardTitle>{t('rooms.roomInformation')}</CardTitle>
+            <CardDescription>{t('rooms.roomInformationDescription')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -347,7 +349,7 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                 name="single_rooms"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Number of Single Rooms</FormLabel>
+                    <FormLabel>{t('rooms.singleRooms')}</FormLabel>
                     <FormControl>
                       <Input type="number" min="0" {...field} />
                     </FormControl>
@@ -361,7 +363,7 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                 name="double_rooms"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Number of Double Rooms</FormLabel>
+                    <FormLabel>{t('rooms.doubleRooms')}</FormLabel>
                     <FormControl>
                       <Input type="number" min="0" {...field} />
                     </FormControl>
@@ -375,7 +377,7 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                 name="connected_rooms"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Number of Connecting Rooms</FormLabel>
+                    <FormLabel>{t('rooms.connectedRooms')}</FormLabel>
                     <FormControl>
                       <Input type="number" min="0" {...field} />
                     </FormControl>
@@ -389,7 +391,7 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                 name="accessible_rooms"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Number of Accessible Rooms</FormLabel>
+                    <FormLabel>{t('rooms.accessibleRooms')}</FormLabel>
                     <FormControl>
                       <Input type="number" min="0" {...field} />
                     </FormControl>
@@ -404,8 +406,8 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
         {/* Standard Room Features */}
         <Card>
           <CardHeader>
-            <CardTitle>Standard Room Features</CardTitle>
-            <CardDescription>Select all features available in standard rooms</CardDescription>
+            <CardTitle>{t('rooms.standardRoomFeatures')}</CardTitle>
+            <CardDescription>{t('rooms.standardRoomFeaturesDescription')}</CardDescription>
           </CardHeader>
           <CardContent>
             <FormField
@@ -456,8 +458,8 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
         {/* Payment Methods */}
         <Card>
           <CardHeader>
-            <CardTitle>Payment Methods</CardTitle>
-            <CardDescription>Select all accepted payment methods</CardDescription>
+            <CardTitle>{t('rooms.paymentMethods')}</CardTitle>
+            <CardDescription>{t('rooms.paymentMethodsDescription')}</CardDescription>
           </CardHeader>
           <CardContent>
             <FormField
@@ -510,8 +512,8 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
         {/* Pet Policy */}
         <Card>
           <CardHeader>
-            <CardTitle>Pet Policy</CardTitle>
-            <CardDescription>Information about pet accommodation</CardDescription>
+            <CardTitle>{t('rooms.petPolicy')}</CardTitle>
+            <CardDescription>{t('rooms.petPolicyDescription')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <FormField
@@ -520,9 +522,9 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel>Dogs Allowed</FormLabel>
+                    <FormLabel>{t('rooms.dogsAllowed')}</FormLabel>
                     <FormDescription>
-                      Are dogs allowed in the hotel?
+                      {t('rooms.dogsAllowedDescription')}
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -542,11 +544,11 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                   name="dog_fee"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Dog Fee</FormLabel>
+                      <FormLabel>{t('rooms.dogFee')}</FormLabel>
                       <FormControl>
                         <Input type="number" min="0" step="0.01" {...field} />
                       </FormControl>
-                      <FormDescription>Fee per pet per stay/night</FormDescription>
+                      <FormDescription>{t('rooms.dogFeeDescription')}</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -557,15 +559,15 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                   name="dog_fee_inclusions"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Dog Fee Inclusions</FormLabel>
+                      <FormLabel>{t('rooms.dogFeeInclusions')}</FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="e.g. Bed, bowl, treats, etc."
+                          placeholder={t('rooms.dogFeeInclusionsPlaceholder')}
                           className="min-h-[100px]"
                           {...field} 
                         />
                       </FormControl>
-                      <FormDescription>What is included in the pet fee?</FormDescription>
+                      <FormDescription>{t('rooms.dogFeeInclusionsDescription')}</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -582,11 +584,11 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
             onClick={() => onPrevious(form.getValues())}
             className="gap-1"
           >
-          <ArrowLeft className="h-4 w-4" /> Previous
+          <ArrowLeft className="h-4 w-4" /> {t('rooms.previous')}
         </Button>
           
           <Button type="submit" className="gap-1">
-            Next <ArrowRight className="h-4 w-4" />
+            {t('rooms.next')} <ArrowRight className="h-4 w-4" />
           </Button>
       </div>
       </form>
