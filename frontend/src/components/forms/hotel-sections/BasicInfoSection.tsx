@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Hotel } from "lucide-react";
 import { HotelFormValues } from "../HotelForm";
 import FormSection from "@/components/shared/FormSection";
-import { TextField, TextareaField, TwoColumnGrid } from "@/components/shared/FormFields";
+import { TextField, TextareaField, TwoColumnGrid, PhoneField } from "@/components/shared/FormFields";
 
 interface BasicInfoSectionProps {
   form: UseFormReturn<HotelFormValues>;
@@ -67,12 +67,11 @@ const BasicInfoSection = ({ form }: BasicInfoSectionProps) => {
           className="text-sm"
         />
         
-        <TextField
+        <PhoneField
           form={form}
           name="phone"
           label={t("hotel.phone")}
           placeholder={t("forms.placeholders.enterPhone")}
-          className="text-sm"
         />
         
         <TextField

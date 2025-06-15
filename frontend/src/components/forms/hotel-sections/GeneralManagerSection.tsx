@@ -1,7 +1,7 @@
 import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import FormSection from '@/components/shared/FormSection';
-import { TextField, TwoColumnGrid } from '@/components/shared/FormFields';
+import { TextField, TwoColumnGrid, PhoneField } from '@/components/shared/FormFields';
 import { HotelFormValues } from '../HotelForm';
 
 interface GeneralManagerSectionProps {
@@ -25,12 +25,11 @@ const GeneralManagerSection = ({ form }: GeneralManagerSectionProps) => {
           placeholder={t('forms.placeholders.enterName')}
           className="text-sm"
         />
-        <TextField
+        <PhoneField
           form={form}
           name="generalManagerPhone"
           label={t('hotel.generalManagerPhone')}
           placeholder={t('forms.placeholders.enterPhone')}
-          className="text-sm"
         />
         <TextField
           form={form}
