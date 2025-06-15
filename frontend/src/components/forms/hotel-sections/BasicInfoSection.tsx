@@ -100,32 +100,6 @@ const BasicInfoSection = ({ form }: BasicInfoSectionProps) => {
           placeholder={t("forms.placeholders.enterWebsite")}
           className="text-sm"
         />
-
-        {/* General Manager Information */}
-        <TextField
-          form={form}
-          name="generalManagerName"
-          label={t("hotel.generalManagerName")}
-          placeholder={t("forms.placeholders.enterName")}
-          className="text-sm"
-        />
-
-        <TextField
-          form={form}
-          name="generalManagerPhone"
-          label={t("hotel.generalManagerPhone")}
-          placeholder={t("forms.placeholders.enterPhone")}
-          className="text-sm"
-        />
-
-        <TextField
-          form={form}
-          name="generalManagerEmail"
-          label={t("hotel.generalManagerEmail")}
-          type="email"
-          placeholder={t("forms.placeholders.enterEmail")}
-          className="text-sm"
-        />
       </TwoColumnGrid>
 
       <TextareaField

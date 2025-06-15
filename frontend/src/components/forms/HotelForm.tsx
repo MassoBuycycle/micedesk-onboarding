@@ -21,6 +21,7 @@ import LocationDistanceSection from "./hotel-sections/LocationDistanceSection";
 // import ImagesDocumentsSection from "./hotel-sections/ImagesDocumentsSection"; // Replace with new component
 import AdditionalInfoSection from "./hotel-sections/AdditionalInfoSection";
 import FacilitiesSection from "./hotel-sections/FacilitiesSection";
+import GeneralManagerSection from "./hotel-sections/GeneralManagerSection";
 
 // Define schema for form validation
 const createHotelFormSchema = (t: any) => z.object({
@@ -340,6 +341,7 @@ const HotelForm = ({ initialData = {}, onNext, onChange, mode = 'add' }: HotelFo
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-4">
           <BasicInfoSection form={form} />
+          <GeneralManagerSection form={form} />
           <BillingInfoSection form={form} onCopyAddress={handleCopyAddress} />
           <HotelDetailsSection form={form} />
           <FacilitiesSection form={form} />

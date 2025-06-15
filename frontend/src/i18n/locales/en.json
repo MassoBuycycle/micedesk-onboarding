@@ -539,5 +539,7 @@
   },
   "users": {
     "assignUser": "Assign User"
-  }
+  },
+  "generalManagerSection": "General Manager",
+  "generalManagerSectionDescription": "Contact information of the General Manager"
 } 

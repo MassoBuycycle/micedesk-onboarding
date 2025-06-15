@@ -199,7 +199,9 @@
     "costPerHour": "Parkgebühren pro Stunde",
     "costPerDay": "Parkgebühren pro Tag",
     "allinvosCisboxNr": "Allinvos / Cisbox Nr.",
-    "plannedChangesDescription": "Beschreiben Sie geplante Renovierungen oder Änderungen"
+    "plannedChangesDescription": "Beschreiben Sie geplante Renovierungen oder Änderungen",
+    "generalManagerSection": "General Manager",
+    "generalManagerSectionDescription": "Kontaktinformationen des General Managers"
   },
   "hotelCategories": {
     "kongress": "Kongresshotel",
