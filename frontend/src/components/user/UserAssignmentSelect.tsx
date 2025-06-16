@@ -262,6 +262,13 @@ const UserAssignmentSelect = ({ hotelId, hotelName, onAssignUser }: UserAssignme
     }
   };
 
+  // Show warning if using mock data due to error
+  useEffect(() => {
+    if (error) {
+      toast.warning(error, { duration: 5000, id: "user-data-error" });
+    }
+  }, [error]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -270,13 +277,6 @@ const UserAssignmentSelect = ({ hotelId, hotelName, onAssignUser }: UserAssignme
       </div>
     );
   }
-
-  // Show warning if using mock data due to error
-  useEffect(() => {
-    if (error) {
-      toast.warning(error, { duration: 5000, id: "user-data-error" });
-    }
-  }, [error]);
 
   return (
     <div className="space-y-4">
