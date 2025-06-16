@@ -272,9 +272,11 @@ const UserAssignmentSelect = ({ hotelId, hotelName, onAssignUser }: UserAssignme
   }
 
   // Show warning if using mock data due to error
-  if (error) {
-    toast.warning(error, { duration: 5000, id: "user-data-error" });
-  }
+  useEffect(() => {
+    if (error) {
+      toast.warning(error, { duration: 5000, id: "user-data-error" });
+    }
+  }, [error]);
 
   return (
     <div className="space-y-4">
@@ -354,7 +356,7 @@ const UserAssignmentSelect = ({ hotelId, hotelName, onAssignUser }: UserAssignme
             Assign Users
           </Button>
         </div>
-      </div>
+      
 
       {assignedUsers.length > 0 && (
         <div className="space-y-2">
