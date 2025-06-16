@@ -942,8 +942,8 @@ const HotelView = () => {
                       <p className="text-sm truncate" title={img.original_name}>
                         {img.original_name}
                       </p>
-                      <p className="text-xs text-muted-foreground">
-                        {img.file_type_code}
+                      <p className="text-xs text-muted-foreground truncate">
+                        {(img.file_type_name || img.file_type_code) + (img.size ? ` • ${(img.size/1024/1024).toFixed(1)} MB` : '')}
                       </p>
                     </CardContent>
                   </Card>
@@ -970,8 +970,8 @@ const HotelView = () => {
                         <FileText className="h-8 w-8 text-muted-foreground" />
                         <div>
                           <p className="font-medium">{file.original_name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {file.file_type_code} • {file.mime_type}
+                          <p className="text-sm text-muted-foreground truncate">
+                            {(file.file_type_name || file.file_type_code) + ` • ${file.mime_type}` + (file.size ? ` • ${(file.size/1024/1024).toFixed(1)} MB` : '')}
                           </p>
                         </div>
                       </div>
