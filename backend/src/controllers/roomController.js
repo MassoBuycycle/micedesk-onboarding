@@ -19,7 +19,7 @@ const ROOM_STANDARD_FEATURES_FIELDS = [
     'shower_toilet', 'bathtub_toilet', 'open_bathroom', 'balcony', 'safe',
     'air_condition', 'heating', 'hair_dryer', 'ironing_board', 'tv',
     'telephone', 'wifi', 'desk', 'coffee_maker', 'kettle',
-    'minibar', 'fridge', 'allergy_friendly_bed_linen'
+    'minibar', 'fridge', 'allergy_friendly_bedding'
 ];
 
 // ROOM_CATEGORY_INFOS_FIELDS and ROOM_OPERATIONAL_HANDLING_FIELDS remain for other functions
@@ -86,10 +86,10 @@ const upsertStandardFeatures = async (connection, allData, roomId) => {
             field.replace('_', ''), // remove underscores
             // Handle specific field name mappings between frontend and database
             field === 'telephone' ? 'telefon' : field, // database has 'telephone', frontend might send 'telefon'
-            field === 'allergy_friendly_bed_linen' ? 'allergy_friendly_bedding' : field, // database has 'allergy_friendly_bed_linen', frontend might send 'allergy_friendly_bedding'
+            field === 'allergy_friendly_bedding' ? 'allergy_friendly_bed_linen' : field, // database has 'allergy_friendly_bedding', frontend might send 'allergy_friendly_bed_linen'
             // Also handle the reverse mappings
             field === 'telefon' ? 'telephone' : field,
-            field === 'allergy_friendly_bedding' ? 'allergy_friendly_bed_linen' : field
+            field === 'allergy_friendly_bed_linen' ? 'allergy_friendly_bedding' : field
         ];
         
         featureData[field] = allData.standard_features.some(feature => 

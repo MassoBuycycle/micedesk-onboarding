@@ -135,7 +135,7 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
     { id: 'kettle', label: t('rooms.features.kettle') },
     { id: 'minibar', label: t('rooms.features.minibar') },
     { id: 'fridge', label: t('rooms.features.fridge') },
-    { id: 'allergy_friendly_bed_linen', label: t('rooms.features.allergyFriendlyBedLinen') },
+    { id: 'allergy_friendly_bedding', label: t('rooms.features.allergyFriendlyBedLinen') },
   ];
 
   const paymentMethodOptions = [

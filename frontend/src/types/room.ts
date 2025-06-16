@@ -44,7 +44,7 @@ export interface RoomStandardFeatures {
   kettle: boolean;
   minibar: boolean;
   fridge: boolean;
-  allergy_friendly_bed_linen: boolean;
+  allergy_friendly_bedding: boolean;
   created_at?: Date;
   updated_at?: Date;
 }
