@@ -1,5 +1,6 @@
 import { apiGet, apiPost, apiDelete } from './apiClient';
 import { getAuthToken } from './authApi';
+import { API_BASE_URL } from './config';
 
 // Types
 export interface FileType {
@@ -74,14 +75,15 @@ export const uploadFile = async (
   const token = getAuthToken();
   
   const urlPath = `/files/upload/${entityType}/${entityId}/${category}/${fileTypeCode}`;
+  const fullUrl = `${API_BASE_URL}${urlPath}`;
   
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', `${import.meta.env.VITE_API_URL || ''}/api${urlPath}`);
+    xhr.open('POST', fullUrl);
     
     // Debug authentication
     console.log('Upload request details:', {
-      url: `${import.meta.env.VITE_API_URL || ''}/api${urlPath}`,
+      url: fullUrl,
       hasToken: !!token,
       tokenPrefix: token ? token.substring(0, 10) + '...' : 'none'
     });
@@ -119,7 +121,7 @@ export const uploadFile = async (
           status: xhr.status,
           statusText: xhr.statusText,
           responseText: xhr.responseText,
-          url: `${import.meta.env.VITE_API_URL || ''}/api${urlPath}`
+          url: fullUrl
         });
         
         reject(new Error(errorMessage));
