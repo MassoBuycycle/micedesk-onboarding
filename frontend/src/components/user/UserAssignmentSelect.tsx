@@ -284,7 +284,7 @@ const UserAssignmentSelect = ({ hotelId, hotelName, onAssignUser }: UserAssignme
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-full sm:w-[350px] p-0">
+          <PopoverContent align="center" sideOffset={8} className="w-full sm:w-[480px] p-0">
             <Command>
               <CommandInput placeholder="Search users..." />
               <CommandEmpty>No users found.</CommandEmpty>
