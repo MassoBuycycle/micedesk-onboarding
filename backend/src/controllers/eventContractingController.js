@@ -9,7 +9,7 @@ import pool from '../db/config.js';
 export const getContractingByEventId = async (req, res, next) => {
   const connection = await pool.getConnection();
   try {
-    const eventId = parseInt(req.params.eventId);
+    const eventId = parseInt(req.params.id);
     
     // Check if event exists
     const [events] = await connection.query(
@@ -48,7 +48,7 @@ export const getContractingByEventId = async (req, res, next) => {
 export const createOrUpdateContracting = async (req, res, next) => {
   const connection = await pool.getConnection();
   try {
-    const eventId = parseInt(req.params.eventId);
+    const eventId = parseInt(req.params.id);
     const contractingData = req.body;
     
     // Validate required fields

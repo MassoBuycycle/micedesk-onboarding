@@ -36,6 +36,16 @@ import {
   deleteEventSpace
 } from '../controllers/eventSpacesController.js';
 
+import {
+  getTechnicalByEventId,
+  createOrUpdateTechnical
+} from '../controllers/eventTechnicalController.js';
+
+import {
+  getContractingByEventId,
+  createOrUpdateContracting
+} from '../controllers/eventContractingController.js';
+
 const router = express.Router();
 
 // Event main routes
@@ -70,6 +80,14 @@ router.post('/:id/spaces', createEventSpace);
 router.get('/:id/spaces/:spaceId', getEventSpaceById);
 router.put('/:id/spaces/:spaceId', updateEventSpace);
 router.delete('/:id/spaces/:spaceId', deleteEventSpace);
+
+// Technical routes
+router.get('/:id/technical', getTechnicalByEventId);
+router.post('/:id/technical', createOrUpdateTechnical);
+
+// Contracting routes
+router.get('/:id/contracting', getContractingByEventId);
+router.post('/:id/contracting', createOrUpdateContracting);
 
 // --------------------------------------------------
 // Generic single event routes (placed after sub-routes)

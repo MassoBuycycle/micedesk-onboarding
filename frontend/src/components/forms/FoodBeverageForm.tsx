@@ -11,6 +11,19 @@ import { useNavigate } from "react-router-dom";
 import { upsertFoodBeverageDetails } from "@/apiClient/fbDetailsApi";
 import { Restaurant, Bar, FoodBeverageDetails } from "@/types/foodBeverage";
 
+// Fallback UUID generator for environments where crypto.randomUUID() is not available
+const generateId = (): string => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  // Fallback UUID generation
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+};
+
 // Props definition
 interface FoodBeverageFormProps {
   initialData?: Partial<FoodBeverageDetails & { restaurants: Restaurant[]; bars: Bar[] }>;
@@ -52,6 +65,19 @@ const FoodBeverageForm = ({
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  // Early return with error handling if selectedHotel is not provided
+  if (!selectedHotel) {
+    console.error("❌ FoodBeverageForm: selectedHotel is required but not provided");
+    return (
+      <div className="p-6 text-center bg-red-50 border border-red-200 rounded-lg">
+        <h3 className="text-lg font-semibold text-red-800 mb-2">Missing Hotel Information</h3>
+        <p className="text-red-700">
+          Hotel information is required to display the Food & Beverage form. Please ensure a hotel is selected.
+        </p>
+      </div>
+    );
+  }
+  
   const [formData, setFormData] = useState<FoodBeverageDetails>({
     hotel_id: selectedHotel?.id || 0,
     fnb_contact_name: "",
@@ -90,13 +116,13 @@ const FoodBeverageForm = ({
   const [restaurants, setRestaurants] = useState<Restaurant[]>(
     initialData.restaurants && initialData.restaurants.length > 0 
       ? initialData.restaurants 
-      : [{ id: crypto.randomUUID(), ...initialRestaurantState }]
+      : [{ id: generateId(), ...initialRestaurantState }]
   );
 
   const [bars, setBars] = useState<Bar[]>(
     initialData.bars && initialData.bars.length > 0 
       ? initialData.bars 
-      : [{ id: crypto.randomUUID(), ...initialBarState }]
+      : [{ id: generateId(), ...initialBarState }]
   );
 
   const updateField = (field: keyof FoodBeverageDetails, value: any) => {
@@ -117,7 +143,7 @@ const FoodBeverageForm = ({
   const addRestaurant = () => {
     const updatedRestaurants = [
       ...restaurants,
-      { id: crypto.randomUUID(), ...initialRestaurantState }
+      { id: generateId(), ...initialRestaurantState }
     ];
     
     setRestaurants(updatedRestaurants);
@@ -159,7 +185,7 @@ const FoodBeverageForm = ({
   const addBar = () => {
     const updatedBars = [
       ...bars,
-      { id: crypto.randomUUID(), ...initialBarState }
+      { id: generateId(), ...initialBarState }
     ];
     
     setBars(updatedBars);
