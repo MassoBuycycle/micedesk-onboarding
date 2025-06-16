@@ -534,7 +534,16 @@
       "booking": {
         "sectionTitle": "Booking / Options",
         "hasOptions": "Has Option Holds?",
-        "optionDuration": "Option Duration (e.g. 7 days)"
+        "allowsSplitOptions": "Do you offer split options?",
+        "optionDuration": "Option Duration (e.g. 7 days)",
+        "allowsOverbooking": "Do you work with overbooking?",
+        "roomsOnly": "Rooms Only",
+        "lastMinuteLeadtime": "Last Minute Lead Time",
+        "contractedCompanies": "Are there customers with framework contracts for rooms and/or meeting packages?",
+        "refusedRequests": "Are there requests that are generally rejected? (e.g. political parties, blacklisted accounts)",
+        "unwantedMarketing": "Are there online portals/agencies whose requests are rejected?",
+        "requiresSecondSignature": "Must there be a second signature on the contract from a certain sales amount?",
+        "exclusiveClients": "Exclusive Clients"
       },
       "operations": {
         "sectionTitle": "Operations",
@@ -560,6 +569,45 @@
         "coffeeBreakLocation": "Where are the coffee breaks served?",
         "roomDropCost": "Cost for Room Drop",
         "finalInvoiceHandling": "Final invoice handling"
+      },
+      "technical": {
+        "sectionTitle": "Technology / Service and Prices",
+        "isSoundproof": "Are the meeting rooms soundproof?",
+        "hasDaylight": "Do all meeting rooms have daylight?",
+        "hasBlackoutCurtains": "Do all meeting rooms have blackout curtains?",
+        "hasAcOrVentilation": "Do all rooms have air conditioning or a ventilation system?",
+        "wifiDataRate": "What is the data rate of the WLAN?",
+        "beamerLumens": "How many lumens do the projectors have?",
+        "isHybridMeetingPossible": "Are hybrid meetings possible?",
+        "softwarePresentation": "What presentation/transmission software is used? E.g. Clickshare?",
+        "copyCost": "Cost for copies",
+        "technicalSupportAvailable": "Is there technical support in the hotel?"
+      },
+      "contracting": {
+        "sectionTitle": "Contracting",
+        "contractedCompanies": "Are there customers with framework contracts for rooms and/or meeting packages?",
+        "refusedRequests": "Are there requests that are generally rejected? (e.g. political parties, blacklisted accounts)",
+        "unwantedMarketingTools": "Are there online portals/agencies whose requests are rejected?",
+        "firstSecondOption": "Do you offer the meeting rooms in 1st and 2nd option?",
+        "splitOptions": "Do you offer split options?",
+        "optionHoldDuration": "How long do you hold the rooms in 1st option?",
+        "overbookingPolicy": "Do you work with overbooking?",
+        "depositRequired": "Deposit Required",
+        "acceptedPaymentMethods": "Accepted Payment Methods",
+        "commissionRules": "Commission Rules",
+        "secondSignatureRequired": "Must there be a second signature on the contract from a certain sales amount?"
+      },
+      "general": {
+        "sectionTitle": "General Information Event Spaces"
+      },
+      "locations": {
+        "sectionTitle": "Location Information"
+      },
+      "equipment": {
+        "sectionTitle": "Technical Equipment"
+      },
+      "accounting": {
+        "sectionTitle": "Accounting Handling"
       }
     }
   },

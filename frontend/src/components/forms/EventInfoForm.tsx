@@ -625,99 +625,171 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
         const values = form.getValues();
         submit(values, e);
       }} className="space-y-6">
-        {/* CONTACT */}
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('events.eventForm.contact.sectionTitle')}</CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
+        {/* 1. CONTACT DETAILS - Kontaktdetails */}
+        <FormSection 
+          title={t('events.eventForm.contact.sectionTitle')} 
+          description=""
+        >
+          <TwoColumnGrid>
+            <TextField
+              form={form}
               name="contact.contact_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('events.eventForm.contact.name')}</FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label={t('events.eventForm.contact.name')}
             />
-            <FormField
-              control={form.control}
+            <TextField
+              form={form}
               name="contact.contact_position"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('events.eventForm.contact.position')}</FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
-                </FormItem>
-              )}
+              label={t('events.eventForm.contact.position')}
             />
-            <FormField
-              control={form.control}
+            <TextField
+              form={form}
               name="contact.contact_phone"
-              render={({ field }) => (
-                <FormItem className="col-span-1 md:col-span-2">
-                  <FormLabel>{t('events.eventForm.contact.phone')}</FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
-                </FormItem>
-              )}
+              label={t('events.eventForm.contact.phone')}
             />
-            <FormField
-              control={form.control}
+            <TextField
+              form={form}
               name="contact.contact_email"
-              render={({ field }) => (
-                <FormItem className="col-span-1 md:col-span-2">
-                  <FormLabel>{t('events.eventForm.contact.email')}</FormLabel>
-                  <FormControl><Input type="email" {...field} /></FormControl>
-                </FormItem>
-              )}
+              label={t('events.eventForm.contact.email')}
+              type="email"
             />
-          </CardContent>
-        </Card>
+          </TwoColumnGrid>
+        </FormSection>
 
-        {/* BOOKING OPTIONS */}
-        <Card>
-          <CardHeader><CardTitle>{t('events.eventForm.booking.sectionTitle')}</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
-            <FormField
-              control={form.control}
-              name="booking.has_options"
-              render={({ field }) => (
-                <FormItem className="flex items-center justify-between">
-                  <FormLabel>{t('events.eventForm.booking.hasOptions')}</FormLabel>
-                  <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                </FormItem>
-              )}
-            />
-            {/* More switches / inputs similar pattern */}
-            <FormField
-              control={form.control}
-              name="booking.option_duration"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('events.eventForm.booking.optionDuration')}</FormLabel>
-                  <FormControl><Input {...field}/></FormControl>
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
+        {/* 2. GENERAL INFORMATION EVENT SPACES */}
+        <FormSection 
+          title={t('events.eventForm.general.sectionTitle')} 
+          description=""
+        >
+          <SwitchField
+            form={form}
+            name="operations.sold_with_rooms_only"
+            label={t('events.eventForm.operations.soldWithRoomsOnly')}
+          />
+        </FormSection>
 
-        {/* OPERATIONS SECTION */}
+        {/* 3. LOCATION QUESTIONS */}
+        <FormSection 
+          title={t('events.eventForm.locations.sectionTitle')} 
+          description=""
+        >
+          <TwoColumnGrid>
+            <TextField
+              form={form}
+              name="operations.coffee_break_location"
+              label={t('events.eventForm.operations.coffeeBreakLocation')}
+            />
+            <TextField
+              form={form}
+              name="operations.lunch_location"
+              label={t('events.eventForm.operations.lunchLocation')}
+            />
+          </TwoColumnGrid>
+        </FormSection>
+
+        {/* 4. TECHNOLOGY / SERVICE AND PRICES - Technik/ Service und Preise */}
+        <FormSection 
+          title={t('events.eventForm.technical.sectionTitle')} 
+          description=""
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <SwitchField
+              form={form}
+              name="technical.is_soundproof"
+              label={t('events.eventForm.technical.isSoundproof')}
+            />
+            <SwitchField
+              form={form}
+              name="technical.has_daylight"
+              label={t('events.eventForm.technical.hasDaylight')}
+            />
+            <SwitchField
+              form={form}
+              name="technical.has_blackout_curtains"
+              label={t('events.eventForm.technical.hasBlackoutCurtains')}
+            />
+            <SwitchField
+              form={form}
+              name="technical.has_ac_or_ventilation"
+              label={t('events.eventForm.technical.hasAcOrVentilation')}
+            />
+            <SwitchField
+              form={form}
+              name="technical.is_hybrid_meeting_possible"
+              label={t('events.eventForm.technical.isHybridMeetingPossible')}
+            />
+            <SwitchField
+              form={form}
+              name="technical.technical_support_available"
+              label={t('events.eventForm.technical.technicalSupportAvailable')}
+            />
+          </div>
+          
+          <TwoColumnGrid>
+            <TextField
+              form={form}
+              name="technical.wifi_data_rate"
+              label={t('events.eventForm.technical.wifiDataRate')}
+            />
+            <TextField
+              form={form}
+              name="technical.beamer_lumens"
+              label={t('events.eventForm.technical.beamerLumens')}
+            />
+            <TextField
+              form={form}
+              name="technical.software_presentation"
+              label={t('events.eventForm.technical.softwarePresentation')}
+            />
+            <NumberField
+              form={form}
+              name="technical.copy_cost"
+              label={t('events.eventForm.technical.copyCost')}
+              step="0.01"
+            />
+          </TwoColumnGrid>
+        </FormSection>
+
+        {/* 5. TECHNICAL EQUIPMENT SECTION */}
+        <FormSection 
+          title={t('events.eventForm.equipment.sectionTitle')} 
+          description=""
+        >
+          <div className="grid grid-cols-3 gap-2 mb-2">
+            <div className="text-sm font-medium">Equipment</div>
+            <div className="text-sm font-medium">Amount</div>
+            <div className="text-sm font-medium">Price per unit</div>
+          </div>
+          
+          {DEFAULT_EQUIPMENT.map((item, idx) => (
+            <div key={item.id} className="grid grid-cols-3 gap-2 mb-3">
+              <Input className="bg-gray-50" value={item.name} readOnly />
+              <NumberField
+                form={form}
+                name={`equipment.${idx}.quantity`}
+                label=""
+                placeholder="0"
+              />
+              <NumberField
+                form={form}
+                name={`equipment.${idx}.price`}
+                label=""
+                placeholder="0.00"
+                step="0.01"
+              />
+            </div>
+          ))}
+        </FormSection>
+
+        {/* 6. OPERATIONAL HANDLING */}
         <FormSection 
           title={t('events.eventForm.operations.sectionTitle')} 
-          description={t('events.eventForm.operations.sectionDescription')}
+          description=""
         >
-          <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <SwitchField
               form={form}
-              name="operations.has_overtime_material"
-              label={t('events.eventForm.operations.hasOvertimeMaterial')}
-            />
-            <SwitchField
-              form={form}
-              name="operations.sent_over_time_material"
-              label={t('events.eventForm.operations.sentOvertimeMaterial')}
+              name="operations.has_minimum_spent"
+              label={t('events.eventForm.operations.hasMinimumSpent')}
             />
             <SwitchField
               form={form}
@@ -726,29 +798,98 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
             />
             <SwitchField
               form={form}
-              name="operations.storage_room"
-              label={t('events.eventForm.operations.storageRoom')}
-            />
-            <SwitchField
-              form={form}
-              name="operations.sold_with_rooms_only"
-              label={t('events.eventForm.operations.soldWithRoomsOnly')}
-            />
-            <SwitchField
-              form={form}
               name="operations.hotel_exclusive_clients"
               label={t('events.eventForm.operations.hotelExclusiveClients')}
             />
+          </div>
+          
+          <TwoColumnGrid>
+            <NumberField
+              form={form}
+              name="operations.min_participants_package"
+              label={t('events.eventForm.operations.minParticipantsPackage')}
+            />
+            <TextField
+              form={form}
+              name="operations.last_minute_lead_time"
+              label={t('events.eventForm.operations.lastMinuteLeadTime')}
+            />
+            <NumberField
+              form={form}
+              name="operations.material_advance_days"
+              label={t('events.eventForm.operations.materialAdvanceDays')}
+            />
+            <NumberField
+              form={form}
+              name="operations.room_drop_cost"
+              label={t('events.eventForm.operations.roomDropCost')}
+              step="0.01"
+            />
+          </TwoColumnGrid>
+        </FormSection>
+
+        {/* 7. CONTRACTING */}
+        <FormSection 
+          title={t('events.eventForm.contracting.sectionTitle')} 
+          description=""
+        >
+          <div className="space-y-4">
+            <TextareaField
+              form={form}
+              name="contracting.contracted_companies"
+              label={t('events.eventForm.contracting.contractedCompanies')}
+              rows={2}
+            />
+            <TextareaField
+              form={form}
+              name="contracting.refused_requests"
+              label={t('events.eventForm.contracting.refusedRequests')}
+              rows={2}
+            />
+            <TextareaField
+              form={form}
+              name="contracting.unwanted_marketing_tools"
+              label={t('events.eventForm.contracting.unwantedMarketingTools')}
+              rows={2}
+            />
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <SwitchField
               form={form}
-              name="operations.minimum_spent"
-              label={t('events.eventForm.operations.minimumSpent')}
+              name="contracting.first_second_option"
+              label={t('events.eventForm.contracting.firstSecondOption')}
             />
             <SwitchField
               form={form}
-              name="operations.has_minimum_spent"
-              label={t('events.eventForm.operations.hasMinimumSpent')}
+              name="contracting.split_options"
+              label={t('events.eventForm.contracting.splitOptions')}
             />
+            <SwitchField
+              form={form}
+              name="contracting.overbooking_policy"
+              label={t('events.eventForm.contracting.overbookingPolicy')}
+            />
+            <SwitchField
+              form={form}
+              name="contracting.second_signature_required"
+              label={t('events.eventForm.contracting.secondSignatureRequired')}
+            />
+          </div>
+          
+          <TextField
+            form={form}
+            name="contracting.option_hold_duration"
+            label={t('events.eventForm.contracting.optionHoldDuration')}
+          />
+        </FormSection>
+
+        {/* 8. ACCOUNTING HANDLING - Handling Buchhaltung */}
+        <FormSection 
+          title={t('events.eventForm.accounting.sectionTitle')} 
+          description=""
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <SwitchField
               form={form}
               name="operations.deposit_needed_event"
@@ -764,49 +905,14 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
           <TwoColumnGrid>
             <TextField
               form={form}
-              name="operations.lunch_location"
-              label={t('events.eventForm.operations.lunchLocation')}
-            />
-            <TextField
-              form={form}
-              name="operations.coffee_location"
-              label={t('events.eventForm.operations.coffeeLocation')}
-            />
-            <TextField
-              form={form}
-              name="operations.coffee_break_location"
-              label={t('events.eventForm.operations.coffeeBreakLocation')}
-            />
-            <TextField
-              form={form}
-              name="operations.last_minute_lead_time"
-              label={t('events.eventForm.operations.lastMinuteLeadTime')}
-            />
-            <TextField
-              form={form}
               name="operations.deposit_invoice_creator"
               label={t('events.eventForm.operations.depositInvoiceCreator')}
             />
-            <NumberField
+            <TextareaField
               form={form}
-              name="operations.min_participants"
-              label={t('events.eventForm.operations.minParticipants')}
-            />
-            <NumberField
-              form={form}
-              name="operations.min_participants_package"
-              label={t('events.eventForm.operations.minParticipantsPackage')}
-            />
-            <NumberField
-              form={form}
-              name="operations.material_advance_days"
-              label={t('events.eventForm.operations.materialAdvanceDays')}
-            />
-            <NumberField
-              form={form}
-              name="operations.room_drop_cost"
-              label={t('events.eventForm.operations.roomDropCost')}
-              step="0.01"
+              name="contracting.accepted_payment_methods"
+              label={t('events.eventForm.contracting.acceptedPaymentMethods')}
+              rows={2}
             />
           </TwoColumnGrid>
           
@@ -822,128 +928,13 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
             label={t('events.eventForm.operations.finalInvoiceHandling')}
             rows={3}
           />
+          <TextareaField
+            form={form}
+            name="contracting.commission_rules"
+            label={t('events.eventForm.contracting.commissionRules')}
+            rows={3}
+          />
         </FormSection>
-
-        {/* TECHNICAL SECTION */}
-        <Card>
-          <CardHeader><CardTitle>Technik / Service & Prices</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
-            <FormField control={form.control} name="technical.beamer_lumens" render={({field})=>(
-              <FormItem><FormLabel>Beamer Lumens</FormLabel><FormControl><Input {...field}/></FormControl></FormItem>
-            )}/>
-            <FormField control={form.control} name="technical.copy_cost" render={({field})=>(
-              <FormItem><FormLabel>Copy Cost</FormLabel><FormControl><Input type="number" step="0.01" {...field}/></FormControl></FormItem>
-            )}/>
-            <FormField control={form.control} name="technical.wifi_data_rate" render={({field})=>(
-              <FormItem><FormLabel>WLAN Data Rate</FormLabel><FormControl><Input {...field}/></FormControl></FormItem>
-            )}/>
-            <FormField control={form.control} name="technical.software_presentation" render={({field})=>(
-              <FormItem><FormLabel>Presentation Software</FormLabel><FormControl><Input {...field}/></FormControl></FormItem>
-            )}/>
-            {/* switches */}
-            <FormField control={form.control} name="technical.has_ac_or_ventilation" render={({field})=>(
-              <FormItem className="flex justify-between items-center"><FormLabel>AC / Ventilation</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange}/></FormControl></FormItem>
-            )}/>
-            <FormField control={form.control} name="technical.has_blackout_curtains" render={({field})=>(
-              <FormItem className="flex justify-between items-center"><FormLabel>Blackout Curtains</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange}/></FormControl></FormItem>
-            )}/>
-            <FormField control={form.control} name="technical.is_soundproof" render={({field})=>(
-              <FormItem className="flex justify-between items-center"><FormLabel>Soundproof</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange}/></FormControl></FormItem>
-            )}/>
-            <FormField control={form.control} name="technical.has_daylight" render={({field})=>(
-              <FormItem className="flex justify-between items-center"><FormLabel>Daylight</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange}/></FormControl></FormItem>
-            )}/>
-            <FormField control={form.control} name="technical.is_hybrid_meeting_possible" render={({field})=>(
-              <FormItem className="flex justify-between items-center"><FormLabel>Hybrid Meeting Possible</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange}/></FormControl></FormItem>
-            )}/>
-            <FormField control={form.control} name="technical.technical_support_available" render={({field})=>(
-              <FormItem className="flex justify-between items-center"><FormLabel>Technical Support Available</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange}/></FormControl></FormItem>
-            )}/>
-          </CardContent>
-        </Card>
-
-        {/* CONTRACTING SECTION */}
-        <Card>
-          <CardHeader><CardTitle>Contracting</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
-            <FormField control={form.control} name="contracting.contracted_companies" render={({field})=>(
-              <FormItem><FormLabel>Contracted Companies</FormLabel><FormControl><Textarea {...field}/></FormControl></FormItem>
-            )}/>
-            <FormField control={form.control} name="contracting.refused_requests" render={({field})=>(
-              <FormItem><FormLabel>Refused Requests</FormLabel><FormControl><Textarea {...field}/></FormControl></FormItem>
-            )}/>
-            <FormField control={form.control} name="contracting.unwanted_marketing_tools" render={({field})=>(
-              <FormItem><FormLabel>Unwanted Marketing Tools</FormLabel><FormControl><Textarea {...field}/></FormControl></FormItem>
-            )}/>
-            <FormField control={form.control} name="contracting.first_second_option" render={({field})=>(
-              <FormItem className="flex justify-between items-center"><FormLabel>Offer 1st & 2nd Option?</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange}/></FormControl></FormItem>
-            )}/>
-            <FormField control={form.control} name="contracting.split_options" render={({field})=>(
-              <FormItem className="flex justify-between items-center"><FormLabel>Offer Split Options?</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange}/></FormControl></FormItem>
-            )}/>
-            <FormField control={form.control} name="contracting.overbooking_policy" render={({field})=>(
-              <FormItem className="flex justify-between items-center"><FormLabel>Overbooking Policy?</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange}/></FormControl></FormItem>
-            )}/>
-            <FormField control={form.control} name="contracting.deposit_required" render={({field})=>(
-              <FormItem className="flex justify-between items-center"><FormLabel>Deposit Required?</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange}/></FormControl></FormItem>
-            )}/>
-            <FormField control={form.control} name="contracting.second_signature_required" render={({field})=>(
-              <FormItem className="flex justify-between items-center"><FormLabel>Second Signature Required?</FormLabel><FormControl><Switch checked={field.value} onCheckedChange={field.onChange}/></FormControl></FormItem>
-            )}/>
-            <FormField control={form.control} name="contracting.option_hold_duration" render={({field})=>(
-              <FormItem><FormLabel>Option Hold Duration</FormLabel><FormControl><Input {...field}/></FormControl></FormItem>
-            )}/>
-            <FormField control={form.control} name="contracting.accepted_payment_methods" render={({field})=>(
-              <FormItem><FormLabel>Accepted Payment Methods</FormLabel><FormControl><Textarea {...field}/></FormControl></FormItem>
-            )}/>
-            <FormField control={form.control} name="contracting.commission_rules" render={({field})=>(
-              <FormItem><FormLabel>Commission Rules</FormLabel><FormControl><Textarea {...field}/></FormControl></FormItem>
-            )}/>
-          </CardContent>
-        </Card>
-
-        {/* EQUIPMENT DYNAMIC */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg text-center border-b pb-2 mb-4">🎤 Audiovisual Equipment</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-3 gap-2 mb-2">
-              <div className="text-sm font-medium">⚙️ Equip...</div>
-              <div className="text-sm font-medium">🔢 Amount</div>
-              <div className="text-sm font-medium">💶 Currency</div>
-            </div>
-            
-            {DEFAULT_EQUIPMENT.map((item, idx) => (
-              <div key={item.id} className="grid grid-cols-3 gap-2 mb-3">
-                <FormField
-                  control={form.control}
-                  name={`equipment.${idx}.name`}
-                  render={({ field }) => (
-                    <Input className="bg-white" value={item.name} readOnly />
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`equipment.${idx}.quantity`}
-                  render={({ field }) => (
-                    <Input type="number" min="0" className="bg-white" placeholder="0" {...field} />
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`equipment.${idx}.price`}
-                  render={({ field }) => (
-                    <div className="flex items-center">
-                      <Input className="bg-white" placeholder="0,00" {...field} type="number" step="0.01" />
-                      <div className="ml-2 px-3 py-2 bg-gray-100 border rounded text-center">€</div>
-                    </div>
-                  )}
-                />
-              </div>
-            ))}
-          </CardContent>
-        </Card>
 
         {/* NAV BUTTONS */}
         <div className="flex justify-between mt-6">

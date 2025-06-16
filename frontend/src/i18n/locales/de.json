@@ -650,7 +650,16 @@
       "booking": {
         "sectionTitle": "Buchung / Optionen",
         "hasOptions": "Optionen möglich?",
-        "optionDuration": "Optionsdauer (z. B. 7 Tage)"
+        "allowsSplitOptions": "Bieten Sie geteilte Optionen an?",
+        "optionDuration": "Wie lange halten Sie die Räume in 1. Option vor?",
+        "allowsOverbooking": "Arbeiten Sie mit Overbooking?",
+        "roomsOnly": "Nur Zimmer",
+        "lastMinuteLeadtime": "Last-Minute-Vorlaufzeit",
+        "contractedCompanies": "Gibt es Kunden mit Rahmenverträgen für Zimmer und/oder Tagungspauschalen?",
+        "refusedRequests": "Gibt es Anfragen, die generell abgelehnt werden? (z.B. politische Parteien, Black Listed Accounts)",
+        "unwantedMarketing": "Gibt es Online-Portale / Agenturen, deren Anfragen abgelehnt werden?",
+        "requiresSecondSignature": "Musst ab einer bestimmten Umsatzhöhe eine 2.Unterschrift auf den Vertrag?",
+        "exclusiveClients": "Exklusivkunden"
       },
       "operations": {
         "sectionTitle": "Operational Handling",
@@ -676,6 +685,45 @@
         "coffeeBreakLocation": "Wo werden die Kaffeepausen serviert?",
         "roomDropCost": "Kosten für Room Drop",
         "finalInvoiceHandling": "Handling Abschlussrechnung"
+      },
+      "technical": {
+        "sectionTitle": "Technik / Service und Preise",
+        "isSoundproof": "Sind die Besprechungsräume schalldicht?",
+        "hasDaylight": "Haben alle Besprechungsräume Tageslicht?",
+        "hasBlackoutCurtains": "Haben alle Besprechungsräume Verdunklungsvorhänge?",
+        "hasAcOrVentilation": "Verfügen alle Räume über eine Klimaanlage oder ein Belüftungssystem?",
+        "wifiDataRate": "Wie hoch ist die Datenrate des WLAN?",
+        "beamerLumens": "Wie viele Lumen haben die Beamer?",
+        "isHybridMeetingPossible": "Sind Hybrid-Meetings möglich?",
+        "softwarePresentation": "Welche Präsentations-/Übertragungssoftware wird verwendet? Z. B. Clickshare?",
+        "copyCost": "Kosten für Kopien",
+        "technicalSupportAvailable": "Gibt es im Hotel einen technischen Support?"
+      },
+      "contracting": {
+        "sectionTitle": "Contracting",
+        "contractedCompanies": "Gibt es Kunden mit Rahmenverträgen für Zimmer und/oder Tagungspauschalen?",
+        "refusedRequests": "Gibt es Anfragen, die generell abgelehnt werden? (z.B. politische Parteien, Black Listed Accounts)",
+        "unwantedMarketingTools": "Gibt es Online-Portale / Agenturen, deren Anfragen abgelehnt werden?",
+        "firstSecondOption": "Bieten Sie die Tagungsräume in 1. und 2. Option an?",
+        "splitOptions": "Bieten Sie geteilte Optionen an?",
+        "optionHoldDuration": "Wie lange halten Sie die Räume in 1. Option vor?",
+        "overbookingPolicy": "Arbeiten Sie mit Overbooking?",
+        "depositRequired": "Kaution erforderlich",
+        "acceptedPaymentMethods": "Akzeptierte Zahlungsmethoden",
+        "commissionRules": "Kommissionsregelung",
+        "secondSignatureRequired": "Musst ab einer bestimmten Umsatzhöhe eine 2.Unterschrift auf den Vertrag?"
+      },
+      "general": {
+        "sectionTitle": "General information event spaces"
+      },
+      "locations": {
+        "sectionTitle": "Standort-Informationen"
+      },
+      "equipment": {
+        "sectionTitle": "Technische Ausstattung"
+      },
+      "accounting": {
+        "sectionTitle": "Handling Buchhaltung"
       }
     }
   },
