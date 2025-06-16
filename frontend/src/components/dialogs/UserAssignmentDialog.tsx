@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { UserPlus } from "lucide-react";
 import UserAssignmentSelect from "@/components/user/UserAssignmentSelect";
 import { assignUserToHotel } from "@/apiClient/userHotelsApi";
@@ -49,6 +49,9 @@ const UserAssignmentDialog: React.FC<UserAssignmentDialogProps> = ({
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Assign Users to {hotelName}</DialogTitle>
+          <DialogDescription>
+            Select users to grant access to this hotel.
+          </DialogDescription>
         </DialogHeader>
         <div className="mt-4">
           <UserAssignmentSelect
