@@ -651,6 +651,25 @@
         "sectionTitle": "Buchung / Optionen",
         "hasOptions": "Optionen möglich?",
         "optionDuration": "Optionsdauer (z. B. 7 Tage)"
+      },
+      "operations": {
+        "sectionTitle": "Operational Handling",
+        "sectionDescription": "Legen Sie fest, wie Veranstaltungen betrieben und verwaltet werden",
+        "soldWithRoomsOnly": "Verkaufen Sie Ihre Tagungsräume nur in Verbindung mit Hotelzimmern?",
+        "hasMinimumSpent": "Arbeiten Sie mit einem Mindestumsatz?",
+        "minParticipantsPackage": "Ab wievielen Personen werden Pauschalen angeboten?",
+        "lastMinuteLeadTime": "Wie viel Vorlaufzeit ist für Last-Minute-Anfragen erforderlich?",
+        "hasStorage": "Verfügen Sie über einen Lagerraum für Pakete oder Materialien?",
+        "materialAdvanceDays": "Wie viele Tage im Voraus kann der Gast das Material für seine Veranstaltung senden?",
+        "roomDropCost": "Kosten für Room Drop",
+        "hotelExclusiveClients": "Gibt es Kunden, welche ausschließlich durch das Hotel betreut werden?",
+        "coffeeBreakLocation": "Wo werden die Kaffeepausen serviert?",
+        "lunchLocation": "Wo findet das Mittagessen statt?",
+        "depositNeeded": "Wird bei allen Veranstaltungsbuchungen ein Deposit verlangt?",
+        "depositRules": "Depositregelungen",
+        "depositInvoiceCreator": "Wer erstellt und versendet die Depositrechnung?",
+        "informationalInvoiceCreated": "Wird eine Informationsrechnung für den Kunden erstellt?",
+        "finalInvoiceHandling": "Handling Abschlussrechnung"
       }
     }
   },

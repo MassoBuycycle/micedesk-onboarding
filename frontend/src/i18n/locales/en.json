@@ -535,6 +535,25 @@
         "sectionTitle": "Booking / Options",
         "hasOptions": "Has Option Holds?",
         "optionDuration": "Option Duration (e.g. 7 days)"
+      },
+      "operations": {
+        "sectionTitle": "Operations",
+        "sectionDescription": "Define how events are operated and managed",
+        "soldWithRoomsOnly": "Sold with rooms only?",
+        "hasMinimumSpent": "Do you work with a minimum turnover?",
+        "minParticipantsPackage": "From how many people are packages offered?",
+        "lastMinuteLeadTime": "How much lead time is required for last-minute requests?",
+        "hasStorage": "Do you have a storage room for packages or materials?",
+        "materialAdvanceDays": "How many days in advance can the guest send the material for his event?",
+        "roomDropCost": "Cost for Room Drop",
+        "hotelExclusiveClients": "Are there clients who are exclusively served by the hotel?",
+        "coffeeBreakLocation": "Where are the coffee breaks served?",
+        "lunchLocation": "Where does lunch take place?",
+        "depositNeeded": "Is a deposit required for all event bookings?",
+        "depositRules": "Deposit regulations",
+        "depositInvoiceCreator": "Who creates and sends the deposit invoice?",
+        "informationalInvoiceCreated": "Is an informational invoice created for the customer?",
+        "finalInvoiceHandling": "Final invoice handling"
       }
     }
   },
