@@ -90,10 +90,20 @@ export function AppSidebar() {
     <Sidebar variant="sidebar" collapsible="icon">
       <SidebarHeader>
         <div className={`p-4 ${state === "collapsed" ? "hidden" : "flex flex-col items-center"}`}>
-          <img src="/logo.png" alt="logo" className="w-28 h-auto" />
+          <img 
+            src="/logo.png" 
+            alt="logo" 
+            className="w-28 h-auto cursor-pointer" 
+            onClick={() => navigate('/')} 
+          />
         </div>
         <div className={`p-4 ${state !== "collapsed" ? "hidden" : "flex justify-center"}`}>
-          <img src="/logo.png" alt="logo" className="w-9 h-auto" />
+          <img 
+            src="/logo.png" 
+            alt="logo" 
+            className="w-9 h-auto cursor-pointer" 
+            onClick={() => navigate('/')} 
+          />
         </div>
       </SidebarHeader>
       <SidebarContent>
