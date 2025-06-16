@@ -78,52 +78,99 @@ const FoodBeverageForm = ({
     );
   }
   
+  // Helper function to ensure values are primitive and not objects
+  const ensurePrimitiveValue = (value: any, defaultValue: any, type: 'string' | 'number' | 'boolean') => {
+    if (value === null || value === undefined) return defaultValue;
+    if (typeof value === 'object') return defaultValue;
+    
+    switch (type) {
+      case 'string':
+        return typeof value === 'string' ? value : String(value);
+      case 'number':
+        return typeof value === 'number' ? value : (isNaN(Number(value)) ? defaultValue : Number(value));
+      case 'boolean':
+        return typeof value === 'boolean' ? value : Boolean(value);
+      default:
+        return defaultValue;
+    }
+  };
+  
+  // Helper function to sanitize restaurant data
+  const sanitizeRestaurant = (restaurant: any): Restaurant => ({
+    id: restaurant?.id || generateId(),
+    name: ensurePrimitiveValue(restaurant?.name, "", 'string'),
+    cuisine: ensurePrimitiveValue(restaurant?.cuisine, "", 'string'),
+    seats_indoor: ensurePrimitiveValue(restaurant?.seats_indoor, 0, 'number'),
+    seats_outdoor: ensurePrimitiveValue(restaurant?.seats_outdoor, 0, 'number'),
+    exclusive_booking: ensurePrimitiveValue(restaurant?.exclusive_booking, false, 'boolean'),
+    minimum_price: ensurePrimitiveValue(restaurant?.minimum_price, 0, 'number'),
+    opening_hours: ensurePrimitiveValue(restaurant?.opening_hours, "", 'string'),
+  });
+  
+  // Helper function to sanitize bar data
+  const sanitizeBar = (bar: any): Bar => ({
+    id: bar?.id || generateId(),
+    name: ensurePrimitiveValue(bar?.name, "", 'string'),
+    seats_indoor: ensurePrimitiveValue(bar?.seats_indoor, 0, 'number'),
+    exclusive_booking: ensurePrimitiveValue(bar?.exclusive_booking, false, 'boolean'),
+    opening_hours: ensurePrimitiveValue(bar?.opening_hours, "", 'string'),
+    snacks_available: ensurePrimitiveValue(bar?.snacks_available, false, 'boolean'),
+  });
+  
+  // Debug the initial data
+  console.log("🔍 FoodBeverageForm initialData received:", initialData);
+  console.log("🔍 Restaurants in initialData:", initialData.restaurants);
+  console.log("🔍 Bars in initialData:", initialData.bars);
+  
   const [formData, setFormData] = useState<FoodBeverageDetails>({
     hotel_id: selectedHotel?.id || 0,
-    fnb_contact_name: "",
-    fnb_contact_position: "",
-    fnb_contact_phone: "",
-    fnb_contact_email: "",
-    total_restaurants: 0,
+    fnb_contact_name: ensurePrimitiveValue(initialData?.fnb_contact_name, "", 'string'),
+    fnb_contact_position: ensurePrimitiveValue(initialData?.fnb_contact_position, "", 'string'),
+    fnb_contact_phone: ensurePrimitiveValue(initialData?.fnb_contact_phone, "", 'string'),
+    fnb_contact_email: ensurePrimitiveValue(initialData?.fnb_contact_email, "", 'string'),
+    total_restaurants: ensurePrimitiveValue(initialData?.total_restaurants, 0, 'number'),
     restaurants: [],
     bars: [],
-    room_service_available: false,
-    room_service_hours: "",
-    breakfast_restaurant_name: "",
-    breakfast_hours: "",
-    breakfast_cost_per_person: 0,
-    breakfast_cost_per_child: 0,
-    breakfast_child_pricing_tiers: "",
-    breakfast_room_used_for_events: false,
-    staff_planning_lead_time: "",
-    special_diet_allergy_deadline: "",
-    conference_packages_offered: "",
-    additional_packages_bookable: false,
-    existing_packages_customizable: false,
-    coffee_break_inclusions: "",
-    standard_lunch_offerings: "",
-    buffet_minimum_persons: 0,
-    additional_packages_available: "",
-    functions_created_by: "",
-    functions_completion_deadline: "",
-    departments_requiring_functions: "",
-    function_meeting_schedule: "",
-    function_meeting_participants: "",
-    mice_desk_involvement: "",
-    ...initialData
+    room_service_available: ensurePrimitiveValue(initialData?.room_service_available, false, 'boolean'),
+    room_service_hours: ensurePrimitiveValue(initialData?.room_service_hours, "", 'string'),
+    breakfast_restaurant_name: ensurePrimitiveValue(initialData?.breakfast_restaurant_name, "", 'string'),
+    breakfast_hours: ensurePrimitiveValue(initialData?.breakfast_hours, "", 'string'),
+    breakfast_cost_per_person: ensurePrimitiveValue(initialData?.breakfast_cost_per_person, 0, 'number'),
+    breakfast_cost_per_child: ensurePrimitiveValue(initialData?.breakfast_cost_per_child, 0, 'number'),
+    breakfast_child_pricing_tiers: ensurePrimitiveValue(initialData?.breakfast_child_pricing_tiers, "", 'string'),
+    breakfast_room_used_for_events: ensurePrimitiveValue(initialData?.breakfast_room_used_for_events, false, 'boolean'),
+    staff_planning_lead_time: ensurePrimitiveValue(initialData?.staff_planning_lead_time, "", 'string'),
+    special_diet_allergy_deadline: ensurePrimitiveValue(initialData?.special_diet_allergy_deadline, "", 'string'),
+    conference_packages_offered: ensurePrimitiveValue(initialData?.conference_packages_offered, "", 'string'),
+    additional_packages_bookable: ensurePrimitiveValue(initialData?.additional_packages_bookable, false, 'boolean'),
+    existing_packages_customizable: ensurePrimitiveValue(initialData?.existing_packages_customizable, false, 'boolean'),
+    coffee_break_inclusions: ensurePrimitiveValue(initialData?.coffee_break_inclusions, "", 'string'),
+    standard_lunch_offerings: ensurePrimitiveValue(initialData?.standard_lunch_offerings, "", 'string'),
+    buffet_minimum_persons: ensurePrimitiveValue(initialData?.buffet_minimum_persons, 0, 'number'),
+    additional_packages_available: ensurePrimitiveValue(initialData?.additional_packages_available, "", 'string'),
+    functions_created_by: ensurePrimitiveValue(initialData?.functions_created_by, "", 'string'),
+    functions_completion_deadline: ensurePrimitiveValue(initialData?.functions_completion_deadline, "", 'string'),
+    departments_requiring_functions: ensurePrimitiveValue(initialData?.departments_requiring_functions, "", 'string'),
+    function_meeting_schedule: ensurePrimitiveValue(initialData?.function_meeting_schedule, "", 'string'),
+    function_meeting_participants: ensurePrimitiveValue(initialData?.function_meeting_participants, "", 'string'),
+    mice_desk_involvement: ensurePrimitiveValue(initialData?.mice_desk_involvement, "", 'string')
   });
 
-  const [restaurants, setRestaurants] = useState<Restaurant[]>(
-    initialData.restaurants && initialData.restaurants.length > 0 
-      ? initialData.restaurants 
-      : [{ id: generateId(), ...initialRestaurantState }]
-  );
+  const [restaurants, setRestaurants] = useState<Restaurant[]>(() => {
+    const sanitizedRestaurants = initialData.restaurants && Array.isArray(initialData.restaurants) && initialData.restaurants.length > 0 
+      ? initialData.restaurants.map(sanitizeRestaurant)
+      : [{ id: generateId(), ...initialRestaurantState }];
+    console.log("🔍 Sanitized restaurants:", sanitizedRestaurants);
+    return sanitizedRestaurants;
+  });
 
-  const [bars, setBars] = useState<Bar[]>(
-    initialData.bars && initialData.bars.length > 0 
-      ? initialData.bars 
-      : [{ id: generateId(), ...initialBarState }]
-  );
+  const [bars, setBars] = useState<Bar[]>(() => {
+    const sanitizedBars = initialData.bars && Array.isArray(initialData.bars) && initialData.bars.length > 0 
+      ? initialData.bars.map(sanitizeBar) 
+      : [{ id: generateId(), ...initialBarState }];
+    console.log("🔍 Sanitized bars:", sanitizedBars);
+    return sanitizedBars;
+  });
 
   const updateField = (field: keyof FoodBeverageDetails, value: any) => {
     const updatedData = {
@@ -336,7 +383,7 @@ const FoodBeverageForm = ({
             <Label htmlFor="fnb_contact_name">Name Ansprechpartner</Label>
             <Input 
               id="fnb_contact_name" 
-              value={formData.fnb_contact_name} 
+              value={typeof formData.fnb_contact_name === 'object' ? '' : formData.fnb_contact_name} 
               onChange={(e) => updateField("fnb_contact_name", e.target.value)} 
             />
           </div>
@@ -344,7 +391,7 @@ const FoodBeverageForm = ({
             <Label htmlFor="fnb_contact_position">Position</Label>
             <Input 
               id="fnb_contact_position" 
-              value={formData.fnb_contact_position} 
+              value={typeof formData.fnb_contact_position === 'object' ? '' : formData.fnb_contact_position} 
               onChange={(e) => updateField("fnb_contact_position", e.target.value)} 
             />
           </div>
@@ -352,7 +399,7 @@ const FoodBeverageForm = ({
             <Label htmlFor="fnb_contact_phone">Telefon</Label>
             <Input 
               id="fnb_contact_phone" 
-              value={formData.fnb_contact_phone} 
+              value={typeof formData.fnb_contact_phone === 'object' ? '' : formData.fnb_contact_phone} 
               onChange={(e) => updateField("fnb_contact_phone", e.target.value)} 
             />
           </div>
@@ -361,7 +408,7 @@ const FoodBeverageForm = ({
             <Input 
               id="fnb_contact_email" 
               type="email" 
-              value={formData.fnb_contact_email} 
+              value={typeof formData.fnb_contact_email === 'object' ? '' : formData.fnb_contact_email} 
               onChange={(e) => updateField("fnb_contact_email", e.target.value)} 
             />
           </div>
@@ -425,7 +472,7 @@ const FoodBeverageForm = ({
                   id={`restaurant-seats-indoor-${restaurant.id}`}
                   type="number" 
                   min="0"
-                  value={restaurant.seats_indoor}
+                  value={typeof restaurant.seats_indoor === 'object' ? '0' : restaurant.seats_indoor}
                   onChange={(e) => updateRestaurant(restaurant.id!, "seats_indoor", parseInt(e.target.value) || 0)}
                 />
               </div>
@@ -435,7 +482,7 @@ const FoodBeverageForm = ({
                   id={`restaurant-seats-outdoor-${restaurant.id}`}
                   type="number" 
                   min="0"
-                  value={restaurant.seats_outdoor}
+                  value={typeof restaurant.seats_outdoor === 'object' ? '0' : restaurant.seats_outdoor}
                   onChange={(e) => updateRestaurant(restaurant.id!, "seats_outdoor", parseInt(e.target.value) || 0)}
                 />
               </div>
@@ -455,7 +502,7 @@ const FoodBeverageForm = ({
                   id={`restaurant-minimum-${restaurant.id}`}
                   type="number" 
                   min="0"
-                  value={restaurant.minimum_price}
+                  value={typeof restaurant.minimum_price === 'object' ? '0' : restaurant.minimum_price}
                   onChange={(e) => updateRestaurant(restaurant.id!, "minimum_price", parseFloat(e.target.value) || 0)}
                 />
               </div>
@@ -463,7 +510,7 @@ const FoodBeverageForm = ({
                 <Label htmlFor={`restaurant-hours-${restaurant.id}`}>Öffnungszeiten</Label>
                 <Input 
                   id={`restaurant-hours-${restaurant.id}`}
-                  value={restaurant.opening_hours}
+                  value={typeof restaurant.opening_hours === 'object' ? '' : restaurant.opening_hours}
                   onChange={(e) => updateRestaurant(restaurant.id!, "opening_hours", e.target.value)}
                   placeholder="z.B. 12:00-22:00"
                 />
@@ -521,7 +568,7 @@ const FoodBeverageForm = ({
                   id={`bar-seats-${bar.id}`}
                   type="number" 
                   min="0"
-                  value={bar.seats_indoor}
+                  value={typeof bar.seats_indoor === 'object' ? '0' : bar.seats_indoor}
                   onChange={(e) => updateBar(bar.id!, "seats_indoor", parseInt(e.target.value) || 0)}
                 />
               </div>
@@ -549,7 +596,7 @@ const FoodBeverageForm = ({
                 <Label htmlFor={`bar-hours-${bar.id}`}>Öffnungszeiten</Label>
                 <Input 
                   id={`bar-hours-${bar.id}`}
-                  value={bar.opening_hours}
+                  value={typeof bar.opening_hours === 'object' ? '' : bar.opening_hours}
                   onChange={(e) => updateBar(bar.id!, "opening_hours", e.target.value)}
                   placeholder="z.B. 18:00-02:00"
                 />
@@ -618,7 +665,7 @@ const FoodBeverageForm = ({
               id="breakfast_cost_per_person"
               type="number" 
               min="0"
-              value={formData.breakfast_cost_per_person}
+              value={typeof formData.breakfast_cost_per_person === 'object' ? '0' : formData.breakfast_cost_per_person}
               onChange={(e) => updateField("breakfast_cost_per_person", parseFloat(e.target.value) || 0)}
             />
           </div>
@@ -628,7 +675,7 @@ const FoodBeverageForm = ({
               id="breakfast_cost_per_child"
               type="number" 
               min="0"
-              value={formData.breakfast_cost_per_child}
+              value={typeof formData.breakfast_cost_per_child === 'object' ? '0' : formData.breakfast_cost_per_child}
               onChange={(e) => updateField("breakfast_cost_per_child", parseFloat(e.target.value) || 0)}
             />
           </div>
@@ -746,7 +793,7 @@ const FoodBeverageForm = ({
               id="buffet_minimum_persons"
               type="number" 
               min="0"
-              value={formData.buffet_minimum_persons}
+              value={typeof formData.buffet_minimum_persons === 'object' ? '0' : formData.buffet_minimum_persons}
               onChange={(e) => updateField("buffet_minimum_persons", parseInt(e.target.value) || 0)}
             />
           </div>
