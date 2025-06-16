@@ -1,10 +1,10 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { CalendarDays, Save, X } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import PhoneInput from '@/components/shared/PhoneInput';
 
 const EventForm = () => {
   return (
@@ -46,7 +46,7 @@ const EventForm = () => {
           
           <div className="space-y-2">
             <Label htmlFor="contactPhone">Contact Phone</Label>
-            <Input id="contactPhone" type="tel" placeholder="Enter phone number" />
+            <PhoneInput value="" onChange={() => {}} placeholder="Enter phone number" />
           </div>
           
           <div className="space-y-2">

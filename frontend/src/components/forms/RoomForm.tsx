@@ -23,6 +23,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useTranslation } from 'react-i18next';
+import { PhoneField } from '@/components/shared/FormFields';
 
 // Schema for form validation
 const roomFormSchema = z.object({
@@ -194,18 +195,11 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                 )}
               />
               
-              <FormField
-                control={form.control}
+              <PhoneField
+                form={form}
                 name="room_phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('rooms.phone')}*</FormLabel>
-                    <FormControl>
-                      <Input placeholder="+123 456 7890" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label={`${t('rooms.phone')}*`}
+                placeholder="+123 456 7890"
               />
               
               <FormField

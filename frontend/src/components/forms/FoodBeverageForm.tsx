@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { upsertFoodBeverageDetails } from "@/apiClient/fbDetailsApi";
 import { Restaurant, Bar, FoodBeverageDetails } from "@/types/foodBeverage";
+import PhoneInput from '@/components/shared/PhoneInput';
 
 // Fallback UUID generator for environments where crypto.randomUUID() is not available
 const generateId = (): string => {
@@ -439,10 +440,10 @@ const FoodBeverageForm = ({
           </div>
           <div className="space-y-2">
             <Label htmlFor="fnb_contact_phone">Telefon</Label>
-            <Input 
-              id="fnb_contact_phone" 
-              value={typeof formData.fnb_contact_phone === 'object' ? '' : formData.fnb_contact_phone} 
-              onChange={(e) => updateField("fnb_contact_phone", e.target.value)} 
+            <PhoneInput
+              value={typeof formData.fnb_contact_phone === 'object' ? '' : (formData.fnb_contact_phone as string)}
+              onChange={(val) => updateField('fnb_contact_phone', val)}
+              placeholder="+49 123 456789"
             />
           </div>
         </CardContent>

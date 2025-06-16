@@ -33,7 +33,8 @@ import {
   NumberField, 
   TextareaField, 
   SwitchField, 
-  TwoColumnGrid 
+  TwoColumnGrid,
+  PhoneField
 } from '@/components/shared/FormFields';
 import { API_BASE_URL } from '@/apiClient/config';
 import { createEvent as apiCreateEvent, upsertEquipment } from '@/apiClient/eventsApi';
@@ -643,7 +644,7 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
               name="contact.contact_position"
               label={t('events.eventForm.contact.position')}
             />
-            <TextField
+            <PhoneField
               form={form}
               name="contact.contact_phone"
               label={t('events.eventForm.contact.phone')}
