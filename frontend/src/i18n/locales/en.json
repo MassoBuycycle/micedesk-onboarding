@@ -522,7 +522,21 @@
     "packages": "Event Packages",
     "uniqueSellingPoints": "Unique Selling Points",
     "available": "Available",
-    "notAvailable": "Not Available"
+    "notAvailable": "Not Available",
+    "eventForm": {
+      "contact": {
+        "sectionTitle": "Event Contact",
+        "name": "Name",
+        "position": "Position",
+        "phone": "Phone",
+        "email": "Email"
+      },
+      "booking": {
+        "sectionTitle": "Booking / Options",
+        "hasOptions": "Has Option Holds?",
+        "optionDuration": "Option Duration (e.g. 7 days)"
+      }
+    }
   },
   "documents": {
     "title": "Documents"

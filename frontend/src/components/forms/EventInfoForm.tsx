@@ -39,6 +39,7 @@ import { API_BASE_URL } from '@/apiClient/config';
 import { createEvent as apiCreateEvent, upsertEquipment } from '@/apiClient/eventsApi';
 import { getAuthToken } from "@/apiClient/authApi";
 import { mapEventFormToApi } from '@/utils/eventMapping';
+import { useTranslation } from 'react-i18next';
 
 export interface EventEquipmentItem {
   name: string;
@@ -194,6 +195,8 @@ const DEFAULT_EQUIPMENT = [
 ];
 
 const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialData = {}, createdEventId, onNext, onPrevious, onChange, mode }) => {
+  // i18n translation hook
+  const { t } = useTranslation();
   // Debug log to see what data we're receiving
   console.log("EventInfoForm received initialData:", initialData);
   console.log("EventInfoForm mode:", mode);
@@ -629,7 +632,7 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
         {/* CONTACT */}
         <Card>
           <CardHeader>
-            <CardTitle>Event Contact</CardTitle>
+            <CardTitle>{t('events.eventForm.contact.sectionTitle')}</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
@@ -637,7 +640,7 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
               name="contact.contact_name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>{t('events.eventForm.contact.name')}</FormLabel>
                   <FormControl><Input {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
@@ -648,7 +651,7 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
               name="contact.contact_position"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Position</FormLabel>
+                  <FormLabel>{t('events.eventForm.contact.position')}</FormLabel>
                   <FormControl><Input {...field} /></FormControl>
                 </FormItem>
               )}
@@ -658,7 +661,7 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
               name="contact.contact_phone"
               render={({ field }) => (
                 <FormItem className="col-span-1 md:col-span-2">
-                  <FormLabel>Phone</FormLabel>
+                  <FormLabel>{t('events.eventForm.contact.phone')}</FormLabel>
                   <FormControl><Input {...field} /></FormControl>
                 </FormItem>
               )}
@@ -668,7 +671,7 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
               name="contact.contact_email"
               render={({ field }) => (
                 <FormItem className="col-span-1 md:col-span-2">
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>{t('events.eventForm.contact.email')}</FormLabel>
                   <FormControl><Input type="email" {...field} /></FormControl>
                 </FormItem>
               )}
@@ -678,14 +681,14 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
 
         {/* BOOKING OPTIONS */}
         <Card>
-          <CardHeader><CardTitle>Booking / Options</CardTitle></CardHeader>
+          <CardHeader><CardTitle>{t('events.eventForm.booking.sectionTitle')}</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <FormField
               control={form.control}
               name="booking.has_options"
               render={({ field }) => (
                 <FormItem className="flex items-center justify-between">
-                  <FormLabel>Has Option Holds?</FormLabel>
+                  <FormLabel>{t('events.eventForm.booking.hasOptions')}</FormLabel>
                   <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                 </FormItem>
               )}
@@ -696,7 +699,7 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
               name="booking.option_duration"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Option Duration (e.g. 7 days)</FormLabel>
+                  <FormLabel>{t('events.eventForm.booking.optionDuration')}</FormLabel>
                   <FormControl><Input {...field}/></FormControl>
                 </FormItem>
               )}

@@ -621,24 +621,38 @@
     "eventSpaces": "Veranstaltungsräume",
     "capacity": "Kapazität",
     "noEventsFound": "Keine Veranstaltungsräume gefunden",
-    "size": "Größe",
-    "configuration": "Konfiguration",
+    "size": "Fläche",
+    "configuration": "Bestuhlung",
     "features": "Ausstattung",
     "generalInfo": "Allgemeine Veranstaltungsinformationen",
-    "totalSpaces": "Veranstaltungsräume gesamt",
+    "totalSpaces": "Gesamtzahl der Veranstaltungsräume",
     "largestSpace": "Größter Raum",
     "maxCapacity": "Maximale Kapazität",
     "coordinator": "Veranstaltungskoordinator",
     "coordinatorName": "Name des Koordinators",
     "coordinatorContact": "Kontakt des Koordinators",
-    "audioVisual": "Audio-/Videoausstattung",
-    "catering": "Catering-Service",
-    "outdoorSpace": "Außenveranstaltungsbereich",
-    "restrictions": "Veranstaltungsbeschränkungen",
+    "audioVisual": "Audio/Visuelle Ausstattung",
+    "catering": "Catering-Services",
+    "outdoorSpace": "Außenbereich für Veranstaltungen",
+    "restrictions": "Einschränkungen",
     "packages": "Veranstaltungspakete",
     "uniqueSellingPoints": "Alleinstellungsmerkmale",
     "available": "Verfügbar",
-    "notAvailable": "Nicht verfügbar"
+    "notAvailable": "Nicht verfügbar",
+    "eventForm": {
+      "contact": {
+        "sectionTitle": "Ansprechpartner Veranstaltung",
+        "name": "Name",
+        "position": "Position",
+        "phone": "Telefon",
+        "email": "E-Mail"
+      },
+      "booking": {
+        "sectionTitle": "Buchung / Optionen",
+        "hasOptions": "Optionen möglich?",
+        "optionDuration": "Optionsdauer (z. B. 7 Tage)"
+      }
+    }
   },
   "documents": {
     "title": "Dokumente"
