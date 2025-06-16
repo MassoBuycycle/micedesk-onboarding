@@ -10,8 +10,8 @@ const EVENT_OPERATIONS_FIELDS = [
   'contracted_companies', 'refused_requests', 'unwanted_marketing_tools',
   'first_second_option', 'split_options', 'option_hold_duration', 'overbooking_policy',
   'deposit_required', 'accepted_payment_methods', 'commission_rules', 'second_signature_required',
-  'has_overtime_material', 'min_participants', 'coffee_location', 'material_advance_days',
-  'room_drop_fee', 'has_storage', 'has_minimum_spent'
+  'has_overtime_material', 'coffee_break_location',
+  'has_storage', 'has_minimum_spent'
 ];
 
 const BOOLEAN_FIELDS = [

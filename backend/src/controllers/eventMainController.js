@@ -26,7 +26,6 @@ const EVENT_OPERATIONS_FIELDS = [
     'advance_days_for_material',
     'room_drop_cost',
     'hotel_exclusive_clients',
-    'minimum_spent',
     'storage_room',
     'deposit_needed_event',
     'deposit_rules_event',
@@ -50,10 +49,6 @@ const EVENT_OPERATIONS_FIELDS = [
     
     // Fields with alternative naming from new schema
     'has_overtime_material',
-    'min_participants',
-    'coffee_location',
-    'material_advance_days',
-    'room_drop_fee',
     'has_storage',
     'has_minimum_spent'
 ];

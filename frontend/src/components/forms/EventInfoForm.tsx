@@ -102,18 +102,15 @@ const operationsSchema = z.object({
   storage_room: z.boolean().default(false),
   sold_with_rooms_only: z.boolean().default(false),
   hotel_exclusive_clients: z.boolean().default(false),
-  minimum_spent: z.boolean().default(false),
   has_minimum_spent: z.boolean().default(false),
   deposit_needed_event: z.boolean().default(false),
   informational_invoice_created: z.boolean().default(false),
   lunch_location: z.string().optional(),
-  coffee_location: z.string().optional(),
   coffee_break_location: z.string().optional(),
   last_minute_lead_time: z.string().optional(),
   deposit_invoice_creator: z.string().optional(),
-  min_participants: z.coerce.number().optional(),
   min_participants_package: z.coerce.number().optional(),
-  material_advance_days: z.coerce.number().optional(),
+  advance_days_for_material: z.coerce.number().optional(),
   room_drop_cost: z.coerce.number().optional(),
   deposit_rules_event: z.string().optional(),
   payment_methods_events: z.array(z.string()).default([]),
@@ -230,18 +227,15 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
       storage_room: false,
       sold_with_rooms_only: false,
       hotel_exclusive_clients: false,
-      minimum_spent: false,
       has_minimum_spent: false,
       deposit_needed_event: false,
       informational_invoice_created: false,
       lunch_location: '',
-      coffee_location: '',
       coffee_break_location: '',
       last_minute_lead_time: '',
       deposit_invoice_creator: '',
-      min_participants: undefined,
       min_participants_package: undefined,
-      material_advance_days: undefined,
+      advance_days_for_material: undefined,
       room_drop_cost: undefined,
       deposit_rules_event: '',
       payment_methods_events: [],
@@ -826,7 +820,7 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
             />
             <NumberField
               form={form}
-              name="operations.material_advance_days"
+              name="operations.advance_days_for_material"
               label={t('events.eventForm.operations.materialAdvanceDays')}
             />
             <NumberField

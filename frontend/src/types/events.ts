@@ -28,21 +28,16 @@ export interface EventOperationsInput {
   storage_room?: boolean;
   sold_with_rooms_only?: boolean;
   hotel_exclusive_clients?: boolean;
-  minimum_spent?: boolean;
   has_minimum_spent?: boolean;
   deposit_needed_event?: boolean;
   informational_invoice_created?: boolean;
   lunch_location?: string;
-  coffee_location?: string;
   coffee_break_location?: string;
   last_minute_lead_time?: string;
   deposit_invoice_creator?: string;
-  min_participants?: number;
   min_participants_package?: number;
-  material_advance_days?: number;
+  advance_days_for_material?: number;
   room_drop_cost?: number;
-  room_drop_fee?: number; // Keep legacy field for compatibility
-  advance_days_for_material?: number; // Keep legacy field for compatibility
   deposit_rules_event?: string;
   payment_methods_events?: string[];
   final_invoice_handling_event?: string;
