@@ -18,7 +18,7 @@ const ROOM_PET_POLICIES_FIELDS = ['is_dogs_allowed', 'dog_fee', 'dog_fee_inclusi
 const ROOM_STANDARD_FEATURES_FIELDS = [
     'shower_toilet', 'bathtub_toilet', 'open_bathroom', 'balcony', 'safe',
     'air_condition', 'heating', 'hair_dryer', 'ironing_board', 'tv',
-    'telefon', 'wifi', 'desk', 'coffee_maker', 'kettle',
+    'telephone', 'wifi', 'desk', 'coffee_maker', 'kettle',
     'minibar', 'fridge', 'allergy_friendly_bed_linen'
 ];
 
@@ -85,10 +85,10 @@ const upsertStandardFeatures = async (connection, allData, roomId) => {
             field,
             field.replace('_', ''), // remove underscores
             // Handle specific field name mappings between frontend and database
-            field === 'telefon' ? 'telephone' : field, // database has 'telefon', frontend might send 'telephone'
+            field === 'telephone' ? 'telefon' : field, // database has 'telephone', frontend might send 'telefon'
             field === 'allergy_friendly_bed_linen' ? 'allergy_friendly_bedding' : field, // database has 'allergy_friendly_bed_linen', frontend might send 'allergy_friendly_bedding'
             // Also handle the reverse mappings
-            field === 'telephone' ? 'telefon' : field,
+            field === 'telefon' ? 'telephone' : field,
             field === 'allergy_friendly_bedding' ? 'allergy_friendly_bed_linen' : field
         ];
         

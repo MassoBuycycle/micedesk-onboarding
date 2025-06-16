@@ -128,7 +128,7 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
     { id: 'hair_dryer', label: t('rooms.features.hairDryer') },
     { id: 'ironing_board', label: t('rooms.features.ironingBoard') },
     { id: 'tv', label: t('rooms.features.tv') },
-    { id: 'telefon', label: t('rooms.features.telephone') },
+    { id: 'telephone', label: t('rooms.features.telephone') },
     { id: 'wifi', label: t('rooms.features.wifi') },
     { id: 'desk', label: t('rooms.features.desk') },
     { id: 'coffee_maker', label: t('rooms.features.coffeeMaker') },

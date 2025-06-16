@@ -37,7 +37,7 @@ export interface RoomStandardFeatures {
   hair_dryer: boolean;
   ironing_board: boolean;
   tv: boolean;
-  telefon: boolean;
+  telephone: boolean;
   wifi: boolean;
   desk: boolean;
   coffee_maker: boolean;
