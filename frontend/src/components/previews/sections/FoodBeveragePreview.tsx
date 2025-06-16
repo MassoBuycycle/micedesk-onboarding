@@ -13,8 +13,16 @@ const FoodBeveragePreview = ({ foodBeverage }: FoodBeveragePreviewProps) => {
         <UtensilsCrossed className="h-4 w-4" /> Food & Beverage
       </h3>
       <div className="text-sm text-muted-foreground space-y-1.5">
-        {foodBeverage?.restaurants && <p><span className="text-foreground font-medium">Restaurants:</span> {foodBeverage.restaurants}</p>}
-        {foodBeverage?.bars && <p><span className="text-foreground font-medium">Bars:</span> {foodBeverage.bars}</p>}
+        {Array.isArray(foodBeverage?.restaurants) && foodBeverage.restaurants.length > 0 && (
+          <p>
+            <span className="text-foreground font-medium">Restaurants:</span> {foodBeverage.restaurants.map((r: any) => r.name || "Unnamed").join(", ")}
+          </p>
+        )}
+        {Array.isArray(foodBeverage?.bars) && foodBeverage.bars.length > 0 && (
+          <p>
+            <span className="text-foreground font-medium">Bars:</span> {foodBeverage.bars.map((b: any) => b.name || "Unnamed").join(", ")}
+          </p>
+        )}
         {foodBeverage?.cuisine && <p><span className="text-foreground font-medium">Küche:</span> {foodBeverage.cuisine}</p>}
         {foodBeverage?.specialDiets && <p><span className="text-foreground font-medium">Spezialdiäten:</span> {foodBeverage.specialDiets}</p>}
         {foodBeverage?.roomService !== undefined && (
