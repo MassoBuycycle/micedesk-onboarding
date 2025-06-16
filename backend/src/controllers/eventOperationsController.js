@@ -4,7 +4,7 @@ import { extractDataForTable } from '../utils/dataMapping.js';
 const EVENT_OPERATIONS_FIELDS = [
   'sold_with_rooms_only', 'last_minute_lead_time', 'sent_over_time_material', 'lunch_location',
   'min_participants_package', 'coffee_break_location', 'advance_days_for_material', 'room_drop_cost',
-  'hotel_exclusive_clients', 'minimum_spent', 'storage_room', 'deposit_needed_event',
+  'hotel_exclusive_clients', 'deposit_needed_event',
   'deposit_rules_event', 'deposit_invoice_creator', 'informational_invoice_created',
   'payment_methods_events', 'final_invoice_handling_event',
   'contracted_companies', 'refused_requests', 'unwanted_marketing_tools',
@@ -15,7 +15,7 @@ const EVENT_OPERATIONS_FIELDS = [
 ];
 
 const BOOLEAN_FIELDS = [
-  'sold_with_rooms_only','sent_over_time_material','hotel_exclusive_clients','minimum_spent','storage_room','has_overtime_material','has_storage','deposit_needed_event','informational_invoice_created','first_second_option','split_options','overbooking_policy','deposit_required','second_signature_required','has_minimum_spent'
+  'sold_with_rooms_only','sent_over_time_material','hotel_exclusive_clients','has_overtime_material','has_storage','deposit_needed_event','informational_invoice_created','first_second_option','split_options','overbooking_policy','deposit_required','second_signature_required','has_minimum_spent'
 ];
 
 /**

@@ -594,8 +594,6 @@ CREATE TABLE IF NOT EXISTS onboarding_event_operations (
   advance_days_for_material INT DEFAULT 0,
   room_drop_cost DECIMAL(10,2) DEFAULT 0,
   hotel_exclusive_clients BOOLEAN DEFAULT FALSE,
-  minimum_spent BOOLEAN DEFAULT FALSE,
-  storage_room BOOLEAN DEFAULT FALSE,
   deposit_needed_event BOOLEAN DEFAULT FALSE,
   deposit_rules_event TEXT,
   deposit_invoice_creator VARCHAR(255),

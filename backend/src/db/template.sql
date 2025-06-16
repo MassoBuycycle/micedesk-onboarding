@@ -193,8 +193,6 @@ create table rocket_production.onboarding_event_operations
     advance_days_for_material     int            default 0                 null,
     room_drop_cost                decimal(10, 2) default 0.00              null,
     hotel_exclusive_clients       tinyint(1)     default 0                 null,
-    minimum_spent                 tinyint(1)     default 0                 null,
-    storage_room                  tinyint(1)     default 0                 null,
     deposit_needed_event          tinyint(1)     default 0                 null,
     deposit_rules_event           text                                     null,
     deposit_invoice_creator       varchar(255)                             null,

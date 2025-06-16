@@ -96,24 +96,16 @@ const bookingSchema = z.object({
 });
 
 const operationsSchema = z.object({
-  has_overtime_material: z.boolean().default(false),
   lunch_location: z.string().optional(),
-  min_participants: z.coerce.number().optional(),
-  coffee_location: z.string().optional(),
   material_advance_days: z.coerce.number().optional(),
-  room_drop_fee: z.coerce.number().optional(),
   has_storage: z.boolean().default(false),
   has_minimum_spent: z.boolean().default(false),
   sold_with_rooms_only: z.boolean().default(false),
   last_minute_lead_time: z.string().optional(),
-  sent_over_time_material: z.boolean().default(false),
   min_participants_package: z.coerce.number().optional(),
   coffee_break_location: z.string().optional(),
-  advance_days_for_material: z.coerce.number().optional(),
   room_drop_cost: z.coerce.number().optional(),
   hotel_exclusive_clients: z.boolean().default(false),
-  minimum_spent: z.boolean().default(false),
-  storage_room: z.boolean().default(false),
   deposit_needed_event: z.boolean().default(false),
   deposit_rules_event: z.string().optional(),
   deposit_invoice_creator: z.string().optional(),
@@ -226,24 +218,16 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
       ...(initialData?.booking || {})
     },
     operations: {
-      has_overtime_material: false,
       lunch_location: '',
-      min_participants: undefined,
-      coffee_location: '',
       material_advance_days: undefined,
-      room_drop_fee: undefined,
       has_storage: false,
       has_minimum_spent: false,
       sold_with_rooms_only: false,
       last_minute_lead_time: '',
-      sent_over_time_material: false,
       min_participants_package: undefined,
       coffee_break_location: '',
-      advance_days_for_material: undefined,
       room_drop_cost: undefined,
       hotel_exclusive_clients: false,
-      minimum_spent: false,
-      storage_room: false,
       deposit_needed_event: false,
       deposit_rules_event: '',
       deposit_invoice_creator: '',
@@ -708,57 +692,40 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
         </Card>
 
         {/* OPERATIONS SECTION */}
-        <FormSection title="Operations" description="Define how events are operated and managed">
+        <FormSection 
+          title={t('events.eventForm.operations.sectionTitle')} 
+          description={t('events.eventForm.operations.sectionDescription')}
+        >
           <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
             <SwitchField
               form={form}
-              name="operations.has_overtime_material"
-              label="Has Overtime Material"
-            />
-            <SwitchField
-              form={form}
-              name="operations.sent_over_time_material"
-              label="Sent Over-time Material"
-            />
-            <SwitchField
-              form={form}
               name="operations.has_storage"
-              label="Has Storage"
-            />
-            <SwitchField
-              form={form}
-              name="operations.storage_room"
-              label="Storage Room"
+              label={t('events.eventForm.operations.hasStorage')}
             />
             <SwitchField
               form={form}
               name="operations.sold_with_rooms_only"
-              label="Sold With Rooms Only"
+              label={t('events.eventForm.operations.soldWithRoomsOnly')}
             />
             <SwitchField
               form={form}
               name="operations.hotel_exclusive_clients"
-              label="Hotel Exclusive Clients"
-            />
-            <SwitchField
-              form={form}
-              name="operations.minimum_spent"
-              label="Minimum Spent"
+              label={t('events.eventForm.operations.hotelExclusiveClients')}
             />
             <SwitchField
               form={form}
               name="operations.has_minimum_spent"
-              label="Has Minimum Spent"
+              label={t('events.eventForm.operations.hasMinimumSpent')}
             />
             <SwitchField
               form={form}
               name="operations.deposit_needed_event"
-              label="Deposit Needed"
+              label={t('events.eventForm.operations.depositNeeded')}
             />
             <SwitchField
               form={form}
               name="operations.informational_invoice_created"
-              label="Informational Invoice Created"
+              label={t('events.eventForm.operations.informationalInvoiceCreated')}
             />
           </div>
           
@@ -766,58 +733,37 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
             <TextField
               form={form}
               name="operations.lunch_location"
-              label="Lunch Location"
-            />
-            <TextField
-              form={form}
-              name="operations.coffee_location"
-              label="Coffee Location"
+              label={t('events.eventForm.operations.lunchLocation')}
             />
             <TextField
               form={form}
               name="operations.coffee_break_location"
-              label="Coffee Break Location"
+              label={t('events.eventForm.operations.coffeeBreakLocation')}
             />
             <TextField
               form={form}
               name="operations.last_minute_lead_time"
-              label="Last Minute Lead Time"
+              label={t('events.eventForm.operations.lastMinuteLeadTime')}
             />
             <TextField
               form={form}
               name="operations.deposit_invoice_creator"
-              label="Deposit Invoice Creator"
-            />
-            <NumberField
-              form={form}
-              name="operations.min_participants"
-              label="Min Participants"
+              label={t('events.eventForm.operations.depositInvoiceCreator')}
             />
             <NumberField
               form={form}
               name="operations.min_participants_package"
-              label="Min Participants (Package)"
+              label={t('events.eventForm.operations.minParticipantsPackage')}
             />
             <NumberField
               form={form}
               name="operations.material_advance_days"
-              label="Material Advance Days"
-            />
-            <NumberField
-              form={form}
-              name="operations.advance_days_for_material"
-              label="Advance Days for Material"
-            />
-            <NumberField
-              form={form}
-              name="operations.room_drop_fee"
-              label="Room Drop Fee"
-              step="0.01"
+              label={t('events.eventForm.operations.materialAdvanceDays')}
             />
             <NumberField
               form={form}
               name="operations.room_drop_cost"
-              label="Room Drop Cost"
+              label={t('events.eventForm.operations.roomDropCost')}
               step="0.01"
             />
           </TwoColumnGrid>
@@ -825,13 +771,13 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
           <TextareaField
             form={form}
             name="operations.deposit_rules_event"
-            label="Deposit Rules"
+            label={t('events.eventForm.operations.depositRules')}
             rows={3}
           />
           <TextareaField
             form={form}
             name="operations.final_invoice_handling_event"
-            label="Final Invoice Handling"
+            label={t('events.eventForm.operations.finalInvoiceHandling')}
             rows={3}
           />
         </FormSection>

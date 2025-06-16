@@ -40,8 +40,6 @@ export interface EventOperationsInput {
   advance_days_for_material?: number;
   room_drop_cost?: number;
   hotel_exclusive_clients?: boolean;
-  minimum_spent?: boolean;
-  storage_room?: boolean;
   deposit_needed_event?: boolean;
   deposit_rules_event?: string;
   deposit_invoice_creator?: string;
