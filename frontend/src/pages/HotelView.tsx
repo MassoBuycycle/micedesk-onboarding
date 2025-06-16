@@ -25,6 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTranslation } from 'react-i18next';
+import { DialogClose } from '@/components/ui/dialog';
 
 const HotelView = () => {
   const { id } = useParams<{ id: string }>();
@@ -65,6 +66,9 @@ const HotelView = () => {
   const queryClient = useQueryClient();
   const [announceOpen, setAnnounceOpen] = useState(false);
   const [announceText, setAnnounceText] = useState('');
+  const [previewFile, setPreviewFile] = useState<FileData | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+
   const upsertMutation = useMutation({
     mutationFn: (msg:string) => upsertHotelAnnouncement(hotelId, msg, true),
     onSuccess: () => {
@@ -103,6 +107,11 @@ const HotelView = () => {
       default:
         return type;
     }
+  };
+
+  const openPreview = (file: FileData) => {
+    setPreviewFile(file);
+    setPreviewOpen(true);
   };
 
   if (!hotel) {
@@ -957,10 +966,8 @@ const HotelView = () => {
                         </p>
                       </div>
                       <div className="flex gap-1 shrink-0">
-                        <Button asChild variant="ghost" size="icon" title={t('common.preview')}>
-                          <a href={img.url} target="_blank" rel="noopener noreferrer">
-                            <Eye className="h-4 w-4" />
-                          </a>
+                        <Button variant="ghost" size="icon" title={t('common.preview')} onClick={()=>openPreview(img)}>
+                          <Eye className="h-4 w-4" />
                         </Button>
                         <Button asChild variant="ghost" size="icon" title={t('common.download')}>
                           <a href={img.url} download>
@@ -999,12 +1006,10 @@ const HotelView = () => {
                         </div>
                       </div>
                       <div className="flex gap-1">
-                        <Button variant="ghost" size="icon" asChild title={t('common.preview')}>
-                          <a href={file.url} target="_blank" rel="noopener noreferrer">
-                            <Eye className="h-4 w-4" />
-                          </a>
+                        <Button variant="ghost" size="icon" title={t('common.preview')} onClick={()=>openPreview(file)}>
+                          <Eye className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" asChild title={t('common.download')}>
+                        <Button asChild variant="ghost" size="icon" title={t('common.download')}>
                           <a href={file.url} download>
                             <Download className="h-4 w-4" />
                           </a>
@@ -1046,6 +1051,30 @@ const HotelView = () => {
               >
                 {t('common.save')}
               </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* File Preview Dialog */}
+        <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+          <DialogContent className="max-w-4xl h-[90vh]">
+            <DialogHeader>
+              <DialogTitle>{previewFile?.original_name}</DialogTitle>
+            </DialogHeader>
+            {previewFile && previewFile.mime_type.startsWith('image') ? (
+              <img src={previewFile.url} alt={previewFile.original_name} className="max-h-full w-full object-contain" />
+            ) : (
+              <iframe src={previewFile?.url} title="preview" className="w-full h-full" />
+            )}
+            <DialogFooter>
+              <Button asChild variant="outline" size="sm">
+                <a href={previewFile?.url} download>
+                  <Download className="h-4 w-4 mr-1" /> {t('common.download')}
+                </a>
+              </Button>
+              <DialogClose asChild>
+                <Button>{t('common.close')}</Button>
+              </DialogClose>
             </DialogFooter>
           </DialogContent>
         </Dialog>
