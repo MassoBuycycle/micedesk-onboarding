@@ -8,7 +8,7 @@ import { getEntityFiles, FileData } from "@/apiClient/filesApi";
 import { 
   Download, MapPin, Phone, Mail, Globe, Car, Train, Plane, UserPlus, 
   Pencil, Trash, Speaker, Building2, Calendar, Users, User, BedDouble, 
-  Utensils, FileText, Image, Clock, Shield, CreditCard,
+  Utensils, FileText, Image, Clock, Shield, CreditCard, Eye,
   Contact, Info, Hotel, Star, ClipboardList
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -939,7 +939,7 @@ const HotelView = () => {
             {imageFiles.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {imageFiles.map(img => (
-                  <Card key={img.id} className="overflow-hidden">
+                  <Card key={img.id} className="overflow-hidden flex flex-col">
                     <AspectRatio ratio={16/9} className="bg-muted">
                       <img 
                         src={img.url} 
@@ -947,13 +947,27 @@ const HotelView = () => {
                         className="object-cover w-full h-full hover:scale-105 transition-transform duration-300" 
                       />
                     </AspectRatio>
-                    <CardContent className="p-3">
-                      <p className="text-sm truncate" title={img.original_name}>
-                        {img.original_name}
-                      </p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {(img.file_type_name || img.file_type_code) + (img.size ? ` • ${(img.size/1024/1024).toFixed(1)} MB` : '')}
-                      </p>
+                    <CardContent className="p-3 flex items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="text-sm truncate" title={img.original_name}>
+                          {img.original_name}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {(img.file_type_name || img.file_type_code) + (img.size ? ` • ${(img.size/1024/1024).toFixed(1)} MB` : '')}
+                        </p>
+                      </div>
+                      <div className="flex gap-1 shrink-0">
+                        <Button asChild variant="ghost" size="icon" title={t('common.preview')}>
+                          <a href={img.url} target="_blank" rel="noopener noreferrer">
+                            <Eye className="h-4 w-4" />
+                          </a>
+                        </Button>
+                        <Button asChild variant="ghost" size="icon" title={t('common.download')}>
+                          <a href={img.url} download>
+                            <Download className="h-4 w-4" />
+                          </a>
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 ))}
@@ -978,18 +992,24 @@ const HotelView = () => {
                       <div className="flex items-center gap-3">
                         <FileText className="h-8 w-8 text-muted-foreground" />
                         <div>
-                          <p className="font-medium">{file.original_name}</p>
+                          <p className="font-medium truncate max-w-[220px]" title={file.original_name}>{file.original_name}</p>
                           <p className="text-sm text-muted-foreground truncate">
-                            {(file.file_type_name || file.file_type_code) + ` • ${file.mime_type}` + (file.size ? ` • ${(file.size/1024/1024).toFixed(1)} MB` : '')}
+                             {(file.file_type_name || file.file_type_code) + ` • ${file.mime_type}` + (file.size ? ` • ${(file.size/1024/1024).toFixed(1)} MB` : '')}
                           </p>
                         </div>
                       </div>
-                      <Button variant="outline" size="sm" asChild>
-                        <a href={file.url} target="_blank" rel="noopener noreferrer" download>
-                          <Download className="h-4 w-4 mr-1" />
-                          {t('common.download')}
-                        </a>
-                      </Button>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="icon" asChild title={t('common.preview')}>
+                          <a href={file.url} target="_blank" rel="noopener noreferrer">
+                            <Eye className="h-4 w-4" />
+                          </a>
+                        </Button>
+                        <Button variant="ghost" size="icon" asChild title={t('common.download')}>
+                          <a href={file.url} download>
+                            <Download className="h-4 w-4" />
+                          </a>
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 ))}
