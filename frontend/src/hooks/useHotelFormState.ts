@@ -965,7 +965,12 @@ export function useHotelFormState() {
               // Use the details API to save all F&B information
               await upsertFoodBeverageDetails(createdHotelId, newFormData.foodBeverage);
               
-              toast.success("F&B details saved successfully!");
+              toast.success("F&B details saved successfully! Redirecting to hotel view...");
+              
+              // Redirect to hotel view after a short delay
+              setTimeout(() => {
+                window.location.href = `/view/hotel/${createdHotelId}`;
+              }, 1500);
             } catch (error: any) {
               console.error("Error saving F&B details:", error);
               toast.error(`Failed to save F&B details: ${error.message}`);
