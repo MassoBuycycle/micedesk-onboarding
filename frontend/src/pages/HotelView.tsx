@@ -554,38 +554,41 @@ const HotelView = () => {
               <>
                 <h3 className="text-lg font-semibold">{t('rooms.categories')}</h3>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {hotelData.roomCategories.map((category: any, idx: number) => (
-                    <Card key={category.id || idx}>
-                      <CardHeader>
-                        <CardTitle>{category.name || category.category_name || t('rooms.category')}</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-2">
-                        {category.description && (
-                          <p className="text-sm text-muted-foreground">{category.description}</p>
-                        )}
-                        {category.room_count && (
-                          <p className="text-sm">
-                            <span className="font-medium">{t('rooms.count')}:</span> {category.room_count}
-                          </p>
-                        )}
-                        {category.size_sqm && (
-                          <p className="text-sm">
-                            <span className="font-medium">{t('rooms.size')}:</span> {category.size_sqm} m²
-                          </p>
-                        )}
-                        {category.bed_configuration && (
-                          <p className="text-sm">
-                            <span className="font-medium">{t('rooms.bedConfiguration')}:</span> {category.bed_configuration}
-                          </p>
-                        )}
-                        {category.max_occupancy && (
-                          <p className="text-sm">
-                            <span className="font-medium">{t('rooms.maxOccupancy')}:</span> {category.max_occupancy}
-                          </p>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
+                  {hotelData.roomCategories.map((category: any, idx: number) => {
+                    // Track keys already rendered explicitly so we don't duplicate them later
+                    const handledKeys = new Set<string>(['description','room_count','size_sqm','bed_configuration','max_occupancy']);
+                    return (
+                      <Card key={category.id || idx}>
+                        <CardHeader>
+                          <CardTitle>{category.name || category.category_name || t('rooms.category')}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2 text-sm">
+                          {category.description && (
+                            <p className="text-muted-foreground whitespace-pre-wrap">{category.description}</p>
+                          )}
+                          {category.room_count !== undefined && (
+                            <p><span className="font-medium">{t('rooms.count')}:</span> {category.room_count}</p>
+                          )}
+                          {category.size_sqm !== undefined && (
+                            <p><span className="font-medium">{t('rooms.size')}:</span> {category.size_sqm} m²</p>
+                          )}
+                          {category.bed_configuration && (
+                            <p><span className="font-medium">{t('rooms.bedConfiguration')}:</span> {category.bed_configuration}</p>
+                          )}
+                          {category.max_occupancy !== undefined && (
+                            <p><span className="font-medium">{t('rooms.maxOccupancy')}:</span> {category.max_occupancy}</p>
+                          )}
+                          {/* Render any additional keys dynamically */}
+                          {Object.entries(category).filter(([k,v])=>!handledKeys.has(k) && !['id','hotel_id','name','category_name','created_at','updated_at'].includes(k) && v!==null && v!==undefined && v!=='').map(([key,value])=>{
+                              const label = key.replace(/_/g,' ').replace(/([a-z])([A-Z])/g,'$1 $2');
+                              return (
+                                <p key={key}><span className="font-medium capitalize">{label}:</span> {typeof value==='boolean' ? (value ? t('common.yes'):t('common.no')) : String(value)}</p>
+                              );
+                            })}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
                 </div>
                 <Separator />
               </>
@@ -593,49 +596,22 @@ const HotelView = () => {
 
             {/* Room Operational Info */}
             {hotelData?.roomOperational && hotelData.roomOperational.length > 0 && (
-              <>
+              <> 
                 <h3 className="text-lg font-semibold">{t('rooms.operationalInfo')}</h3>
                 <div className="grid gap-4">
                   {hotelData.roomOperational.map((op: any, idx: number) => (
                     <Card key={op.id || idx}>
                       <CardContent className="p-6">
                         <div className="grid gap-4 md:grid-cols-2">
-                          {op.check_in_time && (
-                            <div>
-                              <p className="text-sm text-muted-foreground">{t('rooms.checkInTime')}</p>
-                              <p className="font-medium">{op.check_in_time}</p>
-                            </div>
-                          )}
-                          {op.check_out_time && (
-                            <div>
-                              <p className="text-sm text-muted-foreground">{t('rooms.checkOutTime')}</p>
-                              <p className="font-medium">{op.check_out_time}</p>
-                            </div>
-                          )}
-                          {op.reception_hours && (
-                            <div>
-                              <p className="text-sm text-muted-foreground">{t('rooms.receptionHours')}</p>
-                              <p className="font-medium">{op.reception_hours}</p>
-                            </div>
-                          )}
-                          {op.housekeeping_schedule && (
-                            <div>
-                              <p className="text-sm text-muted-foreground">{t('rooms.housekeepingSchedule')}</p>
-                              <p className="font-medium">{op.housekeeping_schedule}</p>
-                            </div>
-                          )}
-                          {op.luggage_storage && (
-                            <div>
-                              <p className="text-sm text-muted-foreground">{t('rooms.luggageStorage')}</p>
-                              <p className="font-medium">{op.luggage_storage ? t('common.yes') : t('common.no')}</p>
-                            </div>
-                          )}
-                          {op.late_check_out && (
-                            <div>
-                              <p className="text-sm text-muted-foreground">{t('rooms.lateCheckOut')}</p>
-                              <p className="font-medium">{op.late_check_out}</p>
-                            </div>
-                          )}
+                          {Object.entries(op).filter(([k,v])=>!['id','hotel_id','created_at','updated_at'].includes(k) && v!==null && v!==undefined && v!=='').map(([key,value])=>{
+                            const label = key.replace(/_/g,' ').replace(/([a-z])([A-Z])/g,'$1 $2');
+                            return (
+                              <div key={key} className="space-y-0.5">
+                                <p className="text-sm text-muted-foreground capitalize">{label}</p>
+                                <p className="font-medium text-sm">{typeof value==='boolean' ? (value ? t('common.yes'):t('common.no')) : String(value)}</p>
+                              </div>
+                            );
+                          })}
                         </div>
                       </CardContent>
                     </Card>
