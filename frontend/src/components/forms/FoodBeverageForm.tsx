@@ -363,6 +363,39 @@ const FoodBeverageForm = ({
     }
   }, []);
 
+  useEffect(() => {
+    // Fetch F&B details in edit mode if we didn't receive them via props
+    const loadFnbDetails = async () => {
+      if (mode !== 'edit') return;
+      if (!selectedHotel?.id) return;
+      const hasInitialRestaurants = Array.isArray(initialData.restaurants) && initialData.restaurants.length > 0;
+      const hasInitialBars = Array.isArray(initialData.bars) && initialData.bars.length > 0;
+      if (hasInitialRestaurants || hasInitialBars) return; // already have data
+      try {
+        const { getFoodBeverageDetails } = await import('@/apiClient/fbDetailsApi');
+        const details = await getFoodBeverageDetails(selectedHotel.id);
+        if (details) {
+          console.log('✅ Loaded F&B details from API:', details);
+          // Sanitize restaurants & bars
+          const sanitizedRestaurants = Array.isArray(details.restaurants) ? details.restaurants.map(sanitizeRestaurant) : [];
+          const sanitizedBars = Array.isArray(details.bars) ? details.bars.map(sanitizeBar) : [];
+          if (sanitizedRestaurants.length > 0) setRestaurants(sanitizedRestaurants);
+          if (sanitizedBars.length > 0) setBars(sanitizedBars);
+          // Merge other scalar fields into formData
+          setFormData(prev => ({
+            ...prev,
+            ...details,
+            restaurants: sanitizedRestaurants,
+            bars: sanitizedBars,
+          }));
+        }
+      } catch (err) {
+        console.error('Failed to load F&B details:', err);
+      }
+    };
+    loadFnbDetails();
+  }, [mode, selectedHotel?.id]);
+
   return (
     <div className="space-y-8">
       <div>
