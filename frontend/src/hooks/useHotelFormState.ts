@@ -427,9 +427,22 @@ export function useHotelFormState() {
                 // Update both state and local variable for immediate use
                 currentHotelId = hotelResponse.hotelId;
                 setCreatedHotelId(hotelResponse.hotelId);
+                
+                // IMPORTANT: Update formData.hotel.id so that selectedHotel has the correct ID
+                const updatedFormData = {
+                  ...newFormData,
+                  hotel: {
+                    ...newFormData.hotel,
+                    id: hotelResponse.hotelId
+                  }
+                };
+                setFormData(updatedFormData);
+                setTempFormData(updatedFormData);
+                
                 console.log("=== HOTEL ID SET SUCCESSFULLY ===");
                 console.log("createdHotelId set to:", hotelResponse.hotelId);
                 console.log("currentHotelId set to:", currentHotelId);
+                console.log("formData.hotel.id set to:", hotelResponse.hotelId);
                 toast.success(`Hotel "${hotelResponse.name}" created (ID: ${hotelResponse.hotelId}).`);
                 
                 // Assign any temporary files to the new hotel

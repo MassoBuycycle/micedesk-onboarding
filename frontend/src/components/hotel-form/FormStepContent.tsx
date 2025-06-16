@@ -115,10 +115,7 @@ const FormStepContent = ({
         <>
           <EventInfoForm 
             initialData={formData.eventsInfo}
-            selectedHotel={{
-              id: createdHotelId, // Use the dynamic hotel ID from props
-              ...formData.hotel
-            }}
+            selectedHotel={formData.hotel}
             createdEventId={createdEventId}
             onNext={(data) => {
               console.log("===== EventInfoForm onNext called =====");

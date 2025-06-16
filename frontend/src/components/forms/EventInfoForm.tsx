@@ -325,8 +325,11 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
   // Mapping helper will build the flattened payload for backend
   const buildEventPayload = (): Record<string, any> => {
     const values = form.getValues();
-    const BACKUP_HOTEL_ID = 28;
-    const hotelId = selectedHotel?.id || BACKUP_HOTEL_ID;
+    const hotelId = selectedHotel?.id;
+    
+    if (!hotelId) {
+      throw new Error("Hotel ID is required but not provided");
+    }
     
     const fullData: EventInfoData = {
       contact: {
@@ -401,9 +404,16 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
     e?.preventDefault();
     
     try {
-      // Use the backup hotel ID that we know works
-      const BACKUP_HOTEL_ID = 28;
-      const hotelId = selectedHotel?.id || BACKUP_HOTEL_ID;
+      const hotelId = selectedHotel?.id;
+      
+      if (!hotelId) {
+        console.error("❌ Hotel ID is missing!");
+        console.log("selectedHotel:", selectedHotel);
+        toast.error("Hotel ID is required but not available. Please ensure a hotel is selected.");
+        return;
+      }
+      
+      console.log("✅ Using hotel ID:", hotelId);
       
       // If we're in edit mode and already have an event ID, don't create a new one
       if (mode === 'edit' && createdEventId) {
