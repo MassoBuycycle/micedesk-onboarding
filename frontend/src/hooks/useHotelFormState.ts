@@ -110,22 +110,83 @@ export function useHotelFormState() {
 
       // Try to fetch any existing events for this hotel
       let events = [] as any[];
+      let detailedEventData = null;
+      
       try {
         const { getEventsByHotelId } = await import('@/apiClient/eventsApi');
         events = await getEventsByHotelId(hotelId);
+        
+        // If events exist, fetch detailed data for the first event
+        if (events && events.length > 0) {
+          const firstEventId = events[0].id;
+          setCreatedEventId(firstEventId);
+          
+          console.log(`🔄 Fetching detailed event data for event ID: ${firstEventId}`);
+          
+          // Import all the GET functions we need
+          const { 
+            getEventById,
+            getEventBooking, 
+            getEventOperations, 
+            getEventFinancials,
+            getEventAvEquipment,
+            getEventTechnicalInfo,
+            getEventContractingInfo
+          } = await import('@/apiClient/eventsApi');
+          
+          // Fetch all event data in parallel
+          const [
+            eventContact,
+            bookingData,
+            operationsData,
+            financialsData,
+            equipmentData,
+            technicalData,
+            contractingData
+          ] = await Promise.allSettled([
+            getEventById(firstEventId),
+            getEventBooking(firstEventId),
+            getEventOperations(firstEventId),
+            getEventFinancials(firstEventId),
+            getEventAvEquipment(firstEventId),
+            getEventTechnicalInfo(firstEventId),
+            getEventContractingInfo(firstEventId)
+          ]);
+          
+          console.log("📊 Event data fetch results:");
+          console.log("Contact:", eventContact.status === 'fulfilled' ? eventContact.value : "failed");
+          console.log("Booking:", bookingData.status === 'fulfilled' ? bookingData.value : "failed");
+          console.log("Operations:", operationsData.status === 'fulfilled' ? operationsData.value : "failed");
+          console.log("Financials:", financialsData.status === 'fulfilled' ? financialsData.value : "failed");
+          console.log("Equipment:", equipmentData.status === 'fulfilled' ? equipmentData.value : "failed");
+          console.log("Technical:", technicalData.status === 'fulfilled' ? technicalData.value : "failed");
+          console.log("Contracting:", contractingData.status === 'fulfilled' ? contractingData.value : "failed");
+          
+          // Structure the detailed event data
+          detailedEventData = {
+            contact: eventContact.status === 'fulfilled' ? eventContact.value : {},
+            booking: bookingData.status === 'fulfilled' ? bookingData.value : {},
+            operations: operationsData.status === 'fulfilled' ? operationsData.value : {},
+            financials: financialsData.status === 'fulfilled' ? financialsData.value : {},
+            equipment: equipmentData.status === 'fulfilled' ? (Array.isArray(equipmentData.value) ? equipmentData.value : []) : [],
+            technical: technicalData.status === 'fulfilled' ? technicalData.value : {},
+            contracting: contractingData.status === 'fulfilled' ? contractingData.value : {}
+          };
+          
+          console.log("✅ Structured detailed event data:", detailedEventData);
+        }
       } catch (err) {
         console.warn('Could not fetch events for hotel', hotelId, err);
       }
 
-      // If at least one event exists, remember its ID so EventInfoForm will auto-load it
-      if (events && events.length > 0) {
-        setCreatedEventId(events[0].id);
-      }
-
       const apiData: any = { hotel: hotelData };
-      // Optionally attach events array so transform can use it later if needed
+      
+      // Attach events array and detailed event data
       if (events && events.length) {
         apiData.events = events;
+      }
+      if (detailedEventData) {
+        apiData.eventsInfo = detailedEventData;
       }
 
       setHotelDataFromApi(apiData);
