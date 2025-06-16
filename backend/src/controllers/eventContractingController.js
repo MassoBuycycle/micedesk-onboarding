@@ -13,7 +13,7 @@ export const getContractingByEventId = async (req, res, next) => {
     
     // Check if event exists
     const [events] = await connection.query(
-      'SELECT id FROM events WHERE id = ?',
+      'SELECT id FROM onboarding_events WHERE id = ?',
       [eventId]
     );
     
@@ -58,7 +58,7 @@ export const createOrUpdateContracting = async (req, res, next) => {
     
     // Check if event exists
     const [events] = await connection.query(
-      'SELECT id FROM events WHERE id = ?',
+      'SELECT id FROM onboarding_events WHERE id = ?',
       [eventId]
     );
     

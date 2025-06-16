@@ -9,11 +9,11 @@ import pool from '../db/config.js';
 export const getTechnicalByEventId = async (req, res, next) => {
   const connection = await pool.getConnection();
   try {
-    const eventId = parseInt(req.params.eventId);
+    const eventId = parseInt(req.params.id);
     
     // Check if event exists
     const [events] = await connection.query(
-      'SELECT id FROM events WHERE id = ?',
+      'SELECT id FROM onboarding_events WHERE id = ?',
       [eventId]
     );
     
@@ -48,7 +48,7 @@ export const getTechnicalByEventId = async (req, res, next) => {
 export const createOrUpdateTechnical = async (req, res, next) => {
   const connection = await pool.getConnection();
   try {
-    const eventId = parseInt(req.params.eventId);
+    const eventId = parseInt(req.params.id);
     const technicalData = req.body;
     
     // Validate required fields
@@ -58,7 +58,7 @@ export const createOrUpdateTechnical = async (req, res, next) => {
     
     // Check if event exists
     const [events] = await connection.query(
-      'SELECT id FROM events WHERE id = ?',
+      'SELECT id FROM onboarding_events WHERE id = ?',
       [eventId]
     );
     

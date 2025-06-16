@@ -137,7 +137,11 @@ export const createOrUpdateEventBooking = async (req, res) => {
     }
   } catch (error) {
     console.error('Error saving event booking information:', error);
-    res.status(500).json({ error: 'Failed to save booking information' });
+    console.error('Full error details:', error.message, error.code, error.sqlMessage);
+    res.status(500).json({ 
+      error: 'Failed to save booking information',
+      details: error.message || error.sqlMessage || 'Unknown database error'
+    });
   } finally {
     if (connection) connection.release();
   }

@@ -12,7 +12,7 @@ export const getEventFinancials = async (req, res) => {
     const connection = await pool.getConnection();
     try {
       // Check if event exists
-      const [events] = await connection.query('SELECT id FROM events WHERE id = ?', [eventId]);
+      const [events] = await connection.query('SELECT id FROM onboarding_events WHERE id = ?', [eventId]);
       if (events.length === 0) {
         return res.status(404).json({ error: 'Event not found' });
       }
@@ -58,7 +58,7 @@ export const createOrUpdateEventFinancials = async (req, res) => {
     const connection = await pool.getConnection();
     try {
       // Check if event exists
-      const [events] = await connection.query('SELECT id FROM events WHERE id = ?', [eventId]);
+      const [events] = await connection.query('SELECT id FROM onboarding_events WHERE id = ?', [eventId]);
       if (events.length === 0) {
         return res.status(404).json({ error: 'Event not found' });
       }
@@ -149,6 +149,10 @@ export const createOrUpdateEventFinancials = async (req, res) => {
     }
   } catch (error) {
     console.error('Error in createOrUpdateEventFinancials:', error);
-    res.status(500).json({ error: 'Failed to save financials information' });
+    console.error('Full error details:', error.message, error.code, error.sqlMessage);
+    res.status(500).json({ 
+      error: 'Failed to save financials information',
+      details: error.message || error.sqlMessage || 'Unknown database error'
+    });
   }
 }; 
