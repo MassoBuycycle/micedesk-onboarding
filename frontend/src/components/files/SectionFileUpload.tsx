@@ -139,9 +139,16 @@ export default function SectionFileUpload({
                       <span className="truncate font-medium">{f.original_name}</span>
                       <span className="text-xs text-muted-foreground truncate">{f.file_type_name || f.file_type_code}</span>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={()=>deleteMut.mutate(f.id)} title="Delete">
-                      <X className="h-4 w-4" />
-                    </Button>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button asChild variant="ghost" size="icon" title="Download">
+                        <a href={f.url} target="_blank" rel="noopener noreferrer" download>
+                          <Paperclip className="h-4 w-4" />
+                        </a>
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={()=>deleteMut.mutate(f.id)} title="Delete">
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
