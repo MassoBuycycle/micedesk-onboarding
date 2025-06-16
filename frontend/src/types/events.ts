@@ -25,7 +25,6 @@ export interface EventOperationsInput {
   has_overtime_material?: boolean;
   sent_over_time_material?: boolean;
   has_storage?: boolean;
-  storage_room?: boolean;
   sold_with_rooms_only?: boolean;
   hotel_exclusive_clients?: boolean;
   has_minimum_spent?: boolean;

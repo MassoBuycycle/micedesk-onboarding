@@ -26,7 +26,6 @@ const EVENT_OPERATIONS_FIELDS = [
     'advance_days_for_material',
     'room_drop_cost',
     'hotel_exclusive_clients',
-    'storage_room',
     'deposit_needed_event',
     'deposit_rules_event',
     'deposit_invoice_creator',

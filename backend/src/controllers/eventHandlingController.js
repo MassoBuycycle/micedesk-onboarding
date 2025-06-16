@@ -5,7 +5,7 @@ import { extractDataForTable } from '../utils/dataMapping.js';
 const EVENT_HANDLING_FIELDS = [
   'event_id', 'sold_with_rooms_only', 'last_minute_lead_time', 'sent_over_time_material',
   'lunch_location', 'min_participants_package', 'coffee_break_location', 'advance_days_for_material',
-  'room_drop_cost', 'hotel_exclusive_clients', 'minimum_spent', 'storage_room',
+  'room_drop_cost', 'hotel_exclusive_clients', 'has_minimum_spent', 'has_storage',
   'deposit_needed_event', 'deposit_rules_event', 'deposit_invoice_creator',
   'informational_invoice_created', 'payment_methods_events', 'final_invoice_handling_event'
 ];
