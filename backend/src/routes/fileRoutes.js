@@ -15,7 +15,8 @@ import {
   getFilesByEntityAndCategory,
   getFileById,
   deleteFileById,
-  getRoomFilesByHotel
+  getRoomFilesByHotel,
+  assignTemporaryFiles
 } from '../controllers/fileController.js';
 import { uploadMiddleware } from '../services/s3Service.js';
 
@@ -45,6 +46,11 @@ router.post(
   uploadMiddleware,  // Handle file upload to S3
   uploadFile         // Process after upload and save metadata
 );
+
+// Assign temporary files to entity
+// Route format: /files/assign/{entityType}/{entityId}
+// Example: /files/assign/hotels/123
+router.post('/assign/:entityType/:entityId', assignTemporaryFiles);
 
 router.get('/hotels/:hotelId/room', getRoomFilesByHotel);
 

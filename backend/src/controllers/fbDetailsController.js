@@ -54,7 +54,7 @@ const manageRestaurants = async (connection, hotelId, restaurants) => {
   if (!Array.isArray(restaurants)) return;
 
   // Delete existing restaurants
-  await connection.query('DELETE FROM fb_restaurants WHERE hotel_id = ?', [hotelId]);
+  await connection.query('DELETE FROM onboarding_fb_restaurants WHERE hotel_id = ?', [hotelId]);
 
   // Insert new restaurants
   if (restaurants.length > 0) {
@@ -70,7 +70,7 @@ const manageRestaurants = async (connection, hotelId, restaurants) => {
     ]);
 
     const placeholders = restaurants.map(() => '(?, ?, ?, ?, ?, ?, ?, ?)').join(', ');
-    const sql = `INSERT INTO fb_restaurants (hotel_id, name, cuisine, seats_indoor, seats_outdoor, exclusive_booking, minimum_price, opening_hours) VALUES ${placeholders}`;
+    const sql = `INSERT INTO onboarding_fb_restaurants (hotel_id, name, cuisine, seats_indoor, seats_outdoor, exclusive_booking, minimum_price, opening_hours) VALUES ${placeholders}`;
     
     await connection.query(sql, restaurantValues.flat());
   }
@@ -83,7 +83,7 @@ const manageBars = async (connection, hotelId, bars) => {
   if (!Array.isArray(bars)) return;
 
   // Delete existing bars
-  await connection.query('DELETE FROM fb_bars WHERE hotel_id = ?', [hotelId]);
+  await connection.query('DELETE FROM onboarding_fb_bars WHERE hotel_id = ?', [hotelId]);
 
   // Insert new bars
   if (bars.length > 0) {
@@ -97,7 +97,7 @@ const manageBars = async (connection, hotelId, bars) => {
     ]);
 
     const placeholders = bars.map(() => '(?, ?, ?, ?, ?, ?)').join(', ');
-    const sql = `INSERT INTO fb_bars (hotel_id, name, seats_indoor, exclusive_booking, opening_hours, snacks_available) VALUES ${placeholders}`;
+    const sql = `INSERT INTO onboarding_fb_bars (hotel_id, name, seats_indoor, exclusive_booking, opening_hours, snacks_available) VALUES ${placeholders}`;
     
     await connection.query(sql, barValues.flat());
   }
@@ -108,17 +108,17 @@ const manageBars = async (connection, hotelId, bars) => {
  */
 const getCompleteFbDetails = async (connection, hotelId) => {
   // Get main F&B details
-  const [fbDetails] = await connection.query('SELECT * FROM food_beverage_details WHERE hotel_id = ?', [hotelId]);
+  const [fbDetails] = await connection.query('SELECT * FROM onboarding_food_beverage_details WHERE hotel_id = ?', [hotelId]);
   
   if (fbDetails.length === 0) {
     return null;
   }
 
   // Get restaurants
-  const [restaurants] = await connection.query('SELECT * FROM fb_restaurants WHERE hotel_id = ? ORDER BY id', [hotelId]);
+  const [restaurants] = await connection.query('SELECT * FROM onboarding_fb_restaurants WHERE hotel_id = ? ORDER BY id', [hotelId]);
   
   // Get bars
-  const [bars] = await connection.query('SELECT * FROM fb_bars WHERE hotel_id = ? ORDER BY id', [hotelId]);
+  const [bars] = await connection.query('SELECT * FROM onboarding_fb_bars WHERE hotel_id = ? ORDER BY id', [hotelId]);
 
   return {
     ...fbDetails[0],
@@ -150,9 +150,11 @@ export const upsertFbDetails = async (req, res, next) => {
     connection = await pool.getConnection();
     await connection.beginTransaction();
 
-    // Ensure hotel exists
-    const [hotels] = await connection.query('SELECT id FROM hotels WHERE id = ?', [hotelId]);
-    if (hotels.length === 0) {
+    // Ensure hotel exists (check both hotels and onboarding_hotels tables)
+    const [onboardingHotels] = await connection.query('SELECT id FROM onboarding_hotels WHERE id = ?', [hotelId]);
+    const [regularHotels] = await connection.query('SELECT id FROM hotels WHERE id = ?', [hotelId]);
+    
+    if (onboardingHotels.length === 0 && regularHotels.length === 0) {
       await connection.rollback();
       return res.status(404).json({ error: `Hotel with ID ${hotelId} not found.` });
     }
@@ -163,7 +165,7 @@ export const upsertFbDetails = async (req, res, next) => {
       const placeholders = fields.map((f) => `${f} = VALUES(${f})`).join(', ');
       const values = fields.map((f) => detailsData[f]);
 
-      const sql = `INSERT INTO food_beverage_details (hotel_id, ${fields.join(', ')}) VALUES (?, ${fields
+      const sql = `INSERT INTO onboarding_food_beverage_details (hotel_id, ${fields.join(', ')}) VALUES (?, ${fields
         .map(() => '?')
         .join(', ')}) ON DUPLICATE KEY UPDATE ${placeholders}, updated_at = NOW()`;
 
@@ -171,7 +173,7 @@ export const upsertFbDetails = async (req, res, next) => {
     } else {
       // Ensure record exists even if no main details provided
       await connection.query(
-        'INSERT IGNORE INTO food_beverage_details (hotel_id) VALUES (?)',
+        'INSERT IGNORE INTO onboarding_food_beverage_details (hotel_id) VALUES (?)',
         [hotelId]
       );
     }
@@ -246,13 +248,13 @@ export const deleteFbDetails = async (req, res, next) => {
     await connection.beginTransaction();
 
     // Delete restaurants (will cascade due to foreign key)
-    await connection.query('DELETE FROM fb_restaurants WHERE hotel_id = ?', [hotelId]);
+    await connection.query('DELETE FROM onboarding_fb_restaurants WHERE hotel_id = ?', [hotelId]);
     
     // Delete bars (will cascade due to foreign key)
-    await connection.query('DELETE FROM fb_bars WHERE hotel_id = ?', [hotelId]);
+    await connection.query('DELETE FROM onboarding_fb_bars WHERE hotel_id = ?', [hotelId]);
     
     // Delete main F&B details
-    const [result] = await connection.query('DELETE FROM food_beverage_details WHERE hotel_id = ?', [hotelId]);
+    const [result] = await connection.query('DELETE FROM onboarding_food_beverage_details WHERE hotel_id = ?', [hotelId]);
     
     await connection.commit();
 
@@ -283,7 +285,7 @@ export const getRestaurants = async (req, res, next) => {
   let connection;
   try {
     connection = await pool.getConnection();
-    const [restaurants] = await connection.query('SELECT * FROM fb_restaurants WHERE hotel_id = ? ORDER BY id', [hotelId]);
+    const [restaurants] = await connection.query('SELECT * FROM onboarding_fb_restaurants WHERE hotel_id = ? ORDER BY id', [hotelId]);
     res.status(200).json({ success: true, data: restaurants });
   } catch (error) {
     console.error('Error in getRestaurants:', error);
@@ -306,7 +308,7 @@ export const getBars = async (req, res, next) => {
   let connection;
   try {
     connection = await pool.getConnection();
-    const [bars] = await connection.query('SELECT * FROM fb_bars WHERE hotel_id = ? ORDER BY id', [hotelId]);
+    const [bars] = await connection.query('SELECT * FROM onboarding_fb_bars WHERE hotel_id = ? ORDER BY id', [hotelId]);
     res.status(200).json({ success: true, data: bars });
   } catch (error) {
     console.error('Error in getBars:', error);

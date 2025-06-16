@@ -97,10 +97,9 @@ export default function FileUpload({
   };
 
   const handleUploadFiles = async () => {
-    if (!entityId) {
-      toast.error('Cannot upload files until the item is saved.');
-      return;
-    }
+    // Use 'new' as temporary entityId if not available
+    const effectiveEntityId = entityId || 'new';
+    
     // Check if any files are missing file types
     const missingTypes = filesToUpload.some(file => !file.fileTypeCode);
     if (missingTypes) {
@@ -126,7 +125,7 @@ export default function FileUpload({
       try {
         const response = await uploadFile(
           entityType,
-          entityId,
+          effectiveEntityId,
           category,
           updatedFiles[i].fileTypeCode,
           updatedFiles[i].file,
@@ -151,7 +150,11 @@ export default function FileUpload({
     setIsUploading(false);
     
     if (successfulUploads.length > 0) {
-      toast.success(`Successfully uploaded ${successfulUploads.length} file(s)`);
+      if (!entityId) {
+        toast.success(`Successfully uploaded ${successfulUploads.length} file(s). They will be associated with the record when saved.`);
+      } else {
+        toast.success(`Successfully uploaded ${successfulUploads.length} file(s)`);
+      }
       setUploadedFiles(prev => [...prev, ...successfulUploads]);
       
       // Clear successfully uploaded files from the upload list
@@ -163,17 +166,16 @@ export default function FileUpload({
     }
   };
 
-  // Auto-upload effect: when entityId becomes available (not undefined/null) and we have pending/error files
+  // Auto-upload effect: when autoUpload is enabled and we have pending/error files
   useEffect(() => {
     if (!autoUpload) return;
-    if (!entityId) return;
 
     const hasPending = filesToUpload.some(f => f.status === 'pending' || f.status === 'error');
     if (hasPending && !isUploading) {
       handleUploadFiles();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoUpload, entityId, filesToUpload]);
+  }, [autoUpload, filesToUpload]);
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';

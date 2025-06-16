@@ -21,6 +21,7 @@ import { EventInput } from "@/types/events";
 import { submitChanges } from "@/apiClient/approvalApi";
 import { useAuth } from "@/context/AuthContext";
 import { getAuthToken } from "@/apiClient/authApi";
+import { assignTemporaryFiles } from "@/apiClient/filesApi";
 
 // Define the form data type
 export interface HotelFormData {
@@ -368,7 +369,6 @@ export function useHotelFormState() {
             city: formHotelData.city,
             country: formHotelData.country,
             phone: formHotelData.phone || undefined,
-            fax: formHotelData.fax || undefined,
             email: formHotelData.email,
             website: formHotelData.website || undefined,
             description: formHotelData.description || undefined,
@@ -431,6 +431,18 @@ export function useHotelFormState() {
                 console.log("createdHotelId set to:", hotelResponse.hotelId);
                 console.log("currentHotelId set to:", currentHotelId);
                 toast.success(`Hotel "${hotelResponse.name}" created (ID: ${hotelResponse.hotelId}).`);
+                
+                // Assign any temporary files to the new hotel
+                try {
+                  const assignResult = await assignTemporaryFiles('hotels', hotelResponse.hotelId);
+                  if (assignResult.updatedCount > 0) {
+                    toast.success(`Assigned ${assignResult.updatedCount} temporary files to hotel.`);
+                  }
+                } catch (fileError: any) {
+                  console.error("Error assigning temporary files:", fileError);
+                  // Don't fail the hotel creation process for file assignment errors
+                  toast.warning("Hotel created successfully, but there was an issue with file assignment.");
+                }
               } else {
                 console.error("=== HOTEL ID NOT FOUND IN RESPONSE ===");
                 console.error("Could not find hotel ID in response");
@@ -480,6 +492,18 @@ export function useHotelFormState() {
                 console.log(`Calling updateHotel for ID ${createdHotelId} with transformed data:`, hotelInput);
                 await updateHotel(createdHotelId, hotelInput);
                 toast.success(`Hotel "${hotelInput.name || 'Details'}" updated (ID: ${createdHotelId}).`);
+                
+                // Assign any temporary files to the updated hotel
+                try {
+                  const assignResult = await assignTemporaryFiles('hotels', createdHotelId);
+                  if (assignResult.updatedCount > 0) {
+                    toast.success(`Assigned ${assignResult.updatedCount} temporary files to hotel.`);
+                  }
+                } catch (fileError: any) {
+                  console.error("Error assigning temporary files:", fileError);
+                  // Don't fail the hotel update process for file assignment errors
+                  toast.warning("Hotel updated successfully, but there was an issue with file assignment.");
+                }
               } catch (updateError: any) {
                 console.error("Error updating hotel:", updateError);
                 toast.error(`Failed to update hotel: ${updateError.message}`);

@@ -104,4 +104,12 @@ export const uploadFile = async (
     
     xhr.send(formData);
   });
+};
+
+// Assign temporary files to an entity
+export const assignTemporaryFiles = async (
+  entityType: string,
+  entityId: number | string
+): Promise<{ message: string; updatedCount: number }> => {
+  return apiPost(`/files/assign/${entityType}/${entityId}`, {});
 }; 
