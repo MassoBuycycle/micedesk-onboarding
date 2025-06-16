@@ -608,6 +608,36 @@
       },
       "accounting": {
         "sectionTitle": "Accounting Handling"
+      },
+      "spaces": {
+        "title": "Event Spaces",
+        "subtitle": "Define event spaces and their characteristics for",
+        "addSpace": "Add Event Space",
+        "spaceNumber": "Event Space",
+        "enterDetails": "Enter the details for this event space",
+        "spaceName": "Space Name",
+        "spaceNamePlaceholder": "e.g., Grand Ballroom, Conference Room A",
+        "maximumCapacity": "Maximum Capacity",
+        "maximumCapacityPlaceholder": "Maximum number of attendees",
+        "sizeSquareMeters": "Size (sqm)",
+        "sizePlaceholder": "Space size in square meters",
+        "dimensions": "Dimensions",
+        "dimensionsPlaceholder": "Dimensions (e.g., 10m x 15m)",
+        "dailyRate": "Daily Rate (€)",
+        "dailyRatePlaceholder": "Base rate per day",
+        "halfDayRate": "Half-Day Rate (€)",
+        "halfDayRatePlaceholder": "Base rate for half day",
+        "description": "Description",
+        "descriptionPlaceholder": "Detailed description of this event space",
+        "seatingCapacities": "Seating Capacities",
+        "theatre": "Theatre",
+        "classroom": "Classroom",
+        "uShape": "U-Shape",
+        "boardroom": "Boardroom",
+        "rounds": "Rounds",
+        "cabaret": "Cabaret",
+        "validationRequired": "Please provide a name for all event spaces",
+        "mustHaveOne": "You must have at least one event space"
       }
     }
   },

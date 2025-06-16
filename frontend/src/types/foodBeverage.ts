@@ -1,40 +1,71 @@
+export interface Restaurant {
+  id?: number | string;
+  name: string;
+  cuisine: string;
+  seats_indoor: number;
+  seats_outdoor: number;
+  exclusive_booking: boolean;
+  minimum_price: number;
+  opening_hours: string;
+}
+
+export interface Bar {
+  id?: number | string;
+  name: string;
+  seats_indoor: number;
+  exclusive_booking: boolean;
+  opening_hours: string;
+  snacks_available: boolean;
+}
+
 export interface FoodBeverageDetails {
   id?: number;
   hotel_id: number;
-  fnb_contact_position: string;
+  
+  // Contact Details / Ansprechpartner
   fnb_contact_name: string;
+  fnb_contact_position: string;
   fnb_contact_phone: string;
   fnb_contact_email: string;
-  restaurant_name_1: string;
-  restaurant_cuisine: string;
-  restaurant_seats: number;
-  restaurant_opening_hours: string;
-  restaurant_exclusive: boolean;
-  restaurant_price_minimum: number;
-  bar_name_1: string;
-  bar_seats: number;
-  bar_exclusive: boolean;
-  bar_snacks_available: boolean;
-  bar_opening_hours: string;
-  service_times: string;
+  
+  // Outlets 
+  total_restaurants: number;
+  restaurants: Restaurant[];
+  bars: Bar[];
+  
+  // Room Service
+  room_service_available: boolean;
+  room_service_hours: string;
+  
+  // Breakfast / Frühstück
   breakfast_restaurant_name: string;
-  breakfast_start_time: string;
+  breakfast_hours: string;
   breakfast_cost_per_person: number;
   breakfast_cost_per_child: number;
-  breakfast_event_available: boolean;
-  operational_lead_time: string;
-  allergy_diet_deadline: string;
-  buffet_minimum_persons: number;
-  fnb_packages_available: boolean;
-  extra_packages_customized: boolean;
-  coffee_break_items: string;
-  lunch_standard_items: string;
-  buffet_minimum_for_lunch: number;
-  function_created_by: string;
-  function_completion_time: string;
-  function_required_depts: string;
-  function_meeting_people: string;
-  mice_desk_involvement: string;
+  breakfast_child_pricing_tiers: string; // Preisstaffelung
+  breakfast_room_used_for_events: boolean;
+  
+  // Operational Handling
+  staff_planning_lead_time: string; // Personalplanung Vorlaufzeit
+  special_diet_allergy_deadline: string; // Spezielle Diäten/Allergien Deadline
+  
+  // F&B Packages
+  conference_packages_offered: string; // Tagungspauschalen
+  additional_packages_bookable: boolean; // Zusatzbausteine buchbar
+  existing_packages_customizable: boolean; // Bestehende Pauschalen anpassbar
+  coffee_break_inclusions: string; // Kaffeepausen Inklusivleistungen
+  standard_lunch_offerings: string; // Standard Mittagessen
+  buffet_minimum_persons: number; // Buffet ab X Personen
+  additional_packages_available: string; // Weitere Pauschalen (z.B. Getränkepauschalen)
+  
+  // Functions
+  functions_created_by: string; // Functions erstellt von
+  functions_completion_deadline: string; // Functions Fertigstellung
+  departments_requiring_functions: string; // Abteilungen die Functions benötigen
+  function_meeting_schedule: string; // Function Meeting wann und wie
+  function_meeting_participants: string; // Wer ist beim Function Meeting dabei
+  mice_desk_involvement: string; // MICE DESK Beteiligung
+  
   created_at?: Date;
   updated_at?: Date;
 } 

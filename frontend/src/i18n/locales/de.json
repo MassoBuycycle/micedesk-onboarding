@@ -724,6 +724,36 @@
       },
       "accounting": {
         "sectionTitle": "Handling Buchhaltung"
+      },
+      "spaces": {
+        "title": "Veranstaltungsräume",
+        "subtitle": "Definieren Sie Veranstaltungsräume und deren Eigenschaften für",
+        "addSpace": "Veranstaltungsraum hinzufügen",
+        "spaceNumber": "Veranstaltungsraum",
+        "enterDetails": "Geben Sie die Details für diesen Veranstaltungsraum ein",
+        "spaceName": "Raumname",
+        "spaceNamePlaceholder": "z.B. Großer Ballsaal, Konferenzraum A",
+        "maximumCapacity": "Maximale Kapazität",
+        "maximumCapacityPlaceholder": "Maximale Anzahl der Teilnehmer",
+        "sizeSquareMeters": "Größe (qm)",
+        "sizePlaceholder": "Raumgröße in Quadratmetern",
+        "dimensions": "Abmessungen",
+        "dimensionsPlaceholder": "Abmessungen (z.B. 10m x 15m)",
+        "dailyRate": "Tagesrate (€)",
+        "dailyRatePlaceholder": "Grundpreis pro Tag",
+        "halfDayRate": "Halbtagesrate (€)",
+        "halfDayRatePlaceholder": "Grundpreis für halben Tag",
+        "description": "Beschreibung",
+        "descriptionPlaceholder": "Detaillierte Beschreibung dieses Veranstaltungsraums",
+        "seatingCapacities": "Bestuhlung",
+        "theatre": "Theater",
+        "classroom": "Schulung",
+        "uShape": "U-Form",
+        "boardroom": "Boardroom",
+        "rounds": "Rundtische",
+        "cabaret": "Cabaret",
+        "validationRequired": "Bitte geben Sie einen Namen für alle Veranstaltungsräume an",
+        "mustHaveOne": "Sie müssen mindestens einen Veranstaltungsraum haben"
       }
     }
   },
