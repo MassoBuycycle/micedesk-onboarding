@@ -1,6 +1,6 @@
 import { API_BASE_URL } from './config';
 import { Hotel } from './hotelsApi';
-import { apiGet, apiPost, apiDelete } from './apiClient';
+import { apiGet, apiPost, apiDelete, getAuthHeaders, handleResponseError } from './apiClient';
 
 // Define interfaces for user-hotel assignments
 export interface UserHotelAssignment {
@@ -34,10 +34,32 @@ export const getUsersByHotelId = async (hotelId: number | string): Promise<UserW
 };
 
 /**
- * Assign a user to a hotel
+ * Assign a user to a hotel, but treat HTTP 409 (duplicate) as success to avoid confusing error toasts
  */
-export const assignUserToHotel = async (assignment: UserHotelAssignment): Promise<{ success: boolean, message: string }> => {
-  return apiPost('/user-hotels/assignments', assignment, 'Failed to assign user to hotel');
+export const assignUserToHotel = async (
+  assignment: UserHotelAssignment
+): Promise<{ success: boolean; message?: string; duplicate?: boolean }> => {
+  const endpoint = '/user-hotels/assignments';
+  const defaultError = 'Failed to assign user to hotel';
+
+  const headers = getAuthHeaders();
+
+  // We re-implement the POST here to get access to the raw status code
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(assignment),
+  });
+
+  // If the user was already assigned the backend may respond with 409
+  if (response.status === 409) {
+    // Consider this a non-fatal situation – the desired state is achieved
+    return { success: true, duplicate: true };
+  }
+
+  // For all other status codes, use the generic handler
+  const data = await handleResponseError(response, defaultError);
+  return data;
 };
 
 /**
