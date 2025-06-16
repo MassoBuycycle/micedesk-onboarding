@@ -7,6 +7,16 @@ import { getSignedUrl, deleteFile, moveFile } from '../services/s3Service.js';
  */
 export const uploadFile = async (req, res) => {
   try {
+    // Verbose logging for debugging uploads
+    console.log('[UPLOAD] Incoming request', {
+      params: req.params,
+      headers: {
+        'content-type': req.headers['content-type'],
+        'content-length': req.headers['content-length'],
+        'user-agent': req.headers['user-agent']
+      }
+    });
+
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
@@ -25,6 +35,14 @@ export const uploadFile = async (req, res) => {
       key,
       location
     } = req.file;
+    
+    console.log('[UPLOAD] File processed by multer', {
+      originalname,
+      mimetype,
+      size,
+      key,
+      location
+    });
     
     // Get the file type ID
     const [fileTypeRows] = await pool.query(

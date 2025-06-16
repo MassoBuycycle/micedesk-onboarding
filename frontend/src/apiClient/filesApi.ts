@@ -79,6 +79,23 @@ export const uploadFile = async (
   
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
+
+    // Gather runtime info for debug
+    const debugInfo = {
+      url: fullUrl,
+      method: 'POST',
+      entityType,
+      entityId,
+      category,
+      fileTypeCode,
+      fileName: file.name,
+      fileSize: file.size,
+    };
+
+    console.groupCollapsed('[UPLOAD] Initialising upload');
+    console.table(debugInfo);
+    console.groupEnd();
+
     xhr.open('POST', fullUrl);
     
     // Debug authentication
@@ -102,6 +119,11 @@ export const uploadFile = async (
     };
     
     xhr.onload = () => {
+      console.groupCollapsed('[UPLOAD] Upload completed');
+      console.log('Status:', xhr.status, xhr.statusText);
+      console.log('All response headers:\n', xhr.getAllResponseHeaders());
+      console.groupEnd();
+
       if (xhr.status >= 200 && xhr.status < 300) {
         resolve(JSON.parse(xhr.responseText));
       } else {
@@ -118,10 +140,11 @@ export const uploadFile = async (
         }
         
         console.error('Upload failed:', {
+          ...debugInfo,
           status: xhr.status,
           statusText: xhr.statusText,
           responseText: xhr.responseText,
-          url: fullUrl
+          url: fullUrl,
         });
         
         reject(new Error(errorMessage));
@@ -129,6 +152,7 @@ export const uploadFile = async (
     };
     
     xhr.onerror = () => {
+      console.error('[UPLOAD] Network error', debugInfo);
       reject(new Error('Network error during file upload'));
     };
     
