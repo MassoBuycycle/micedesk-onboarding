@@ -121,7 +121,7 @@ export default function SectionFileUpload({
               entityType={uploadEntityType}
               entityId={uploadEntityId}
               category={uploadCategory}
-              autoUpload
+              autoUpload={false}
               onSuccess={handleUploadSuccess}
             />
 

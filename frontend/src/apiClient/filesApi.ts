@@ -79,8 +79,17 @@ export const uploadFile = async (
     const xhr = new XMLHttpRequest();
     xhr.open('POST', `${import.meta.env.VITE_API_URL || ''}/api${urlPath}`);
     
+    // Debug authentication
+    console.log('Upload request details:', {
+      url: `${import.meta.env.VITE_API_URL || ''}/api${urlPath}`,
+      hasToken: !!token,
+      tokenPrefix: token ? token.substring(0, 10) + '...' : 'none'
+    });
+    
     if (token) {
       xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+    } else {
+      console.warn('No authentication token found - this may cause a 401/405 error');
     }
     
     xhr.upload.onprogress = (e) => {
@@ -94,7 +103,26 @@ export const uploadFile = async (
       if (xhr.status >= 200 && xhr.status < 300) {
         resolve(JSON.parse(xhr.responseText));
       } else {
-        reject(new Error(`Failed to upload file: ${xhr.statusText}`));
+        // Enhanced error handling for debugging
+        let errorMessage = `HTTP ${xhr.status}: ${xhr.statusText}`;
+        try {
+          const errorResponse = JSON.parse(xhr.responseText);
+          errorMessage = errorResponse.error || errorResponse.message || errorMessage;
+        } catch (e) {
+          // If response isn't JSON, include the raw response text for debugging
+          if (xhr.responseText) {
+            errorMessage += ` - Response: ${xhr.responseText.substring(0, 200)}`;
+          }
+        }
+        
+        console.error('Upload failed:', {
+          status: xhr.status,
+          statusText: xhr.statusText,
+          responseText: xhr.responseText,
+          url: `${import.meta.env.VITE_API_URL || ''}/api${urlPath}`
+        });
+        
+        reject(new Error(errorMessage));
       }
     };
     
