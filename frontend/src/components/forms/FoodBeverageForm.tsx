@@ -452,7 +452,7 @@ const FoodBeverageForm = ({
                 <Label htmlFor={`restaurant-name-${restaurant.id}`}>Name Restaurant*</Label>
                 <Input 
                   id={`restaurant-name-${restaurant.id}`}
-                  value={restaurant.name}
+                  value={typeof restaurant.name === 'object' ? '' : restaurant.name}
                   onChange={(e) => updateRestaurant(restaurant.id!, "name", e.target.value)}
                   placeholder="Name des Restaurants"
                 />
@@ -461,7 +461,7 @@ const FoodBeverageForm = ({
                 <Label htmlFor={`restaurant-cuisine-${restaurant.id}`}>Küche</Label>
                 <Input 
                   id={`restaurant-cuisine-${restaurant.id}`}
-                  value={restaurant.cuisine}
+                  value={typeof restaurant.cuisine === 'object' ? '' : restaurant.cuisine}
                   onChange={(e) => updateRestaurant(restaurant.id!, "cuisine", e.target.value)}
                   placeholder="Art der Küche"
                 />
@@ -491,7 +491,7 @@ const FoodBeverageForm = ({
                   <Label htmlFor={`restaurant-exclusive-${restaurant.id}`}>Kann das Restaurant exklusiv gemietet werden?</Label>
                   <Switch 
                     id={`restaurant-exclusive-${restaurant.id}`}
-                    checked={restaurant.exclusive_booking}
+                    checked={typeof restaurant.exclusive_booking === 'object' ? false : restaurant.exclusive_booking}
                     onCheckedChange={(val) => updateRestaurant(restaurant.id!, "exclusive_booking", val)}
                   />
                 </div>
@@ -557,7 +557,7 @@ const FoodBeverageForm = ({
                 <Label htmlFor={`bar-name-${bar.id}`}>Name der Bar*</Label>
                 <Input 
                   id={`bar-name-${bar.id}`}
-                  value={bar.name}
+                  value={typeof bar.name === 'object' ? '' : bar.name}
                   onChange={(e) => updateBar(bar.id!, "name", e.target.value)}
                   placeholder="Name der Bar"
                 />
@@ -577,7 +577,7 @@ const FoodBeverageForm = ({
                   <Label htmlFor={`bar-exclusive-${bar.id}`}>Kann die Bar exklusiv gemietet werden?</Label>
                   <Switch 
                     id={`bar-exclusive-${bar.id}`}
-                    checked={bar.exclusive_booking}
+                    checked={typeof bar.exclusive_booking === 'object' ? false : bar.exclusive_booking}
                     onCheckedChange={(val) => updateBar(bar.id!, "exclusive_booking", val)}
                   />
                 </div>
@@ -587,7 +587,7 @@ const FoodBeverageForm = ({
                   <Label htmlFor={`bar-snacks-${bar.id}`}>Bietet ihr Snacks an der Bar an?</Label>
                   <Switch 
                     id={`bar-snacks-${bar.id}`}
-                    checked={bar.snacks_available}
+                    checked={typeof bar.snacks_available === 'object' ? false : bar.snacks_available}
                     onCheckedChange={(val) => updateBar(bar.id!, "snacks_available", val)}
                   />
                 </div>
@@ -626,7 +626,7 @@ const FoodBeverageForm = ({
                 <Label htmlFor="room_service_hours">Servicezeiten</Label>
                 <Input 
                   id="room_service_hours"
-                  value={formData.room_service_hours}
+                  value={typeof formData.room_service_hours === 'object' ? '' : formData.room_service_hours}
                   onChange={(e) => updateField("room_service_hours", e.target.value)}
                   placeholder="z.B. 06:00-23:00 oder 24h"
                 />
@@ -646,7 +646,7 @@ const FoodBeverageForm = ({
             <Label htmlFor="breakfast_restaurant_name">Name des Restaurants</Label>
             <Input 
               id="breakfast_restaurant_name"
-              value={formData.breakfast_restaurant_name}
+              value={typeof formData.breakfast_restaurant_name === 'object' ? '' : formData.breakfast_restaurant_name}
               onChange={(e) => updateField("breakfast_restaurant_name", e.target.value)}
             />
           </div>
@@ -654,7 +654,7 @@ const FoodBeverageForm = ({
             <Label htmlFor="breakfast_hours">Frühstückszeiten</Label>
             <Input 
               id="breakfast_hours"
-              value={formData.breakfast_hours}
+              value={typeof formData.breakfast_hours === 'object' ? '' : formData.breakfast_hours}
               onChange={(e) => updateField("breakfast_hours", e.target.value)}
               placeholder="z.B. 06:30-10:30"
             />
@@ -683,7 +683,7 @@ const FoodBeverageForm = ({
             <Label htmlFor="breakfast_child_pricing_tiers">Kosten pro Kind (Preisstaffelung)</Label>
             <Textarea 
               id="breakfast_child_pricing_tiers"
-              value={formData.breakfast_child_pricing_tiers}
+              value={typeof formData.breakfast_child_pricing_tiers === 'object' ? '' : formData.breakfast_child_pricing_tiers}
               onChange={(e) => updateField("breakfast_child_pricing_tiers", e.target.value)}
               placeholder="z.B. 0-3 Jahre kostenlos, 4-12 Jahre 50% Rabatt"
             />
@@ -711,7 +711,7 @@ const FoodBeverageForm = ({
             <Label htmlFor="staff_planning_lead_time">Wie lange im Voraus findet die Personalplanung statt?</Label>
             <Input 
               id="staff_planning_lead_time"
-              value={formData.staff_planning_lead_time}
+              value={typeof formData.staff_planning_lead_time === 'object' ? '' : formData.staff_planning_lead_time}
               onChange={(e) => updateField("staff_planning_lead_time", e.target.value)}
               placeholder="z.B. 2 Wochen"
             />
@@ -720,7 +720,7 @@ const FoodBeverageForm = ({
             <Label htmlFor="special_diet_allergy_deadline">Wie lange im Voraus müssen spezielle Diäten oder Allergien bekannt sein?</Label>
             <Input 
               id="special_diet_allergy_deadline"
-              value={formData.special_diet_allergy_deadline}
+              value={typeof formData.special_diet_allergy_deadline === 'object' ? '' : formData.special_diet_allergy_deadline}
               onChange={(e) => updateField("special_diet_allergy_deadline", e.target.value)}
               placeholder="z.B. 48 Stunden"
             />
@@ -738,7 +738,7 @@ const FoodBeverageForm = ({
             <Label htmlFor="conference_packages_offered">Welche Tagungspauschalen werden angeboten?</Label>
             <Textarea 
               id="conference_packages_offered"
-              value={formData.conference_packages_offered}
+              value={typeof formData.conference_packages_offered === 'object' ? '' : formData.conference_packages_offered}
               onChange={(e) => updateField("conference_packages_offered", e.target.value)}
               placeholder="Beschreiben Sie die verfügbaren Tagungspauschalen"
             />
@@ -771,7 +771,7 @@ const FoodBeverageForm = ({
             <Label htmlFor="coffee_break_inclusions">Was ist in den Kaffeepausen enthalten?</Label>
             <Textarea 
               id="coffee_break_inclusions"
-              value={formData.coffee_break_inclusions}
+              value={typeof formData.coffee_break_inclusions === 'object' ? '' : formData.coffee_break_inclusions}
               onChange={(e) => updateField("coffee_break_inclusions", e.target.value)}
               placeholder="Beschreiben Sie die Inklusivleistungen der Kaffeepausen"
             />
@@ -781,7 +781,7 @@ const FoodBeverageForm = ({
             <Label htmlFor="standard_lunch_offerings">Was wird standardmäßig zum Mittagessen angeboten?</Label>
             <Textarea 
               id="standard_lunch_offerings"
-              value={formData.standard_lunch_offerings}
+              value={typeof formData.standard_lunch_offerings === 'object' ? '' : formData.standard_lunch_offerings}
               onChange={(e) => updateField("standard_lunch_offerings", e.target.value)}
               placeholder="Beschreiben Sie das Standard-Mittagsangebot"
             />
@@ -802,7 +802,7 @@ const FoodBeverageForm = ({
             <Label htmlFor="additional_packages_available">Gibt es weitere Pauschalen, z.B. Getränkepauschalen?</Label>
             <Textarea 
               id="additional_packages_available"
-              value={formData.additional_packages_available}
+              value={typeof formData.additional_packages_available === 'object' ? '' : formData.additional_packages_available}
               onChange={(e) => updateField("additional_packages_available", e.target.value)}
               placeholder="Beschreiben Sie weitere verfügbare Pakete"
             />
@@ -820,7 +820,7 @@ const FoodBeverageForm = ({
             <Label htmlFor="functions_created_by">Wie werden die Functions erstellt?</Label>
             <Input 
               id="functions_created_by"
-              value={formData.functions_created_by}
+              value={typeof formData.functions_created_by === 'object' ? '' : formData.functions_created_by}
               onChange={(e) => updateField("functions_created_by", e.target.value)}
             />
           </div>
@@ -828,7 +828,7 @@ const FoodBeverageForm = ({
             <Label htmlFor="functions_completion_deadline">Wann müssen die Functions fertig sein?</Label>
             <Input 
               id="functions_completion_deadline"
-              value={formData.functions_completion_deadline}
+              value={typeof formData.functions_completion_deadline === 'object' ? '' : formData.functions_completion_deadline}
               onChange={(e) => updateField("functions_completion_deadline", e.target.value)}
             />
           </div>
@@ -836,7 +836,7 @@ const FoodBeverageForm = ({
             <Label htmlFor="departments_requiring_functions">Welche Abteilungen benötigen Functions?</Label>
             <Input 
               id="departments_requiring_functions"
-              value={formData.departments_requiring_functions}
+              value={typeof formData.departments_requiring_functions === 'object' ? '' : formData.departments_requiring_functions}
               onChange={(e) => updateField("departments_requiring_functions", e.target.value)}
             />
           </div>
@@ -844,7 +844,7 @@ const FoodBeverageForm = ({
             <Label htmlFor="function_meeting_schedule">Wann findet das Functionsmeeting statt und wie?</Label>
             <Input 
               id="function_meeting_schedule"
-              value={formData.function_meeting_schedule}
+              value={typeof formData.function_meeting_schedule === 'object' ? '' : formData.function_meeting_schedule}
               onChange={(e) => updateField("function_meeting_schedule", e.target.value)}
             />
           </div>
@@ -852,7 +852,7 @@ const FoodBeverageForm = ({
             <Label htmlFor="function_meeting_participants">Wer ist beim Functionmeeting dabei?</Label>
             <Input 
               id="function_meeting_participants"
-              value={formData.function_meeting_participants}
+              value={typeof formData.function_meeting_participants === 'object' ? '' : formData.function_meeting_participants}
               onChange={(e) => updateField("function_meeting_participants", e.target.value)}
             />
           </div>
@@ -860,7 +860,7 @@ const FoodBeverageForm = ({
             <Label htmlFor="mice_desk_involvement">In welcher Form sollte MICE DESK anwesend sein?</Label>
             <Textarea 
               id="mice_desk_involvement"
-              value={formData.mice_desk_involvement}
+              value={typeof formData.mice_desk_involvement === 'object' ? '' : formData.mice_desk_involvement}
               onChange={(e) => updateField("mice_desk_involvement", e.target.value)}
             />
           </div>
