@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { upsertFoodBeverageDetails } from "@/apiClient/fbDetailsApi";
 import { Restaurant, Bar, FoodBeverageDetails } from "@/types/foodBeverage";
 import PhoneInput from '@/components/shared/PhoneInput';
+import SuccessDialog from '@/components/dialogs/SuccessDialog';
 
 // Fallback UUID generator for environments where crypto.randomUUID() is not available
 const generateId = (): string => {
@@ -65,6 +66,7 @@ const FoodBeverageForm = ({
 }: FoodBeverageFormProps) => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   
   // Early return with error handling if selectedHotel is not provided
   if (!selectedHotel) {
@@ -328,11 +330,8 @@ const FoodBeverageForm = ({
       await upsertFoodBeverageDetails(hotelId, payload);
       console.log("✅ F&B details saved for hotel", hotelId);
       
-      toast.success("Hotel erfolgreich hinzugefügt", {
-        description: `${selectedHotel.name || "Neues Hotel"} wurde zur Datenbank hinzugefügt.`
-      });
-      
-      navigate("/");
+      // Show success dialog instead of immediate navigation
+      setShowSuccessDialog(true);
     } catch (error) {
       console.error("Error submitting form:", error);
       toast.error("Fehler beim Hinzufügen des Hotels", {
@@ -921,6 +920,17 @@ const FoodBeverageForm = ({
           </Button>
         )}
       </div>
+
+      {/* Success Dialog */}
+      <SuccessDialog 
+        open={showSuccessDialog}
+        onOpenChange={setShowSuccessDialog}
+        title="F&B Details Successfully Saved!"
+        description="All Food & Beverage information has been saved successfully."
+        hotelId={selectedHotel?.id}
+        hotelName={selectedHotel?.name}
+        redirectDelay={3}
+      />
     </div>
   );
 };
