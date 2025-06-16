@@ -7,7 +7,9 @@ import {
 import {
     upsertFbDetails,
     getFbDetails,
-    deleteFbDetails
+    deleteFbDetails,
+    getRestaurants,
+    getBars
 } from '../controllers/fbDetailsController.js';
 
 const router = express.Router({ mergeParams: true }); // mergeParams allows access to :hotelId from parent router
@@ -34,5 +36,9 @@ router.delete('/contact', deleteFbContact);
 router.post('/details', upsertFbDetails);
 router.get('/details', getFbDetails);
 router.delete('/details', deleteFbDetails);
+
+// Individual restaurant and bar routes (for convenience)
+router.get('/restaurants', getRestaurants); // Get all restaurants for hotel
+router.get('/bars', getBars); // Get all bars for hotel
 
 export default router; 
