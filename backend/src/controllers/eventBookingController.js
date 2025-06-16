@@ -48,7 +48,7 @@ export const createOrUpdateEventBooking = async (req, res) => {
 
     // Check if booking data already exists for this event
     const [existingRows] = await connection.query(
-      'SELECT id FROM event_booking WHERE event_id = ?',
+      'SELECT event_id FROM event_booking WHERE event_id = ?',
       [eventId]
     );
     
