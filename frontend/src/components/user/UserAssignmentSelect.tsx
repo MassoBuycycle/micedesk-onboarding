@@ -93,6 +93,8 @@ const UserAssignmentSelect = ({ hotelId, hotelName, onAssignUser }: UserAssignme
   const [open, setOpen] = useState(false);
   const prevHotelIdRef = useRef<string | null>(null);
   const isFetchingRef = useRef(false);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const [triggerWidth, setTriggerWidth] = useState<number>(0);
   
   useEffect(() => {
     const fetchData = async () => {
@@ -160,6 +162,13 @@ const UserAssignmentSelect = ({ hotelId, hotelName, onAssignUser }: UserAssignme
     
     fetchData();
   }, [hotelId, hotelName]);
+
+  // Capture trigger width whenever popover opens
+  useEffect(() => {
+    if (open && triggerRef.current) {
+      setTriggerWidth(triggerRef.current.offsetWidth);
+    }
+  }, [open]);
 
   const handleToggleUser = (userId: string) => {
     setSelectedUserIds(prev => 
@@ -269,22 +278,28 @@ const UserAssignmentSelect = ({ hotelId, hotelName, onAssignUser }: UserAssignme
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={open}
-              className="w-full sm:w-[250px] justify-between"
-            >
-              {selectedUserIds.length > 0
-                ? `${selectedUserIds.length} user${selectedUserIds.length !== 1 ? 's' : ''} selected`
-                : "Select users to assign"}
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent align="center" sideOffset={8} className="w-full sm:w-[480px] p-0">
+      {/* Select Trigger */}
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            ref={triggerRef}
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full justify-between"
+          >
+            {selectedUserIds.length > 0
+              ? `${selectedUserIds.length} user${selectedUserIds.length !== 1 ? 's' : ''} selected`
+              : "Select users to assign"}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+         <PopoverContent
+           align="center"
+           sideOffset={4}
+           style={{ width: triggerWidth || '100%' }}
+           className="max-h-64 overflow-auto p-0"
+         >
             <Command>
               <CommandInput placeholder="Search users..." />
               <CommandEmpty>No users found.</CommandEmpty>
@@ -329,14 +344,16 @@ const UserAssignmentSelect = ({ hotelId, hotelName, onAssignUser }: UserAssignme
           </PopoverContent>
         </Popover>
         
-        <Button 
-          onClick={handleAssignUsers} 
-          disabled={selectedUserIds.length === 0}
-          className="w-full sm:w-auto"
-        >
-          <UserPlus className="mr-2 h-4 w-4" />
-          Assign Users
-        </Button>
+        {/* Action bar */}
+        <div className="flex justify-end">
+          <Button 
+            onClick={handleAssignUsers} 
+            disabled={selectedUserIds.length === 0}
+          >
+            <UserPlus className="mr-2 h-4 w-4" />
+            Assign Users
+          </Button>
+        </div>
       </div>
 
       {assignedUsers.length > 0 && (
