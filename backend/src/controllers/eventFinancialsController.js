@@ -101,7 +101,7 @@ export const createOrUpdateEventFinancials = async (req, res) => {
       
       // Check if financials record exists
       const [existingRows] = await connection.query(
-        'SELECT id FROM event_financials WHERE event_id = ?',
+        'SELECT event_id FROM event_financials WHERE event_id = ?',
         [eventId]
       );
       

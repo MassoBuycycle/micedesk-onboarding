@@ -68,7 +68,7 @@ export const createOrUpdateTechnical = async (req, res, next) => {
     
     // Check if technical info already exists
     const [existingInfo] = await connection.query(
-      'SELECT id FROM event_technical WHERE event_id = ?',
+      'SELECT event_id FROM event_technical WHERE event_id = ?',
       [eventId]
     );
     

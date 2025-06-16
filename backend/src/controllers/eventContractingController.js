@@ -68,7 +68,7 @@ export const createOrUpdateContracting = async (req, res, next) => {
     
     // Check if contracting info already exists
     const [existingInfo] = await connection.query(
-      'SELECT id FROM event_contracting WHERE event_id = ?',
+      'SELECT event_id FROM event_contracting WHERE event_id = ?',
       [eventId]
     );
     
