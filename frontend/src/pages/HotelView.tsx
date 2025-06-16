@@ -6,9 +6,9 @@ import { getInformationPoliciesByHotel, InformationPolicy } from "@/apiClient/in
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { 
   Download, MapPin, Phone, Mail, Globe, Car, Train, Plane, UserPlus, 
-  Pencil, Trash, Speaker, Building2, Calendar, Users, BedDouble, 
+  Pencil, Trash, Speaker, Building2, Calendar, Users, User, BedDouble, 
   Utensils, FileText, Image, Clock, Shield, CreditCard,
-  Contact, Info, Hotel, Star
+  Contact, Info, Hotel, Star, ClipboardList
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { deleteHotel } from "@/apiClient/hotelsApi";
@@ -44,7 +44,10 @@ const HotelView = () => {
   });
 
   const hotel = hotelData?.hotel;
+  const hotelAny = hotel as any;
   const fbDetails = hotelData?.fnb;
+  const eventsInfo: any = (hotelData as any)?.eventsInfo || {};
+  const roomHandling: any = (hotelData as any)?.roomHandling || null;
   const files = hotelData?.files ?? [];
   const imageFiles = files.filter(f => f.mime_type.startsWith("image"));
   const documentFiles = files.filter(f => !f.mime_type.startsWith("image"));
@@ -125,8 +128,8 @@ const HotelView = () => {
                 {hotel.category && (
                   <Badge variant="outline">{hotel.category}</Badge>
                 )}
-                {hotel.hotel_id && (
-                  <Badge variant="outline" className="font-mono">ID: {hotel.hotel_id}</Badge>
+                {hotelAny && hotelAny.hotel_id && (
+                  <Badge variant="outline" className="font-mono">ID: {hotelAny.hotel_id}</Badge>
                 )}
               </div>
             </div>
@@ -243,6 +246,52 @@ const HotelView = () => {
                         </a>
                       </div>
                     )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* General Manager */}
+              {(hotelAny?.general_manager_name || hotelAny?.general_manager_email || hotelAny?.general_manager_phone) && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <User className="h-5 w-5" />
+                      {t('hotel.generalManagerSection')}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {hotelAny?.general_manager_name && (
+                      <p className="font-medium">{hotelAny.general_manager_name}</p>
+                    )}
+                    {hotelAny?.general_manager_phone && (
+                      <div className="flex items-center gap-3">
+                        <Phone className="h-4 w-4 text-muted-foreground" />
+                        <span>{hotelAny.general_manager_phone}</span>
+                      </div>
+                    )}
+                    {hotelAny?.general_manager_email && (
+                      <div className="flex items-center gap-3">
+                        <Mail className="h-4 w-4 text-muted-foreground" />
+                        <a href={`mailto:${hotelAny.general_manager_email}`} className="text-primary hover:underline">
+                          {hotelAny.general_manager_email}
+                        </a>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Hotel Description */}
+              {hotelAny?.description && (
+                <Card className="md:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Info className="h-5 w-5" />
+                      {t('hotel.description')}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm whitespace-pre-wrap">{hotelAny.description}</p>
                   </CardContent>
                 </Card>
               )}
@@ -461,6 +510,12 @@ const HotelView = () => {
                       <p className="font-medium">{new Date(hotel.created_at).toLocaleDateString()}</p>
                     </div>
                   )}
+                  {hotelAny?.external_billing_id && (
+                    <div>
+                      <p className="text-sm text-muted-foreground">{t('hotel.allinvosCisboxNr')}</p>
+                      <p className="font-medium">{hotelAny.external_billing_id}</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -629,10 +684,53 @@ const HotelView = () => {
                 </CardContent>
               </Card>
             )}
+
+            {/* Room Handling Policies */}
+            {roomHandling && (
+              <>
+                <Separator />
+                <h3 className="text-lg font-semibold">{t('rooms.handling')}</h3>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <ClipboardList className="h-5 w-5" />
+                      {t('rooms.policies')}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {roomHandling.checkInTime && <div><p className="text-sm text-muted-foreground">{t('rooms.checkInTime')}</p><p className="font-medium">{roomHandling.checkInTime}</p></div>}
+                    {roomHandling.checkOutTime && <div><p className="text-sm text-muted-foreground">{t('rooms.checkOutTime')}</p><p className="font-medium">{roomHandling.checkOutTime}</p></div>}
+                    {roomHandling.guaranteePolicy && <div className="md:col-span-2"><p className="text-sm text-muted-foreground">{t('rooms.guaranteePolicy')}</p><p className="text-sm whitespace-pre-wrap">{roomHandling.guaranteePolicy}</p></div>}
+                    {roomHandling.cancellationPolicy && <div className="md:col-span-2"><p className="text-sm text-muted-foreground">{t('rooms.cancellationPolicy')}</p><p className="text-sm whitespace-pre-wrap">{roomHandling.cancellationPolicy}</p></div>}
+                    {roomHandling.noShowPolicy && <div className="md:col-span-2"><p className="text-sm text-muted-foreground">{t('rooms.noShowPolicy')}</p><p className="text-sm whitespace-pre-wrap">{roomHandling.noShowPolicy}</p></div>}
+                  </CardContent>
+                </Card>
+              </>
+            )}
           </TabsContent>
 
           {/* Events Tab - Comprehensive events information */}
           <TabsContent value="events" className="space-y-6 mt-6">
+            {/* Events Overview Info */}
+            {Object.keys(eventsInfo).length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Calendar className="h-5 w-5" />
+                    {t('events.overview')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {eventsInfo.totalEventSpaces && <div><p className="text-sm text-muted-foreground">{t('events.totalSpaces')}</p><p className="font-medium">{eventsInfo.totalEventSpaces}</p></div>}
+                  {eventsInfo.largestSpace && <div><p className="text-sm text-muted-foreground">{t('events.largestSpace')}</p><p className="font-medium">{eventsInfo.largestSpace} m²</p></div>}
+                  {eventsInfo.maxCapacity && <div><p className="text-sm text-muted-foreground">{t('events.maxCapacity')}</p><p className="font-medium">{eventsInfo.maxCapacity}</p></div>}
+                  {eventsInfo.eventCoordinator !== undefined && <div><p className="text-sm text-muted-foreground">{t('events.eventCoordinator')}</p><p className="font-medium">{eventsInfo.eventCoordinator ? t('common.yes') : t('common.no')}</p></div>}
+                  {eventsInfo.hasAudioVisual !== undefined && <div><p className="text-sm text-muted-foreground">{t('events.audioVisual')}</p><p className="font-medium">{eventsInfo.hasAudioVisual ? t('common.yes') : t('common.no')}</p></div>}
+                  {eventsInfo.cateringAvailable !== undefined && <div><p className="text-sm text-muted-foreground">{t('events.catering')}</p><p className="font-medium">{eventsInfo.cateringAvailable ? t('common.yes') : t('common.no')}</p></div>}
+                </CardContent>
+              </Card>
+            )}
+
             {/* Event Spaces */}
             {hotelData?.eventSpaces && hotelData.eventSpaces.length > 0 ? (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -684,33 +782,75 @@ const HotelView = () => {
 
           {/* Facilities Tab */}
           <TabsContent value="facilities" className="space-y-6 mt-6">
-            {/* Food & Beverage */}
             {fbDetails && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Utensils className="h-5 w-5" />
-                    {t('hotels.foodBeverage')}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {Object.entries(fbDetails).map(([key, value]) => {
-                      if (value === null || value === undefined || value === '') return null;
-                      return (
-                        <div key={key} className="space-y-1">
-                          <p className="text-sm text-muted-foreground capitalize">
-                            {key.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').trim()}
-                          </p>
-                          <p className="font-medium">
-                            {typeof value === 'boolean' ? (value ? t('common.yes') : t('common.no')) : String(value)}
-                          </p>
-                        </div>
-                      );
-                    })}
+              <div className="space-y-6">
+                {/* F&B Contact & General */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Utensils className="h-5 w-5" />
+                      {t('hotels.foodBeverage')}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {/* Display scalar values */}
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                      {Object.entries(fbDetails).filter(([k,v])=> typeof v !== 'object').map(([key, value])=>{
+                        if(value===null||value===undefined||value==='') return null;
+                        return (
+                          <div key={key} className="space-y-1">
+                            <p className="text-sm text-muted-foreground capitalize">{key.replace(/_/g,' ').replace(/([A-Z])/g,' $1').trim()}</p>
+                            <p className="font-medium">{typeof value==='boolean'? (value? t('common.yes'):t('common.no')): String(value)}</p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Restaurants */}
+                {Array.isArray(fbDetails.restaurants) && fbDetails.restaurants.length>0 && (
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">{t('restaurants.title', {count: fbDetails.restaurants.length})}</h3>
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                      {fbDetails.restaurants.map((rest: any, idx:number)=>(
+                        <Card key={idx}>
+                          <CardHeader>
+                            <CardTitle>{rest.name || `${t('restaurants.restaurant')} ${idx+1}`}</CardTitle>
+                          </CardHeader>
+                          <CardContent className="space-y-1 text-sm">
+                            {rest.cuisine && <p><span className="font-medium">{t('restaurants.cuisine')}:</span> {rest.cuisine}</p>}
+                            {rest.seats_indoor !== undefined && <p><span className="font-medium">{t('restaurants.seatsIndoor')}:</span> {rest.seats_indoor}</p>}
+                            {rest.seats_outdoor !== undefined && <p><span className="font-medium">{t('restaurants.seatsOutdoor')}:</span> {rest.seats_outdoor}</p>}
+                            {rest.opening_hours && <p><span className="font-medium">{t('restaurants.openingHours')}:</span> {rest.opening_hours}</p>}
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
+                )}
+
+                {/* Bars */}
+                {Array.isArray(fbDetails.bars) && fbDetails.bars.length>0 && (
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">{t('bars.title', {count: fbDetails.bars.length})}</h3>
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                      {fbDetails.bars.map((bar:any, idx:number)=>(
+                        <Card key={idx}>
+                          <CardHeader>
+                            <CardTitle>{bar.name || `${t('bars.bar')} ${idx+1}`}</CardTitle>
+                          </CardHeader>
+                          <CardContent className="space-y-1 text-sm">
+                            {bar.seats_indoor!==undefined && <p><span className="font-medium">{t('bars.seatsIndoor')}:</span> {bar.seats_indoor}</p>}
+                            {bar.opening_hours && <p><span className="font-medium">{t('bars.openingHours')}:</span> {bar.opening_hours}</p>}
+                            {bar.snacks_available!==undefined && <p><span className="font-medium">{t('bars.snacks')}:</span> {bar.snacks_available? t('common.yes'): t('common.no')}</p>}
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
 
             {/* Wellness Facilities */}
