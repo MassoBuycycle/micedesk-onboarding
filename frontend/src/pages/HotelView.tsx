@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { getFullHotelDetails, FullHotelResponse } from "@/apiClient/hotelsApi";
 import { getInformationPoliciesByHotel, InformationPolicy } from "@/apiClient/informationPoliciesApi";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { getEntityFiles, FileData } from "@/apiClient/filesApi";
+import { getEntityFiles, FileData, deleteFile as deleteFileApi } from "@/apiClient/filesApi";
 import { 
   Download, MapPin, Phone, Mail, Globe, Car, Train, Plane, UserPlus, 
   Pencil, Trash, Speaker, Building2, Calendar, Users, User, BedDouble, 
@@ -79,6 +79,17 @@ const HotelView = () => {
       queryClient.invalidateQueries({ queryKey: ['announcements', 'active']});
     },
     onError: (err:any)=> toast.error(err.message || t('common.saveFailed'))
+  });
+
+  // Delete file mutation
+  const deleteFileMutation = useMutation({
+    mutationFn: (fileId: number) => deleteFileApi(fileId),
+    onSuccess: () => {
+      toast.success(t('files.deleted', { defaultValue: 'File deleted' }));
+      queryClient.invalidateQueries({ queryKey: ["hotelFull", hotelId] });
+      queryClient.invalidateQueries({ queryKey: ["hotelFiles", hotelId] });
+    },
+    onError: (err: any) => toast.error(err.message || t('files.deleteFailed', { defaultValue: 'Deletion failed' }))
   });
 
   // Handlers
@@ -969,6 +980,15 @@ const HotelView = () => {
                         <Button variant="ghost" size="icon" title={t('common.preview')} onClick={()=>openPreview(img)}>
                           <Eye className="h-4 w-4" />
                         </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          title={t('common.delete')} 
+                          onClick={() => deleteFileMutation.mutate(img.id)}
+                          disabled={deleteFileMutation.isPending}
+                        >
+                          <Trash className="h-4 w-4" />
+                        </Button>
                         <Button asChild variant="ghost" size="icon" title={t('common.download')}>
                           <a href={img.url} download>
                             <Download className="h-4 w-4" />
@@ -1008,6 +1028,15 @@ const HotelView = () => {
                       <div className="flex gap-1">
                         <Button variant="ghost" size="icon" title={t('common.preview')} onClick={()=>openPreview(file)}>
                           <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          title={t('common.delete')} 
+                          onClick={() => deleteFileMutation.mutate(file.id)}
+                          disabled={deleteFileMutation.isPending}
+                        >
+                          <Trash className="h-4 w-4" />
                         </Button>
                         <Button asChild variant="ghost" size="icon" title={t('common.download')}>
                           <a href={file.url} download>
