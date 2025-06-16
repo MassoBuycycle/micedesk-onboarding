@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { getFullHotelDetails, FullHotelResponse } from "@/apiClient/hotelsApi";
 import { getInformationPoliciesByHotel, InformationPolicy } from "@/apiClient/informationPoliciesApi";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { getEntityFiles, FileData } from "@/apiClient/filesApi";
 import { 
   Download, MapPin, Phone, Mail, Globe, Car, Train, Plane, UserPlus, 
   Pencil, Trash, Speaker, Building2, Calendar, Users, User, BedDouble, 
@@ -37,6 +38,14 @@ const HotelView = () => {
     enabled: !!hotelId
   });
 
+  // Fallback: if full-details response has no files, fetch directly via files API
+  const { data: fallbackFiles = [] } = useQuery<FileData[]>({
+    queryKey: ["hotelFiles", hotelId],
+    queryFn: () => getEntityFiles("hotels", hotelId),
+    enabled: !!hotelId && (!hotelData?.files || hotelData.files.length === 0),
+    staleTime: 5 * 60 * 1000,
+  });
+
   const { data: policies } = useQuery<InformationPolicy[]>({
     queryKey: ["hotelPolicies", hotelId],
     queryFn: () => getInformationPoliciesByHotel(hotelData?.hotel?.system_hotel_id || ''),
@@ -48,7 +57,7 @@ const HotelView = () => {
   const fbDetails = hotelData?.fnb;
   const eventsInfo: any = (hotelData as any)?.eventsInfo || {};
   const roomHandling: any = (hotelData as any)?.roomHandling || null;
-  const files = hotelData?.files ?? [];
+  const files = (hotelData?.files && hotelData.files.length > 0) ? hotelData.files : fallbackFiles;
   const imageFiles = files.filter(f => f.mime_type.startsWith("image"));
   const documentFiles = files.filter(f => !f.mime_type.startsWith("image"));
   const mainImage = files.find(f => f.file_type_code === "main_image");
