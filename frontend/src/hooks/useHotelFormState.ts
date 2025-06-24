@@ -10,6 +10,8 @@ import {
   RoomOperationalHandlingInput,
   createRoom,
   addCategoriesToRoom,
+  updateRoomCategory,
+  deleteRoomCategory,
   RoomInfo,
   getRoomTypeById,
   getRoomTypeHandling,
@@ -741,55 +743,131 @@ export function useHotelFormState() {
             setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
             return;
           } else if (newFormData.roomCategories && newFormData.roomCategories.length > 0) {
-            const categoriesToSubmit: RoomCategoryInput[] = newFormData.roomCategories.map(catFromFormAny => {
-              const catFromForm = catFromFormAny as any; // Data from new RoomCategoryForm.tsx
-              
-              const safeParseInt = (val: any): number | undefined => {
-                if (val === null || val === undefined || String(val).trim() === '') return undefined;
-                const num = parseInt(String(val), 10);
-                return isNaN(num) ? undefined : num;
-              };
-              const safeParseFloat = (val: any): number | undefined => {
-                if (val === null || val === undefined || String(val).trim() === '') return undefined;
-                const num = parseFloat(String(val));
-                return isNaN(num) ? undefined : num;
-              };
-
-              // Directly use field names from the new RoomCategoryForm, which should align with RoomCategoryInput
-              const roomCategoryPayload: RoomCategoryInput = {
-                category_name: catFromForm.category_name, // Already correct name from new form
-                pms_name: catFromForm.pms_name,
-                num_rooms: safeParseInt(catFromForm.num_rooms),
-                size: safeParseInt(catFromForm.size), // Form now uses `size` directly (string)
-                bed_type: catFromForm.bed_type, // Form now uses `bed_type` directly
-                surcharges_upsell: catFromForm.surcharges_upsell, // Assuming form provides string
-                room_features: catFromForm.room_features, // Assuming form provides string
-                second_person_surcharge: safeParseFloat(catFromForm.second_person_surcharge),
-                extra_bed_surcharge: safeParseFloat(catFromForm.extra_bed_surcharge),
-                baby_bed_available: typeof catFromForm.baby_bed_available === 'boolean' ? catFromForm.baby_bed_available : undefined,
-                extra_bed_available: typeof catFromForm.extra_bed_available === 'boolean' ? catFromForm.extra_bed_available : undefined,
-              };
-
-              Object.keys(roomCategoryPayload).forEach(key => {
-                if (roomCategoryPayload[key as keyof RoomCategoryInput] === undefined) {
-                  delete roomCategoryPayload[key as keyof RoomCategoryInput];
+            // Get the current categories from the form
+            const formCategories = newFormData.roomCategories as any[];
+            
+            // Separate existing categories (with id) from new ones (without id)
+            const existingCategories = formCategories.filter(cat => cat.id);
+            const newCategories = formCategories.filter(cat => !cat.id);
+            
+            // If we're in edit mode, we need to handle updates and deletions
+            if (mode === 'edit') {
+              try {
+                // First, fetch the original categories to detect deletions
+                const originalCategories = await getRoomCategories(createdRoomTypeId);
+                
+                // Find categories to delete (in original but not in form)
+                const formCategoryIds = existingCategories.map(cat => cat.id);
+                const categoriesToDelete = originalCategories.filter(
+                  cat => cat.id && !formCategoryIds.includes(cat.id)
+                );
+                
+                // Delete removed categories
+                for (const cat of categoriesToDelete) {
+                  if (cat.id) {
+                    await deleteRoomCategory(cat.id);
+                    console.log(`Deleted category ${cat.id}`);
+                  }
                 }
-              });
-              return roomCategoryPayload;
-            });
+                
+                // Update existing categories
+                for (const catFromForm of existingCategories) {
+                  const safeParseInt = (val: any): number | undefined => {
+                    if (val === null || val === undefined || String(val).trim() === '') return undefined;
+                    const num = parseInt(String(val), 10);
+                    return isNaN(num) ? undefined : num;
+                  };
+                  const safeParseFloat = (val: any): number | undefined => {
+                    if (val === null || val === undefined || String(val).trim() === '') return undefined;
+                    const num = parseFloat(String(val));
+                    return isNaN(num) ? undefined : num;
+                  };
+                  
+                  const updatePayload: RoomCategoryInput = {
+                    category_name: catFromForm.category_name,
+                    pms_name: catFromForm.pms_name,
+                    num_rooms: safeParseInt(catFromForm.num_rooms),
+                    size: safeParseInt(catFromForm.size),
+                    bed_type: catFromForm.bed_type,
+                    surcharges_upsell: catFromForm.surcharges_upsell,
+                    room_features: catFromForm.room_features,
+                    second_person_surcharge: safeParseFloat(catFromForm.second_person_surcharge),
+                    extra_bed_surcharge: safeParseFloat(catFromForm.extra_bed_surcharge),
+                    baby_bed_available: typeof catFromForm.baby_bed_available === 'boolean' ? catFromForm.baby_bed_available : undefined,
+                    extra_bed_available: typeof catFromForm.extra_bed_available === 'boolean' ? catFromForm.extra_bed_available : undefined,
+                  };
+                  
+                  // Remove undefined values
+                  Object.keys(updatePayload).forEach(key => {
+                    if (updatePayload[key as keyof RoomCategoryInput] === undefined) {
+                      delete updatePayload[key as keyof RoomCategoryInput];
+                    }
+                  });
+                  
+                  await updateRoomCategory(catFromForm.id, updatePayload);
+                  console.log(`Updated category ${catFromForm.id}`);
+                }
+                
+                toast.success(`Updated ${existingCategories.length} categories and deleted ${categoriesToDelete.length} categories.`);
+              } catch (error: any) {
+                console.error("Error updating room categories:", error);
+                toast.error(`Failed to update room categories: ${error.message}`);
+                setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
+                return;
+              }
+            }
+            
+            // Create new categories (both in add and edit mode)
+            if (newCategories.length > 0) {
+              const categoriesToSubmit: RoomCategoryInput[] = newCategories.map(catFromFormAny => {
+                const catFromForm = catFromFormAny as any;
+                
+                const safeParseInt = (val: any): number | undefined => {
+                  if (val === null || val === undefined || String(val).trim() === '') return undefined;
+                  const num = parseInt(String(val), 10);
+                  return isNaN(num) ? undefined : num;
+                };
+                const safeParseFloat = (val: any): number | undefined => {
+                  if (val === null || val === undefined || String(val).trim() === '') return undefined;
+                  const num = parseFloat(String(val));
+                  return isNaN(num) ? undefined : num;
+                };
 
-            console.log(`Calling addCategoriesToRoom for Room ID ${createdRoomTypeId} with mapped data:`, categoriesToSubmit);
-            try {
-                 const categoriesResponse = await addCategoriesToRoom(createdRoomTypeId, categoriesToSubmit);
-                 toast.success(`${categoriesResponse.createdCategories.length} categories added to Room ID ${createdRoomTypeId}.`);
-             } catch (catError: any) {
-                 console.error("Error adding Room Categories:", catError);
-                 toast.error(`Failed to add Room Categories: ${catError.message}`);
-                 setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
-                 return;
-             }
+                const roomCategoryPayload: RoomCategoryInput = {
+                  category_name: catFromForm.category_name,
+                  pms_name: catFromForm.pms_name,
+                  num_rooms: safeParseInt(catFromForm.num_rooms),
+                  size: safeParseInt(catFromForm.size),
+                  bed_type: catFromForm.bed_type,
+                  surcharges_upsell: catFromForm.surcharges_upsell,
+                  room_features: catFromForm.room_features,
+                  second_person_surcharge: safeParseFloat(catFromForm.second_person_surcharge),
+                  extra_bed_surcharge: safeParseFloat(catFromForm.extra_bed_surcharge),
+                  baby_bed_available: typeof catFromForm.baby_bed_available === 'boolean' ? catFromForm.baby_bed_available : undefined,
+                  extra_bed_available: typeof catFromForm.extra_bed_available === 'boolean' ? catFromForm.extra_bed_available : undefined,
+                };
+
+                Object.keys(roomCategoryPayload).forEach(key => {
+                  if (roomCategoryPayload[key as keyof RoomCategoryInput] === undefined) {
+                    delete roomCategoryPayload[key as keyof RoomCategoryInput];
+                  }
+                });
+                return roomCategoryPayload;
+              });
+
+              console.log(`Calling addCategoriesToRoom for Room ID ${createdRoomTypeId} with ${categoriesToSubmit.length} new categories`);
+              try {
+                const categoriesResponse = await addCategoriesToRoom(createdRoomTypeId, categoriesToSubmit);
+                toast.success(`${categoriesResponse.createdCategories.length} new categories added to Room ID ${createdRoomTypeId}.`);
+              } catch (catError: any) {
+                console.error("Error adding Room Categories:", catError);
+                toast.error(`Failed to add Room Categories: ${catError.message}`);
+                setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
+                return;
+              }
+            }
           } else {
-              toast.info("Skipping category addition (no categories provided).");
+            toast.info("Skipping category addition (no categories provided).");
           }
           break;
 

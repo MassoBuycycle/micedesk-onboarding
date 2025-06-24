@@ -217,6 +217,11 @@ export const deleteRoomCategory = async (categoryId: number): Promise<{ success:
   return apiDelete(`/rooms/categories/${categoryId}`, `Failed to delete room category ${categoryId}`);
 };
 
+// API Endpoint for Updating a Room Category
+export const updateRoomCategory = async (categoryId: number, categoryData: RoomCategoryInput): Promise<{ success: boolean; category: RoomCategory }> => {
+  return apiPut(`/rooms/categories/${categoryId}`, categoryData, `Failed to update room category ${categoryId}`);
+};
+
 // API Endpoint for Getting Room Categories
 export const getRoomCategories = async (roomId: number): Promise<RoomCategory[]> => {
   return apiGet(`/rooms/types/${roomId}/categories`, `Failed to fetch room categories for room ${roomId}`);
