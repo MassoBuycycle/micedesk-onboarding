@@ -738,6 +738,11 @@ export function useHotelFormState() {
           break;
 
         case "roomCategories":
+          console.log("=== ROOM CATEGORIES STEP START ===");
+          console.log("createdRoomTypeId:", createdRoomTypeId);
+          console.log("mode:", mode);
+          console.log("newFormData.roomCategories:", newFormData.roomCategories);
+          
           if (!createdRoomTypeId) {
             toast.error("Main Room Configuration ID not found. Please complete the Room Info step.");
             setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
@@ -745,32 +750,43 @@ export function useHotelFormState() {
           } else if (newFormData.roomCategories && newFormData.roomCategories.length > 0) {
             // Get the current categories from the form
             const formCategories = newFormData.roomCategories as any[];
+            console.log("Form categories:", formCategories);
             
             // Separate existing categories (with id) from new ones (without id)
             const existingCategories = formCategories.filter(cat => cat.id);
             const newCategories = formCategories.filter(cat => !cat.id);
             
+            console.log("Existing categories (with ID):", existingCategories);
+            console.log("New categories (without ID):", newCategories);
+            
             // If we're in edit mode, we need to handle updates and deletions
             if (mode === 'edit') {
+              console.log("=== EDIT MODE - UPDATING CATEGORIES ===");
               try {
                 // First, fetch the original categories to detect deletions
+                console.log("Fetching original categories for room ID:", createdRoomTypeId);
                 const originalCategories = await getRoomCategories(createdRoomTypeId);
+                console.log("Original categories from backend:", originalCategories);
                 
                 // Find categories to delete (in original but not in form)
                 const formCategoryIds = existingCategories.map(cat => cat.id);
+                console.log("Form category IDs:", formCategoryIds);
                 const categoriesToDelete = originalCategories.filter(
                   cat => cat.id && !formCategoryIds.includes(cat.id)
                 );
+                console.log("Categories to delete:", categoriesToDelete);
                 
                 // Delete removed categories
                 for (const cat of categoriesToDelete) {
                   if (cat.id) {
+                    console.log(`Deleting category ${cat.id}`);
                     await deleteRoomCategory(cat.id);
                     console.log(`Deleted category ${cat.id}`);
                   }
                 }
                 
                 // Update existing categories
+                console.log("Updating existing categories:", existingCategories);
                 for (const catFromForm of existingCategories) {
                   const safeParseInt = (val: any): number | undefined => {
                     if (val === null || val === undefined || String(val).trim() === '') return undefined;
@@ -804,6 +820,7 @@ export function useHotelFormState() {
                     }
                   });
                   
+                  console.log(`Updating category ${catFromForm.id} with payload:`, updatePayload);
                   await updateRoomCategory(catFromForm.id, updatePayload);
                   console.log(`Updated category ${catFromForm.id}`);
                 }
@@ -815,10 +832,13 @@ export function useHotelFormState() {
                 setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
                 return;
               }
+            } else {
+              console.log("=== ADD MODE - NOT IN EDIT MODE ===");
             }
             
             // Create new categories (both in add and edit mode)
             if (newCategories.length > 0) {
+              console.log("=== CREATING NEW CATEGORIES ===");
               const categoriesToSubmit: RoomCategoryInput[] = newCategories.map(catFromFormAny => {
                 const catFromForm = catFromFormAny as any;
                 
