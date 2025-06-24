@@ -104,6 +104,7 @@ CREATE TABLE IF NOT EXISTS event_technical (
   has_daylight BOOLEAN DEFAULT FALSE,
   is_hybrid_meeting_possible BOOLEAN DEFAULT FALSE,
   technical_support_available BOOLEAN DEFAULT FALSE,
+  technical_notes TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (event_id) REFERENCES event_main(id) ON DELETE CASCADE
@@ -122,7 +123,9 @@ CREATE TABLE IF NOT EXISTS event_handling (
   advance_days_for_material INT DEFAULT 0,
   room_drop_cost DECIMAL(10, 2) DEFAULT 0,
   hotel_exclusive_clients BOOLEAN DEFAULT FALSE,
+  exclusive_clients_info TEXT,
   minimum_spent BOOLEAN DEFAULT FALSE,
+  minimum_spent_info TEXT,
   storage_room BOOLEAN DEFAULT FALSE,
   deposit_needed_event BOOLEAN DEFAULT FALSE,
   deposit_rules_event TEXT,

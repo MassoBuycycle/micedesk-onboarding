@@ -78,6 +78,14 @@ const BillingInfoSection = ({ form, onCopyAddress }: BillingInfoSectionProps) =>
         placeholder={t("forms.placeholders.enterVatTaxId")}
         className="text-sm"
       />
+      
+      <TextField
+        form={form}
+        name="externalBillingId"
+        label={t("hotel.allinvosCisboxNr")}
+        placeholder={t("forms.placeholders.enterIdIfApplicable")}
+        className="text-sm"
+      />
     </FormSection>
   );
 };

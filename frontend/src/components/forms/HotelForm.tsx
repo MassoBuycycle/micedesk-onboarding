@@ -82,6 +82,7 @@ const createHotelFormSchema = (t: any) => z.object({
   noOfParkingSpacesDisabled: z.coerce.number().optional(),
   parkingCostPerHour: z.coerce.number().optional(),
   parkingCostPerDay: z.coerce.number().optional(),
+  parkingRemarks: z.string().optional(),
 
   // Specific Facilities
   openingTimePool: z.string().optional(),
@@ -151,6 +152,7 @@ const HotelForm = ({ initialData = {}, onNext, onChange, mode = 'add' }: HotelFo
       noOfParkingSpacesDisabled: undefined,
       parkingCostPerHour: undefined,
       parkingCostPerDay: undefined,
+      parkingRemarks: "",
       externalBillingId: "",
       totalRooms: undefined,
       conferenceRooms: undefined,
@@ -246,6 +248,7 @@ const HotelForm = ({ initialData = {}, onNext, onChange, mode = 'add' }: HotelFo
         no_of_parking_spaces_disabled: data.noOfParkingSpacesDisabled || 0,
         parking_cost_per_hour: data.parkingCostPerHour || 0,
         parking_cost_per_day: data.parkingCostPerDay || 0,
+        parking_remarks: data.parkingRemarks || '',
         distance_to_airport_km: data.distanceToAirportKm || 0,
         distance_to_highway_km: data.distanceToHighwayKm || 0,
         distance_to_fair_km: data.distanceToFairKm || 0,

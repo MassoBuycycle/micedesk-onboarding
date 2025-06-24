@@ -13,6 +13,7 @@ export interface Bar {
   id?: number | string;
   name: string;
   seats_indoor: number;
+  seats_outdoor: number;
   exclusive_booking: boolean;
   opening_hours: string;
   snacks_available: boolean;

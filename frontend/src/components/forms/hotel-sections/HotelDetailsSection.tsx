@@ -4,7 +4,7 @@ import { Building } from "lucide-react";
 import { HotelFormValues } from "../HotelForm";
 import { Separator } from "@/components/ui/separator";
 import FormSection from "@/components/shared/FormSection";
-import { TextField, NumberField, TwoColumnGrid } from "@/components/shared/FormFields";
+import { TextField, NumberField, TwoColumnGrid, TextareaField } from "@/components/shared/FormFields";
 import { 
   Select, 
   SelectContent, 
@@ -48,6 +48,7 @@ const HotelDetailsSection = ({ form }: HotelDetailsSectionProps) => {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
+                  <SelectItem value="0">{t("starRatings.0")}</SelectItem>
                   <SelectItem value="1">{t("starRatings.1")}</SelectItem>
                   <SelectItem value="2">{t("starRatings.2")}</SelectItem>
                   <SelectItem value="3">{t("starRatings.3")}</SelectItem>
@@ -202,15 +203,17 @@ const HotelDetailsSection = ({ form }: HotelDetailsSectionProps) => {
           className="text-sm"
         />
       </div>
-
-      <Separator className="my-6" />
-      <TextField
-        form={form}
-        name="externalBillingId"
-        label={t("hotel.allinvosCisboxNr")}
-        placeholder={t("forms.placeholders.enterIdIfApplicable")}
-        className="text-sm"
-      />
+      
+      <div className="mt-4">
+        <TextareaField
+          form={form}
+          name="parkingRemarks"
+          label={t("hotel.parkingRemarks")}
+          placeholder={t("forms.placeholders.parkingRemarks")}
+          description={t("hotel.parkingRemarksDescription")}
+          className="min-h-[80px]"
+        />
+      </div>
     </FormSection>
   );
 };

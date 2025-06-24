@@ -195,6 +195,8 @@
     "disabledSpaces": "Disabled Spaces",
     "costPerHour": "Cost per Hour (€)",
     "costPerDay": "Cost per Day (€)",
+    "parkingRemarks": "Parking Remarks",
+    "parkingRemarksDescription": "e.g. bus parking nearby but not belonging to the hotel",
     "allinvosCisboxNr": "Allinvos / Cisbox Nr.",
     "plannedChangesDescription": "Describe any planned renovations or changes"
   },
@@ -209,6 +211,7 @@
     "family": "Family Hotel"
   },
   "starRatings": {
+    "0": "Not Classified",
     "1": "1 Star",
     "2": "2 Stars",
     "3": "3 Stars",
@@ -358,7 +361,8 @@
       "fitnessEquipment": "e.g. Treadmills, weights",
       "spaHours": "e.g. 10:00 - 19:00",
       "spaEquipment": "e.g. Sauna, steam bath",
-      "describeAttractions": "Describe notable attractions near the hotel"
+      "describeAttractions": "Describe notable attractions near the hotel",
+      "parkingRemarks": "e.g. There is a bus parking nearby that doesn't belong to the hotel"
     }
   },
   "messages": {
@@ -458,6 +462,8 @@
     "disabledSpaces": "Disabled Spaces",
     "costPerHour": "Cost per Hour",
     "costPerDay": "Cost per Day",
+    "parkingRemarks": "Parking Remarks",
+    "parkingRemarksDescription": "e.g. bus parking nearby but not belonging to the hotel",
     "distances": "Distances",
     "airport": "Airport",
     "highway": "Highway",
@@ -498,7 +504,13 @@
     "checkOutTime": "Check-out Time",
     "housekeepingSchedule": "Housekeeping Schedule",
     "luggageStorage": "Luggage Storage",
-    "lateCheckOut": "Late Check-out"
+    "lateCheckOut": "Late Check-out",
+    "connectedRooms": "Connected Rooms",
+    "miceDeskHandlingScope": "To what extent are groups handled by MICE DESK?",
+    "miceDeskHandlingScopeDetails": "MICE DESK Handling Details",
+    "miceDeskHandlingScopeDescription": "e.g. from inquiry to contract, complete, inquiries only, etc.",
+    "groupHandlingNotes": "Notes for Group Handling & Rates",
+    "groupHandlingNotesPlaceholder": "Additional information about group handling and rates"
   },
   "events": {
     "title": "Events",

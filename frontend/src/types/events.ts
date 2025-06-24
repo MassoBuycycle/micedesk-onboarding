@@ -27,7 +27,9 @@ export interface EventOperationsInput {
   has_storage?: boolean;
   sold_with_rooms_only?: boolean;
   hotel_exclusive_clients?: boolean;
+  exclusive_clients_info?: string;
   has_minimum_spent?: boolean;
+  minimum_spent_info?: string;
   deposit_needed_event?: boolean;
   informational_invoice_created?: boolean;
   lunch_location?: string;
@@ -103,6 +105,7 @@ export interface EventTechnicalInput {
   has_daylight?: boolean;
   is_hybrid_meeting_possible?: boolean;
   technical_support_available?: boolean;
+  technical_notes?: string;
 }
 
 export interface EventContractingInput {

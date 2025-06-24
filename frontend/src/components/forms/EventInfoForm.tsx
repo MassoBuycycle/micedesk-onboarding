@@ -102,7 +102,9 @@ const operationsSchema = z.object({
   has_storage: z.boolean().default(false),
   sold_with_rooms_only: z.boolean().default(false),
   hotel_exclusive_clients: z.boolean().default(false),
+  exclusive_clients_info: z.string().optional(),
   has_minimum_spent: z.boolean().default(false),
+  minimum_spent_info: z.string().optional(),
   deposit_needed_event: z.boolean().default(false),
   informational_invoice_created: z.boolean().default(false),
   lunch_location: z.string().optional(),
@@ -147,6 +149,7 @@ const technicalSchema = z.object({
   has_daylight: z.boolean().default(false),
   is_hybrid_meeting_possible: z.boolean().default(false),
   technical_support_available: z.boolean().default(false),
+  technical_notes: z.string().optional(),
 });
 
 const contractingSchema = z.object({
@@ -226,7 +229,9 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
       has_storage: false,
       sold_with_rooms_only: false,
       hotel_exclusive_clients: false,
+      exclusive_clients_info: '',
       has_minimum_spent: false,
+      minimum_spent_info: '',
       deposit_needed_event: false,
       informational_invoice_created: false,
       lunch_location: '',
@@ -274,6 +279,7 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
       has_daylight: false,
       is_hybrid_meeting_possible: false,
       technical_support_available: false,
+      technical_notes: '',
       ...(initialData?.technical || {})
     },
     contracting: {
@@ -750,6 +756,14 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
               step="0.01"
             />
           </TwoColumnGrid>
+          
+          <TextareaField
+            form={form}
+            name="technical.technical_notes"
+            label="Notizfeld"
+            rows={4}
+            placeholder="Zusätzliche Notizen zu Technik/Service..."
+          />
         </FormSection>
 
         {/* 5. TECHNICAL EQUIPMENT SECTION */}
@@ -788,47 +802,61 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
           title={t('events.eventForm.operations.sectionTitle')} 
           description=""
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <SwitchField
-              form={form}
-              name="operations.has_minimum_spent"
-              label={t('events.eventForm.operations.hasMinimumSpent')}
-            />
-            <SwitchField
-              form={form}
-              name="operations.has_storage"
-              label={t('events.eventForm.operations.hasStorage')}
-            />
-            <SwitchField
-              form={form}
-              name="operations.hotel_exclusive_clients"
-              label={t('events.eventForm.operations.hotelExclusiveClients')}
-            />
-          </div>
-          
-          <TwoColumnGrid>
+          <div className="space-y-6">
+            {/* 1. Ab wieviele Personen werden Pauschalen angeboten? */}
             <NumberField
               form={form}
               name="operations.min_participants_package"
               label={t('events.eventForm.operations.minParticipantsPackage')}
             />
+            
+            {/* 2. Arbeiten Sie mit einem Mindestumsatz (ja/nein) plus Notizfeld */}
+            <div className="space-y-4">
+              <SwitchField
+                form={form}
+                name="operations.has_minimum_spent"
+                label={t('events.eventForm.operations.hasMinimumSpent')}
+              />
+              {form.watch("operations.has_minimum_spent") && (
+                <TextareaField
+                  form={form}
+                  name="operations.minimum_spent_info"
+                  label="Details zum Mindestumsatz"
+                  rows={3}
+                  placeholder="Bitte geben Sie Details zum Mindestumsatz an..."
+                />
+              )}
+            </div>
+            
+            {/* 3. Wie viel Vorlaufzeit ist für Last-Minute-Anfragen benötigt? */}
             <TextField
               form={form}
               name="operations.last_minute_lead_time"
               label={t('events.eventForm.operations.lastMinuteLeadTime')}
             />
+            
+            {/* 4. Verfügen Sie einen Lagerraum für Pakete und Materialien? */}
+            <SwitchField
+              form={form}
+              name="operations.has_storage"
+              label={t('events.eventForm.operations.hasStorage')}
+            />
+            
+            {/* 5. Wie viele Tage im Voraus kann der Gast die Materialien für seine Veranstaltung senden? */}
             <NumberField
               form={form}
               name="operations.advance_days_for_material"
               label={t('events.eventForm.operations.materialAdvanceDays')}
             />
+            
+            {/* 6. Kosten für Room Drop */}
             <NumberField
               form={form}
               name="operations.room_drop_cost"
               label={t('events.eventForm.operations.roomDropCost')}
               step="0.01"
             />
-          </TwoColumnGrid>
+          </div>
         </FormSection>
 
         {/* 7. CONTRACTING */}
@@ -836,107 +864,130 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
           title={t('events.eventForm.contracting.sectionTitle')} 
           description=""
         >
-          <div className="space-y-4">
-            <TextareaField
-              form={form}
-              name="contracting.contracted_companies"
-              label={t('events.eventForm.contracting.contractedCompanies')}
-              rows={2}
-            />
-            <TextareaField
-              form={form}
-              name="contracting.refused_requests"
-              label={t('events.eventForm.contracting.refusedRequests')}
-              rows={2}
-            />
-            <TextareaField
-              form={form}
-              name="contracting.unwanted_marketing_tools"
-              label={t('events.eventForm.contracting.unwantedMarketingTools')}
-              rows={2}
-            />
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <SwitchField
-              form={form}
-              name="contracting.first_second_option"
-              label={t('events.eventForm.contracting.firstSecondOption')}
-            />
-            <SwitchField
-              form={form}
-              name="contracting.split_options"
-              label={t('events.eventForm.contracting.splitOptions')}
-            />
-            <SwitchField
-              form={form}
-              name="contracting.overbooking_policy"
-              label={t('events.eventForm.contracting.overbookingPolicy')}
-            />
-            <SwitchField
-              form={form}
-              name="contracting.second_signature_required"
-              label={t('events.eventForm.contracting.secondSignatureRequired')}
-            />
-          </div>
-          
-          <TextField
-            form={form}
-            name="contracting.option_hold_duration"
-            label={t('events.eventForm.contracting.optionHoldDuration')}
-          />
-        </FormSection>
-
-        {/* 8. ACCOUNTING HANDLING - Handling Buchhaltung */}
-        <FormSection 
-          title={t('events.eventForm.accounting.sectionTitle')} 
-          description=""
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-6">
+            {/* Wird bei allen VA's ein Depo verlangt */}
             <SwitchField
               form={form}
               name="operations.deposit_needed_event"
               label={t('events.eventForm.operations.depositNeeded')}
             />
-            <SwitchField
+            
+            {/* Depositregelungen */}
+            <TextareaField
               form={form}
-              name="operations.informational_invoice_created"
-              label={t('events.eventForm.operations.informationalInvoiceCreated')}
+              name="operations.deposit_rules_event"
+              label={t('events.eventForm.operations.depositRules')}
+              rows={3}
             />
-          </div>
-          
-          <TwoColumnGrid>
+            
+            {/* Wer erstellt die Depo- Rechnung */}
             <TextField
               form={form}
               name="operations.deposit_invoice_creator"
               label={t('events.eventForm.operations.depositInvoiceCreator')}
             />
+            
+            {/* Akzeptierte Zahlungsmethoden */}
             <TextareaField
               form={form}
               name="contracting.accepted_payment_methods"
               label={t('events.eventForm.contracting.acceptedPaymentMethods')}
               rows={2}
             />
-          </TwoColumnGrid>
-          
-          <TextareaField
-            form={form}
-            name="operations.deposit_rules_event"
-            label={t('events.eventForm.operations.depositRules')}
-            rows={3}
-          />
-          <TextareaField
-            form={form}
-            name="operations.final_invoice_handling_event"
-            label={t('events.eventForm.operations.finalInvoiceHandling')}
-            rows={3}
-          />
-          <TextareaField
-            form={form}
-            name="contracting.commission_rules"
-            label={t('events.eventForm.contracting.commissionRules')}
-            rows={3}
-          />
+            
+            {/* Wird eine Info-Rechnung an den Kunden versandt */}
+            <SwitchField
+              form={form}
+              name="operations.informational_invoice_created"
+              label={t('events.eventForm.operations.informationalInvoiceCreated')}
+            />
+            
+            {/* Handling Abschluss-Rechnung */}
+            <TextareaField
+              form={form}
+              name="operations.final_invoice_handling_event"
+              label={t('events.eventForm.operations.finalInvoiceHandling')}
+              rows={3}
+            />
+            
+            {/* Kommissionsregelung */}
+            <TextareaField
+              form={form}
+              name="contracting.commission_rules"
+              label={t('events.eventForm.contracting.commissionRules')}
+              rows={3}
+            />
+            
+            {/* Gibt es Kunden, welche ausschließlich durch das Hotel betreut werden */}
+            <div className="space-y-4">
+              <SwitchField
+                form={form}
+                name="operations.hotel_exclusive_clients"
+                label={t('events.eventForm.operations.hotelExclusiveClients')}
+              />
+              {form.watch("operations.hotel_exclusive_clients") && (
+                <TextareaField
+                  form={form}
+                  name="operations.exclusive_clients_info"
+                  label="Details zu exklusiven Kunden"
+                  rows={3}
+                  placeholder="Bitte geben Sie Details zu den exklusiven Kunden an..."
+                />
+              )}
+            </div>
+
+            <div className="pt-6 space-y-4">
+              <h4 className="text-lg font-medium">Weitere Vertragsdetails</h4>
+              
+              <TextareaField
+                form={form}
+                name="contracting.contracted_companies"
+                label={t('events.eventForm.contracting.contractedCompanies')}
+                rows={2}
+              />
+              <TextareaField
+                form={form}
+                name="contracting.refused_requests"
+                label={t('events.eventForm.contracting.refusedRequests')}
+                rows={2}
+              />
+              <TextareaField
+                form={form}
+                name="contracting.unwanted_marketing_tools"
+                label={t('events.eventForm.contracting.unwantedMarketingTools')}
+                rows={2}
+              />
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <SwitchField
+                  form={form}
+                  name="contracting.first_second_option"
+                  label={t('events.eventForm.contracting.firstSecondOption')}
+                />
+                <SwitchField
+                  form={form}
+                  name="contracting.split_options"
+                  label={t('events.eventForm.contracting.splitOptions')}
+                />
+                <SwitchField
+                  form={form}
+                  name="contracting.overbooking_policy"
+                  label={t('events.eventForm.contracting.overbookingPolicy')}
+                />
+                <SwitchField
+                  form={form}
+                  name="contracting.second_signature_required"
+                  label={t('events.eventForm.contracting.secondSignatureRequired')}
+                />
+              </div>
+              
+              <TextField
+                form={form}
+                name="contracting.option_hold_duration"
+                label={t('events.eventForm.contracting.optionHoldDuration')}
+              />
+            </div>
+          </div>
         </FormSection>
 
         {/* NAV BUTTONS */}

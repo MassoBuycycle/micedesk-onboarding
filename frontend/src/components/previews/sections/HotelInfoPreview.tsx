@@ -69,7 +69,13 @@ const HotelInfoPreview = ({ hotel }: HotelInfoPreviewProps) => {
             <Building className="h-3.5 w-3.5" /> Hotel Details
           </h3>
           <div className="text-xs text-muted-foreground space-y-1">
-            {hotel?.starRating && <p><span className="text-foreground font-medium">Rating:</span> {hotel.starRating} Stars</p>}
+            {hotel?.starRating !== null && hotel?.starRating !== undefined && (
+              <p>
+                <span className="text-foreground font-medium">Rating:</span> {
+                  hotel.starRating === 0 ? "Not Classified" : `${hotel.starRating} Stars`
+                }
+              </p>
+            )}
             {hotel?.category && (
               <p><span className="text-foreground font-medium">Category:</span> {
                 {

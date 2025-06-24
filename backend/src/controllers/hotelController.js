@@ -27,7 +27,7 @@ const HOTEL_FIELDS = [
   // Parking
   'no_of_parking_spaces', 'no_of_parking_spaces_garage', 'no_of_parking_spaces_electric',
   'no_of_parking_spaces_bus', 'no_of_parking_spaces_outside', 'no_of_parking_spaces_disabled',
-  'parking_cost_per_hour', 'parking_cost_per_day',
+  'parking_cost_per_hour', 'parking_cost_per_day', 'parking_remarks',
   // Hotel Info (previously hotel_info)
   'contact_name', 'contact_position', 'contact_phone', 'contact_email',
   'check_in_time', 'check_out_time', 'early_check_in_time_frame', 'early_check_in_fee',
@@ -41,7 +41,7 @@ const HOTEL_BILLING_FIELDS = ['billing_address_name', 'billing_address_street', 
 const HOTEL_PARKING_FIELDS = [
   'no_of_parking_spaces', 'no_of_parking_spaces_garage', 'no_of_parking_spaces_electric',
   'no_of_parking_spaces_bus', 'no_of_parking_spaces_outside', 'no_of_parking_spaces_disabled',
-  'parking_cost_per_hour', 'parking_cost_per_day'
+  'parking_cost_per_hour', 'parking_cost_per_day', 'parking_remarks'
 ];
 const HOTEL_DISTANCES_FIELDS = [
   'distance_to_airport_km', 'distance_to_highway_km', 'distance_to_fair_km',

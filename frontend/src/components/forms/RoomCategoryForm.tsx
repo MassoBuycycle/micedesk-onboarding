@@ -186,11 +186,11 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                   control={form.control}
                   name={`categories.${index}.num_rooms`}
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Anzahl Zimmer</FormLabel>
-                      <FormControl><Input type="number" min="0" placeholder="0" {...field} value={field.value || '0'} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
+                                      <FormItem>
+                    <FormLabel>Anzahl Zimmer</FormLabel>
+                    <FormControl><Input type="number" min="0" placeholder="0" {...field} value={field.value || '0'} onWheel={(e) => e.currentTarget.blur()} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
                   )}
                 />
               </div>
@@ -250,11 +250,11 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                   control={form.control}
                   name={`categories.${index}.second_person_surcharge`}
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Aufpreis 2. Person (€)</FormLabel>
-                      <FormControl><Input type="number" min="0" step="0.01" placeholder="0.00" {...field} value={field.value || '0'} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
+                                      <FormItem>
+                    <FormLabel>Aufpreis 2. Person (€)</FormLabel>
+                    <FormControl><Input type="number" min="0" step="0.01" placeholder="0.00" {...field} value={field.value || '0'} onWheel={(e) => e.currentTarget.blur()} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
                   )}
                 />
                 <FormField
@@ -272,6 +272,7 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                           {...field}
                           value={field.value === null || field.value === undefined ? '' : String(field.value)} 
                           onChange={(e) => field.onChange(e.target.value)}
+                          onWheel={(e) => e.currentTarget.blur()}
                           disabled={!form.watch(`categories.${index}.extra_bed_available`)} 
                         />
                       </FormControl>

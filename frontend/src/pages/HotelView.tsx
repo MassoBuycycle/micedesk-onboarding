@@ -179,12 +179,12 @@ const HotelView = () => {
             <div>
               <h1 className="text-3xl font-bold tracking-tight">{hotel.name}</h1>
               <div className="flex items-center gap-2 mt-1">
-                {hotel.star_rating && (
-                  <Badge variant="secondary" className="gap-1">
-                    <Star className="h-3 w-3" />
-                    {hotel.star_rating} {t('hotels.stars')}
-                  </Badge>
-                )}
+                              {hotel.star_rating !== null && hotel.star_rating !== undefined && (
+                <Badge variant="secondary" className="gap-1">
+                  <Star className="h-3 w-3" />
+                  {hotel.star_rating === 0 ? t('starRatings.0') : `${hotel.star_rating} ${t('hotels.stars')}`}
+                </Badge>
+              )}
                 {hotel.category && (
                   <Badge variant="outline">{hotel.category}</Badge>
                 )}
@@ -417,6 +417,12 @@ const HotelView = () => {
                         {t('hotels.vat')}: {hotelData.billing.billing_address_vat}
                       </p>
                     )}
+                    {hotelAny?.external_billing_id && (
+                      <div className="mt-3">
+                        <p className="text-sm text-muted-foreground">{t('hotel.allinvosCisboxNr')}</p>
+                        <p className="font-medium">{hotelAny.external_billing_id}</p>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               )}
@@ -489,6 +495,12 @@ const HotelView = () => {
                         </div>
                       )}
                     </div>
+                    {hotelData.parking.parking_remarks && (
+                      <div className="mt-4">
+                        <p className="text-sm text-muted-foreground">{t('hotel.parkingRemarks')}</p>
+                        <p className="text-sm mt-1">{hotelData.parking.parking_remarks}</p>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               )}
@@ -571,12 +583,6 @@ const HotelView = () => {
                     <div>
                       <p className="text-sm text-muted-foreground">{t('common.createdAt')}</p>
                       <p className="font-medium">{new Date(hotel.created_at).toLocaleDateString()}</p>
-                    </div>
-                  )}
-                  {hotelAny?.external_billing_id && (
-                    <div>
-                      <p className="text-sm text-muted-foreground">{t('hotel.allinvosCisboxNr')}</p>
-                      <p className="font-medium">{hotelAny.external_billing_id}</p>
                     </div>
                   )}
                 </CardContent>
@@ -881,6 +887,7 @@ const HotelView = () => {
                           </CardHeader>
                           <CardContent className="space-y-1 text-sm">
                             {bar.seats_indoor!==undefined && <p><span className="font-medium">{t('bars.seatsIndoor')}:</span> {bar.seats_indoor}</p>}
+                            {bar.seats_outdoor!==undefined && <p><span className="font-medium">{t('bars.seatsOutdoor')}:</span> {bar.seats_outdoor}</p>}
                             {bar.opening_hours && <p><span className="font-medium">{t('bars.openingHours')}:</span> {bar.opening_hours}</p>}
                             {bar.snacks_available!==undefined && <p><span className="font-medium">{t('bars.snacks')}:</span> {formatBooleanValue(bar.snacks_available)}</p>}
                           </CardContent>

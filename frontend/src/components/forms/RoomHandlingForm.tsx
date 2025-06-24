@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useTranslation } from 'react-i18next';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -43,6 +44,7 @@ const operationalSchema = z.object({
   group_reservation_category: z.string().optional(),
   group_rates_check: z.boolean().default(false),
   group_rates: z.string().optional(),
+  group_handling_notes: z.string().optional(),
   breakfast_share: z.boolean().default(false),
   first_second_option: z.boolean().default(false),
   shared_options: z.boolean().default(false),
@@ -58,6 +60,7 @@ const operationalSchema = z.object({
   free_spot_policy_leisure_groups: z.string().optional(),
   restricted_dates: z.string().optional(),
   handled_by_mice_desk: z.boolean().default(false),
+  mice_desk_handling_scope: z.string().optional(),
   requires_deposit: z.boolean().default(false),
   deposit_rules: z.string().optional(),
   payment_methods_room_handling: z.array(z.string()).default([]),
@@ -79,6 +82,7 @@ interface RoomOperationalFormProps {
 
 const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChange, mode }: RoomOperationalFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { t } = useTranslation();
 
   const form = useForm<OperationalFormValues>({
     resolver: zodResolver(operationalSchema),
@@ -93,6 +97,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
       group_reservation_category: '',
       group_rates_check: false,
       group_rates: '',
+      group_handling_notes: '',
       breakfast_share: false,
       first_second_option: false,
       shared_options: false,
@@ -108,6 +113,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
       free_spot_policy_leisure_groups: '',
       restricted_dates: '',
       handled_by_mice_desk: false,
+      mice_desk_handling_scope: '',
       requires_deposit: false,
       deposit_rules: '',
       payment_methods_room_handling: [],
@@ -300,6 +306,22 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="group_handling_notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('rooms.groupHandlingNotes')}</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      {...field} 
+                      className="min-h-[100px]"
+                      placeholder={t('rooms.groupHandlingNotesPlaceholder')}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
@@ -426,7 +448,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
               name="call_off_quota"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <FormLabel>Abrufkontingent definiert?</FormLabel>
+                  <FormLabel>Werden Abrufkontingente angeboten?</FormLabel>
                   <FormControl>
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
@@ -584,7 +606,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
               name="info_invoice_created"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <FormLabel>E-Mail bei Rechnungserstellung?</FormLabel>
+                  <FormLabel>Wird eine Pro-Forma Rechnung versendet?</FormLabel>
                   <FormControl>
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
@@ -617,13 +639,35 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
               name="handled_by_mice_desk"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <FormLabel>Durch MICE Desk bearbeitet?</FormLabel>
+                  <FormLabel>{t('rooms.miceDeskHandlingScope')}</FormLabel>
                   <FormControl>
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
                 </FormItem>
               )}
             />
+            {form.watch('handled_by_mice_desk') && (
+              <FormField
+                control={form.control}
+                name="mice_desk_handling_scope"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('rooms.miceDeskHandlingScopeDetails')}</FormLabel>
+                    <FormDescription>
+                      {t('rooms.miceDeskHandlingScopeDescription')}
+                    </FormDescription>
+                    <FormControl>
+                      <Textarea 
+                        {...field} 
+                        className="min-h-[100px]"
+                        placeholder={t('rooms.miceDeskHandlingScopeDescription')}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
           </CardContent>
         </Card>
 

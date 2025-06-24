@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS onboarding_fb_bars (
   hotel_id INT NOT NULL,
   name VARCHAR(255) NOT NULL,
   seats_indoor INT DEFAULT 0,
+  seats_outdoor INT DEFAULT 0,
   exclusive_booking BOOLEAN DEFAULT FALSE,
   opening_hours VARCHAR(255),
   snacks_available BOOLEAN DEFAULT FALSE,

@@ -9,6 +9,9 @@ export interface Hotel {
   star_rating: number;
   category?: string;
   director_name?: string;
+  general_manager_name?: string;
+  general_manager_phone?: string;
+  general_manager_email?: string;
   opening_date?: Date;
   latest_renovation_date?: Date;
   total_rooms?: number;

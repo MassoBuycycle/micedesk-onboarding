@@ -31,12 +31,12 @@ const ROOM_CATEGORY_INFOS_FIELDS = [
 const ROOM_OPERATIONAL_HANDLING_FIELDS = [ 
     'revenue_manager_name', 'revenue_contact_details', 'demand_calendar', 'demand_calendar_infos',
     'revenue_call', 'revenue_calls_infos', 'group_request_min_rooms', 'group_reservation_category',
-    'group_rates_check', 'group_rates', 'breakfast_share', 'first_second_option', 'shared_options',
+    'group_rates_check', 'group_rates', 'group_handling_notes', 'breakfast_share', 'first_second_option', 'shared_options',
     'first_option_hold_duration', 'overbooking', 'overbooking_info', 'min_stay_weekends',
     'min_stay_weekends_infos', 'call_off_quota', 'call_off_method', 'call_off_deadlines',
     'commission_rules', 'free_spot_policy_leisure_groups', 'restricted_dates', 'handled_by_mice_desk',
-    'requires_deposit', 'deposit_rules', 'payment_methods_room_handling', 'final_invoice_handling',
-    'deposit_invoice_responsible', 'info_invoice_created'
+    'mice_desk_handling_scope', 'requires_deposit', 'deposit_rules', 'payment_methods_room_handling', 
+    'final_invoice_handling', 'deposit_invoice_responsible', 'info_invoice_created'
 ];
 
 // Helper function for upserting into related tables (1-to-1 with rooms table based on room_id)

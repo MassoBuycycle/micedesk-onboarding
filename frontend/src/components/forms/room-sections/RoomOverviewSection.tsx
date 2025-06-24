@@ -94,6 +94,7 @@ const RoomOverviewSection = ({ data, onDataChange }: RoomOverviewSectionProps) =
               placeholder="Number of suites" 
               value={data.suites}
               onChange={(e) => updateField("suites", e.target.value)}
+              onWheel={(e) => e.currentTarget.blur()}
             />
           </div>
           
@@ -106,6 +107,7 @@ const RoomOverviewSection = ({ data, onDataChange }: RoomOverviewSectionProps) =
               placeholder="Number of connecting rooms" 
               value={data.connectingRooms}
               onChange={(e) => updateField("connectingRooms", e.target.value)}
+              onWheel={(e) => e.currentTarget.blur()}
             />
           </div>
           
@@ -118,6 +120,7 @@ const RoomOverviewSection = ({ data, onDataChange }: RoomOverviewSectionProps) =
               placeholder="Number of accessible rooms" 
               value={data.accessibleRooms}
               onChange={(e) => updateField("accessibleRooms", e.target.value)}
+              onWheel={(e) => e.currentTarget.blur()}
             />
           </div>
           

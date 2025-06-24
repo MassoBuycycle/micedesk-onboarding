@@ -103,6 +103,10 @@ export const NumberField: React.FC<NumberFieldProps> = ({
             {...field}
             // Ensure field.onChange receives a number
             onChange={e => field.onChange(e.target.valueAsNumber)}
+            // Prevent scroll wheel from changing the value
+            onWheel={(e) => e.currentTarget.blur()}
+            // Add class to hide spinner buttons
+            className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
         </FormControl>
         {description && <FormDescription>{description}</FormDescription>}

@@ -91,13 +91,14 @@ const manageBars = async (connection, hotelId, bars) => {
       hotelId,
       bar.name,
       bar.seats_indoor || 0,
+      bar.seats_outdoor || 0,
       bar.exclusive_booking || false,
       bar.opening_hours || null,
       bar.snacks_available || false
     ]);
 
-    const placeholders = bars.map(() => '(?, ?, ?, ?, ?, ?)').join(', ');
-    const sql = `INSERT INTO onboarding_fb_bars (hotel_id, name, seats_indoor, exclusive_booking, opening_hours, snacks_available) VALUES ${placeholders}`;
+    const placeholders = bars.map(() => '(?, ?, ?, ?, ?, ?, ?)').join(', ');
+    const sql = `INSERT INTO onboarding_fb_bars (hotel_id, name, seats_indoor, seats_outdoor, exclusive_booking, opening_hours, snacks_available) VALUES ${placeholders}`;
     
     await connection.query(sql, barValues.flat());
   }

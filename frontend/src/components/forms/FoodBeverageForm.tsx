@@ -50,6 +50,7 @@ const initialRestaurantState: Restaurant = {
 const initialBarState: Bar = {
   name: "",
   seats_indoor: 0,
+  seats_outdoor: 0,
   exclusive_booking: false,
   opening_hours: "",
   snacks_available: false
@@ -115,6 +116,7 @@ const FoodBeverageForm = ({
     id: bar?.id || generateId(),
     name: ensurePrimitiveValue(bar?.name, "", 'string'),
     seats_indoor: ensurePrimitiveValue(bar?.seats_indoor, 0, 'number'),
+    seats_outdoor: ensurePrimitiveValue(bar?.seats_outdoor, 0, 'number'),
     exclusive_booking: ensurePrimitiveValue(bar?.exclusive_booking, false, 'boolean'),
     opening_hours: ensurePrimitiveValue(bar?.opening_hours, "", 'string'),
     snacks_available: ensurePrimitiveValue(bar?.snacks_available, false, 'boolean'),
@@ -603,6 +605,16 @@ const FoodBeverageForm = ({
                   min="0"
                   value={typeof bar.seats_indoor === 'object' ? '0' : bar.seats_indoor}
                   onChange={(e) => updateBar(bar.id!, "seats_indoor", parseInt(e.target.value) || 0)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor={`bar-seats-outdoor-${bar.id}`}>Sitzplätze außen</Label>
+                <Input 
+                  id={`bar-seats-outdoor-${bar.id}`}
+                  type="number" 
+                  min="0"
+                  value={typeof bar.seats_outdoor === 'object' ? '0' : bar.seats_outdoor}
+                  onChange={(e) => updateBar(bar.id!, "seats_outdoor", parseInt(e.target.value) || 0)}
                 />
               </div>
               <div className="space-y-4">

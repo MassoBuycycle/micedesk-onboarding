@@ -234,7 +234,10 @@ const HotelList = ({ searchQuery = "" }: HotelListProps) => {
                     <HotelNameWithImage hotel={hotel} />
                   </TableCell>
                   <TableCell>{location || "N/A"}</TableCell>
-                  <TableCell>{hotel.star_rating || "N/A"}</TableCell>
+                  <TableCell>
+                    {hotel.star_rating === 0 ? t('starRatings.0') : 
+                     hotel.star_rating ? `${hotel.star_rating} ${t('hotels.stars')}` : t('starRatings.0')}
+                  </TableCell>
                   <TableCell>
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                       {t("common.active")}

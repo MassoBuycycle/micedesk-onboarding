@@ -198,6 +198,8 @@
     "disabledSpaces": "Behindertenparkplatz",
     "costPerHour": "Parkgebühren pro Stunde",
     "costPerDay": "Parkgebühren pro Tag",
+    "parkingRemarks": "Bemerkungen zum Parken",
+    "parkingRemarksDescription": "z.B. Busparkplatz in der Nähe, gehört aber nicht zum Hotel",
     "allinvosCisboxNr": "Allinvos / Cisbox Nr.",
     "plannedChangesDescription": "Beschreiben Sie geplante Renovierungen oder Änderungen",
     "generalManagerSection": "General Manager",
@@ -214,6 +216,7 @@
     "family": "Familienhotel"
   },
   "starRatings": {
+    "0": "Nicht klassifiziert",
     "1": "1 Stern",
     "2": "2 Sterne",
     "3": "3 Sterne",
@@ -364,7 +367,8 @@
       "fitnessEquipment": "z.B. Laufbänder, Gewichte",
       "spaHours": "z.B. 10:00 - 19:00",
       "spaEquipment": "z.B. Sauna, Dampfbad",
-      "describeAttractions": "Beschreiben Sie bemerkenswerte Sehenswürdigkeiten in der Nähe des Hotels"
+      "describeAttractions": "Beschreiben Sie bemerkenswerte Sehenswürdigkeiten in der Nähe des Hotels",
+      "parkingRemarks": "z.B. Es gibt einen Busparkplatz in der Nähe, der nicht zum Hotel gehört"
     }
   },
   "messages": {
@@ -464,6 +468,8 @@
     "disabledSpaces": "Behindertenparkplätze",
     "costPerHour": "Kosten pro Stunde",
     "costPerDay": "Kosten pro Tag",
+    "parkingRemarks": "Bemerkungen zum Parken",
+    "parkingRemarksDescription": "z.B. Busparkplatz in der Nähe, gehört aber nicht zum Hotel",
     "distances": "Entfernungen",
     "airport": "Flughafen",
     "highway": "Autobahn",
@@ -513,6 +519,7 @@
     "singleRooms": "Anzahl Einzelzimmer",
     "doubleRooms": "Anzahl Doppelzimmer",
     "connectingRooms": "Anzahl Connecting Rooms",
+    "connectedRooms": "Verbundene Zimmer",
     "accessibleRooms": "Anzahl Behindertengerechter Zimmer",
     "dogsAllowed": "Sind Hunde erlaubt?",
     "dogFee": "Gebühren pro Nacht/ Aufenthalt",
@@ -553,6 +560,11 @@
     "freeSpotPolicy": "Freiplatzregelung für Leisure Groups",
     "miceDeskGroups": "Welche Gruppen werden durch MICE DESK bearbeitet?",
     "miceDeskLimit": "Bis zu welcher Gruppengröße darf MICE DESK ohne Rücksprache Angebote erstellen?",
+    "miceDeskHandlingScope": "Bis zu welchem Punkt, werden die Gruppen durch MICE DESK betreut?",
+    "miceDeskHandlingScopeDetails": "Details zur MICE DESK Betreuung",
+    "miceDeskHandlingScopeDescription": "z.B. von Anfrage bis Vertrag, komplett, nur Anfragen, etc.",
+    "groupHandlingNotes": "Notizfeld bei Gruppenhandling & Raten",
+    "groupHandlingNotesPlaceholder": "Zusätzliche Informationen zum Gruppenhandling und Raten",
     "blackoutDates": "Sperrdaten ohne Gruppenbuchungen",
     "depositRequired": "Wird bei allen Zimmerbuchungen ein Deposit verlangt?",
     "depositRules": "Depositregelungen",

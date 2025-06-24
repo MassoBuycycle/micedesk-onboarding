@@ -110,6 +110,7 @@ export interface EventTechnical {
   has_daylight?: boolean;
   is_hybrid_meeting_possible?: boolean;
   technical_support_available?: boolean;
+  technical_notes?: string | null;
   created_at?: string; // date-time
   updated_at?: string; // date-time
 }
@@ -125,6 +126,7 @@ export interface EventTechnicalInput {
   has_daylight?: boolean;
   is_hybrid_meeting_possible?: boolean;
   technical_support_available?: boolean;
+  technical_notes?: string | null;
 }
 
 export interface EventHandling {

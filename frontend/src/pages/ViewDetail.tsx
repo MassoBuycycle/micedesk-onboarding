@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -44,6 +45,7 @@ import { getFullHotelDetails, updateHotel, type FullHotelResponse } from '@/apiC
 const ViewDetail = () => {
   const params = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   
   // Extract type from URL path or parameters
   const type = params.type || (window.location.pathname.includes('/view/hotel/') ? 'hotel' : undefined);
@@ -325,6 +327,9 @@ const ViewDetail = () => {
   };
 
   const renderStars = (rating: number) => {
+    if (rating === 0) {
+      return <span className="text-muted-foreground">{t('starRatings.0')}</span>;
+    }
     return Array(rating).fill(0).map((_, i) => (
       <Star key={i} className="h-4 w-4 fill-primary text-primary" />
     ));
@@ -466,11 +471,12 @@ const ViewDetail = () => {
                                     <SelectValue placeholder="Rating" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value="1">1 Star</SelectItem>
-                                    <SelectItem value="2">2 Stars</SelectItem>
-                                    <SelectItem value="3">3 Stars</SelectItem>
-                                    <SelectItem value="4">4 Stars</SelectItem>
-                                    <SelectItem value="5">5 Stars</SelectItem>
+                                    <SelectItem value="0">{t('starRatings.0')}</SelectItem>
+                                    <SelectItem value="1">{t('starRatings.1')}</SelectItem>
+                                    <SelectItem value="2">{t('starRatings.2')}</SelectItem>
+                                    <SelectItem value="3">{t('starRatings.3')}</SelectItem>
+                                    <SelectItem value="4">{t('starRatings.4')}</SelectItem>
+                                    <SelectItem value="5">{t('starRatings.5')}</SelectItem>
                                   </SelectContent>
                                 </Select>
                               </FormControl>

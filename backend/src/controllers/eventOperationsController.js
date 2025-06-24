@@ -4,14 +4,14 @@ import { extractDataForTable } from '../utils/dataMapping.js';
 const EVENT_OPERATIONS_FIELDS = [
   'sold_with_rooms_only', 'last_minute_lead_time', 'sent_over_time_material', 'lunch_location',
   'min_participants_package', 'coffee_break_location', 'advance_days_for_material', 'room_drop_cost',
-  'hotel_exclusive_clients', 'deposit_needed_event',
+  'hotel_exclusive_clients', 'exclusive_clients_info', 'deposit_needed_event',
   'deposit_rules_event', 'deposit_invoice_creator', 'informational_invoice_created',
   'payment_methods_events', 'final_invoice_handling_event',
   'contracted_companies', 'refused_requests', 'unwanted_marketing_tools',
   'first_second_option', 'split_options', 'option_hold_duration', 'overbooking_policy',
   'deposit_required', 'accepted_payment_methods', 'commission_rules', 'second_signature_required',
   'has_overtime_material', 'coffee_break_location',
-  'has_storage', 'has_minimum_spent'
+  'has_storage', 'has_minimum_spent', 'minimum_spent_info'
 ];
 
 const BOOLEAN_FIELDS = [

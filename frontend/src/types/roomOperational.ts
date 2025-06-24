@@ -11,6 +11,7 @@ export interface RoomOperationalHandling {
   group_reservation_category: string;
   group_rates_check: boolean;
   group_rates: string;
+  group_handling_notes: string;
   breakfast_share: boolean;
   first_second_option: boolean;
   shared_options: boolean;
@@ -26,6 +27,7 @@ export interface RoomOperationalHandling {
   free_spot_policy_leisure_groups: string;
   restricted_dates: string;
   handled_by_mice_desk: boolean;
+  mice_desk_handling_scope: string;
   requires_deposit: boolean;
   deposit_rules: string;
   payment_methods_room_handling: string; // JSON string

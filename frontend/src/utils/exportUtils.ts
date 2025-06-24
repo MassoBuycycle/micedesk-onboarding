@@ -120,7 +120,7 @@ export const exportToPDF = async (data: ExportData) => {
     // Category and Rating
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
-    const ratingText = `Category: ${data.category} | Rating: ${'★'.repeat(data.starRating)}`;
+    const ratingText = `Category: ${data.category} | Rating: ${data.starRating === 0 ? 'Not Classified' : '★'.repeat(data.starRating)}`;
     doc.text(ratingText, margin, y);
     y += 10;
     

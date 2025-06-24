@@ -14,7 +14,9 @@ CREATE TABLE IF NOT EXISTS event_operations (
   advance_days_for_material INT DEFAULT 0,
   room_drop_cost DECIMAL(10, 2) DEFAULT 0,
   hotel_exclusive_clients BOOLEAN DEFAULT FALSE,
+  exclusive_clients_info TEXT,
   minimum_spent BOOLEAN DEFAULT FALSE,
+  minimum_spent_info TEXT,
   storage_room BOOLEAN DEFAULT FALSE,
   deposit_needed_event BOOLEAN DEFAULT FALSE,
   deposit_rules_event TEXT,
@@ -44,6 +46,7 @@ CREATE TABLE IF NOT EXISTS event_operations (
   room_drop_fee DECIMAL(10, 2) DEFAULT 0,
   has_storage BOOLEAN DEFAULT FALSE,
   has_minimum_spent BOOLEAN DEFAULT FALSE,
+  minimum_spent_info TEXT,
   
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

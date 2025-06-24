@@ -13,6 +13,9 @@ export interface Hotel {
   fax?: string;
   email?: string;
   website?: string;
+  general_manager_name?: string;
+  general_manager_phone?: string;
+  general_manager_email?: string;
   billing_address_name?: string;
   billing_address_street?: string;
   billing_address_zip?: string;
@@ -33,6 +36,7 @@ export interface Hotel {
   no_of_parking_spaces_disabled?: number;
   parking_cost_per_hour?: number;
   parking_cost_per_day?: number;
+  parking_remarks?: string;
   distance_to_airport_km?: number;
   distance_to_highway_km?: number;
   distance_to_fair_km?: number;
@@ -62,6 +66,10 @@ export interface HotelInput {
   website?: string;
   description?: string;
   external_billing_id?: string;
+  
+  general_manager_name?: string;
+  general_manager_phone?: string;
+  general_manager_email?: string;
 
   billing_address_name?: string;
   billing_address_street?: string;
@@ -91,6 +99,7 @@ export interface HotelInput {
   no_of_parking_spaces_disabled?: number;
   parking_cost_per_hour?: number;
   parking_cost_per_day?: number;
+  parking_remarks?: string;
 
   attraction_in_the_area?: string;
   planned_changes?: string;
