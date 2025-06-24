@@ -134,11 +134,21 @@ const ViewDetail = () => {
           roomService: true,
           contact: "F&B Manager"
         },
-        images: hotelData.files?.filter(f => f.mime_type?.startsWith('image')).map(f => ({
-          type: "image",
-          url: f.url || '',
-          title: f.original_name || 'Hotel Image'
-        })) || [],
+        images: (() => {
+          const imageFiles = hotelData.files?.filter(f => f.mime_type?.startsWith('image')) || [];
+          const mainImage = imageFiles.find(f => f.file_type_code === 'main_image');
+          const otherImages = imageFiles.filter(f => f.file_type_code !== 'main_image');
+          
+          // Put main_image first if it exists
+          const orderedImages = mainImage ? [mainImage, ...otherImages] : imageFiles;
+          
+          return orderedImages.map(f => ({
+            type: "image",
+            url: f.url || '',
+            title: f.original_name || 'Hotel Image',
+            isMainImage: f.file_type_code === 'main_image'
+          }));
+        })(),
         documents: hotelData.files?.filter(f => !f.mime_type?.startsWith('image')).map(f => ({
           type: "document",
           name: f.original_name || 'Document',
@@ -664,7 +674,7 @@ const ViewDetail = () => {
                 
                 <div className="w-full md:w-1/3">
                   {detail.images && detail.images.length > 0 && detail.images[0].url && (
-                    <div className="rounded-md overflow-hidden border">
+                    <div className="relative rounded-md overflow-hidden border">
                       <AspectRatio ratio={16 / 9}>
                         <img 
                           src={detail.images[0].url} 
@@ -672,6 +682,11 @@ const ViewDetail = () => {
                           className="object-cover w-full h-full"
                         />
                       </AspectRatio>
+                      {detail.images[0].isMainImage && (
+                        <Badge className="absolute top-2 right-2" variant="secondary">
+                          Main Image
+                        </Badge>
+                      )}
                     </div>
                   )}
                 </div>
@@ -863,11 +878,16 @@ const ViewDetail = () => {
                       </AspectRatio>
                       <CardContent className="p-3">
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
                             {renderFileIcon(image.type)}
-                            <p className="text-sm font-medium">{image.title}</p>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-medium truncate">{image.title}</p>
+                              {image.isMainImage && (
+                                <Badge variant="secondary" className="text-xs mt-1">Main Image</Badge>
+                              )}
+                            </div>
                           </div>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
                             <Download size={16} />
                           </Button>
                         </div>
