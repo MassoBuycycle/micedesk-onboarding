@@ -198,12 +198,13 @@ const FormStepContent = ({
       {activeStep === 'contractOnboarding' && (
         <>
           <ContractOnboardingForm 
-            initialData={formData.contractOnboarding}
-            selectedHotel={formData.hotel}
+            hotelId={createdHotelId?.toString()}
+            data={formData.contractOnboarding}
+            onUpdateData={(data) => onDataChange("contractOnboarding", data)}
             onNext={(data) => onNext("contractOnboarding", data)}
             onPrevious={(data) => onPrevious("contractOnboarding", data)}
-            onChange={(data) => onDataChange("contractOnboarding", data)}
             mode={mode}
+            readOnly={false}
           />
           <SectionFileUpload
             entityId={createdHotelId} 

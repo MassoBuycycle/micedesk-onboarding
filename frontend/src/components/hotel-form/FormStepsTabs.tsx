@@ -11,11 +11,14 @@ interface FormStepsTabsProps {
 
 const FormStepsTabs = ({ activeStep, completedSteps, onTabChange }: FormStepsTabsProps) => {
   const { t } = useTranslation();
+  
+  const tabClass = "min-w-[100px] flex flex-col items-center gap-1 p-2 h-auto data-[state=active]:bg-white whitespace-nowrap";
+  
   return (
-    <TabsList className="w-full h-auto p-0 bg-accent/50 rounded-lg mb-4 overflow-x-auto flex-nowrap">
+    <TabsList className="w-full h-auto p-0 bg-accent/50 rounded-lg overflow-x-auto flex justify-start">
       <TabsTrigger 
         value="hotel" 
-        className="flex-1 flex flex-col items-center gap-1 p-2 h-auto rounded-l-lg data-[state=active]:bg-white"
+        className={`${tabClass} rounded-l-lg`}
       >
         <div className="relative">
           <Building className="h-4 w-4" />
@@ -29,7 +32,7 @@ const FormStepsTabs = ({ activeStep, completedSteps, onTabChange }: FormStepsTab
       </TabsTrigger>
       <TabsTrigger 
         value="roomInfo" 
-        className="flex-1 flex flex-col items-center gap-1 p-2 h-auto data-[state=active]:bg-white"
+        className={tabClass}
       >
         <div className="relative">
           <DoorOpen className="h-4 w-4" />
@@ -43,7 +46,7 @@ const FormStepsTabs = ({ activeStep, completedSteps, onTabChange }: FormStepsTab
       </TabsTrigger>
       <TabsTrigger 
         value="roomCategories" 
-        className="flex-1 flex flex-col items-center gap-1 p-2 h-auto data-[state=active]:bg-white"
+        className={tabClass}
       >
         <div className="relative">
           <DoorOpen className="h-4 w-4" />
@@ -57,7 +60,7 @@ const FormStepsTabs = ({ activeStep, completedSteps, onTabChange }: FormStepsTab
       </TabsTrigger>
       <TabsTrigger 
         value="roomHandling" 
-        className="flex-1 flex flex-col items-center gap-1 p-2 h-auto data-[state=active]:bg-white"
+        className={tabClass}
       >
         <div className="relative">
           <Clock className="h-4 w-4" />
@@ -71,7 +74,7 @@ const FormStepsTabs = ({ activeStep, completedSteps, onTabChange }: FormStepsTab
       </TabsTrigger>
       <TabsTrigger 
         value="eventsInfo" 
-        className="flex-1 flex flex-col items-center gap-1 p-2 h-auto data-[state=active]:bg-white"
+        className={tabClass}
       >
         <div className="relative">
           <CalendarCheck className="h-4 w-4" />
@@ -85,7 +88,7 @@ const FormStepsTabs = ({ activeStep, completedSteps, onTabChange }: FormStepsTab
       </TabsTrigger>
       <TabsTrigger 
         value="eventSpaces" 
-        className="flex-1 flex flex-col items-center gap-1 p-2 h-auto data-[state=active]:bg-white"
+        className={tabClass}
       >
         <div className="relative">
           <CalendarRange className="h-4 w-4" />
@@ -99,7 +102,7 @@ const FormStepsTabs = ({ activeStep, completedSteps, onTabChange }: FormStepsTab
       </TabsTrigger>
       <TabsTrigger 
         value="foodBeverage" 
-        className="flex-1 flex flex-col items-center gap-1 p-2 h-auto data-[state=active]:bg-white"
+        className={tabClass}
       >
         <div className="relative">
           <UtensilsCrossed className="h-4 w-4" />
@@ -113,7 +116,7 @@ const FormStepsTabs = ({ activeStep, completedSteps, onTabChange }: FormStepsTab
       </TabsTrigger>
       <TabsTrigger 
         value="informationPolicies" 
-        className="flex-1 flex flex-col items-center gap-1 p-2 h-auto data-[state=active]:bg-white"
+        className={tabClass}
       >
         <div className="relative">
           <Shield className="h-4 w-4" />
@@ -127,7 +130,7 @@ const FormStepsTabs = ({ activeStep, completedSteps, onTabChange }: FormStepsTab
       </TabsTrigger>
       <TabsTrigger 
         value="contractOnboarding" 
-        className="flex-1 flex flex-col items-center gap-1 p-2 h-auto rounded-r-lg data-[state=active]:bg-white"
+        className={`${tabClass} rounded-r-lg`}
       >
         <div className="relative">
           <FileText className="h-4 w-4" />

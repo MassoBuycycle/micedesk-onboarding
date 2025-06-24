@@ -117,7 +117,7 @@ const Add = ({ mode = 'add' }: AddProps) => {
   }, [activeStep, effectiveHotelId, t]);
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col h-full">
       {mode === 'edit' && (createdHotelId || id) && (
         <HotelAnnouncementBanner hotelId={createdHotelId ? createdHotelId : parseInt(id!)} />
       )}
@@ -141,33 +141,40 @@ const Add = ({ mode = 'add' }: AddProps) => {
         </div>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      {/* Sticky Navigation */}
+      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b pb-4 -mx-4 px-4 mb-4">
+        <Tabs value={activeStep} onValueChange={handleStepChange} className="w-full">
+          <FormStepsTabs 
+            activeStep={activeStep} 
+            completedSteps={completedSteps} 
+            onTabChange={handleStepChange} 
+          />
+        </Tabs>
+      </div>
+
+      {/* Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 flex-1">
         <div className="lg:col-span-2">
-          <Tabs value={activeStep} onValueChange={handleStepChange} className="w-full">
-            <FormStepsTabs 
-              activeStep={activeStep} 
-              completedSteps={completedSteps} 
-              onTabChange={handleStepChange} 
-            />
-            <FormStepContent 
-              activeStep={activeStep}
-              formData={formData}
-              createdHotelId={effectiveHotelId}
-              createdEventId={createdEventId}
-              onNext={handleNext}
-              onPrevious={handlePrevious}
-              onDataChange={updateTempFormData}
-              mode={mode}
-            />
-          </Tabs>
+          <FormStepContent 
+            activeStep={activeStep}
+            formData={formData}
+            createdHotelId={effectiveHotelId}
+            createdEventId={createdEventId}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+            onDataChange={updateTempFormData}
+            mode={mode}
+          />
         </div>
         
         <div className="lg:col-span-1">
-          <HotelPreview 
-            hotelId={effectiveHotelId ? effectiveHotelId.toString() : undefined} 
-            liveFormData={tempFormData} 
-            currentStep={activeStep} 
-          />
+          <div className="sticky top-24">
+            <HotelPreview 
+              hotelId={effectiveHotelId ? effectiveHotelId.toString() : undefined} 
+              liveFormData={tempFormData} 
+              currentStep={activeStep} 
+            />
+          </div>
         </div>
       </div>
     </div>

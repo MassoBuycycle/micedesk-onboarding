@@ -1,18 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { X, Plus, FileText, Shield, Calendar, ArrowLeft, ArrowRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Badge } from "@/components/ui/badge";
+import { useDebouncedCallback } from "use-debounce";
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useTranslation } from 'react-i18next';
-import { ArrowLeft, ArrowRight, Plus, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Form } from '@/components/ui/form';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { TextField, NumberField, TextareaField, CheckboxField } from '@/components/shared/FormFields';
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { ContractDetailsInput, upsertContractDetails } from '@/apiClient/contractApi';
 
 // Schema for form validation
@@ -34,246 +38,306 @@ const contractSchema = z.object({
 type ContractFormValues = z.infer<typeof contractSchema>;
 
 interface ContractOnboardingFormProps {
-  selectedHotel: any;
-  initialData?: Partial<ContractFormValues>;
-  onNext: (data: Partial<ContractFormValues>) => void;
-  onPrevious: (data: Partial<ContractFormValues>) => void;
-  onChange?: (data: Partial<ContractFormValues>) => void;
+  hotelId?: string;
+  data: any;
+  onUpdateData: (newData: any) => void;
+  readOnly?: boolean;
+  onNext?: (data: any) => void;
+  onPrevious?: (data: any) => void;
   mode?: 'add' | 'edit';
 }
 
-const ContractOnboardingForm = ({ 
-  selectedHotel, 
-  initialData = {}, 
-  onNext, 
-  onPrevious, 
-  onChange, 
-  mode 
-}: ContractOnboardingFormProps) => {
+const ContractOnboardingForm: React.FC<ContractOnboardingFormProps> = ({ 
+  hotelId, 
+  data, 
+  onUpdateData, 
+  readOnly = false,
+  onNext,
+  onPrevious,
+  mode = 'add'
+}) => {
   const { t } = useTranslation();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [newSystem, setNewSystem] = useState('');
-
-  const form = useForm<ContractFormValues>({
-    resolver: zodResolver(contractSchema),
-    defaultValues: {
-      contract_model: '',
-      fte_count: 0,
-      onboarding_date: '',
-      contract_start_date: '',
-      special_agreements: '',
-      email_addresses_created: false,
-      access_pms_system: false,
-      access_sc_tool: false,
-      access_other_systems: [],
-      ...initialData
-    }
+  
+  // Local state for immediate UI updates
+  const [localData, setLocalData] = useState(data || {
+    contract_model: '',
+    fte_count: '',
+    onboarding_date: '',
+    contract_start_date: '',
+    special_agreements: '',
+    email_addresses_created: false,
+    access_pms_system: false,
+    access_sc_tool: false,
+    access_other_systems: []
   });
 
-  useEffect(() => {
-    if (onChange) {
-      const subscription = form.watch((value) => {
-        onChange(value);
-      });
-      return () => subscription.unsubscribe();
+  // Debounced update to parent
+  const debouncedUpdate = useDebouncedCallback((newData) => {
+    onUpdateData(newData);
+  }, 500);
+
+  // Update local data and trigger debounced update
+  const handleFieldChange = useCallback((field: string, value: any) => {
+    setLocalData(prev => {
+      const updated = { ...prev, [field]: value };
+      debouncedUpdate(updated);
+      return updated;
+    });
+  }, [debouncedUpdate]);
+
+  // Handle numeric fields with validation
+  const handleNumberChange = useCallback((field: string, value: string) => {
+    const numValue = value === '' ? '' : parseInt(value, 10);
+    if (value === '' || !isNaN(numValue as number)) {
+      handleFieldChange(field, numValue);
     }
-  }, [form, onChange]);
+  }, [handleFieldChange]);
 
-  const onSubmit = async (data: ContractFormValues) => {
-    if (!selectedHotel?.id) {
-      toast.error(t('messages.error.hotelNotFound'));
-      return;
+  // Other systems management
+  const [otherSystemInput, setOtherSystemInput] = useState('');
+
+  const handleAddOtherSystem = useCallback(() => {
+    if (otherSystemInput.trim()) {
+      const newSystems = [...(localData.access_other_systems || []), otherSystemInput.trim()];
+      handleFieldChange('access_other_systems', newSystems);
+      setOtherSystemInput('');
     }
+  }, [otherSystemInput, localData.access_other_systems, handleFieldChange]);
 
-    setIsSubmitting(true);
-    try {
-      await upsertContractDetails(selectedHotel.id, data);
-      toast.success(mode === 'edit' ? t('contract.updated') : t('contract.created'));
-      onNext(data);
-    } catch (error: any) {
-      console.error('Error saving contract details:', error);
-      toast.error(error.message || t('messages.error.failedToSave'));
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const handleRemoveOtherSystem = useCallback((index: number) => {
+    const newSystems = (localData.access_other_systems || []).filter((_, i) => i !== index);
+    handleFieldChange('access_other_systems', newSystems);
+  }, [localData.access_other_systems, handleFieldChange]);
 
-  const addOtherSystem = () => {
-    if (newSystem.trim()) {
-      const currentSystems = form.getValues('access_other_systems');
-      form.setValue('access_other_systems', [...currentSystems, newSystem.trim()]);
-      setNewSystem('');
-    }
-  };
+  // Memoized sections for better performance
+  const contractingSection = useMemo(() => (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <FileText className="h-5 w-5" />
+          {t('contract.contracting')}
+        </CardTitle>
+        <CardDescription>{t('contract.contractingDescription')}</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Contract Model */}
+        <div className="space-y-2">
+          <Label htmlFor="contract_model">{t('contract.contractModel')}</Label>
+          <Input
+            id="contract_model"
+            value={localData.contract_model || ''}
+            onChange={(e) => handleFieldChange('contract_model', e.target.value)}
+            placeholder={t('contract.contractModelPlaceholder')}
+            disabled={readOnly}
+          />
+        </div>
 
-  const removeOtherSystem = (index: number) => {
-    const currentSystems = form.getValues('access_other_systems');
-    form.setValue('access_other_systems', currentSystems.filter((_, i) => i !== index));
-  };
+        {/* FTE Count */}
+        <div className="space-y-2">
+          <Label htmlFor="fte_count">{t('contract.fteCount')}</Label>
+          <Input
+            id="fte_count"
+            type="number"
+            value={localData.fte_count || ''}
+            onChange={(e) => handleNumberChange('fte_count', e.target.value)}
+            placeholder="0"
+            disabled={readOnly}
+            className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            onWheel={(e) => e.currentTarget.blur()}
+          />
+        </div>
 
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {/* Contracting Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('contract.contracting')}</CardTitle>
-            <CardDescription>{t('contract.contractingDescription')}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <TextField
-                form={form}
-                name="contract_model"
-                label={t('contract.contractModel')}
-                placeholder={t('contract.contractModelPlaceholder')}
+        {/* Date Fields */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label>{t('contract.onboardingDate')}</Label>
+            <Input
+              id="onboarding_date"
+              type="date"
+              value={localData.onboarding_date || ''}
+              onChange={(e) => handleFieldChange('onboarding_date', e.target.value)}
+              disabled={readOnly}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>{t('contract.contractStartDate')}</Label>
+            <Input
+              id="contract_start_date"
+              type="date"
+              value={localData.contract_start_date || ''}
+              onChange={(e) => handleFieldChange('contract_start_date', e.target.value)}
+              disabled={readOnly}
+            />
+          </div>
+        </div>
+
+        {/* Special Agreements */}
+        <div className="space-y-2">
+          <Label htmlFor="special_agreements">{t('contract.specialAgreements')}</Label>
+          <Textarea
+            id="special_agreements"
+            value={localData.special_agreements || ''}
+            onChange={(e) => handleFieldChange('special_agreements', e.target.value)}
+            placeholder={t('contract.specialAgreementsPlaceholder')}
+            disabled={readOnly}
+            rows={4}
+          />
+        </div>
+      </CardContent>
+    </Card>
+  ), [localData, t, readOnly, handleFieldChange, handleNumberChange]);
+
+  const technicalSetupSection = useMemo(() => (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Shield className="h-5 w-5" />
+          {t('contract.technicalSetup')}
+        </CardTitle>
+        <CardDescription>{t('contract.technicalSetupDescription')}</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Email Addresses Created */}
+        <div className="flex items-center justify-between p-3 border rounded-lg">
+          <Label htmlFor="email_addresses_created" className="cursor-pointer">
+            {t('contract.emailAddressesCreated')}
+          </Label>
+          <Switch
+            id="email_addresses_created"
+            checked={localData.email_addresses_created || false}
+            onCheckedChange={(checked) => handleFieldChange('email_addresses_created', checked)}
+            disabled={readOnly}
+          />
+        </div>
+
+        {/* System Access */}
+        <div className="space-y-2">
+          <Label className="text-base font-medium">{t('contract.systemAccess')}</Label>
+          
+          <div className="space-y-3">
+            {/* PMS System */}
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="access_pms_system"
+                checked={localData.access_pms_system || false}
+                onCheckedChange={(checked) => handleFieldChange('access_pms_system', checked)}
+                disabled={readOnly}
               />
-              
-              <NumberField
-                form={form}
-                name="fte_count"
-                label={t('contract.fteCount')}
-                placeholder={t('contract.fteCountPlaceholder')}
-                step="0.1"
-              />
-              
-              <FormField
-                control={form.control}
-                name="onboarding_date"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('contract.onboardingDate')}</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="contract_start_date"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('contract.contractStartDate')}</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <Label
+                htmlFor="access_pms_system"
+                className="cursor-pointer text-sm font-normal"
+              >
+                {t('contract.pmsSystem')}
+              </Label>
             </div>
-            
-            <TextareaField
-              form={form}
-              name="special_agreements"
-              label={t('contract.specialAgreements')}
-              placeholder={t('contract.specialAgreementsPlaceholder')}
-              className="min-h-[100px]"
-            />
-          </CardContent>
-        </Card>
 
-        {/* Technical Setup Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('contract.technicalSetup')}</CardTitle>
-            <CardDescription>{t('contract.technicalSetupDescription')}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <CheckboxField
-              form={form}
-              name="email_addresses_created"
-              label={t('contract.emailAddressesCreated')}
-            />
-            
-            <Separator />
-            
-            <div className="space-y-3">
-              <h4 className="text-sm font-medium">{t('contract.systemAccess')}</h4>
-              
-              <CheckboxField
-                form={form}
-                name="access_pms_system"
-                label={t('contract.pmsSystem')}
+            {/* S&C Tool */}
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="access_sc_tool"
+                checked={localData.access_sc_tool || false}
+                onCheckedChange={(checked) => handleFieldChange('access_sc_tool', checked)}
+                disabled={readOnly}
               />
+              <Label
+                htmlFor="access_sc_tool"
+                className="cursor-pointer text-sm font-normal"
+              >
+                {t('contract.scTool')}
+              </Label>
+            </div>
+
+            {/* Other Systems */}
+            <div className="space-y-2">
+              <Label className="text-sm">{t('contract.otherSystems')}</Label>
               
-              <CheckboxField
-                form={form}
-                name="access_sc_tool"
-                label={t('contract.scTool')}
-              />
-              
-              {/* Other Systems */}
-              <div className="space-y-2">
-                <FormLabel>{t('contract.otherSystems')}</FormLabel>
-                
-                {form.watch('access_other_systems').map((system, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <Badge variant="secondary" className="flex-1 justify-between">
-                      <span>{system}</span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="h-4 w-4 p-0 ml-2"
-                        onClick={() => removeOtherSystem(index)}
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </Badge>
-                  </div>
-                ))}
-                
-                <div className="flex items-center gap-2">
+              {!readOnly && (
+                <div className="flex gap-2">
                   <Input
+                    value={otherSystemInput}
+                    onChange={(e) => setOtherSystemInput(e.target.value)}
                     placeholder={t('contract.addSystemPlaceholder')}
-                    value={newSystem}
-                    onChange={(e) => setNewSystem(e.target.value)}
                     onKeyPress={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
-                        addOtherSystem();
+                        handleAddOtherSystem();
                       }
                     }}
                   />
                   <Button
                     type="button"
-                    variant="outline"
                     size="sm"
-                    onClick={addOtherSystem}
+                    onClick={handleAddOtherSystem}
+                    disabled={!otherSystemInput.trim()}
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
                 </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+              )}
 
-        {/* Navigation */}
-        <div className="flex justify-between">
-          <Button 
-            type="button" 
-            variant="outline" 
-            onClick={() => onPrevious(form.getValues())} 
-            className="gap-1"
-          >
-            <ArrowLeft className="h-4 w-4" /> {t('common.previous')}
-          </Button>
-          <Button 
-            type="submit" 
-            disabled={isSubmitting} 
-            className="gap-1"
-          >
-            {isSubmitting ? t('common.saving') : t('common.save')} <ArrowRight className="h-4 w-4" />
-          </Button>
+              {localData.access_other_systems && localData.access_other_systems.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {localData.access_other_systems.map((system: string, index: number) => (
+                    <Badge
+                      key={index}
+                      variant="secondary"
+                      className="flex items-center gap-1"
+                    >
+                      {system}
+                      {!readOnly && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveOtherSystem(index)}
+                          className="ml-1 hover:text-destructive"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      )}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-      </form>
-    </Form>
+      </CardContent>
+    </Card>
+  ), [localData, t, readOnly, otherSystemInput, handleFieldChange, handleAddOtherSystem, handleRemoveOtherSystem]);
+
+  return (
+    <div className="space-y-6">
+      {contractingSection}
+      {technicalSetupSection}
+      
+      {/* Navigation */}
+      {(onNext || onPrevious) && (
+        <div className="flex justify-between pt-4">
+          {onPrevious && (
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => onPrevious(localData)}
+              className="gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              {t('common.previous')}
+            </Button>
+          )}
+          {onNext && (
+            <Button 
+              type="button"
+              onClick={() => onNext(localData)}
+              className="gap-2 ml-auto"
+            >
+              {mode === 'edit' ? t('common.save') : t('common.finish')}
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      )}
+    </div>
   );
 };
 
-export default ContractOnboardingForm; 
+export default React.memo(ContractOnboardingForm); 

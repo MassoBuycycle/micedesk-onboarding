@@ -7,6 +7,7 @@ import FoodBeveragePreview from "./sections/FoodBeveragePreview";
 import EventsInfoPreview from "./sections/EventsInfoPreview";
 import EventSpacesPreview from "./sections/EventSpacesPreview";
 import UserAssignmentPreview from "./sections/UserAssignmentPreview";
+import ContractOnboardingPreview from "./sections/ContractOnboardingPreview";
 import { FormStep, HotelFormData } from "@/hooks/useHotelFormState";
 import { getRoomInfo, RoomInfo } from "@/apiClient/roomsApi";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -56,6 +57,7 @@ const HotelPreview: React.FC<HotelPreviewProps> = ({
   const foodBeverageData = liveFormData?.foodBeverage || {};
   const eventsData = liveFormData?.eventsInfo || {};
   const eventSpacesData = liveFormData?.eventSpaces || [];
+  const contractData = liveFormData?.contractOnboarding || {};
   
   const hotelName = hotelData.name || "New Hotel";
   
@@ -66,6 +68,7 @@ const HotelPreview: React.FC<HotelPreviewProps> = ({
     if (currentStep === "roomInfo" || currentStep === "roomCategories" || currentStep === "roomHandling") return "rooms";
     if (currentStep === "eventsInfo" || currentStep === "eventSpaces") return "events";
     if (currentStep === "foodBeverage") return "food";
+    if (currentStep === "contractOnboarding") return "contract";
     
     return "info";
   };
@@ -87,6 +90,7 @@ const HotelPreview: React.FC<HotelPreviewProps> = ({
           <TabsTrigger value="rooms">Zimmer</TabsTrigger>
           <TabsTrigger value="events">Events</TabsTrigger>
           <TabsTrigger value="food">F&B</TabsTrigger>
+          <TabsTrigger value="contract">Vertrag</TabsTrigger>
         </TabsList>
 
         <div className="p-4">
@@ -118,6 +122,10 @@ const HotelPreview: React.FC<HotelPreviewProps> = ({
             <div className="mt-6">
               <EventSpacesPreview eventSpaces={eventSpacesData} />
             </div>
+          </TabsContent>
+
+          <TabsContent value="contract" className="mt-0">
+            <ContractOnboardingPreview contractData={contractData} />
           </TabsContent>
 
           <TabsContent value="users" className="mt-0">
