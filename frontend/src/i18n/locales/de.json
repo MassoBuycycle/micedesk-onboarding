@@ -784,5 +784,28 @@
   },
   "users": {
     "assignUser": "Benutzer zuweisen"
+  },
+  "contract": {
+    "title": "Vertrag & Onboarding",
+    "contracting": "Vertrag",
+    "contractingDescription": "Vertragsdetails und Onboarding-Informationen",
+    "contractModel": "Vertragsmodell",
+    "contractModelPlaceholder": "Vertragsmodell eingeben",
+    "fteCount": "Anzahl FTE",
+    "fteCountPlaceholder": "0,0",
+    "onboardingDate": "Onboarding Termin",
+    "contractStartDate": "Vertragsstart",
+    "specialAgreements": "Sonderabsprachen",
+    "specialAgreementsPlaceholder": "Geben Sie besondere Vereinbarungen oder Bedingungen ein",
+    "technicalSetup": "Technik Setup",
+    "technicalSetupDescription": "Systemzugang und technische Konfiguration",
+    "emailAddressesCreated": "Emailadressen angelegt",
+    "systemAccess": "Zugang zu Systemen vorhanden",
+    "pmsSystem": "PMS System",
+    "scTool": "S&C Tool",
+    "otherSystems": "Weitere Systeme",
+    "addSystemPlaceholder": "Systemname eingeben",
+    "created": "Vertragsdetails erfolgreich erstellt",
+    "updated": "Vertragsdetails erfolgreich aktualisiert"
   }
 } 

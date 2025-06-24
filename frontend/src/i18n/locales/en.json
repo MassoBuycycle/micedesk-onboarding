@@ -670,5 +670,28 @@
     "assignUser": "Assign User"
   },
   "generalManagerSection": "General Manager",
-  "generalManagerSectionDescription": "Contact information of the General Manager"
+  "generalManagerSectionDescription": "Contact information of the General Manager",
+  "contract": {
+    "title": "Contract & Onboarding",
+    "contracting": "Contracting",
+    "contractingDescription": "Contract details and onboarding information",
+    "contractModel": "Contract Model",
+    "contractModelPlaceholder": "Enter contract model",
+    "fteCount": "Number of FTE",
+    "fteCountPlaceholder": "0.0",
+    "onboardingDate": "Onboarding Date",
+    "contractStartDate": "Contract Start Date",
+    "specialAgreements": "Special Agreements",
+    "specialAgreementsPlaceholder": "Enter any special agreements or conditions",
+    "technicalSetup": "Technical Setup",
+    "technicalSetupDescription": "System access and technical configuration",
+    "emailAddressesCreated": "Email addresses created",
+    "systemAccess": "Access to systems available",
+    "pmsSystem": "PMS System",
+    "scTool": "S&C Tool",
+    "otherSystems": "Other Systems",
+    "addSystemPlaceholder": "Enter system name",
+    "created": "Contract details created successfully",
+    "updated": "Contract details updated successfully"
+  }
 } 

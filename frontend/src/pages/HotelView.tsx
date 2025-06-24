@@ -69,6 +69,7 @@ const HotelView = () => {
   const fbDetails = hotelData?.fnb;
   const eventsInfo: any = (hotelData as any)?.eventsInfo || {};
   const roomHandling: any = (hotelData as any)?.roomHandling || null;
+  const contractDetails: any = (hotelData as any)?.contractDetails || {};
   const files = (hotelData?.files && hotelData.files.length > 0) ? hotelData.files : fallbackFiles;
   const imageFiles = files.filter(f => f.mime_type.startsWith("image"));
   const documentFiles = files.filter(f => !f.mime_type.startsWith("image"));
@@ -216,13 +217,14 @@ const HotelView = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-8">
+          <TabsList className="grid w-full grid-cols-9">
             <TabsTrigger value="overview">{t('hotels.overview')}</TabsTrigger>
             <TabsTrigger value="details">{t('hotels.details')}</TabsTrigger>
             <TabsTrigger value="rooms">{t('rooms.title')}</TabsTrigger>
             <TabsTrigger value="events">{t('events.title')}</TabsTrigger>
             <TabsTrigger value="facilities">{t('hotels.facilities')}</TabsTrigger>
             <TabsTrigger value="policies">{t('policies.title')}</TabsTrigger>
+            <TabsTrigger value="contract">{t('contract.title')}</TabsTrigger>
             <TabsTrigger value="media">{t('hotels.media')}</TabsTrigger>
             <TabsTrigger value="documents">{t('documents.title')}</TabsTrigger>
           </TabsList>
@@ -990,6 +992,111 @@ const HotelView = () => {
                 <CardContent className="text-center py-12">
                   <Shield className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                   <p className="text-muted-foreground">{t('policies.noPoliciesFound')}</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Contract Tab */}
+          <TabsContent value="contract" className="space-y-6 mt-6">
+            {Object.keys(contractDetails).length > 0 ? (
+              <div className="grid gap-6 md:grid-cols-2">
+                {/* Contracting Section */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <FileText className="h-5 w-5" />
+                      {t('contract.contracting')}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {contractDetails.contract_model && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">{t('contract.contractModel')}</p>
+                        <p className="font-medium">{contractDetails.contract_model}</p>
+                      </div>
+                    )}
+                    {contractDetails.fte_count !== undefined && contractDetails.fte_count !== null && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">{t('contract.fteCount')}</p>
+                        <p className="font-medium">{contractDetails.fte_count}</p>
+                      </div>
+                    )}
+                    {contractDetails.onboarding_date && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">{t('contract.onboardingDate')}</p>
+                        <p className="font-medium">{new Date(contractDetails.onboarding_date).toLocaleDateString()}</p>
+                      </div>
+                    )}
+                    {contractDetails.contract_start_date && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">{t('contract.contractStartDate')}</p>
+                        <p className="font-medium">{new Date(contractDetails.contract_start_date).toLocaleDateString()}</p>
+                      </div>
+                    )}
+                    {contractDetails.special_agreements && (
+                      <div className="md:col-span-2">
+                        <p className="text-sm text-muted-foreground mb-1">{t('contract.specialAgreements')}</p>
+                        <p className="text-sm whitespace-pre-wrap">{contractDetails.special_agreements}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Technical Setup Section */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Shield className="h-5 w-5" />
+                      {t('contract.technicalSetup')}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">{t('contract.emailAddressesCreated')}</span>
+                      <Badge variant={contractDetails.email_addresses_created ? "default" : "secondary"}>
+                        {formatBooleanValue(contractDetails.email_addresses_created)}
+                      </Badge>
+                    </div>
+                    
+                    <Separator />
+                    
+                    <div className="space-y-3">
+                      <p className="text-sm font-medium">{t('contract.systemAccess')}</p>
+                      
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">{t('contract.pmsSystem')}</span>
+                        <Badge variant={contractDetails.access_pms_system ? "default" : "secondary"}>
+                          {formatBooleanValue(contractDetails.access_pms_system)}
+                        </Badge>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">{t('contract.scTool')}</span>
+                        <Badge variant={contractDetails.access_sc_tool ? "default" : "secondary"}>
+                          {formatBooleanValue(contractDetails.access_sc_tool)}
+                        </Badge>
+                      </div>
+                      
+                      {contractDetails.access_other_systems && contractDetails.access_other_systems.length > 0 && (
+                        <div className="mt-3">
+                          <p className="text-sm font-medium mb-2">{t('contract.otherSystems')}</p>
+                          <div className="flex flex-wrap gap-2">
+                            {contractDetails.access_other_systems.map((system: string, idx: number) => (
+                              <Badge key={idx} variant="outline">{system}</Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="text-center py-12">
+                  <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground">{t('contract.noContractDetails', { defaultValue: 'No contract details available' })}</p>
                 </CardContent>
               </Card>
             )}

@@ -36,6 +36,7 @@ export interface HotelFormData {
   eventSpaces: any[];
   foodBeverage: any; // Changed from array to single object
   informationPolicies: any[];
+  contractOnboarding: any;
 }
 
 // Define the form steps
@@ -47,7 +48,8 @@ export const FORM_STEPS = [
   "eventsInfo", 
   "eventSpaces", 
   "foodBeverage",
-  "informationPolicies"
+  "informationPolicies",
+  "contractOnboarding"
 ] as const;
 
 export type FormStep = typeof FORM_STEPS[number];
@@ -61,6 +63,7 @@ export interface CompletedSteps {
   eventSpaces: boolean;
   foodBeverage: boolean;
   informationPolicies: boolean;
+  contractOnboarding: boolean;
 }
 
 export function useHotelFormState() {
@@ -79,7 +82,8 @@ export function useHotelFormState() {
     eventsInfo: {},
     eventSpaces: [],
     foodBeverage: {},
-    informationPolicies: []
+    informationPolicies: [],
+    contractOnboarding: {}
   };
 
   const initialCompletedSteps: CompletedSteps = {
@@ -90,7 +94,8 @@ export function useHotelFormState() {
     eventsInfo: false,
     eventSpaces: false,
     foodBeverage: false,
-    informationPolicies: false
+    informationPolicies: false,
+    contractOnboarding: false
   };
 
   const [formData, setFormData] = useState<HotelFormData>({...initialFormData});
@@ -384,6 +389,7 @@ export function useHotelFormState() {
       eventSpaces: apiData.eventSpaces || [],
       foodBeverage: apiData.fnb || apiData.foodBeverage || {},
       informationPolicies: apiData.informationPolicies || [],
+      contractOnboarding: apiData.contractDetails || {},
     };
     
     console.log("Final mapped form data:", newFormData);
@@ -412,6 +418,7 @@ export function useHotelFormState() {
       informationPolicies: !!(
         apiData.informationPolicies && apiData.informationPolicies.length > 0
       ),
+      contractOnboarding: !!(apiData.contractDetails && Object.keys(apiData.contractDetails).length > 0),
     };
     
     console.log("Completed steps:", newCompletedSteps);
@@ -1253,6 +1260,34 @@ export function useHotelFormState() {
             }
           } else {
             toast.info("No information policies to save.");
+          }
+          break;
+
+        case "contractOnboarding":
+          if (!currentHotelId) {
+            toast.error("Hotel ID not found. Cannot save contract details.");
+            setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
+            return;
+          }
+          
+          if (newFormData.contractOnboarding && Object.keys(newFormData.contractOnboarding).length > 0) {
+            try {
+              console.log("Saving contract details for hotel:", currentHotelId);
+              console.log("Contract data:", newFormData.contractOnboarding);
+              
+              // Import and use the contract API
+              const { upsertContractDetails } = await import('@/apiClient/contractApi');
+              await upsertContractDetails(currentHotelId, newFormData.contractOnboarding);
+              
+              toast.success("Contract & onboarding details saved successfully!");
+            } catch (error: any) {
+              console.error("Error saving contract details:", error);
+              toast.error(`Failed to save contract details: ${error.message}`);
+              setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
+              return;
+            }
+          } else {
+            toast.info("No contract details to save.");
           }
           
           // This is the final step, so reset the form

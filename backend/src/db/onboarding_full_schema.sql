@@ -374,6 +374,36 @@ CREATE INDEX idx_onboarding_room_category_infos_room_id ON onboarding_room_categ
 CREATE INDEX idx_onboarding_room_operational_handling_room_id ON onboarding_room_operational_handling(room_id);
 CREATE INDEX idx_onboarding_room_standard_features_room_id ON onboarding_room_standard_features(room_id);
 
+-- ------------------------------------------------------------
+-- (4.2) CONTRACT & ONBOARDING DETAILS
+-- ------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS onboarding_contract_details (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  hotel_id INT NOT NULL,
+  
+  -- Contracting fields
+  contract_model VARCHAR(255),
+  fte_count DECIMAL(10,2) DEFAULT 0 COMMENT 'Number of FTE (Full Time Equivalent)',
+  onboarding_date DATE,
+  contract_start_date DATE,
+  special_agreements TEXT,
+  
+  -- Technical Setup fields
+  email_addresses_created BOOLEAN DEFAULT FALSE,
+  access_pms_system BOOLEAN DEFAULT FALSE,
+  access_sc_tool BOOLEAN DEFAULT FALSE,
+  access_other_systems TEXT COMMENT 'JSON array of other system names',
+  
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  
+  UNIQUE KEY unique_hotel_contract (hotel_id),
+  FOREIGN KEY (hotel_id) REFERENCES onboarding_hotels(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_contract_details_hotel ON onboarding_contract_details(hotel_id);
+
 CREATE TABLE IF NOT EXISTS onboarding_payment_methods (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255) NOT NULL,

@@ -76,6 +76,16 @@ export const getFullHotelDetails = async (req, res, next) => {
 
     // F&B details
     const [[fnb]] = await connection.query('SELECT * FROM food_beverage_details WHERE hotel_id = ?', [hotelId]);
+    
+    // Contract & Onboarding details
+    const [[contractDetails]] = await connection.query('SELECT * FROM onboarding_contract_details WHERE hotel_id = ?', [hotelId]);
+    if (contractDetails && contractDetails.access_other_systems) {
+      try {
+        contractDetails.access_other_systems = JSON.parse(contractDetails.access_other_systems);
+      } catch (e) {
+        contractDetails.access_other_systems = [];
+      }
+    }
 
     // Files (all)
     let [files] = await connection.query(
@@ -146,6 +156,7 @@ export const getFullHotelDetails = async (req, res, next) => {
         parking,
         distances,
         fnb,
+        contractDetails: contractDetails || {},
         files
       }
     });

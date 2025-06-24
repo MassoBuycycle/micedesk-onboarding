@@ -1,5 +1,5 @@
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building, DoorOpen, Clock, CalendarCheck, CalendarRange, UtensilsCrossed, Check } from "lucide-react";
+import { Building, DoorOpen, Clock, CalendarCheck, CalendarRange, UtensilsCrossed, Shield, FileText, Check } from "lucide-react";
 import { CompletedSteps, FormStep } from "@/hooks/useHotelFormState";
 import { useTranslation } from "react-i18next";
 
@@ -99,7 +99,7 @@ const FormStepsTabs = ({ activeStep, completedSteps, onTabChange }: FormStepsTab
       </TabsTrigger>
       <TabsTrigger 
         value="foodBeverage" 
-        className="flex-1 flex flex-col items-center gap-1 p-2 h-auto rounded-r-lg data-[state=active]:bg-white"
+        className="flex-1 flex flex-col items-center gap-1 p-2 h-auto data-[state=active]:bg-white"
       >
         <div className="relative">
           <UtensilsCrossed className="h-4 w-4" />
@@ -110,6 +110,34 @@ const FormStepsTabs = ({ activeStep, completedSteps, onTabChange }: FormStepsTab
           )}
         </div>
         <span className="text-xs">{t("hotels.foodBeverage")}</span>
+      </TabsTrigger>
+      <TabsTrigger 
+        value="informationPolicies" 
+        className="flex-1 flex flex-col items-center gap-1 p-2 h-auto data-[state=active]:bg-white"
+      >
+        <div className="relative">
+          <Shield className="h-4 w-4" />
+          {completedSteps.informationPolicies && (
+            <span className="absolute -top-1 -right-1 bg-green-500 rounded-full p-0.5">
+              <Check className="h-2 w-2 text-white" />
+            </span>
+          )}
+        </div>
+        <span className="text-xs">{t("policies.title")}</span>
+      </TabsTrigger>
+      <TabsTrigger 
+        value="contractOnboarding" 
+        className="flex-1 flex flex-col items-center gap-1 p-2 h-auto rounded-r-lg data-[state=active]:bg-white"
+      >
+        <div className="relative">
+          <FileText className="h-4 w-4" />
+          {completedSteps.contractOnboarding && (
+            <span className="absolute -top-1 -right-1 bg-green-500 rounded-full p-0.5">
+              <Check className="h-2 w-2 text-white" />
+            </span>
+          )}
+        </div>
+        <span className="text-xs">{t("contract.title")}</span>
       </TabsTrigger>
     </TabsList>
   );
