@@ -10,10 +10,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, ArrowRight, PlusCircle, Trash2 } from 'lucide-react';
+import { deleteRoomCategory } from '@/apiClient/roomsApi';
+import { toast } from 'sonner';
 // import RoomCategoryCard, { RoomCategory } from "./room-sections/RoomCategoryCard"; // Unused for now
 
 // Corresponds to RoomCategoryInput in apiClient, but for form use (strings for numbers initially)
 const roomCategoryFormSchema = z.object({
+  id: z.number().optional(), // Add ID field for existing categories
   category_name: z.string().min(1, "Category name is required"),
   pms_name: z.string().optional().nullable(),
   num_rooms: z.coerce.number().optional().nullable(),
@@ -70,7 +73,14 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
   const form = useForm<FullCategoryFormValues>({ 
     resolver: zodResolver(formSchema),
     defaultValues: {
-      categories: initialData.length > 0 ? initialData.map(cat => ({...cat})) : [{ 
+      categories: initialData.length > 0 ? initialData.map(cat => ({
+        ...cat,
+        // Ensure boolean fields are properly converted
+        baby_bed_available: Boolean(cat.baby_bed_available),
+        extra_bed_available: Boolean(cat.extra_bed_available),
+        isAccessible: Boolean(cat.isAccessible),
+        hasBalcony: Boolean(cat.hasBalcony),
+      })) : [{ 
         category_name: '',
         extra_bed_available: false,
         baby_bed_available: false,
@@ -105,6 +115,26 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
     }
   }, [form, onChange]);
 
+  // Custom remove function that handles API deletion
+  const handleRemove = async (index: number) => {
+    const category = form.getValues(`categories.${index}`);
+    
+    // If the category has an ID, it exists in the database and needs to be deleted via API
+    if (category.id && mode === 'edit') {
+      try {
+        await deleteRoomCategory(category.id);
+        toast.success('Category deleted successfully');
+        remove(index);
+      } catch (error) {
+        console.error('Error deleting category:', error);
+        toast.error('Failed to delete category. Please try again.');
+      }
+    } else {
+      // For new categories (no ID), just remove from the form
+      remove(index);
+    }
+  };
+
   const onSubmit = (data: FullCategoryFormValues) => {
     onNext(data.categories);
   };
@@ -122,7 +152,7 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                   variant="ghost" 
                   size="sm" 
                   className="absolute top-4 right-4 text-destructive hover:bg-destructive/10"
-                  onClick={() => remove(index)}
+                  onClick={() => handleRemove(index)}
                 >
                   <Trash2 className="h-4 w-4 mr-1" /> Entfernen
                 </Button>
@@ -257,7 +287,13 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center space-x-2 justify-between rounded-lg border p-3 shadow-sm">
                       <FormLabel className="!mt-0">Babybett verfügbar?</FormLabel>
-                      <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                      <FormControl>
+                        <Checkbox 
+                          checked={field.value || false} 
+                          onCheckedChange={field.onChange} 
+                        />
+                      </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -267,7 +303,13 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center space-x-2 justify-between rounded-lg border p-3 shadow-sm">
                       <FormLabel className="!mt-0">Zustellbett verfügbar?</FormLabel>
-                      <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                      <FormControl>
+                        <Checkbox 
+                          checked={field.value || false} 
+                          onCheckedChange={field.onChange} 
+                        />
+                      </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -277,7 +319,12 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center space-x-2 justify-between rounded-lg border p-3 shadow-sm">
                       <FormLabel className="!mt-0">Barrierefrei?</FormLabel>
-                      <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                      <FormControl>
+                        <Checkbox 
+                          checked={field.value || false} 
+                          onCheckedChange={field.onChange} 
+                        />
+                      </FormControl>
                     </FormItem>
                   )}
                 />
@@ -287,7 +334,12 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center space-x-2 justify-between rounded-lg border p-3 shadow-sm">
                       <FormLabel className="!mt-0">Balkon?</FormLabel>
-                      <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                      <FormControl>
+                        <Checkbox 
+                          checked={field.value || false} 
+                          onCheckedChange={field.onChange} 
+                        />
+                      </FormControl>
                     </FormItem>
                   )}
                 />

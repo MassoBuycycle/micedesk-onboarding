@@ -212,6 +212,16 @@ export const addCategoriesToRoom = async (roomId: number, categories: RoomCatego
   return apiPost(`/rooms/${roomId}/categories`, categories, `Failed to add categories to room ${roomId}`);
 };
 
+// API Endpoint for Deleting a Room Category
+export const deleteRoomCategory = async (categoryId: number): Promise<{ success: boolean }> => {
+  return apiDelete(`/rooms/categories/${categoryId}`, `Failed to delete room category ${categoryId}`);
+};
+
+// API Endpoint for Getting Room Categories
+export const getRoomCategories = async (roomId: number): Promise<RoomCategory[]> => {
+  return apiGet(`/rooms/types/${roomId}/categories`, `Failed to fetch room categories for room ${roomId}`);
+};
+
 export interface RoomOperationalHandlingInput {
   revenue_manager_name?: string;
   revenue_contact_details?: string;

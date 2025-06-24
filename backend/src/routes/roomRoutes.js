@@ -10,7 +10,6 @@ import {
   createOrUpdateOperationalHandling // Import from roomController.js instead
 } from '../controllers/roomController.js'; // Corrected import path
 
-/* // Temporarily comment out other imports and routes as they need full rework
 import {
   getRoomCategories,
   getRoomCategoryById,
@@ -18,7 +17,7 @@ import {
   updateRoomCategory,
   deleteRoomCategory
 } from '../controllers/roomCategoryController.js';
-*/
+
 import {
   getRoomInfo,
   updateRoomInfo,
@@ -38,14 +37,12 @@ router.post('/', createRoom); // Changed from '/types' and uses new createRoom
 // Route for adding multiple category infos to an existing room
 router.post('/:roomId/categories', addCategoryInfosToRoom);
 
-/* // Temporarily comment out other routes
 // Room Categories routes
 router.get('/types/:roomId/categories', getRoomCategories);
 router.get('/categories/:id', getRoomCategoryById);
 router.post('/types/:roomId/categories', createRoomCategory);
 router.put('/categories/:id', updateRoomCategory);
 router.delete('/categories/:id', deleteRoomCategory);
-*/
 
 // Room Info routes
 router.get('/info', getRoomInfo);

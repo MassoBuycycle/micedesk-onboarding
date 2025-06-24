@@ -11,17 +11,17 @@ export const getRoomCategories = async (req, res, next) => {
   try {
     const roomId = parseInt(req.params.roomId);
     
-    // Check if room type exists
-    const [roomTypes] = await connection.query(
-      'SELECT * FROM room_types WHERE id = ?',
+    // Check if room exists
+    const [rooms] = await connection.query(
+      'SELECT * FROM rooms WHERE id = ?',
       [roomId]
     );
     
-    if (roomTypes.length === 0) {
-      return res.status(404).json({ error: 'Room type not found' });
+    if (rooms.length === 0) {
+      return res.status(404).json({ error: 'Room not found' });
     }
     
-    // Get all categories for this room type
+    // Get all categories for this room
     const [categories] = await connection.query(
       'SELECT * FROM room_category_infos WHERE room_id = ?',
       [roomId]
@@ -74,14 +74,14 @@ export const createRoomCategory = async (req, res, next) => {
   try {
     const roomId = parseInt(req.params.roomId);
     
-    // Check if room type exists
-    const [roomTypes] = await connection.query(
-      'SELECT * FROM room_types WHERE id = ?',
+    // Check if room exists
+    const [rooms] = await connection.query(
+      'SELECT * FROM rooms WHERE id = ?',
       [roomId]
     );
     
-    if (roomTypes.length === 0) {
-      return res.status(404).json({ error: 'Room type not found' });
+    if (rooms.length === 0) {
+      return res.status(404).json({ error: 'Room not found' });
     }
     
     const {

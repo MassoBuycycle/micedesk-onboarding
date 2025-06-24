@@ -13,7 +13,8 @@ import {
   RoomInfo,
   getRoomTypeById,
   getRoomTypeHandling,
-  getRoomInfo
+  getRoomInfo,
+  getRoomCategories
 } from "@/apiClient/roomsApi";
 import { HotelFormValues } from "@/components/forms/HotelForm";
 import { EventInfoData } from "@/components/forms/EventInfoForm";
@@ -108,6 +109,22 @@ export function useHotelFormState() {
       // Fetch core hotel data
       const hotelData = await getHotelById(hotelId);
 
+      // Try to fetch room data if available
+      let roomData = null;
+      let roomCategories = [] as any[];
+      let roomHandling = null;
+      
+      // Note: In the future, we might need a way to fetch room ID by hotel ID
+      // For now, we'll assume room categories and handling will be loaded 
+      // when the room info step is completed
+      
+      try {
+        // Try to get room info from the general endpoint
+        roomData = await getRoomInfo();
+      } catch (err) {
+        console.warn('Could not fetch room data for hotel', hotelId, err);
+      }
+
       // Try to fetch any existing events for this hotel
       let events = [] as any[];
       let detailedEventData = null;
@@ -180,6 +197,17 @@ export function useHotelFormState() {
       }
 
       const apiData: any = { hotel: hotelData };
+      
+      // Attach room data if available
+      if (roomData) {
+        apiData.roomInfo = roomData;
+      }
+      if (roomCategories && roomCategories.length > 0) {
+        apiData.roomCategories = roomCategories;
+      }
+      if (roomHandling) {
+        apiData.roomHandling = roomHandling;
+      }
       
       // Attach events array and detailed event data
       if (events && events.length) {
