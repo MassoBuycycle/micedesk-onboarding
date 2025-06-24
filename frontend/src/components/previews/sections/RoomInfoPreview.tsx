@@ -9,6 +9,17 @@ interface RoomInfoPreviewProps {
 const RoomInfoPreview = ({ roomInfo }: RoomInfoPreviewProps) => {
   const { t } = useTranslation();
   
+  // Helper function to handle boolean display
+  const formatBooleanValue = (value: any): string => {
+    // Handle numeric 1/0 as well as boolean true/false
+    if (value === 1 || value === true || value === "1" || value === "true") {
+      return t('common.yes');
+    } else if (value === 0 || value === false || value === "0" || value === "false") {
+      return t('common.no');
+    }
+    return String(value);
+  };
+  
   if (!roomInfo || Object.keys(roomInfo).length === 0) {
     return (
         <div className="text-sm italic text-muted-foreground">
@@ -34,13 +45,13 @@ const RoomInfoPreview = ({ roomInfo }: RoomInfoPreviewProps) => {
         {roomInfo.room_counts?.accessible !== undefined && roomInfo.room_counts.accessible > 0 && 
           <p><span className="text-foreground font-medium">Accessible Rooms:</span> {roomInfo.room_counts.accessible}</p>}
         {roomInfo.pet_policy?.pets_allowed !== undefined && (
-          <p><span className="text-foreground font-medium">Pets Allowed:</span> {roomInfo.pet_policy.pets_allowed ? t('common.yes') : t('common.no')}</p>
+          <p><span className="text-foreground font-medium">Pets Allowed:</span> {formatBooleanValue(roomInfo.pet_policy.pets_allowed)}</p>
         )}
         {roomInfo?.internetAvailable !== undefined && (
-          <p><span className="text-foreground font-medium">Internet Available:</span> {roomInfo.internetAvailable ? t('common.yes') : t('common.no')}</p>
+          <p><span className="text-foreground font-medium">Internet Available:</span> {formatBooleanValue(roomInfo.internetAvailable)}</p>
         )}
         {roomInfo?.airConditioning !== undefined && (
-          <p><span className="text-foreground font-medium">Air Conditioning:</span> {roomInfo.airConditioning ? t('common.yes') : t('common.no')}</p>
+          <p><span className="text-foreground font-medium">Air Conditioning:</span> {formatBooleanValue(roomInfo.airConditioning)}</p>
         )}
         {roomInfo.check_in_out?.check_in_time && <p><span className="text-foreground font-medium">Check-in:</span> {roomInfo.check_in_out.check_in_time}</p>}
         {roomInfo.check_in_out?.check_out_time && <p><span className="text-foreground font-medium">Check-out:</span> {roomInfo.check_in_out.check_out_time}</p>}

@@ -33,6 +33,17 @@ const HotelView = () => {
   const hotelId = parseInt(id || "0", 10);
   const { t } = useTranslation();
 
+  // Helper function to handle boolean display
+  const formatBooleanValue = (value: any): string => {
+    // Handle numeric 1/0 as well as boolean true/false
+    if (value === 1 || value === true || value === "1" || value === "true") {
+      return t('common.yes');
+    } else if (value === 0 || value === false || value === "0" || value === "false") {
+      return t('common.no');
+    }
+    return String(value);
+  };
+
   const { data: hotelData } = useQuery<FullHotelResponse>({
     queryKey: ["hotelFull", hotelId],
     queryFn: () => getFullHotelDetails(hotelId),
@@ -611,7 +622,7 @@ const HotelView = () => {
                           {Object.entries(category).filter(([k,v])=>!handledKeys.has(k) && !['id','hotel_id','name','category_name','created_at','updated_at'].includes(k) && v!==null && v!==undefined && v!=='').map(([key,value])=>{
                               const label = key.replace(/_/g,' ').replace(/([a-z])([A-Z])/g,'$1 $2');
                               return (
-                                <p key={key}><span className="font-medium capitalize">{label}:</span> {typeof value==='boolean' ? (value ? t('common.yes'):t('common.no')) : String(value)}</p>
+                                <p key={key}><span className="font-medium capitalize">{label}:</span> {formatBooleanValue(value)}</p>
                               );
                             })}
                         </CardContent>
@@ -637,7 +648,7 @@ const HotelView = () => {
                             return (
                               <div key={key} className="space-y-0.5">
                                 <p className="text-sm text-muted-foreground capitalize">{label}</p>
-                                <p className="font-medium text-sm">{typeof value==='boolean' ? (value ? t('common.yes'):t('common.no')) : String(value)}</p>
+                                <p className="font-medium text-sm">{formatBooleanValue(value)}</p>
                               </div>
                             );
                           })}
@@ -729,9 +740,9 @@ const HotelView = () => {
                   {eventsInfo.totalEventSpaces && <div><p className="text-sm text-muted-foreground">{t('events.totalSpaces')}</p><p className="font-medium">{eventsInfo.totalEventSpaces}</p></div>}
                   {eventsInfo.largestSpace && <div><p className="text-sm text-muted-foreground">{t('events.largestSpace')}</p><p className="font-medium">{eventsInfo.largestSpace} m²</p></div>}
                   {eventsInfo.maxCapacity && <div><p className="text-sm text-muted-foreground">{t('events.maxCapacity')}</p><p className="font-medium">{eventsInfo.maxCapacity}</p></div>}
-                  {eventsInfo.eventCoordinator !== undefined && <div><p className="text-sm text-muted-foreground">{t('events.eventCoordinator')}</p><p className="font-medium">{eventsInfo.eventCoordinator ? t('common.yes') : t('common.no')}</p></div>}
-                  {eventsInfo.hasAudioVisual !== undefined && <div><p className="text-sm text-muted-foreground">{t('events.audioVisual')}</p><p className="font-medium">{eventsInfo.hasAudioVisual ? t('common.yes') : t('common.no')}</p></div>}
-                  {eventsInfo.cateringAvailable !== undefined && <div><p className="text-sm text-muted-foreground">{t('events.catering')}</p><p className="font-medium">{eventsInfo.cateringAvailable ? t('common.yes') : t('common.no')}</p></div>}
+                  {eventsInfo.eventCoordinator !== undefined && <div><p className="text-sm text-muted-foreground">{t('events.eventCoordinator')}</p><p className="font-medium">{formatBooleanValue(eventsInfo.eventCoordinator)}</p></div>}
+                  {eventsInfo.hasAudioVisual !== undefined && <div><p className="text-sm text-muted-foreground">{t('events.audioVisual')}</p><p className="font-medium">{formatBooleanValue(eventsInfo.hasAudioVisual)}</p></div>}
+                  {eventsInfo.cateringAvailable !== undefined && <div><p className="text-sm text-muted-foreground">{t('events.catering')}</p><p className="font-medium">{formatBooleanValue(eventsInfo.cateringAvailable)}</p></div>}
                 </CardContent>
               </Card>
             )}
@@ -805,7 +816,7 @@ const HotelView = () => {
                         return (
                           <div key={key} className="space-y-1">
                             <p className="text-sm text-muted-foreground capitalize">{key.replace(/_/g,' ').replace(/([A-Z])/g,' $1').trim()}</p>
-                            <p className="font-medium">{typeof value==='boolean'? (value? t('common.yes'):t('common.no')): String(value)}</p>
+                            <p className="font-medium">{formatBooleanValue(value)}</p>
                           </div>
                         );
                       })}
@@ -848,7 +859,7 @@ const HotelView = () => {
                           <CardContent className="space-y-1 text-sm">
                             {bar.seats_indoor!==undefined && <p><span className="font-medium">{t('bars.seatsIndoor')}:</span> {bar.seats_indoor}</p>}
                             {bar.opening_hours && <p><span className="font-medium">{t('bars.openingHours')}:</span> {bar.opening_hours}</p>}
-                            {bar.snacks_available!==undefined && <p><span className="font-medium">{t('bars.snacks')}:</span> {bar.snacks_available? t('common.yes'): t('common.no')}</p>}
+                            {bar.snacks_available!==undefined && <p><span className="font-medium">{t('bars.snacks')}:</span> {formatBooleanValue(bar.snacks_available)}</p>}
                           </CardContent>
                         </Card>
                       ))}

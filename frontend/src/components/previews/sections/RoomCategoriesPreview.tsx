@@ -1,4 +1,5 @@
 import { DoorOpen } from "lucide-react";
+import { useTranslation } from "react-i18next";
 // import { RoomCategoryFormValues } from "@/components/forms/RoomCategoryForm"; // No longer needed
 import { RoomCategoryInput } from "@/apiClient/roomsApi"; // Import the correct type
 
@@ -8,6 +9,19 @@ interface RoomCategoriesPreviewProps {
 }
 
 const RoomCategoriesPreview = ({ roomCategories }: RoomCategoriesPreviewProps) => {
+  const { t } = useTranslation();
+  
+  // Helper function to handle boolean display
+  const formatBooleanValue = (value: any): string => {
+    // Handle numeric 1/0 as well as boolean true/false
+    if (value === 1 || value === true || value === "1" || value === "true") {
+      return t('common.yes');
+    } else if (value === 0 || value === false || value === "0" || value === "false") {
+      return t('common.no');
+    }
+    return String(value);
+  };
+  
   if (!roomCategories || roomCategories.length === 0) {
     return (
       <div className="mt-4 pt-4 border-t">
@@ -40,13 +54,13 @@ const RoomCategoriesPreview = ({ roomCategories }: RoomCategoriesPreviewProps) =
               {category.room_features && <p><span className="text-foreground">Ausstattungsmerkmale:</span> {category.room_features}</p>}
               {category.surcharges_upsell && <p><span className="text-foreground">Upsell-Kosten:</span> {category.surcharges_upsell}</p>}
               {category.second_person_surcharge !== undefined && <p><span className="text-foreground">Aufpreis 2. Person:</span> €{category.second_person_surcharge}</p>}
-              {category.extra_bed_available && (
+              {category.extra_bed_available !== undefined && (
                 <p>
-                  <span className="text-foreground">Zustellbett:</span> Verfügbar
-                  {category.extra_bed_surcharge !== undefined && <span> (Aufpreis: €{category.extra_bed_surcharge})</span>}
+                  <span className="text-foreground">Zustellbett:</span> {formatBooleanValue(category.extra_bed_available)}
+                  {category.extra_bed_available && category.extra_bed_surcharge !== undefined && <span> (Aufpreis: €{category.extra_bed_surcharge})</span>}
                 </p>
               )}
-              {category.baby_bed_available && <p><span className="text-foreground">Babybett:</span> Verfügbar</p>}
+              {category.baby_bed_available !== undefined && <p><span className="text-foreground">Babybett:</span> {formatBooleanValue(category.baby_bed_available)}</p>}
             </div>
           </div>
         ))}

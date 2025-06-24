@@ -8,6 +8,17 @@ interface RoomHandlingPreviewProps {
 const RoomHandlingPreview = ({ roomHandling }: RoomHandlingPreviewProps) => {
   const { t } = useTranslation();
   
+  // Helper function to handle boolean display
+  const formatBooleanValue = (value: any): string => {
+    // Handle numeric 1/0 as well as boolean true/false
+    if (value === 1 || value === true || value === "1" || value === "true") {
+      return t('events.available');
+    } else if (value === 0 || value === false || value === "0" || value === "false") {
+      return t('events.notAvailable');
+    }
+    return String(value);
+  };
+  
   if (!roomHandling || Object.keys(roomHandling).length === 0) return null;
 
   return (
@@ -19,7 +30,7 @@ const RoomHandlingPreview = ({ roomHandling }: RoomHandlingPreviewProps) => {
         {roomHandling?.checkInTime && <p><span className="text-foreground font-medium">Check-in Time:</span> {roomHandling.checkInTime}</p>}
         {roomHandling?.checkOutTime && <p><span className="text-foreground font-medium">Check-out Time:</span> {roomHandling.checkOutTime}</p>}
         {roomHandling?.lateCheckout !== undefined && (
-          <p><span className="text-foreground font-medium">Late Check-out:</span> {roomHandling.lateCheckout ? t('events.available') : t('events.notAvailable')}</p>
+          <p><span className="text-foreground font-medium">Late Check-out:</span> {formatBooleanValue(roomHandling.lateCheckout)}</p>
         )}
         {roomHandling?.lateCheckoutFee && <p><span className="text-foreground font-medium">Late Check-out Fee:</span> {roomHandling.lateCheckoutFee}</p>}
         {roomHandling?.guaranteePolicy && <p><span className="text-foreground font-medium">Guarantee Policy:</span> {roomHandling.guaranteePolicy}</p>}
