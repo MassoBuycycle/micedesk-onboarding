@@ -1,11 +1,13 @@
-
 import { Clock } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface RoomHandlingPreviewProps {
   roomHandling: any;
 }
 
 const RoomHandlingPreview = ({ roomHandling }: RoomHandlingPreviewProps) => {
+  const { t } = useTranslation();
+  
   if (!roomHandling || Object.keys(roomHandling).length === 0) return null;
 
   return (
@@ -17,7 +19,7 @@ const RoomHandlingPreview = ({ roomHandling }: RoomHandlingPreviewProps) => {
         {roomHandling?.checkInTime && <p><span className="text-foreground font-medium">Check-in Time:</span> {roomHandling.checkInTime}</p>}
         {roomHandling?.checkOutTime && <p><span className="text-foreground font-medium">Check-out Time:</span> {roomHandling.checkOutTime}</p>}
         {roomHandling?.lateCheckout !== undefined && (
-          <p><span className="text-foreground font-medium">Late Check-out:</span> {roomHandling.lateCheckout ? 'Available' : 'Not Available'}</p>
+          <p><span className="text-foreground font-medium">Late Check-out:</span> {roomHandling.lateCheckout ? t('events.available') : t('events.notAvailable')}</p>
         )}
         {roomHandling?.lateCheckoutFee && <p><span className="text-foreground font-medium">Late Check-out Fee:</span> {roomHandling.lateCheckoutFee}</p>}
         {roomHandling?.guaranteePolicy && <p><span className="text-foreground font-medium">Guarantee Policy:</span> {roomHandling.guaranteePolicy}</p>}
