@@ -104,6 +104,7 @@ export function useHotelFormState() {
   const setHotelIdForEdit = (hotelId: number) => {
     setCreatedHotelId(hotelId);
     setMode('edit');
+    console.log(`setHotelIdForEdit called: Setting mode to 'edit' for hotel ID ${hotelId}`);
   };
 
   const fetchAndSetHotelData = async (hotelId: number) => {

@@ -33,7 +33,8 @@ const Add = ({ mode = 'add' }: AddProps) => {
     handlePrevious,
     updateTempFormData,
     setHotelDataFromApi,
-    setCreatedHotelId
+    setCreatedHotelId,
+    setHotelIdForEdit
   } = useHotelFormState();
 
   // Fallback hotel ID from route parameter (used in edit mode before data load finishes)
@@ -78,8 +79,13 @@ const Add = ({ mode = 'add' }: AddProps) => {
             throw new Error('setCreatedHotelId is not a function');
           }
           
+          // Safety check for setHotelIdForEdit function
+          if (typeof setHotelIdForEdit !== 'function') {
+            throw new Error('setHotelIdForEdit is not a function');
+          }
+          
           await setHotelDataFromApi(hotelData);
-          setCreatedHotelId(hotelId);
+          setHotelIdForEdit(hotelId);
           
           console.log("Hotel data set successfully for edit mode");
           toast.success(t("pages.add.loadedForEditing"));
@@ -93,7 +99,7 @@ const Add = ({ mode = 'add' }: AddProps) => {
     };
 
     loadHotelData();
-  }, [mode, id, setHotelDataFromApi, setCreatedHotelId, t, navigate]);
+  }, [mode, id, setHotelDataFromApi, setHotelIdForEdit, t, navigate]);
 
   // Log the effective hotel ID for debugging
   useEffect(() => {
