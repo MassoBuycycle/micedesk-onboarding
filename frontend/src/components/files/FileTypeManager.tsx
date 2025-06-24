@@ -380,11 +380,12 @@ export default function FileTypeManager() {
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    {['hotel','room','event','fb'].map(cat=>(
-                      <SelectItem key={cat} value={cat}>
-                        {cat.charAt(0).toUpperCase()+cat.slice(1)}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="hotel">Hotel</SelectItem>
+                    <SelectItem value="room">Room</SelectItem>
+                    <SelectItem value="event">Event</SelectItem>
+                    <SelectItem value="fb">Food & Beverage</SelectItem>
+                    <SelectItem value="policy">Policy</SelectItem>
+                    <SelectItem value="contract">Contract</SelectItem>
                   </SelectContent>
                 </Select>
                 {formErrors.category && (
