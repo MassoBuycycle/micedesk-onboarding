@@ -298,6 +298,10 @@ export const upsertSpaces = async (eventId: number, spaces: EventSpaceInput[]) =
   return apiPost(`/events/${eventId}/spaces`, spaces, 'Failed to save spaces');
 };
 
+export const deleteEventSpace = async (eventId: number, spaceId: number): Promise<{ success: boolean }> => {
+  return apiDelete(`/events/${eventId}/spaces/${spaceId}`, `Failed to delete event space ${spaceId}`);
+};
+
 export const upsertEquipment = async (eventId: number, equip: EventEquipmentInput[]) => {
   return apiPost(`/events/${eventId}/equipment`, equip, 'Failed to save equipment');
 }; 

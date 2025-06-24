@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { toast } from "sonner";
 import { useTranslation } from 'react-i18next';
+import { deleteEventSpace } from '@/apiClient/eventsApi';
 
 interface EventSpace {
   id?: number | string;
@@ -31,6 +32,7 @@ interface EventSpace {
 interface EventSpacesFormProps {
   initialData?: EventSpace[];
   selectedHotel: any;
+  createdEventId?: number | null;
   onNext: (data: EventSpace[]) => void;
   onPrevious: (data: EventSpace[]) => void;
   onChange?: (data: EventSpace[]) => void;
@@ -53,7 +55,7 @@ const initialSpaceState: EventSpace = {
   features: ""
 };
 
-const EventSpacesForm = ({ initialData = [], selectedHotel, onNext, onPrevious, onChange, mode }: EventSpacesFormProps) => {
+const EventSpacesForm = ({ initialData = [], selectedHotel, createdEventId, onNext, onPrevious, onChange, mode }: EventSpacesFormProps) => {
   const { t } = useTranslation();
   const { toast: uiToast } = useToast();
   // Use initialData if provided, otherwise start with one empty space
@@ -88,10 +90,22 @@ const EventSpacesForm = ({ initialData = [], selectedHotel, onNext, onPrevious, 
   };
   
   // Function to remove an event space
-  const removeEventSpace = (id: number | string) => {
+  const removeEventSpace = async (id: number | string) => {
     if (spaces.length === 1) {
       toast.error(t('events.eventForm.spaces.mustHaveOne'));
       return;
+    }
+    
+    // If the space has a numeric ID, it exists in the database and needs to be deleted via API
+    if (typeof id === 'number' && mode === 'edit' && createdEventId) {
+      try {
+        await deleteEventSpace(createdEventId, id);
+        toast.success('Event space deleted successfully');
+      } catch (error) {
+        console.error('Error deleting event space:', error);
+        toast.error('Failed to delete event space. Please try again.');
+        return; // Don't remove from local state if API call fails
+      }
     }
     
     const updatedSpaces = spaces.filter(space => space.id !== id);

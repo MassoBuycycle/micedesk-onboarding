@@ -142,6 +142,7 @@ const FormStepContent = ({
           <EventSpacesForm 
             initialData={formData.eventSpaces}
             selectedHotel={formData.hotel}
+            createdEventId={createdEventId}
             onNext={(data) => onNext("eventSpaces", data)}
             onPrevious={(data) => onPrevious("eventSpaces", data)}
             onChange={(data) => onDataChange("eventSpaces", data)}
