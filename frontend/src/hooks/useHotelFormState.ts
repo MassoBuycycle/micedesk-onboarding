@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { createHotel, HotelInput, FoodBeverageOutletInput, createFoodBeverageOutlet, updateHotel, getHotelById, getFoodBeverageOutlets, updateFoodBeverageOutlet } from "@/apiClient/hotelsApi";
+import { createHotel, HotelInput, FoodBeverageOutletInput, createFoodBeverageOutlet, updateHotel, getHotelById, getFoodBeverageOutlets, updateFoodBeverageOutlet, getFullHotelDetails } from "@/apiClient/hotelsApi";
 import { upsertFoodBeverageDetails, getFoodBeverageDetails } from "@/apiClient/fbDetailsApi";
 import { createEvent, EventMainInput, EventCategoryInput, upsertBooking, upsertOperations, upsertFinancials, upsertSpaces, upsertEquipment, getEventsByHotelId, getEventById, updateEvent } from "@/apiClient/eventsApi";
 import { 
@@ -113,6 +113,21 @@ export function useHotelFormState() {
       let roomData = null;
       let roomCategories = [] as any[];
       let roomHandling = null;
+      
+      // Fetch full hotel details to get rooms with IDs
+      let fullHotelData = null;
+      try {
+        fullHotelData = await getFullHotelDetails(hotelId);
+        
+        // If we have rooms, set the first room's ID as the created room type ID
+        if (fullHotelData.data.rooms && fullHotelData.data.rooms.length > 0) {
+          const firstRoomId = fullHotelData.data.rooms[0].id;
+          setCreatedRoomTypeId(firstRoomId);
+          console.log(`Set room type ID from existing data: ${firstRoomId}`);
+        }
+      } catch (err) {
+        console.warn('Could not fetch full hotel details', err);
+      }
       
       // Note: In the future, we might need a way to fetch room ID by hotel ID
       // For now, we'll assume room categories and handling will be loaded 
@@ -337,6 +352,12 @@ export function useHotelFormState() {
     const firstRoom = Array.isArray(apiData.rooms)? apiData.rooms[0]:undefined;
     const roomInfoForm = transformRoomData(firstRoom);
     const roomHandlingForm = transformRoomHandling(Array.isArray(apiData.roomOperational)?apiData.roomOperational[0]:apiData.roomHandling);
+
+    // If we have rooms data with IDs, set the first room's ID
+    if (firstRoom && firstRoom.id) {
+      setCreatedRoomTypeId(firstRoom.id);
+      console.log(`Set room type ID from API data: ${firstRoom.id}`);
+    }
 
     const newFormData: HotelFormData = {
       hotel: transformedHotel,
