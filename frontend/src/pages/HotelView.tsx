@@ -18,7 +18,7 @@ import HotelAnnouncementBanner from '@/components/HotelAnnouncementBanner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useMutation } from '@tanstack/react-query';
-import { upsertHotelAnnouncement } from '@/apiClient/announcementsApi';
+import { upsertHotelAnnouncement, deleteHotelAnnouncement, getHotelAnnouncement } from '@/apiClient/announcementsApi';
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -80,6 +80,13 @@ const HotelView = () => {
   const [previewFile, setPreviewFile] = useState<FileData | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
 
+  // Fetch current announcement
+  const { data: currentAnnouncement } = useQuery({
+    queryKey: ['announcement', hotelId],
+    queryFn: () => getHotelAnnouncement(hotelId),
+    enabled: !!hotelId,
+  });
+
   const upsertMutation = useMutation({
     mutationFn: (msg:string) => upsertHotelAnnouncement(hotelId, msg, true),
     onSuccess: () => {
@@ -90,6 +97,19 @@ const HotelView = () => {
       queryClient.invalidateQueries({ queryKey: ['announcements', 'active']});
     },
     onError: (err:any)=> toast.error(err.message || t('common.saveFailed'))
+  });
+
+  // Delete announcement mutation
+  const deleteAnnouncementMutation = useMutation({
+    mutationFn: () => deleteHotelAnnouncement(hotelId),
+    onSuccess: () => {
+      toast.success(t('announcements.deleted', { defaultValue: 'Announcement deleted' }));
+      setAnnounceOpen(false);
+      setAnnounceText('');
+      queryClient.invalidateQueries({ queryKey: ['announcement', hotelId]});
+      queryClient.invalidateQueries({ queryKey: ['announcements', 'active']});
+    },
+    onError: (err:any) => toast.error(err.message || t('announcements.deleteFailed', { defaultValue: 'Failed to delete announcement' }))
   });
 
   // Delete file mutation
@@ -182,7 +202,10 @@ const HotelView = () => {
             <Button size="sm" variant="outline" onClick={handleEdit} className="gap-1">
               <Pencil className="h-4 w-4"/>{t('common.edit')}
             </Button>
-            <Button size="sm" variant="outline" onClick={()=>setAnnounceOpen(true)} className="gap-1">
+            <Button size="sm" variant="outline" onClick={()=> {
+              setAnnounceText(currentAnnouncement?.message || '');
+              setAnnounceOpen(true);
+            }} className="gap-1">
               <Speaker className="h-4 w-4"/>{t('announcements.title')}
             </Button>
             <Button size="sm" variant="destructive" onClick={handleDelete} className="gap-1">
@@ -1076,15 +1099,37 @@ const HotelView = () => {
             <DialogHeader>
               <DialogTitle>{t('announcements.setSpecialAnnouncement')}</DialogTitle>
               <DialogDescription>
-                {t('announcements.description')}
+                {currentAnnouncement ? 
+                  t('announcements.currentAnnouncement', { defaultValue: 'Update or delete the current announcement.' }) : 
+                  t('announcements.description')
+                }
               </DialogDescription>
             </DialogHeader>
+            
+            {currentAnnouncement && (
+              <div className="mb-4 p-3 rounded-md bg-muted">
+                <p className="text-sm font-medium mb-1">{t('announcements.current', { defaultValue: 'Current announcement:' })}</p>
+                <p className="text-sm">{currentAnnouncement.message}</p>
+              </div>
+            )}
+            
             <Input 
               placeholder={t('announcements.messagePlaceholder')} 
               value={announceText} 
               onChange={(e)=>setAnnounceText(e.target.value)} 
             />
-            <DialogFooter>
+            <DialogFooter className="flex justify-between">
+              <div>
+                {currentAnnouncement && (
+                  <Button 
+                    variant="destructive"
+                    onClick={()=>deleteAnnouncementMutation.mutate()} 
+                    disabled={deleteAnnouncementMutation.isPending}
+                  >
+                    {t('common.delete')}
+                  </Button>
+                )}
+              </div>
               <Button 
                 onClick={()=>upsertMutation.mutate(announceText)} 
                 disabled={upsertMutation.isPending || !announceText.trim()}

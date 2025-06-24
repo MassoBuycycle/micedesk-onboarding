@@ -86,4 +86,29 @@ export const listActiveAnnouncements = async (req, res, next) => {
     }));
     res.json(withUrls);
   } catch (err) { next(err); } finally { connection.release(); }
+};
+
+/**
+ * Delete announcement for a hotel
+ */
+export const deleteHotelAnnouncement = async (req, res, next) => {
+  const connection = await pool.getConnection();
+  try {
+    const hotelId = parseInt(req.params.hotelId);
+    if (isNaN(hotelId)) {
+      return res.status(400).json({ error: 'Invalid hotel ID' });
+    }
+    
+    const [result] = await connection.query('DELETE FROM hotel_announcements WHERE hotel_id = ?', [hotelId]);
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'No announcement found for this hotel' });
+    }
+    
+    res.json({ success: true, deleted: true });
+  } catch (err) {
+    next(err);
+  } finally {
+    connection.release();
+  }
 }; 

@@ -1,4 +1,4 @@
-import { apiGet, apiPost } from './apiClient';
+import { apiGet, apiPost, apiDelete } from './apiClient';
 
 export interface Announcement {
   id: number;
@@ -26,4 +26,9 @@ export const upsertHotelAnnouncement = (
   active = true
 ): Promise<{ success: boolean }> => {
   return apiPost(`/hotels/${hotelId}/announcement`, { message, active }, 'Failed to save announcement');
+};
+
+// Delete announcement for a hotel
+export const deleteHotelAnnouncement = (hotelId: number): Promise<{ success: boolean }> => {
+  return apiDelete(`/hotels/${hotelId}/announcement`, 'Failed to delete announcement');
 }; 

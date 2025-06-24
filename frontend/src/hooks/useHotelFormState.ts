@@ -166,7 +166,8 @@ export function useHotelFormState() {
             getEventFinancials,
             getEventAvEquipment,
             getEventTechnicalInfo,
-            getEventContractingInfo
+            getEventContractingInfo,
+            getEventSpaces
           } = await import('@/apiClient/eventsApi');
           
           // Fetch all event data in parallel
@@ -177,7 +178,8 @@ export function useHotelFormState() {
             financialsData,
             equipmentData,
             technicalData,
-            contractingData
+            contractingData,
+            spacesData
           ] = await Promise.allSettled([
             getEventById(firstEventId),
             getEventBooking(firstEventId),
@@ -185,7 +187,8 @@ export function useHotelFormState() {
             getEventFinancials(firstEventId),
             getEventAvEquipment(firstEventId),
             getEventTechnicalInfo(firstEventId),
-            getEventContractingInfo(firstEventId)
+            getEventContractingInfo(firstEventId),
+            getEventSpaces(firstEventId)
           ]);
           
           console.log("📊 Event data fetch results:");
@@ -196,6 +199,7 @@ export function useHotelFormState() {
           console.log("Equipment:", equipmentData.status === 'fulfilled' ? equipmentData.value : "failed");
           console.log("Technical:", technicalData.status === 'fulfilled' ? technicalData.value : "failed");
           console.log("Contracting:", contractingData.status === 'fulfilled' ? contractingData.value : "failed");
+          console.log("Spaces:", spacesData.status === 'fulfilled' ? spacesData.value : "failed");
           
           // Structure the detailed event data
           detailedEventData = {
@@ -205,7 +209,8 @@ export function useHotelFormState() {
             financials: financialsData.status === 'fulfilled' ? financialsData.value : {},
             equipment: equipmentData.status === 'fulfilled' ? (Array.isArray(equipmentData.value) ? equipmentData.value : []) : [],
             technical: technicalData.status === 'fulfilled' ? technicalData.value : {},
-            contracting: contractingData.status === 'fulfilled' ? contractingData.value : {}
+            contracting: contractingData.status === 'fulfilled' ? contractingData.value : {},
+            spaces: spacesData.status === 'fulfilled' ? (Array.isArray(spacesData.value) ? spacesData.value : []) : []
           };
           
           console.log("✅ Structured detailed event data:", detailedEventData);
@@ -233,6 +238,10 @@ export function useHotelFormState() {
       }
       if (detailedEventData) {
         apiData.eventsInfo = detailedEventData;
+        // Extract event spaces if available
+        if (detailedEventData.spaces && detailedEventData.spaces.length > 0) {
+          apiData.eventSpaces = detailedEventData.spaces;
+        }
       }
 
       setHotelDataFromApi(apiData);
@@ -906,17 +915,18 @@ export function useHotelFormState() {
           break;
 
         case "eventsInfo":
+          console.log("==== EVENT INFO STEP ====");
+          console.log("currentHotelId:", currentHotelId);
+          console.log("createdEventId:", createdEventId);
+          console.log("mode:", mode);
+          console.log("newFormData.eventsInfo:", newFormData.eventsInfo);
+          
           if (!currentHotelId) {
             console.error("No hotel ID found! currentHotelId is null or undefined");
             toast.error("Hotel ID not found. Cannot create event.");
             setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
             return;
           }
-          
-          console.log("==== EVENT INFO STEP ====");
-          console.log("currentHotelId:", currentHotelId);
-          console.log("createdEventId:", createdEventId);
-          console.log("newFormData.eventsInfo:", newFormData.eventsInfo);
           
           try {
             if (newFormData.eventsInfo && Object.keys(newFormData.eventsInfo).length > 0) {
@@ -989,15 +999,33 @@ export function useHotelFormState() {
               
               // Equipment data
               if (evData.equipment && evData.equipment.length > 0) {
+                console.log("=== HANDLING EQUIPMENT DATA ===");
+                console.log("Equipment data:", evData.equipment);
+                
                 try {
-                  const mappedEquipment = evData.equipment.map((item: any) => ({
-                    equipment_name: item.name || "",
-                    quantity: item.quantity || 0,
-                    price: item.price || 0
-                  }));
-                  console.log("API call: upsertEquipment with data:", mappedEquipment);
-                  const equipRes = await upsertEquipment(eventId, mappedEquipment);
-                  console.log("upsertEquipment response:", equipRes);
+                  if (mode === 'edit') {
+                    // In edit mode, we need to handle updates and new items
+                    // The upsertEquipment API should handle this, but let's prepare the data properly
+                    const mappedEquipment = evData.equipment.map((item: any) => ({
+                      equipment_name: item.equipment_name || item.name || "",
+                      quantity: item.quantity || 0,
+                      price: item.price_per_unit || item.price || 0
+                    }));
+                    console.log("API call: upsertEquipment with mapped data:", mappedEquipment);
+                    const equipRes = await upsertEquipment(eventId, mappedEquipment);
+                    console.log("upsertEquipment response:", equipRes);
+                    toast.success("Equipment data updated successfully");
+                  } else {
+                    // In add mode, all equipment is new
+                    const mappedEquipment = evData.equipment.map((item: any) => ({
+                      equipment_name: item.equipment_name || item.name || "",
+                      quantity: item.quantity || 0,
+                      price: item.price_per_unit || item.price || 0
+                    }));
+                    console.log("API call: upsertEquipment with data:", mappedEquipment);
+                    const equipRes = await upsertEquipment(eventId, mappedEquipment);
+                    console.log("upsertEquipment response:", equipRes);
+                  }
                 } catch (err) {
                   console.error("Error in upsertEquipment:", err);
                   toast.error("Failed to save equipment data but proceeding");
@@ -1062,6 +1090,11 @@ export function useHotelFormState() {
           }
 
         case "eventSpaces":
+          console.log("=== EVENT SPACES STEP START ===");
+          console.log("createdEventId:", createdEventId);
+          console.log("mode:", mode);
+          console.log("newFormData.eventSpaces:", newFormData.eventSpaces);
+          
           if (!createdEventId) {
             toast.error("Event ID not found. Please complete the Event Info step first.");
             setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
@@ -1071,13 +1104,46 @@ export function useHotelFormState() {
           try {
             // Handle event spaces data
             if (newFormData.eventSpaces && newFormData.eventSpaces.length > 0) {
-              toast.info(`Saving ${newFormData.eventSpaces.length} event spaces...`);
-              try {
-                await upsertSpaces(createdEventId, newFormData.eventSpaces);
-                toast.success("Event spaces saved successfully");
-              } catch (err) {
-                console.error("Error saving event spaces:", err);
-                toast.error("Failed to save event spaces but proceeding");
+              const formSpaces = newFormData.eventSpaces as any[];
+              console.log("Form spaces:", formSpaces);
+              
+              // Separate existing spaces (with numeric id) from new ones (with UUID or no id)
+              const existingSpaces = formSpaces.filter(space => typeof space.id === 'number');
+              const newSpaces = formSpaces.filter(space => typeof space.id !== 'number');
+              
+              console.log("Existing spaces (with numeric ID):", existingSpaces);
+              console.log("New spaces (with UUID/no ID):", newSpaces);
+              
+              // If we're in edit mode, handle updates
+              if (mode === 'edit') {
+                console.log("=== EDIT MODE - HANDLING EVENT SPACES ===");
+                
+                // For event spaces, the API uses upsert which handles both updates and creates
+                // So we just need to prepare the data properly
+                // Note: Deletions are already handled by the EventSpacesForm component
+                
+                // All spaces (both existing and new) can be sent via upsertSpaces
+                const allSpaces = formSpaces.map(space => {
+                  // Remove the id field for the API payload (backend generates IDs)
+                  const { id, ...spaceData } = space;
+                  return spaceData;
+                });
+                
+                console.log(`Upserting ${allSpaces.length} event spaces for event ID ${createdEventId}`);
+                await upsertSpaces(createdEventId, allSpaces);
+                toast.success(`${allSpaces.length} event spaces saved successfully`);
+              } else {
+                console.log("=== ADD MODE - CREATING EVENT SPACES ===");
+                // In add mode, all spaces are new
+                const spacesToCreate = formSpaces.map(space => {
+                  // Remove the id field for the API payload
+                  const { id, ...spaceData } = space;
+                  return spaceData;
+                });
+                
+                console.log(`Creating ${spacesToCreate.length} event spaces for event ID ${createdEventId}`);
+                await upsertSpaces(createdEventId, spacesToCreate);
+                toast.success(`${spacesToCreate.length} event spaces created successfully`);
               }
             } else {
               toast.info("No event spaces to save");
@@ -1090,10 +1156,8 @@ export function useHotelFormState() {
           } catch (error: any) {
             console.error("Error in event spaces step:", error);
             toast.error(`Error in event spaces step: ${error.message || 'Unknown error'}`);
-            // Still proceed to next step
-            if (nextStepKey) {
-              setActiveStep(nextStepKey);
-            }
+            setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
+            return;
           }
           break;
 
