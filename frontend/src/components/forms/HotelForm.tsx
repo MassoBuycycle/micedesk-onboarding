@@ -270,6 +270,7 @@ const HotelForm = ({ initialData = {}, onNext, onChange, mode = 'add' }: HotelFo
         planned_changes: data.plannedChanges || '',
         attraction_in_the_area: data.attractionInTheArea || '',
         external_billing_id: data.externalBillingId || '',
+        additional_links: data.additionalLinks || [],
       };
 
       console.log("Transformed hotel data:", hotelDataFromForm);

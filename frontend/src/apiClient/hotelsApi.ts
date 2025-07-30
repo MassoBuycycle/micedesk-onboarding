@@ -49,6 +49,7 @@ export interface Hotel {
   equipment_spa_area?: string;
   planned_changes?: string;
   attraction_in_the_area?: string;
+  additional_links?: Array<{ name: string; link: string }>;
   created_at?: string; // date-time
   updated_at?: string; // date-time
 }
@@ -110,6 +111,7 @@ export interface HotelInput {
   equipment_fitness_center?: string;
   opening_time_spa_area?: string;
   equipment_spa_area?: string;
+  additional_links?: Array<{ name: string; link: string }>;
 }
 
 // New Schemas for Food & Beverage Outlets
