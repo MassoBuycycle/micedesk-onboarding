@@ -1,5 +1,5 @@
 
-import { Building, CreditCard, MapPin } from "lucide-react";
+import { Building, CreditCard, MapPin, Link } from "lucide-react";
 
 interface HotelInfoPreviewProps {
   hotel: any;
@@ -127,6 +127,30 @@ const HotelInfoPreview = ({ hotel }: HotelInfoPreviewProps) => {
           </h3>
           <div className="text-xs text-muted-foreground space-y-1">
             <p><span className="text-foreground font-medium">Planned Changes:</span><br /><span className="text-xs">{hotel.plannedChanges}</span></p>
+          </div>
+        </div>
+      )}
+
+      {/* Additional Links Section */}
+      {hotel?.additionalLinks && hotel.additionalLinks.length > 0 && (
+        <div>
+          <h3 className="text-xs font-medium mb-1.5 flex items-center gap-1.5 pb-1 border-b">
+            <Link className="h-3.5 w-3.5" /> Additional Links
+          </h3>
+          <div className="text-xs text-muted-foreground space-y-1">
+            {hotel.additionalLinks.map((link: any, index: number) => (
+              <div key={index} className="flex items-center gap-2">
+                <span className="text-foreground font-medium">{link.name}:</span>
+                <a 
+                  href={link.link} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800 underline"
+                >
+                  {link.link}
+                </a>
+              </div>
+            ))}
           </div>
         </div>
       )}

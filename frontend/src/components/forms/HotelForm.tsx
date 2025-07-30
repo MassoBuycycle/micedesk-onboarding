@@ -22,6 +22,7 @@ import LocationDistanceSection from "./hotel-sections/LocationDistanceSection";
 import AdditionalInfoSection from "./hotel-sections/AdditionalInfoSection";
 import FacilitiesSection from "./hotel-sections/FacilitiesSection";
 import GeneralManagerSection from "./hotel-sections/GeneralManagerSection";
+import AdditionalLinksSection from "./hotel-sections/AdditionalLinksSection";
 
 // Define schema for form validation
 const createHotelFormSchema = (t: any) => z.object({
@@ -90,6 +91,12 @@ const createHotelFormSchema = (t: any) => z.object({
   equipmentFitnessCenter: z.string().optional(),
   openingTimeSpaArea: z.string().optional(),
   equipmentSpaArea: z.string().optional(),
+  
+  // Additional Links
+  additionalLinks: z.array(z.object({
+    name: z.string().min(1, { message: t("forms.validation.linkNameRequired") }),
+    link: z.string().url({ message: t("forms.validation.linkUrlRequired") })
+  })).optional(),
 });
 
 export type HotelFormValues = z.infer<ReturnType<typeof createHotelFormSchema>>;
@@ -162,6 +169,7 @@ const HotelForm = ({ initialData = {}, onNext, onChange, mode = 'add' }: HotelFo
       equipmentFitnessCenter: "",
       openingTimeSpaArea: "",
       equipmentSpaArea: "",
+      additionalLinks: [],
       ...initialData
     }
   });
@@ -350,6 +358,7 @@ const HotelForm = ({ initialData = {}, onNext, onChange, mode = 'add' }: HotelFo
           <FacilitiesSection form={form} />
           <LocationDistanceSection form={form} />
           <AdditionalInfoSection form={form} />
+          <AdditionalLinksSection form={form} />
 
           <div className="flex justify-end">
             <Button 

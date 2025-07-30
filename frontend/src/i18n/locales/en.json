@@ -197,6 +197,13 @@
     "costPerDay": "Cost per Day (€)",
     "parkingRemarks": "Parking Remarks",
     "parkingRemarksDescription": "e.g. bus parking nearby but not belonging to the hotel",
+    "additionalLinks": "Additional Links",
+    "additionalLinksDescription": "Add useful links related to the hotel",
+    "linkName": "Link Name",
+    "linkNamePlaceholder": "e.g. Documentation, GitHub Repository",
+    "linkUrl": "Link URL",
+    "linkUrlPlaceholder": "https://example.com",
+    "addLink": "Add Link",
     "allinvosCisboxNr": "Allinvos / Cisbox Nr.",
     "plannedChangesDescription": "Describe any planned renovations or changes"
   },
@@ -323,7 +330,9 @@
       "eventSpaceNameRequired": "Event space name is required",
       "eventSpaceCapacityRequired": "Capacity is required",
       "maxParticipantsRequired": "Maximum participants is required",
-      "pricePerPersonRequired": "Price per person is required"
+      "pricePerPersonRequired": "Price per person is required",
+      "linkNameRequired": "Link name is required",
+      "linkUrlRequired": "Valid URL is required"
     },
     "placeholders": {
       "enterName": "Enter name",

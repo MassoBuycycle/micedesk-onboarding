@@ -1,3 +1,8 @@
+export interface AdditionalLink {
+  name: string;
+  link: string;
+}
+
 export interface Hotel {
   id?: number;
   system_hotel_id?: string; // External system identifier (e.g. HB4I2, 57392, H5425)
@@ -24,6 +29,7 @@ export interface Hotel {
   hotel_brand?: string;
   planned_changes?: string;
   attraction_in_the_area?: string;
+  additional_links?: AdditionalLink[];
   created_at?: Date;
   updated_at?: Date;
 }

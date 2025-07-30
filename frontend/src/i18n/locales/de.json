@@ -200,6 +200,13 @@
     "costPerDay": "Parkgebühren pro Tag",
     "parkingRemarks": "Bemerkungen zum Parken",
     "parkingRemarksDescription": "z.B. Busparkplatz in der Nähe, gehört aber nicht zum Hotel",
+    "additionalLinks": "Zusätzliche Links",
+    "additionalLinksDescription": "Fügen Sie nützliche Links zum Hotel hinzu",
+    "linkName": "Link-Name",
+    "linkNamePlaceholder": "z.B. Dokumentation, GitHub Repository",
+    "linkUrl": "Link-URL",
+    "linkUrlPlaceholder": "https://example.com",
+    "addLink": "Link hinzufügen",
     "allinvosCisboxNr": "Allinvos / Cisbox Nr.",
     "plannedChangesDescription": "Beschreiben Sie geplante Renovierungen oder Änderungen",
     "generalManagerSection": "General Manager",
@@ -329,7 +336,9 @@
       "eventSpaceCapacityRequired": "Kapazität ist erforderlich",
       "systemHotelIdRequired": "System-Hotel-ID ist erforderlich (z.B. HB4I2, 57392, H5425)",
       "maxParticipantsRequired": "Maximale Teilnehmerzahl ist erforderlich",
-      "pricePerPersonRequired": "Preis pro Person ist erforderlich"
+      "pricePerPersonRequired": "Preis pro Person ist erforderlich",
+      "linkNameRequired": "Link-Name ist erforderlich",
+      "linkUrlRequired": "Gültige URL ist erforderlich"
     },
     "placeholders": {
       "enterName": "Name eingeben",
