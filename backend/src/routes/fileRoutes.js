@@ -16,7 +16,8 @@ import {
   getFileById,
   deleteFileById,
   getRoomFilesByHotel,
-  assignTemporaryFiles
+  assignTemporaryFiles,
+  assignRoomCategoryFiles
 } from '../controllers/fileController.js';
 import { uploadMiddleware } from '../services/s3Service.js';
 
@@ -51,6 +52,10 @@ router.post(
 // Route format: /files/assign/{entityType}/{entityId}
 // Example: /files/assign/hotels/123
 router.post('/assign/:entityType/:entityId', assignTemporaryFiles);
+
+// Assign temporary files to room category
+// Route format: /files/assign-room-category/{roomCategoryId}
+router.post('/assign-room-category/:roomCategoryId', assignRoomCategoryFiles);
 
 router.get('/hotels/:hotelId/room', getRoomFilesByHotel);
 

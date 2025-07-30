@@ -9,9 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, ArrowRight, PlusCircle, Trash2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, PlusCircle, Trash2, Image } from 'lucide-react';
 import { deleteRoomCategory } from '@/apiClient/roomsApi';
 import { toast } from 'sonner';
+import FileUpload from '@/components/files/FileUpload';
 // import RoomCategoryCard, { RoomCategory } from "./room-sections/RoomCategoryCard"; // Unused for now
 
 // Corresponds to RoomCategoryInput in apiClient, but for form use (strings for numbers initially)
@@ -65,6 +66,7 @@ interface RoomCategoryFormProps {
 
 const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({ 
   initialData = [], 
+  selectedHotel,
   onNext, 
   onPrevious, 
   onChange, 
@@ -343,6 +345,25 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                       </FormControl>
                     </FormItem>
                   )}
+                />
+              </div>
+
+              {/* Image Upload Section for Room Category */}
+              <div className="border-t pt-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Image className="h-5 w-5 text-primary" />
+                  <h4 className="text-lg font-medium">Zimmerkategorie Bilder</h4>
+                </div>
+                <div className="text-sm text-muted-foreground mb-4">
+                  Laden Sie Bilder für diese Zimmerkategorie hoch. Diese werden für die Präsentation der Zimmer verwendet.
+                </div>
+                <FileUpload
+                  entityType="room-categories"
+                  entityId={item.id || 'new'}
+                  category="room-category-images"
+                  fileTypeCode="images"
+                  maxFiles={5}
+                  className="w-full"
                 />
               </div>
             </CardContent>

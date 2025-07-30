@@ -291,6 +291,80 @@ export const assignTemporaryFiles = async (req, res) => {
 };
 
 /**
+ * Service function to assign temporary files to room categories
+ * This can be called from other controllers
+ */
+export const assignRoomCategoryFilesService = async (roomCategoryId) => {
+  try {
+    // Fetch all temporary files that need to be reassigned for room categories
+    const [tempFiles] = await pool.query(
+      `SELECT id, storage_path 
+       FROM files 
+       WHERE entity_type = 'room-categories' AND is_temporary = 1 AND entity_id = 0`,
+      []
+    );
+
+    // No files to process – return early
+    if (tempFiles.length === 0) {
+      return { message: 'No temporary room category files found', updatedCount: 0 };
+    }
+
+    let movedCount = 0;
+
+    // Process each file sequentially
+    for (const file of tempFiles) {
+      const sourceKey = file.storage_path; // e.g. room-categories/new/room-category-images/images/filename.jpg
+
+      // Build destination key by swapping second path segment (entityId)
+      const pathParts = sourceKey.split('/');
+      if (pathParts.length < 2) {
+        console.warn(`Unexpected key format for ${sourceKey}. Skipping.`);
+        continue;
+      }
+
+      pathParts[1] = String(roomCategoryId); // Replace 'new' with actual room category id
+      const destinationKey = pathParts.join('/');
+
+      // Move the file in S3
+      await moveFile(sourceKey, destinationKey);
+
+      // Update DB record for this file
+      await pool.query(
+        `UPDATE files 
+         SET entity_id = ?, is_temporary = 0, storage_path = ? 
+         WHERE id = ?`,
+        [roomCategoryId, destinationKey, file.id]
+      );
+
+      movedCount += 1;
+    }
+
+    return {
+      message: 'Room category files assigned successfully',
+      updatedCount: movedCount
+    };
+  } catch (error) {
+    console.error(`Error assigning room category files for room category ${roomCategoryId}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Assign temporary files to room categories
+ * This allows files uploaded with 'new' entityId to be reassigned to room categories
+ */
+export const assignRoomCategoryFiles = async (req, res) => {
+  const { roomCategoryId } = req.params;
+  
+  try {
+    const result = await assignRoomCategoryFilesService(roomCategoryId);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to assign room category files' });
+  }
+};
+
+/**
  * Get all room-category files for every room belonging to a hotel
  */
 export const getRoomFilesByHotel = async (req, res) => {

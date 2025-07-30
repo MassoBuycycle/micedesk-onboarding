@@ -1,4 +1,5 @@
 import pool from '../db/config.js';
+import { assignRoomCategoryFilesService } from './fileController.js';
 
 /**
  * Get all categories for a specific room type
@@ -138,6 +139,15 @@ export const createRoomCategory = async (req, res, next) => {
     );
     
     const categoryId = result.insertId;
+    
+    // Assign any temporary files to this room category
+    try {
+      const fileAssignmentResult = await assignRoomCategoryFilesService(categoryId);
+      console.log('File assignment result:', fileAssignmentResult);
+    } catch (fileError) {
+      console.error('Error assigning files to room category:', fileError);
+      // Don't fail the category creation if file assignment fails
+    }
     
     // Get the newly created category
     const [categories] = await connection.query(

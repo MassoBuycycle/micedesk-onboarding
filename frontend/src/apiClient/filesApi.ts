@@ -166,4 +166,11 @@ export const assignTemporaryFiles = async (
   entityId: number | string
 ): Promise<{ message: string; updatedCount: number }> => {
   return apiPost(`/files/assign/${entityType}/${entityId}`, {});
+};
+
+// Assign temporary files to a room category
+export const assignRoomCategoryFiles = async (
+  roomCategoryId: number | string
+): Promise<{ message: string; updatedCount: number }> => {
+  return apiPost(`/files/assign-room-category/${roomCategoryId}`, {});
 }; 
