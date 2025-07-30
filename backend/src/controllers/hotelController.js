@@ -58,7 +58,21 @@ export const getAllHotels = async (req, res, next) => {
   const connection = await pool.getConnection();
   try {
     const [hotels] = await connection.query('SELECT * FROM hotels');
-    res.status(200).json(hotels);
+    
+    // Parse additional_links JSON string back to array for each hotel
+    const parsedHotels = hotels.map(hotel => {
+      if (hotel.additional_links && typeof hotel.additional_links === 'string') {
+        try {
+          hotel.additional_links = JSON.parse(hotel.additional_links);
+        } catch (error) {
+          console.error('Error parsing additional_links JSON:', error);
+          hotel.additional_links = [];
+        }
+      }
+      return hotel;
+    });
+    
+    res.status(200).json(parsedHotels);
   } catch (error) {
     next(error);
   } finally {
@@ -85,7 +99,18 @@ export const getHotelById = async (req, res, next) => {
       return res.status(404).json({ error: 'Hotel not found' });
     }
     
-    res.status(200).json(hotels[0]);
+    // Parse additional_links JSON string back to array
+    const hotel = hotels[0];
+    if (hotel.additional_links && typeof hotel.additional_links === 'string') {
+      try {
+        hotel.additional_links = JSON.parse(hotel.additional_links);
+      } catch (error) {
+        console.error('Error parsing additional_links JSON:', error);
+        hotel.additional_links = [];
+      }
+    }
+    
+    res.status(200).json(hotel);
   } catch (error) {
     next(error);
   } finally {
@@ -117,6 +142,9 @@ export const createHotel = async (req, res, next) => {
       if (data[field] !== undefined) {
         if ((field === 'opening_year' || field === 'latest_renovation_year') && typeof data[field] === 'string') {
           insertObj[field] = parseInt(data[field]) || null;
+        } else if (field === 'additional_links' && Array.isArray(data[field])) {
+          // Convert additional_links array to JSON string for database storage
+          insertObj[field] = JSON.stringify(data[field]);
         } else {
           insertObj[field] = data[field];
         }
@@ -216,6 +244,9 @@ export const updateHotel = async (req, res, next) => {
       if (data[field] !== undefined) {
         if ((field === 'opening_year' || field === 'latest_renovation_year') && typeof data[field] === 'string') {
           updateObj[field] = parseInt(data[field]) || null;
+        } else if (field === 'additional_links' && Array.isArray(data[field])) {
+          // Convert additional_links array to JSON string for database storage
+          updateObj[field] = JSON.stringify(data[field]);
         } else {
           updateObj[field] = data[field];
         }
@@ -233,6 +264,17 @@ export const updateHotel = async (req, res, next) => {
     await connection.query(`UPDATE hotels SET ${setClause} WHERE id = ?`, [...values, hotelId]);
 
     const [[hotel]] = await connection.query('SELECT * FROM hotels WHERE id = ?', [hotelId]);
+    
+    // Parse additional_links JSON string back to array
+    if (hotel.additional_links && typeof hotel.additional_links === 'string') {
+      try {
+        hotel.additional_links = JSON.parse(hotel.additional_links);
+      } catch (error) {
+        console.error('Error parsing additional_links JSON:', error);
+        hotel.additional_links = [];
+      }
+    }
+    
     res.status(200).json({ success: true, hotelId, hotel, message: 'Hotel updated successfully.' });
   } catch (error) {
     console.error('Error in updateHotel:', error);
