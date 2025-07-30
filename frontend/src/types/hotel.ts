@@ -1,6 +1,6 @@
 export interface AdditionalLink {
-  name: string;
-  link: string;
+  name?: string;
+  link?: string;
 }
 
 export interface Hotel {

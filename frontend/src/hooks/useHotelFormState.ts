@@ -543,7 +543,7 @@ export function useHotelFormState() {
             equipment_spa_area: formHotelData.equipmentSpaArea || undefined,
             attraction_in_the_area: formHotelData.attractionInTheArea || undefined,
             planned_changes: formHotelData.plannedChanges || undefined,
-            additional_links: formHotelData.additionalLinks?.filter(link => link.name && link.link).map(link => ({ name: link.name!, link: link.link! })) || undefined,
+            additional_links: formHotelData.additionalLinks?.filter(link => link.name || link.link).map(link => ({ name: link.name, link: link.link })) || undefined,
           };
           Object.keys(hotelInput).forEach(key => hotelInput[key as keyof HotelInput] === undefined && delete hotelInput[key as keyof HotelInput]);
 

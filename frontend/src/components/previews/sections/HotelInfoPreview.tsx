@@ -140,15 +140,17 @@ const HotelInfoPreview = ({ hotel }: HotelInfoPreviewProps) => {
           <div className="text-xs text-muted-foreground space-y-1">
             {hotel.additionalLinks.map((link: any, index: number) => (
               <div key={index} className="flex items-center gap-2">
-                <span className="text-foreground font-medium">{link.name}:</span>
-                <a 
-                  href={link.link} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800 underline"
-                >
-                  {link.link}
-                </a>
+                {link.name && <span className="text-foreground font-medium">{link.name}:</span>}
+                {link.link && (
+                  <a 
+                    href={link.link} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 underline"
+                  >
+                    {link.link}
+                  </a>
+                )}
               </div>
             ))}
           </div>
