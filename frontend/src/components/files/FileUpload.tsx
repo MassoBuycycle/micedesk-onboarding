@@ -53,7 +53,9 @@ export default function FileUpload({
       try {
         // Remove temp suffix (e.g., "-hotels-temp") if present so we query the real category
         const cleanCategory = category.replace(/-[^-]+-temp$/, '');
+        console.log('[FileUpload] Fetching file types for category:', cleanCategory);
         const types = await getFileTypesByCategory(cleanCategory);
+        console.log('[FileUpload] Found file types:', types);
         setFileTypes(types);
       } catch (error) {
         console.error('Error fetching file types:', error);
@@ -67,6 +69,9 @@ export default function FileUpload({
   }, [category]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
+    console.log('[FileUpload] Files dropped:', acceptedFiles.length, 'files');
+    console.log('[FileUpload] File names:', acceptedFiles.map(f => f.name));
+    
     // Create file entries for each dropped file
     const newFiles = acceptedFiles.map(file => ({
       file,
@@ -75,6 +80,7 @@ export default function FileUpload({
       status: 'pending' as const
     }));
     
+    console.log('[FileUpload] Created file entries:', newFiles);
     setFilesToUpload(prev => [...prev, ...newFiles]);
   }, [initialFileTypeCode]);
 
@@ -82,7 +88,15 @@ export default function FileUpload({
     onDrop,
     maxFiles,
     multiple: true, // Allow multiple files
+    noClick: false, // Ensure clicks are handled
+    noKeyboard: false, // Ensure keyboard events are handled
   });
+
+  // Manual click handler as fallback
+  const handleManualClick = () => {
+    console.log('[FileUpload] Manual click triggered');
+    open();
+  };
 
   const handleRemoveFile = (index: number) => {
     setFilesToUpload(prev => prev.filter((_, i) => i !== index));
@@ -199,13 +213,10 @@ export default function FileUpload({
             className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors ${
               isDragActive ? 'border-primary bg-primary/5' : 'border-muted-foreground/25 hover:border-primary/50'
             } ${className}`}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
+            onClick={handleManualClick}
           >
             <input {...getInputProps()} />
-            <div className="flex flex-col items-center justify-center space-y-2 p-4 border border-dashed rounded-lg">
+            <div className="flex flex-col items-center justify-center space-y-2">
               <div className="rounded-full bg-primary/10 p-2">
                 <Upload className="h-5 w-5 text-primary" />
               </div>
