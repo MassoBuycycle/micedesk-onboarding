@@ -382,6 +382,7 @@ export default function FileTypeManager() {
                   <SelectContent>
                     <SelectItem value="hotel">Hotel</SelectItem>
                     <SelectItem value="room">Room</SelectItem>
+                    <SelectItem value="room-category-images">Room Category Images</SelectItem>
                     <SelectItem value="event">Event</SelectItem>
                     <SelectItem value="fb">Food & Beverage</SelectItem>
                     <SelectItem value="policy">Policy</SelectItem>

@@ -62,7 +62,8 @@ INSERT IGNORE INTO file_types (name, code, category, allowed_extensions, max_siz
 -- Room files
 ('Room Photos', 'photos', 'room', '["jpg", "jpeg", "png", "webp"]', 5242880),
 ('Room Documents', 'documents', 'room', '["pdf", "doc", "docx"]', 5242880),
-('Room Floor Plans', 'floor_plans', 'room', '["pdf", "jpg", "jpeg", "png"]', 5242880),
+('Room Floor Plans', 'floor_plans', 'room', '["pdf", "jpg", "jpeg", "png"]', 10485760),
+('Room Category Images', 'images', 'room-category-images', '["jpg", "jpeg", "png", "webp"]', 5242880),
 
 -- Contract/Onboarding files
 ('Contract Documents', 'contract_docs', 'contract', '["pdf", "doc", "docx"]', 10485760),
