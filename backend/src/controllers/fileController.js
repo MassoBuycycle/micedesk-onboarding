@@ -50,6 +50,13 @@ export const uploadFile = async (req, res) => {
       [fileTypeCode, category]
     );
     
+    console.log('[UPLOAD] File type query result:', {
+      fileTypeCode,
+      category,
+      foundRows: fileTypeRows.length,
+      fileTypeId: fileTypeRows.length > 0 ? fileTypeRows[0].id : null
+    });
+    
     if (fileTypeRows.length === 0) {
       // Delete the file from S3 if file type not found
       await deleteFile(key);
@@ -61,6 +68,17 @@ export const uploadFile = async (req, res) => {
     // Handle special case for 'new' entityId
     // For 'new' entityId, we store the file but it can be reassigned later
     const effectiveEntityId = entityId === 'new' ? 0 : entityId;
+    
+    console.log('[UPLOAD] About to insert file record:', {
+      originalname,
+      key,
+      fileTypeId,
+      entityType,
+      effectiveEntityId,
+      size,
+      mimetype,
+      isTemporary: entityId === 'new' ? 1 : 0
+    });
     
     // Save file metadata to database
     const [result] = await pool.query(
@@ -86,6 +104,11 @@ export const uploadFile = async (req, res) => {
       ]
     );
     
+    console.log('[UPLOAD] File record inserted:', {
+      insertId: result.insertId,
+      affectedRows: result.affectedRows
+    });
+    
     // Get the inserted file
     const [fileRows] = await pool.query(
       'SELECT * FROM files WHERE id = ?',
@@ -95,6 +118,14 @@ export const uploadFile = async (req, res) => {
     // Return file metadata with pre-signed URL
     const file = fileRows[0];
     const signedUrl = await getSignedUrl(file.storage_path);
+    
+    console.log('[UPLOAD] File upload completed successfully:', {
+      fileId: file.id,
+      storagePath: file.storage_path,
+      entityType: file.entity_type,
+      entityId: file.entity_id,
+      isTemporary: file.is_temporary
+    });
     
     res.status(201).json({
       ...file,
@@ -296,6 +327,8 @@ export const assignTemporaryFiles = async (req, res) => {
  */
 export const assignRoomCategoryFilesService = async (roomCategoryId) => {
   try {
+    console.log(`[ASSIGN] Starting file assignment for room category ${roomCategoryId}`);
+    
     // Fetch all temporary files that need to be reassigned for room categories
     const [tempFiles] = await pool.query(
       `SELECT id, storage_path 
@@ -304,8 +337,11 @@ export const assignRoomCategoryFilesService = async (roomCategoryId) => {
       []
     );
 
+    console.log(`[ASSIGN] Found ${tempFiles.length} temporary files to assign`);
+
     // No files to process – return early
     if (tempFiles.length === 0) {
+      console.log('[ASSIGN] No temporary files found');
       return { message: 'No temporary room category files found', updatedCount: 0 };
     }
 
@@ -313,6 +349,8 @@ export const assignRoomCategoryFilesService = async (roomCategoryId) => {
 
     // Process each file sequentially
     for (const file of tempFiles) {
+      console.log(`[ASSIGN] Processing file ${file.id} with path ${file.storage_path}`);
+      
       const sourceKey = file.storage_path; // e.g. room-categories/new/room-category-images/images/filename.jpg
 
       // Build destination key by swapping second path segment (entityId)
@@ -325,6 +363,8 @@ export const assignRoomCategoryFilesService = async (roomCategoryId) => {
       pathParts[1] = String(roomCategoryId); // Replace 'new' with actual room category id
       const destinationKey = pathParts.join('/');
 
+      console.log(`[ASSIGN] Moving file from ${sourceKey} to ${destinationKey}`);
+
       // Move the file in S3
       await moveFile(sourceKey, destinationKey);
 
@@ -336,8 +376,12 @@ export const assignRoomCategoryFilesService = async (roomCategoryId) => {
         [roomCategoryId, destinationKey, file.id]
       );
 
+      console.log(`[ASSIGN] Updated file ${file.id} with entity_id ${roomCategoryId} and new path ${destinationKey}`);
+
       movedCount += 1;
     }
+
+    console.log(`[ASSIGN] Successfully assigned ${movedCount} files to room category ${roomCategoryId}`);
 
     return {
       message: 'Room category files assigned successfully',

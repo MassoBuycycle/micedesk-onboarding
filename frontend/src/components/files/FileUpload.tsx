@@ -196,7 +196,13 @@ export default function FileUpload({
         <CardContent className="flex flex-col items-center justify-center p-6">
           <div
             {...getRootProps()}
-            className="w-full cursor-pointer rounded-lg text-center mb-4"
+            className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors ${
+              isDragActive ? 'border-primary bg-primary/5' : 'border-muted-foreground/25 hover:border-primary/50'
+            } ${className}`}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
           >
             <input {...getInputProps()} />
             <div className="flex flex-col items-center justify-center space-y-2 p-4 border border-dashed rounded-lg">
@@ -238,9 +244,14 @@ export default function FileUpload({
                       </div>
                       {fileItem.status !== 'uploading' && (
                         <Button
+                          type="button"
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleRemoveFile(index)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleRemoveFile(index);
+                          }}
                         >
                           <X className="h-4 w-4" />
                         </Button>
@@ -313,7 +324,12 @@ export default function FileUpload({
           {/* Upload Button (hidden in autoUpload mode) */}
           {filesToUpload.length > 0 && !isUploading && !autoUpload && (
             <Button
-              onClick={handleUploadFiles}
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleUploadFiles();
+              }}
               className="mt-4"
               disabled={filesToUpload.length === 0 || filesToUpload.every(f => f.status === 'success')}
             >
@@ -357,9 +373,14 @@ export default function FileUpload({
                       </div>
                     </div>
                     <Button
+                      type="button"
                       variant="ghost"
                       size="sm"
-                      onClick={() => window.open(file.url, '_blank')}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.open(file.url, '_blank');
+                      }}
                     >
                       View
                     </Button>
@@ -370,9 +391,12 @@ export default function FileUpload({
           </div>
           
           <Button
+            type="button"
             variant="outline"
             size="sm"
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               setUploadedFiles([]);
             }}
             className="w-full mt-2"

@@ -140,8 +140,11 @@ export const createRoomCategory = async (req, res, next) => {
     
     const categoryId = result.insertId;
     
+    console.log(`[ROOM_CATEGORY] Created room category with ID ${categoryId}`);
+    
     // Assign any temporary files to this room category
     try {
+      console.log(`[ROOM_CATEGORY] Attempting to assign files to room category ${categoryId}`);
       const fileAssignmentResult = await assignRoomCategoryFilesService(categoryId);
       console.log('File assignment result:', fileAssignmentResult);
     } catch (fileError) {
