@@ -13,6 +13,7 @@ import { ArrowLeft, ArrowRight, PlusCircle, Trash2, Image } from 'lucide-react';
 import { deleteRoomCategory } from '@/apiClient/roomsApi';
 import { toast } from 'sonner';
 import FileUpload from '@/components/files/FileUpload';
+import FileBrowser from '@/components/files/FileBrowser';
 // import RoomCategoryCard, { RoomCategory } from "./room-sections/RoomCategoryCard"; // Unused for now
 
 // Corresponds to RoomCategoryInput in apiClient, but for form use (strings for numbers initially)
@@ -366,6 +367,23 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                   className="w-full"
                 />
               </div>
+
+              {/* Display existing files for this category */}
+              {form.getValues(`categories.${index}.id`) && (
+                <div className="border-t pt-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Image className="h-5 w-5 text-primary" />
+                    <h4 className="text-lg font-medium">Hochgeladene Bilder</h4>
+                  </div>
+                  <FileBrowser
+                    entityType="room-categories"
+                    entityId={form.getValues(`categories.${index}.id`)}
+                    category="room-category-images"
+                    title="Bereits hochgeladene Bilder"
+                    className="w-full"
+                  />
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
