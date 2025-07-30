@@ -37,12 +37,12 @@ const createHotelFormSchema = (t: any) => z.object({
   postalCode: z.string().min(1, { message: t("forms.validation.postalCodeRequired") }),
   city: z.string().min(1, { message: t("forms.validation.cityRequired") }),
   country: z.string().min(1, { message: t("forms.validation.countryRequired") }),
-  phone: z.string().optional(),
-  generalManagerName: z.string().optional(),
-  generalManagerPhone: z.string().optional(),
-  generalManagerEmail: z.string().email({ message: t("forms.validation.emailRequired") }).optional(),
+  phone: z.string().optional().or(z.literal('')),
+  generalManagerName: z.string().optional().or(z.literal('')),
+  generalManagerPhone: z.string().optional().or(z.literal('')),
+  generalManagerEmail: z.string().optional().or(z.literal('')),
   email: z.string().email({ message: t("forms.validation.emailRequired") }),
-  website: z.string().url({ message: t("forms.validation.websiteRequired") }).optional(),
+  website: z.string().url({ message: t("forms.validation.websiteRequired") }).optional().or(z.literal('')),
   description: z.string().optional(),
   
   // Billing Address
@@ -50,7 +50,7 @@ const createHotelFormSchema = (t: any) => z.object({
   billingAddressStreet: z.string().min(3, { message: t("forms.validation.billingStreetRequired") }),
   billingAddressZip: z.string().min(1, { message: t("forms.validation.billingZipRequired") }),
   billingAddressCity: z.string().min(1, { message: t("forms.validation.billingCityRequired") }),
-  billingAddressVat: z.string().optional(),
+  billingAddressVat: z.string().optional().or(z.literal('')),
   
   // General Information
   starRating: z.coerce.number().optional(),
@@ -71,7 +71,7 @@ const createHotelFormSchema = (t: any) => z.object({
   // Additional Information
   plannedChanges: z.string().optional(),
   attractionInTheArea: z.string().optional(),
-  externalBillingId: z.string().optional(),
+  externalBillingId: z.string().optional().or(z.literal('')),
   
   // Parking Information
   noOfParkingSpaces: z.coerce.number().optional(),
@@ -82,14 +82,14 @@ const createHotelFormSchema = (t: any) => z.object({
   noOfParkingSpacesDisabled: z.coerce.number().optional(),
   parkingCostPerHour: z.coerce.number().optional(),
   parkingCostPerDay: z.coerce.number().optional(),
-  parkingRemarks: z.string().optional(),
+  parkingRemarks: z.string().optional().or(z.literal('')),
 
   // Specific Facilities
-  openingTimePool: z.string().optional(),
-  openingTimeFitnessCenter: z.string().optional(),
-  equipmentFitnessCenter: z.string().optional(),
-  openingTimeSpaArea: z.string().optional(),
-  equipmentSpaArea: z.string().optional(),
+  openingTimePool: z.string().optional().or(z.literal('')),
+  openingTimeFitnessCenter: z.string().optional().or(z.literal('')),
+  equipmentFitnessCenter: z.string().optional().or(z.literal('')),
+  openingTimeSpaArea: z.string().optional().or(z.literal('')),
+  equipmentSpaArea: z.string().optional().or(z.literal('')),
   
   // Additional Links
   additionalLinks: z.array(z.object({
