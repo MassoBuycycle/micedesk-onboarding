@@ -359,7 +359,7 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                 </div>
                 <FileUpload
                   entityType="room-categories"
-                  entityId={item.id || 'new'}
+                  entityId="new"
                   category="room-category-images"
                   fileTypeCode="images"
                   maxFiles={5}

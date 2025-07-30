@@ -1,5 +1,6 @@
 import pool from '../db/config.js';
 import { extractDataForTable } from '../utils/dataMapping.js';
+import { assignRoomCategoryFilesService } from './fileController.js';
 
 // Field group constants based on the new schema
 // These define which incoming data fields map to which table
@@ -333,7 +334,14 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                     `INSERT INTO room_category_infos (room_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`,
                     [parsedRoomId, ...values]
                 ).then(([result]) => {
-                    createdCategories.push({ id: result.insertId, room_id: parsedRoomId, ...categoryData });
+                    const categoryId = result.insertId;
+                    createdCategories.push({ id: categoryId, room_id: parsedRoomId, ...categoryData });
+                    
+                    // Assign any temporary files to this room category
+                    return assignRoomCategoryFilesService(categoryId).catch(error => {
+                        console.error(`Error assigning files to room category ${categoryId}:`, error);
+                        // Don't fail the transaction if file assignment fails
+                    });
                 })
             );
         }

@@ -28,6 +28,15 @@ export const uploadFile = async (req, res) => {
       fileTypeCode 
     } = req.params;
     
+    console.log('[UPLOAD] Processing upload for:', {
+      entityType,
+      entityId,
+      category,
+      fileTypeCode,
+      entityIdType: typeof entityId,
+      entityIdValue: entityId
+    });
+    
     const {
       originalname,
       mimetype,
