@@ -275,22 +275,22 @@ const PolicyItemsDialog = ({
                       </div>
 
                       {form.watch(`items.${itemIndex}.details`)?.map((detail, detailIndex) => (
-                        <div key={detailIndex} className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3 border rounded-lg bg-muted/30">
-                          <FormField
-                            control={form.control}
-                            name={`items.${itemIndex}.details.${detailIndex}.name`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-xs">Detail Name*</FormLabel>
-                                <FormControl>
-                                  <Input {...field} placeholder="Detail name" className="text-sm h-8" />
-                                </FormControl>
-                                <FormMessage className="text-xs" />
-                              </FormItem>
-                            )}
-                          />
+                        <div key={detailIndex} className="space-y-3 p-3 border rounded-lg bg-muted/30">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <FormField
+                              control={form.control}
+                              name={`items.${itemIndex}.details.${detailIndex}.name`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs">Detail Name*</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} placeholder="Detail name" className="text-sm h-8" />
+                                  </FormControl>
+                                  <FormMessage className="text-xs" />
+                                </FormItem>
+                              )}
+                            />
 
-                          <div className="space-y-2">
                             <FormField
                               control={form.control}
                               name={`items.${itemIndex}.details.${detailIndex}.description`}
@@ -308,23 +308,40 @@ const PolicyItemsDialog = ({
                                 </FormItem>
                               )}
                             />
-                            
+                          </div>
+                          
+                          <div className="flex items-center justify-between">
                             <FormField
                               control={form.control}
                               name={`items.${itemIndex}.details.${detailIndex}.default`}
-                              render={({ field }) => (
-                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-2">
-                                  <div>
-                                    <FormLabel className="text-xs">Default</FormLabel>
-                                    <p className="text-xs text-muted-foreground">
-                                      Mark as default policy
-                                    </p>
-                                  </div>
-                                  <FormControl>
-                                    <Switch checked={field.value} onCheckedChange={field.onChange} />
-                                  </FormControl>
-                                </FormItem>
-                              )}
+                              render={({ field }) => {
+                                console.log(`Field value for detail ${detailIndex}:`, field.value);
+                                return (
+                                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 bg-blue-50 border-blue-200 flex-1 mr-2">
+                                    <div>
+                                      <FormLabel className="text-xs font-medium text-blue-900">Default Policy</FormLabel>
+                                      <p className="text-xs text-blue-700">
+                                        Mark this as the default policy option
+                                      </p>
+                                    </div>
+                                    <FormControl>
+                                      <div className="flex items-center space-x-2">
+                                        <Switch 
+                                          checked={field.value || false} 
+                                          onCheckedChange={(checked) => {
+                                            console.log(`Setting default to:`, checked);
+                                            field.onChange(checked);
+                                          }}
+                                          className="data-[state=checked]:bg-blue-600"
+                                        />
+                                        <span className="text-xs text-blue-700">
+                                          {field.value ? 'Yes' : 'No'}
+                                        </span>
+                                      </div>
+                                    </FormControl>
+                                  </FormItem>
+                                );
+                              }}
                             />
                             
                             <Button
@@ -332,9 +349,9 @@ const PolicyItemsDialog = ({
                               variant="ghost"
                               size="sm"
                               onClick={() => removeDetailFromItem(itemIndex, detailIndex)}
-                              className="text-red-600 hover:text-red-700 h-6 px-2"
+                              className="text-red-600 hover:text-red-700 h-8 px-2"
                             >
-                              <Trash2 className="h-3 w-3" />
+                              <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
                         </div>
