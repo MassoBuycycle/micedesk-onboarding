@@ -324,6 +324,11 @@ const Policies = () => {
         hotel={selectedHotel}
         policy={editingPolicy}
         onSuccess={handlePolicyFormSuccess}
+        onManageItems={(policy) => {
+          setSelectedPolicy(policy);
+          setIsItemsDialogOpen(true);
+          setIsFormDialogOpen(false);
+        }}
       />
 
       {/* Policy Items Dialog */}
