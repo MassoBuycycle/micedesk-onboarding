@@ -24,7 +24,8 @@ export const getInformationPoliciesByHotel = async (req, res, next) => {
                 JSON_OBJECT(
                   'id', ipid.id,
                   'name', ipid.name,
-                  'description', ipid.description
+                  'description', ipid.description,
+                  'default', ipid.default
                 )
               )
               FROM information_policy_item_details ipid
@@ -71,7 +72,8 @@ export const getInformationPoliciesByType = async (req, res, next) => {
                 JSON_OBJECT(
                   'id', ipid.id,
                   'name', ipid.name,
-                  'description', ipid.description
+                  'description', ipid.description,
+                  'default', ipid.default
                 )
               )
               FROM information_policy_item_details ipid
@@ -148,8 +150,8 @@ export const createInformationPolicy = async (req, res, next) => {
         if (item.details && Array.isArray(item.details)) {
           for (const detail of item.details) {
             await connection.query(
-              'INSERT INTO information_policy_item_details (information_policy_item_id, name, description) VALUES (?, ?, ?)',
-              [itemId, detail.name, detail.description || '']
+              'INSERT INTO information_policy_item_details (information_policy_item_id, name, description, `default`) VALUES (?, ?, ?, ?)',
+              [itemId, detail.name, detail.description || '', detail.default || false]
             );
           }
         }
@@ -237,8 +239,8 @@ export const updateInformationPolicy = async (req, res, next) => {
         if (item.details && Array.isArray(item.details)) {
           for (const detail of item.details) {
             await connection.query(
-              'INSERT INTO information_policy_item_details (information_policy_item_id, name, description) VALUES (?, ?, ?)',
-              [itemId, detail.name, detail.description || '']
+              'INSERT INTO information_policy_item_details (information_policy_item_id, name, description, `default`) VALUES (?, ?, ?, ?)',
+              [itemId, detail.name, detail.description || '', detail.default || false]
             );
           }
         }

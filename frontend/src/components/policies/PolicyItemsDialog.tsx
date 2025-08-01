@@ -21,13 +21,15 @@ import { Plus, Trash2, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { 
   updateInformationPolicy,
-  InformationPolicy 
+  InformationPolicy,
+  InformationPolicyItem
 } from "@/apiClient/informationPoliciesApi";
 
 // Define schema for policy item details
 const policyItemDetailSchema = z.object({
   name: z.string().min(1, "Detail name is required"),
-  description: z.string().optional()
+  description: z.string().optional(),
+  default: z.boolean().default(false)
 });
 
 // Define schema for policy items
@@ -74,14 +76,15 @@ const PolicyItemsDialog = ({
   // Reset form when dialog opens/closes or policy changes
   useEffect(() => {
     if (open && policy) {
-      const formattedItems = policy.items?.map(item => ({
-        title: item.title || "",
-        is_condition: item.is_condition || false,
-        details: item.details?.map(detail => ({
-          name: detail.name || "",
-          description: detail.description || ""
-        })) || []
-      })) || [];
+      const formattedItems: InformationPolicyItem[] = (policy.items ?? []).map(item => ({
+        title: item.title ?? "",
+        is_condition: item.is_condition ?? false,
+        details: (item.details ?? []).map(detail => ({
+          name: detail.name ?? "",
+          description: detail.description ?? "",
+          default: detail.default ?? false
+        }))
+      }));
 
       form.reset({
         items: formattedItems
@@ -112,7 +115,8 @@ const PolicyItemsDialog = ({
     
     updatedItems[itemIndex].details.push({
       name: "",
-      description: ""
+      description: "",
+      default: false
     });
     form.setValue("items", updatedItems);
   };
@@ -304,6 +308,25 @@ const PolicyItemsDialog = ({
                                 </FormItem>
                               )}
                             />
+                            
+                            <FormField
+                              control={form.control}
+                              name={`items.${itemIndex}.details.${detailIndex}.default`}
+                              render={({ field }) => (
+                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-2">
+                                  <div>
+                                    <FormLabel className="text-xs">Default</FormLabel>
+                                    <p className="text-xs text-muted-foreground">
+                                      Mark as default policy
+                                    </p>
+                                  </div>
+                                  <FormControl>
+                                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
+                            
                             <Button
                               type="button"
                               variant="ghost"

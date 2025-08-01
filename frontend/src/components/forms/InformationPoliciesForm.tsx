@@ -17,7 +17,8 @@ import FormSection from "@/components/shared/FormSection";
 // Define schema for policy item details
 const policyItemDetailSchema = z.object({
   name: z.string().min(1, "Detail name is required"),
-  description: z.string().optional()
+  description: z.string().optional(),
+  default: z.boolean().default(false)
 });
 
 // Define schema for policy items
@@ -101,7 +102,8 @@ const InformationPoliciesForm = ({
     
     updatedItems[itemIndex].details.push({
       name: "",
-      description: ""
+      description: "",
+      default: false
     });
     form.setValue("items", updatedItems);
   };

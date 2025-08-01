@@ -5,6 +5,7 @@ export interface InformationPolicyItemDetail {
   id?: number;
   name: string;
   description?: string;
+  default?: boolean;
 }
 
 export interface InformationPolicyItem {
