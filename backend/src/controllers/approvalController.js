@@ -34,7 +34,7 @@ export const submitChanges = async (req, res, next) => {
     
     // Create pending change record
     const [result] = await connection.query(
-      `INSERT INTO pending_changes 
+      `INSERT INTO onboarding_pending_changes 
         (entry_id, entry_type, user_id, change_data, original_data)
       VALUES (?, ?, ?, ?, ?)`,
       [
@@ -74,9 +74,9 @@ export const getPendingChanges = async (req, res, next) => {
         u.email as submitter_email,
         rv.first_name as reviewer_first_name,
         rv.last_name as reviewer_last_name
-      FROM pending_changes pc
-      JOIN users u ON pc.user_id = u.id
-      LEFT JOIN users rv ON pc.reviewed_by = rv.id
+      FROM onboarding_pending_changes pc
+      JOIN onboarding_users u ON pc.user_id = u.id
+      LEFT JOIN onboarding_users rv ON pc.reviewed_by = rv.id
     `;
     
     const params = [];
@@ -149,9 +149,9 @@ export const getPendingChangeById = async (req, res, next) => {
         u.email as submitter_email,
         rv.first_name as reviewer_first_name,
         rv.last_name as reviewer_last_name
-      FROM pending_changes pc
-      JOIN users u ON pc.user_id = u.id
-      LEFT JOIN users rv ON pc.reviewed_by = rv.id
+      FROM onboarding_pending_changes pc
+      JOIN onboarding_users u ON pc.user_id = u.id
+      LEFT JOIN onboarding_users rv ON pc.reviewed_by = rv.id
       WHERE pc.id = ?`,
       [id]
     );
@@ -162,8 +162,16 @@ export const getPendingChangeById = async (req, res, next) => {
     
     // Parse the JSON data
     const change = changes[0];
-    change.change_data = JSON.parse(change.change_data);
-    change.original_data = JSON.parse(change.original_data);
+    try {
+      change.change_data = JSON.parse(change.change_data);
+    } catch (e) {
+      change.change_data = null;
+    }
+    try {
+      change.original_data = JSON.parse(change.original_data);
+    } catch (e) {
+      change.original_data = null;
+    }
     
     res.json(change);
   } catch (error) {
@@ -191,7 +199,7 @@ export const reviewChange = async (req, res, next) => {
     
     // Check if the change exists and is pending
     const [changes] = await connection.query(
-      'SELECT * FROM pending_changes WHERE id = ?',
+      'SELECT * FROM onboarding_pending_changes WHERE id = ?',
       [id]
     );
     
@@ -214,7 +222,7 @@ export const reviewChange = async (req, res, next) => {
     try {
       // Update change status
       await connection.query(
-        `UPDATE pending_changes 
+        `UPDATE onboarding_pending_changes 
         SET status = ?, reviewed_by = ?, review_notes = ?, updated_at = NOW()
         WHERE id = ?`,
         [status, req.user.id, notes || null, id]
@@ -222,7 +230,14 @@ export const reviewChange = async (req, res, next) => {
       
       // If approved, apply the changes to the actual data
       if (status === 'approved') {
-        const changeData = JSON.parse(change.change_data);
+        let changeData;
+        try {
+          changeData = JSON.parse(change.change_data);
+        } catch (e) {
+          return res.status(400).json({ 
+            error: 'Invalid change data format. Cannot apply changes.' 
+          });
+        }
         
         // Apply changes based on entry type
         if (change.entry_type === 'hotel') {
@@ -272,7 +287,7 @@ async function applyHotelChanges(connection, hotelId, changeData) {
   values.push(hotelId);
   
   await connection.query(
-    `UPDATE hotels SET ${setClauses} WHERE id = ?`,
+    `UPDATE onboarding_hotels SET ${setClauses} WHERE id = ?`,
     values
   );
 }
@@ -295,7 +310,7 @@ async function applyRoomChanges(connection, roomId, changeData) {
   values.push(roomId);
   
   await connection.query(
-    `UPDATE rooms SET ${setClauses} WHERE id = ?`,
+    `UPDATE onboarding_rooms SET ${setClauses} WHERE id = ?`,
     values
   );
 }
@@ -318,7 +333,7 @@ async function applyEventChanges(connection, eventId, changeData) {
   values.push(eventId);
   
   await connection.query(
-    `UPDATE events SET ${setClauses} WHERE id = ?`,
+    `UPDATE onboarding_events SET ${setClauses} WHERE id = ?`,
     values
   );
 }
@@ -341,9 +356,9 @@ export const getMyChanges = async (req, res, next) => {
         u.last_name as submitter_last_name,
         rv.first_name as reviewer_first_name,
         rv.last_name as reviewer_last_name
-      FROM pending_changes pc
-      JOIN users u ON pc.user_id = u.id
-      LEFT JOIN users rv ON pc.reviewed_by = rv.id
+      FROM onboarding_pending_changes pc
+      JOIN onboarding_users u ON pc.user_id = u.id
+      LEFT JOIN onboarding_users rv ON pc.reviewed_by = rv.id
       WHERE pc.user_id = ?
     `;
     
@@ -390,9 +405,9 @@ export const getUserAssignments = async (req, res, next) => {
         u.first_name as assigned_by_first_name, 
         u.last_name as assigned_by_last_name,
         h.name as hotel_name
-      FROM entry_assignments ea
-      JOIN users u ON ea.assigned_by = u.id
-      LEFT JOIN hotels h ON ea.entry_id = h.id AND ea.entry_type = 'hotel'
+      FROM onboarding_entry_assignments ea
+      JOIN onboarding_users u ON ea.assigned_by = u.id
+      LEFT JOIN onboarding_hotels h ON ea.entry_id = h.id AND ea.entry_type = 'hotel'
       WHERE ea.user_id = ?
       ORDER BY ea.created_at DESC
     `, [userId]);
@@ -425,9 +440,9 @@ export const getEntryAssignments = async (req, res, next) => {
         u.email,
         a.first_name as assigned_by_first_name, 
         a.last_name as assigned_by_last_name
-      FROM entry_assignments ea
-      JOIN users u ON ea.user_id = u.id
-      JOIN users a ON ea.assigned_by = a.id
+      FROM onboarding_entry_assignments ea
+      JOIN onboarding_users u ON ea.user_id = u.id
+      JOIN onboarding_users a ON ea.assigned_by = a.id
       WHERE ea.entry_id = ? AND ea.entry_type = ?
       ORDER BY u.last_name, u.first_name
     `, [entryId, entryType]);
@@ -467,7 +482,7 @@ export const assignEntry = async (req, res, next) => {
     
     // Check if user exists
     const [users] = await connection.query(
-      'SELECT id FROM users WHERE id = ?',
+      'SELECT id FROM onboarding_users WHERE id = ?',
       [userId]
     );
     
@@ -478,7 +493,7 @@ export const assignEntry = async (req, res, next) => {
     // Check if entry exists (for hotels)
     if (entryType === 'hotel') {
       const [hotels] = await connection.query(
-        'SELECT id FROM hotels WHERE id = ?',
+        'SELECT id FROM onboarding_hotels WHERE id = ?',
         [entryId]
       );
       
@@ -489,7 +504,7 @@ export const assignEntry = async (req, res, next) => {
     
     // Insert or update assignment
     await connection.query(`
-      INSERT INTO entry_assignments 
+      INSERT INTO onboarding_entry_assignments 
         (user_id, entry_id, entry_type, assigned_by)
       VALUES (?, ?, ?, ?)
       ON DUPLICATE KEY UPDATE 
@@ -520,7 +535,7 @@ export const unassignEntry = async (req, res, next) => {
     
     // Delete assignment
     await connection.query(
-      'DELETE FROM entry_assignments WHERE user_id = ? AND entry_id = ? AND entry_type = ?',
+      'DELETE FROM onboarding_entry_assignments WHERE user_id = ? AND entry_id = ? AND entry_type = ?',
       [userId, entryId, entryType]
     );
     

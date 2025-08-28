@@ -34,10 +34,41 @@ const renderValue = (val: any) => {
 };
 
 const renderDiff = (change: PendingChange) => {
-  const original: any = change.original_data || {};
-  const updated: any = change.change_data || {};
+  console.log('Rendering diff for change:', change);
+  console.log('Original data:', change.original_data);
+  console.log('Change data:', change.change_data);
+  
+  // Handle cases where data might be null, undefined, or invalid
+  let original: any = {};
+  let updated: any = {};
+  
+  try {
+    if (change.original_data && typeof change.original_data === 'string') {
+      original = JSON.parse(change.original_data);
+    } else if (change.original_data && typeof change.original_data === 'object') {
+      original = change.original_data;
+    }
+  } catch (e) {
+    console.error('Error parsing original_data:', e);
+    original = {};
+  }
+  
+  try {
+    if (change.change_data && typeof change.change_data === 'string') {
+      updated = JSON.parse(change.change_data);
+    } else if (change.change_data && typeof change.change_data === 'object') {
+      updated = change.change_data;
+    }
+  } catch (e) {
+    console.error('Error parsing change_data:', e);
+    updated = {};
+  }
+
+  console.log('Parsed original:', original);
+  console.log('Parsed updated:', updated);
 
   const allKeys = Array.from(new Set([...Object.keys(original), ...Object.keys(updated)]));
+  console.log('All keys:', allKeys);
 
   const renderRows = (keys: string[], parentKey = '') => {
     return keys.map(key => {
@@ -55,16 +86,58 @@ const renderDiff = (change: PendingChange) => {
         );
       }
       return (
-        <div key={fullKey} className="grid grid-cols-2 gap-4 text-sm mb-1">
-          <span className={origVal!==newVal? 'text-red-600':''}>{renderValue(origVal)}</span>
-          <span className={origVal!==newVal? 'text-green-600':''}>{renderValue(newVal)}</span>
+        <div key={fullKey} className="grid grid-cols-2 gap-4 text-sm mb-2 p-2 border rounded">
+          <div className="text-center">
+            <div className="font-medium text-xs text-gray-500 mb-1">Original</div>
+            <span className={origVal!==newVal? 'text-red-600 font-medium':''}>{renderValue(origVal)}</span>
+          </div>
+          <div className="text-center">
+            <div className="font-medium text-xs text-gray-500 mb-1">Updated</div>
+            <span className={origVal!==newVal? 'text-green-600 font-medium':''}>{renderValue(newVal)}</span>
+          </div>
+          <div className="col-span-2 text-center mt-2">
+            <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded">
+              Field: {fullKey}
+            </span>
+          </div>
         </div>
       );
     });
   };
 
+  if (allKeys.length === 0) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        <p className="text-lg font-medium mb-4">No Data Available for Comparison</p>
+        <div className="bg-gray-100 p-4 rounded-lg text-left">
+          <p className="text-sm mb-2"><strong>Change ID:</strong> {change.id}</p>
+          <p className="text-sm mb-2"><strong>Entry Type:</strong> {change.entry_type}</p>
+          <p className="text-sm mb-2"><strong>Entry ID:</strong> {change.entry_id}</p>
+          <p className="text-sm mb-2"><strong>Status:</strong> {change.status}</p>
+          <p className="text-sm mb-2"><strong>Submitted:</strong> {new Date(change.created_at).toLocaleString()}</p>
+          <p className="text-sm mb-2"><strong>Original Data:</strong> {change.original_data ? 'Available' : 'Missing'}</p>
+          <p className="text-sm mb-2"><strong>Change Data:</strong> {change.change_data ? 'Available' : 'Missing'}</p>
+        </div>
+        <p className="text-xs mt-4 text-gray-500">
+          This change request may have been created before the approval system was fully implemented.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="text-sm">
+      <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+        <p className="text-sm font-medium text-blue-800 mb-2">Data Comparison</p>
+        <p className="text-xs text-blue-600">
+          Showing changes between original and updated data. 
+          Red text indicates removed/changed values, green text indicates new/updated values.
+        </p>
+      </div>
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="text-center font-medium text-red-600">Original Data</div>
+        <div className="text-center font-medium text-green-600">Updated Data</div>
+      </div>
       {renderRows(allKeys)}
     </div>
   );
