@@ -86,6 +86,9 @@ const Policies = () => {
   const handleEditPolicy = (policy: InformationPolicy) => {
     setEditingPolicy(policy);
     setIsFormDialogOpen(true);
+    // Ensure the items dialog is closed when editing
+    setIsItemsDialogOpen(false);
+    setSelectedPolicy(null);
   };
 
   const handleDeletePolicy = async (policy: InformationPolicy) => {
@@ -110,6 +113,9 @@ const Policies = () => {
   const handleManageItems = (policy: InformationPolicy) => {
     setSelectedPolicy(policy);
     setIsItemsDialogOpen(true);
+    // Ensure the edit dialog is closed when managing items
+    setIsFormDialogOpen(false);
+    setEditingPolicy(null);
   };
 
   const handlePolicyFormSuccess = () => {

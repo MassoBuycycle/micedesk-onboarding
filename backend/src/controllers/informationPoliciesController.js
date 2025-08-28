@@ -220,6 +220,8 @@ export const updateInformationPolicy = async (req, res, next) => {
     
     // Update items if provided
     if (items && Array.isArray(items)) {
+      console.log('Updating items for policy:', id, 'Items:', items);
+      
       // Delete existing items and their details
       await connection.query(
         'DELETE FROM information_policy_items WHERE information_policy_id = ?',
@@ -228,6 +230,14 @@ export const updateInformationPolicy = async (req, res, next) => {
       
       // Create new items
       for (const item of items) {
+        if (!item.title || item.title.trim() === '') {
+          await connection.rollback();
+          return res.status(400).json({ 
+            success: false, 
+            error: 'Item title is required' 
+          });
+        }
+        
         const [itemResult] = await connection.query(
           'INSERT INTO information_policy_items (information_policy_id, title, is_condition) VALUES (?, ?, ?)',
           [id, item.title, item.is_condition || false]
@@ -238,6 +248,14 @@ export const updateInformationPolicy = async (req, res, next) => {
         // Create item details if provided
         if (item.details && Array.isArray(item.details)) {
           for (const detail of item.details) {
+            if (!detail.name || detail.name.trim() === '') {
+              await connection.rollback();
+              return res.status(400).json({ 
+                success: false, 
+                error: 'Detail name is required' 
+              });
+            }
+            
             await connection.query(
               'INSERT INTO information_policy_item_details (information_policy_item_id, name, description, `default`) VALUES (?, ?, ?, ?)',
               [itemId, detail.name, detail.description || '', detail.default || false]
@@ -245,6 +263,10 @@ export const updateInformationPolicy = async (req, res, next) => {
           }
         }
       }
+      
+      console.log('Items updated successfully for policy:', id);
+    } else {
+      console.log('No items provided for policy:', id);
     }
     
     await connection.commit();

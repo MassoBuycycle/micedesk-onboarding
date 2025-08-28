@@ -138,8 +138,22 @@ const PolicyItemsDialog = ({
       return;
     }
 
+    // Validate that we have at least one item with a title
+    if (!data.items || data.items.length === 0) {
+      toast.error("Please add at least one policy item");
+      return;
+    }
+
+    // Validate that all items have titles
+    const invalidItems = data.items.filter(item => !item.title || item.title.trim() === '');
+    if (invalidItems.length > 0) {
+      toast.error("All policy items must have titles");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
+      console.log('Submitting policy items:', data.items);
       await updateInformationPolicy(policy.id, {
         items: data.items
       });
