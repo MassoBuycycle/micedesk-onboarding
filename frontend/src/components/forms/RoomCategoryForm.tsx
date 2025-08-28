@@ -80,14 +80,7 @@ interface RoomCategoryFormProps {
   mode?: 'add' | 'edit';
 }
 
-interface FileItem {
-  file?: File;
-  fileTypeCode: string;
-  progress: number;
-  status: 'pending' | 'uploading' | 'success' | 'error';
-  error?: string;
-  response?: any;
-}
+
 
 const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({ 
   initialData = [], 
@@ -97,9 +90,6 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
   onChange, 
   mode 
 }) => {
-  const [uploadedFiles, setUploadedFiles] = useState<{ [key: string]: FileItem[] }>({});
-
-
   const form = useForm<FullCategoryFormValues>({ 
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -133,12 +123,7 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
     name: "categories",
   });
 
-  const handleFileChange = useCallback((categoryIndex: number, files: FileItem[]) => {
-    setUploadedFiles(prev => ({
-      ...prev,
-      [categoryIndex]: files
-    }));
-  }, []);
+
 
   // Watch for changes to pass to parent if onChange is provided
   useEffect(() => {
@@ -390,34 +375,26 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                 />
               </div>
 
-              {/* Image Upload Section for Room Category */}
-              <div className="border-t pt-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Image className="h-5 w-5 text-primary" />
-                  <h4 className="text-lg font-medium">Bilder für diese Kategorie</h4>
-                </div>
-                
-                {/* Show message for new categories */}
-                {!form.getValues(`categories.${index}.id`) && (
-                  <div className="text-sm text-muted-foreground bg-blue-50 p-3 rounded-md border border-blue-200 mb-4">
-                    <p>💡 <strong>Tip:</strong> Speichern Sie zuerst die Kategorie, bevor Sie Bilder hochladen können.</p>
+              {/* Image Upload Section for Room Category - Only show after category is saved */}
+              {form.getValues(`categories.${index}.id`) && (
+                <div className="border-t pt-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Image className="h-5 w-5 text-primary" />
+                    <h4 className="text-lg font-medium">Bilder für diese Kategorie</h4>
                   </div>
-                )}
-                
-                {/* File Upload Component */}
-                <FileUpload
-                  entityType="room-categories"
-                  entityId={form.getValues(`categories.${index}.id`) || undefined}
-                  category="room-category-images"
-                  fileTypeCode="room_photos"
-                  maxFiles={20}
-                  className="w-full"
-                  onFileChange={(files) => handleFileChange(index, files)}
-                />
-                
-                {/* Show existing files if category has an ID */}
-                {form.getValues(`categories.${index}.id`) && (
-                  <div className="mb-4">
+                  
+                  {/* File Upload Component */}
+                  <FileUpload
+                    entityType="room-categories"
+                    entityId={form.getValues(`categories.${index}.id`)}
+                    category="room-category-images"
+                    fileTypeCode="room_photos"
+                    maxFiles={20}
+                    className="w-full"
+                  />
+                  
+                  {/* Show existing files */}
+                  <div className="mt-4">
                     <h5 className="text-sm font-medium text-muted-foreground mb-2">Bereits hochgeladene Bilder</h5>
                     <FileBrowser
                       entityType="room-categories"
@@ -427,49 +404,17 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                       className="w-full"
                     />
                   </div>
-                )}
-                
-                {/* Show uploaded files for new categories */}
-                {!form.getValues(`categories.${index}.id`) && uploadedFiles[index] && uploadedFiles[index].length > 0 && (
-                  <div>
-                    <h5 className="text-sm font-medium text-muted-foreground mb-2">Hochgeladene Bilder (noch nicht gespeichert)</h5>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                      {uploadedFiles[index].map((fileItem, fileIndex) => (
-                        <div key={fileIndex} className="relative border rounded-lg p-2 bg-gray-50">
-                          {fileItem.file && (
-                            <>
-                              <img
-                                src={URL.createObjectURL(fileItem.file)}
-                                alt={`Preview ${fileItem.file.name}`}
-                                className="w-full h-24 object-cover rounded mb-2"
-                              />
-                              <p className="text-xs text-gray-600 truncate" title={fileItem.file.name}>
-                                {fileItem.file.name}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                {(fileItem.file.size / 1024 / 1024).toFixed(2)} MB
-                              </p>
-                              <div className="absolute top-1 right-1">
-                                <span className={`px-2 py-1 text-xs rounded-full ${
-                                  fileItem.status === 'success' ? 'bg-green-100 text-green-800' :
-                                  fileItem.status === 'uploading' ? 'bg-blue-100 text-blue-800' :
-                                  fileItem.status === 'error' ? 'bg-red-100 text-red-800' :
-                                  'bg-gray-100 text-gray-800'
-                                }`}>
-                                  {fileItem.status === 'success' ? '✓' :
-                                   fileItem.status === 'uploading' ? '⏳' :
-                                   fileItem.status === 'error' ? '✗' :
-                                   '⏸️'}
-                                </span>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      ))}
-                    </div>
+                </div>
+              )}
+              
+              {/* Show message for new categories */}
+              {!form.getValues(`categories.${index}.id`) && (
+                <div className="border-t pt-6">
+                  <div className="text-sm text-muted-foreground bg-blue-50 p-3 rounded-md border border-blue-200">
+                    <p>💡 <strong>Tip:</strong> Nach dem Speichern der Kategorie können Sie hier Bilder hochladen.</p>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
