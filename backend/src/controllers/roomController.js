@@ -445,8 +445,10 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                     
                     // Assign any temporary files to this room category
                     try {
-                        await assignRoomCategoryFilesService(categoryId);
-                        console.log(`[ROOM_CATEGORIES] Assigned files to new category ${categoryId}`);
+                        // Use the temp index from the frontend for precise file assignment
+                        const tempIndex = catInfo._tempIndex;
+                        await assignRoomCategoryFilesService(categoryId, tempIndex);
+                        console.log(`[ROOM_CATEGORIES] Assigned files to new category ${categoryId} from temp index ${tempIndex}`);
                     } catch (fileError) {
                         console.error(`Error assigning files to room category ${categoryId}:`, fileError);
                         // Don't fail the transaction if file assignment fails
@@ -538,7 +540,10 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                             
                             // Assign any temporary files to this room category (even if none exist, this is safe)
                             try {
-                                await assignRoomCategoryFilesService(categoryId);
+                                // Use the temp index from the frontend for precise file assignment
+                                const tempIndex = catInfo._tempIndex;
+                                await assignRoomCategoryFilesService(categoryId, tempIndex);
+                                console.log(`[ROOM_CATEGORIES] Assigned files to new category ${categoryId} from temp index ${tempIndex} (parallel)`);
                             } catch (fileError) {
                                 console.error(`Error assigning files to room category ${categoryId}:`, fileError);
                                 // Don't fail the transaction if file assignment fails

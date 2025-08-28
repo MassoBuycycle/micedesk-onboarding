@@ -185,8 +185,14 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
       return;
     }
     
+    // Add category index information to each category for file assignment
+    const categoriesWithIndex = data.categories.map((category, index) => ({
+      ...category,
+      _tempIndex: index // Add temporary index for file assignment
+    }));
+    
     // Proceed with form submission
-    onNext(data.categories);
+    onNext(categoriesWithIndex);
   };
 
   return (
@@ -432,7 +438,7 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                 <FileUpload
                   ref={(el) => fileUploadRefs.current[index] = el}
                   entityType="room-categories"
-                  entityId={form.getValues(`categories.${index}.id`) || 'new'}
+                  entityId={`temp-${index}`}
                   category="room-category-images"
                   fileTypeCode="room_photos"
                   maxFiles={20}

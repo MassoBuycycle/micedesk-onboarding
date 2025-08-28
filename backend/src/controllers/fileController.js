@@ -334,9 +334,9 @@ export const assignTemporaryFiles = async (req, res) => {
  * Service function to assign temporary files to room categories
  * This can be called from other controllers
  */
-export const assignRoomCategoryFilesService = async (roomCategoryId) => {
+export const assignRoomCategoryFilesService = async (roomCategoryId, tempCategoryIndex = null) => {
   try {
-    console.log(`[ASSIGN] Starting file assignment for room category ${roomCategoryId}`);
+    console.log(`[ASSIGN] Starting file assignment for room category ${roomCategoryId} with temp index ${tempCategoryIndex}`);
     
     // First, let's see what temporary files exist in the database
     const [allTempFiles] = await pool.query(
@@ -353,19 +353,36 @@ export const assignRoomCategoryFilesService = async (roomCategoryId) => {
       is_temporary: f.is_temporary
     })));
     
-    // Use a more specific query to prevent race conditions
-    // Only get files that are specifically uploaded for this room category
-    const [tempFiles] = await pool.query(
-      `SELECT id, storage_path 
-       FROM files 
-       WHERE entity_type = 'room-categories' 
-         AND is_temporary = 1 
-         AND entity_id = 0
-         AND storage_path LIKE ?`,
-      [`room-categories/new/room-category-images/%`]
-    );
-
-    console.log(`[ASSIGN] Found ${tempFiles.length} temporary files to assign for room category ${roomCategoryId}`);
+    // If we have a temp category index, only assign files for that specific category
+    let tempFiles;
+    if (tempCategoryIndex !== null) {
+      // Look for files with the specific temporary ID pattern
+      const tempId = `temp-${tempCategoryIndex}`;
+      [tempFiles] = await pool.query(
+        `SELECT id, storage_path 
+         FROM files 
+         WHERE entity_type = 'room-categories' 
+           AND is_temporary = 1 
+           AND entity_id = 0
+           AND storage_path LIKE ?`,
+        [`room-categories/${tempId}/room-category-images/%`]
+      );
+      
+      console.log(`[ASSIGN] Found ${tempFiles.length} temporary files for temp category ${tempId}`);
+    } else {
+      // Fallback: use the old logic for backward compatibility
+      [tempFiles] = await pool.query(
+        `SELECT id, storage_path 
+         FROM files 
+         WHERE entity_type = 'room-categories' 
+           AND is_temporary = 1 
+           AND entity_id = 0
+           AND storage_path LIKE ?`,
+        [`room-categories/new/room-category-images/%`]
+      );
+      
+      console.log(`[ASSIGN] Found ${tempFiles.length} temporary files using fallback query`);
+    }
     
     // Debug: Show what files were found
     if (tempFiles.length > 0) {
