@@ -10,7 +10,7 @@ import { getEntityFiles, deleteFile, FileData } from '@/apiClient/filesApi';
 interface SectionFileUploadProps {
   entityId?: number | string; // Hotel ID (can be null initially)
   entityType?: string; // Usually 'hotels'
-  section: 'hotel' | 'roomInfo' | 'roomCategories' | 'roomHandling' | 'eventsInfo' | 'eventSpaces' | 'foodBeverage' | 'informationPolicies' | 'contractOnboarding';
+  section: 'hotel' | 'roomInfo' | 'roomCategories' | 'roomHandling' | 'eventsInfo' | 'eventSpaces' | 'foodBeverage' | 'contractOnboarding';
   title?: string;
   description?: string;
   className?: string;
@@ -25,7 +25,6 @@ const SECTION_CATEGORIES = {
   eventsInfo: 'event',
   eventSpaces: 'event',
   foodBeverage: 'fb',
-  informationPolicies: 'policy',
   contractOnboarding: 'contract',
 };
 
@@ -37,7 +36,6 @@ const SECTION_TITLES = {
   eventsInfo: 'Event Documents',
   eventSpaces: 'Event Spaces Documents',
   foodBeverage: 'Food & Beverage Documents',
-  informationPolicies: 'Information & Policies Documents',
   contractOnboarding: 'Contract & Onboarding Documents',
 };
 
@@ -49,7 +47,6 @@ const SECTION_DESCRIPTIONS = {
   eventsInfo: 'Upload event brochures, sample menus, pricing guides, etc.',
   eventSpaces: 'Upload floor plans, space images, equipment lists for event spaces.',
   foodBeverage: 'Upload menus, restaurant images, promotional materials for F&B outlets.',
-  informationPolicies: 'Upload policies, procedural documents, and guest information materials.',
   contractOnboarding: 'Upload contracts, onboarding documents, technical setup guides, and agreements.',
 };
 

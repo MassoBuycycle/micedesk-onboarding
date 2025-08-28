@@ -35,7 +35,6 @@ export interface HotelFormData {
   eventsInfo: Partial<EventInfoData>;
   eventSpaces: any[];
   foodBeverage: any; // Changed from array to single object
-  informationPolicies: any[];
   contractOnboarding: any;
 }
 
@@ -48,7 +47,6 @@ export const FORM_STEPS = [
   "eventsInfo", 
   "eventSpaces", 
   "foodBeverage",
-  "informationPolicies",
   "contractOnboarding"
 ] as const;
 
@@ -62,7 +60,6 @@ export interface CompletedSteps {
   eventsInfo: boolean;
   eventSpaces: boolean;
   foodBeverage: boolean;
-  informationPolicies: boolean;
   contractOnboarding: boolean;
 }
 
@@ -82,7 +79,6 @@ export function useHotelFormState() {
     eventsInfo: {},
     eventSpaces: [],
     foodBeverage: {},
-    informationPolicies: [],
     contractOnboarding: {}
   };
 
@@ -94,7 +90,6 @@ export function useHotelFormState() {
     eventsInfo: false,
     eventSpaces: false,
     foodBeverage: false,
-    informationPolicies: false,
     contractOnboarding: false
   };
 
@@ -389,7 +384,6 @@ export function useHotelFormState() {
       eventsInfo: apiData.eventsInfo || {},
       eventSpaces: apiData.eventSpaces || [],
       foodBeverage: apiData.fnb || apiData.foodBeverage || {},
-      informationPolicies: apiData.informationPolicies || [],
       contractOnboarding: apiData.contractDetails || {},
     };
     
@@ -416,9 +410,6 @@ export function useHotelFormState() {
         (apiData.hotel && apiData.hotel.conference_rooms)),
       eventSpaces: !!(apiData.eventSpaces && apiData.eventSpaces.length > 0),
       foodBeverage: !!(apiData.fnb || apiData.foodBeverage),
-      informationPolicies: !!(
-        apiData.informationPolicies && apiData.informationPolicies.length > 0
-      ),
       contractOnboarding: !!(apiData.contractDetails && Object.keys(apiData.contractDetails).length > 0),
     };
     
@@ -1228,45 +1219,6 @@ export function useHotelFormState() {
             }
           }
           return;
-
-        case "informationPolicies":
-          const hotelData = newFormData.hotel as HotelFormValues;
-          if (!hotelData.systemHotelId) {
-            toast.error("System Hotel ID not found. Please complete the Hotel step first.");
-            setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
-            return;
-          }
-          
-          if (newFormData.informationPolicies && Array.isArray(newFormData.informationPolicies) && newFormData.informationPolicies.length > 0) {
-            try {
-              // Import the API function
-              const { createInformationPolicy } = await import('@/apiClient/informationPoliciesApi');
-              
-              for (const policy of newFormData.informationPolicies) {
-                if (policy.type && policy.items && policy.items.length > 0) {
-                  const policyData = {
-                    system_hotel_id: hotelData.systemHotelId,
-                    type: policy.type,
-                    items: policy.items
-                  };
-                  
-                  console.log("Creating information policy:", policyData);
-                  await createInformationPolicy(policyData);
-                  toast.success(`Information policy "${policy.type}" created successfully.`);
-                }
-              }
-              
-              toast.success("All information policies created successfully!");
-            } catch (error: any) {
-              console.error("Error creating information policies:", error);
-              toast.error(`Failed to create information policies: ${error.message}`);
-              setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
-              return;
-            }
-          } else {
-            toast.info("No information policies to save.");
-          }
-          break;
 
         case "contractOnboarding":
           if (!currentHotelId) {

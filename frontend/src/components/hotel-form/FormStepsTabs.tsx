@@ -115,20 +115,6 @@ const FormStepsTabs = ({ activeStep, completedSteps, onTabChange }: FormStepsTab
         <span className="text-xs">{t("hotels.foodBeverage")}</span>
       </TabsTrigger>
       <TabsTrigger 
-        value="informationPolicies" 
-        className={tabClass}
-      >
-        <div className="relative">
-          <Shield className="h-4 w-4" />
-          {completedSteps.informationPolicies && (
-            <span className="absolute -top-1 -right-1 bg-green-500 rounded-full p-0.5">
-              <Check className="h-2 w-2 text-white" />
-            </span>
-          )}
-        </div>
-        <span className="text-xs">{t("policies.title")}</span>
-      </TabsTrigger>
-      <TabsTrigger 
         value="contractOnboarding" 
         className={`${tabClass} rounded-r-lg`}
       >

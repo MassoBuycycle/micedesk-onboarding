@@ -5,7 +5,6 @@ import RoomHandlingForm from "@/components/forms/RoomHandlingForm";
 import EventInfoForm from "@/components/forms/EventInfoForm";
 import EventSpacesForm from "@/components/forms/EventSpacesForm";
 import FoodBeverageForm from "@/components/forms/FoodBeverageForm";
-import InformationPoliciesForm from "@/components/forms/InformationPoliciesForm";
 import ContractOnboardingForm from "@/components/forms/ContractOnboardingForm";
 import { FormStep } from "@/hooks/useHotelFormState";
 import SectionFileUpload from "@/components/files/SectionFileUpload";
@@ -20,7 +19,6 @@ interface FormStepContentProps {
     eventsInfo: any;
     eventSpaces: any[];
     foodBeverage: any;
-    informationPolicies: any[];
     contractOnboarding: any;
   };
   createdHotelId: number | null;
@@ -173,24 +171,6 @@ const FormStepContent = ({
             entityId={createdHotelId} 
             entityType="hotels"
             section="foodBeverage"
-          />
-        </>
-      )}
-      
-      {activeStep === 'informationPolicies' && (
-        <>
-          <InformationPoliciesForm 
-            initialData={Array.isArray(formData.informationPolicies) && formData.informationPolicies.length > 0 ? formData.informationPolicies[0] : {}}
-            hotelId={formData.hotel?.hotelId}
-            onNext={(data) => onNext("informationPolicies", data)}
-            onPrevious={(data) => onPrevious("informationPolicies", data)}
-            onChange={(data) => onDataChange("informationPolicies", data)}
-            mode={mode}
-          />
-          <SectionFileUpload
-            entityId={createdHotelId} 
-            entityType="hotels"
-            section="informationPolicies"
           />
         </>
       )}
