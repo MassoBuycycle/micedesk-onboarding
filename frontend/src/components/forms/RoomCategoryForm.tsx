@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, ArrowRight, PlusCircle, Trash2, Image } from 'lucide-react';
 import { deleteRoomCategory } from '@/apiClient/roomsApi';
 import { toast } from 'sonner';
-import FileUpload from '@/components/files/FileUpload';
+import FileUpload, { FileUploadRef } from '@/components/files/FileUpload';
 import FileBrowser from '@/components/files/FileBrowser';
 // import RoomCategoryCard, { RoomCategory } from "./room-sections/RoomCategoryCard"; // Unused for now
 
@@ -65,6 +65,15 @@ interface RoomCategoryFormProps {
   mode?: 'add' | 'edit';
 }
 
+interface FileItem {
+  file?: File;
+  fileTypeCode: string;
+  progress: number;
+  status: 'pending' | 'uploading' | 'success' | 'error';
+  error?: string;
+  response?: any;
+}
+
 const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({ 
   initialData = [], 
   selectedHotel,
@@ -73,6 +82,25 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
   onChange, 
   mode 
 }) => {
+  const [uploadedFiles, setUploadedFiles] = useState<{ [key: string]: FileItem[] }>({});
+  const fileUploadRefs = useRef<{ [key: string]: FileUploadRef | null }>({});
+
+  const handleFileChange = (categoryIndex: number, files: FileItem[]) => {
+    console.log(`[RoomCategoryForm] handleFileChange called for category ${categoryIndex}:`, {
+      filesCount: files.length,
+      files: files.map(f => ({
+        name: f.file?.name,
+        status: f.status,
+        fileTypeCode: f.fileTypeCode
+      }))
+    });
+    
+    setUploadedFiles(prev => ({
+      ...prev,
+      [categoryIndex]: files
+    }));
+  };
+
   const form = useForm<FullCategoryFormValues>({ 
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -138,7 +166,35 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
     }
   };
 
-  const onSubmit = (data: FullCategoryFormValues) => {
+  const onSubmit = async (data: FullCategoryFormValues) => {
+    console.log("=== ROOM CATEGORIES FORM SUBMIT ===");
+    console.log("Form data:", data);
+    
+    // Wait for all file uploads to complete before proceeding
+    const uploadPromises = Object.values(fileUploadRefs.current)
+      .filter(ref => ref !== null)
+      .map(ref => ref!.waitForUploads());
+    
+    try {
+      await Promise.all(uploadPromises);
+      console.log("All file uploads completed");
+    } catch (error) {
+      console.error("Error waiting for uploads:", error);
+      toast.error("Some files are still uploading. Please wait and try again.");
+      return;
+    }
+    
+    // Check if any uploads failed
+    const failedUploads = Object.values(fileUploadRefs.current)
+      .filter(ref => ref !== null)
+      .some(ref => ref!.getUploadStatus().error > 0);
+    
+    if (failedUploads) {
+      toast.error("Some files failed to upload. Please fix the errors and try again.");
+      return;
+    }
+    
+    // Proceed with form submission
     onNext(data.categories);
   };
 
@@ -358,32 +414,104 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                 <div className="text-sm text-muted-foreground mb-4">
                   Laden Sie Bilder für diese Zimmerkategorie hoch. Diese werden für die Präsentation der Zimmer verwendet.
                 </div>
+                
+                {/* Upload Status Display */}
+                {fileUploadRefs.current[index] && (
+                  <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-medium">Upload Status:</span>
+                      <div className="flex items-center gap-2">
+                        {(() => {
+                          const status = fileUploadRefs.current[index]?.getUploadStatus();
+                          if (!status) return null;
+                          return (
+                            <>
+                              {status.pending > 0 && <span className="text-yellow-600">⏸️ {status.pending} pending</span>}
+                              {status.uploading > 0 && <span className="text-blue-600">⏳ {status.uploading} uploading</span>}
+                              {status.success > 0 && <span className="text-green-600">✓ {status.success} uploaded</span>}
+                              {status.error > 0 && <span className="text-red-600">✗ {status.error} failed</span>}
+                            </>
+                          );
+                        })()}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
                 <FileUpload
+                  ref={(el) => fileUploadRefs.current[index] = el}
                   entityType="room-categories"
                   entityId={form.getValues(`categories.${index}.id`) || 'new'}
                   category="room-category-images"
                   fileTypeCode="images"
                   maxFiles={20}
                   className="w-full"
+                  onFileChange={(files) => handleFileChange(index, files)}
                 />
               </div>
 
-              {/* Display existing files for this category */}
-              {form.getValues(`categories.${index}.id`) && (
-                <div className="border-t pt-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Image className="h-5 w-5 text-primary" />
-                    <h4 className="text-lg font-medium">Hochgeladene Bilder</h4>
-                  </div>
-                  <FileBrowser
-                    entityType="room-categories"
-                    entityId={form.getValues(`categories.${index}.id`)}
-                    category="room-category-images"
-                    title="Bereits hochgeladene Bilder"
-                    className="w-full"
-                  />
+              {/* Display existing files and uploaded files for this category */}
+              <div className="border-t pt-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Image className="h-5 w-5 text-primary" />
+                  <h4 className="text-lg font-medium">Bilder für diese Kategorie</h4>
                 </div>
-              )}
+                
+                {/* Show existing files if category has an ID */}
+                {form.getValues(`categories.${index}.id`) && (
+                  <div className="mb-4">
+                    <h5 className="text-sm font-medium text-muted-foreground mb-2">Bereits hochgeladene Bilder</h5>
+                    <FileBrowser
+                      entityType="room-categories"
+                      entityId={form.getValues(`categories.${index}.id`)}
+                      category="room-category-images"
+                      title="Bereits hochgeladene Bilder"
+                      className="w-full"
+                    />
+                  </div>
+                )}
+                
+                {/* Show uploaded files for new categories */}
+                {!form.getValues(`categories.${index}.id`) && uploadedFiles[index] && uploadedFiles[index].length > 0 && (
+                  <div>
+                    <h5 className="text-sm font-medium text-muted-foreground mb-2">Hochgeladene Bilder (noch nicht gespeichert)</h5>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                      {uploadedFiles[index].map((fileItem, fileIndex) => (
+                        <div key={fileIndex} className="relative border rounded-lg p-2 bg-gray-50">
+                          {fileItem.file && (
+                            <>
+                              <img
+                                src={URL.createObjectURL(fileItem.file)}
+                                alt={`Preview ${fileItem.file.name}`}
+                                className="w-full h-24 object-cover rounded mb-2"
+                              />
+                              <p className="text-xs text-gray-600 truncate" title={fileItem.file.name}>
+                                {fileItem.file.name}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {(fileItem.file.size / 1024 / 1024).toFixed(2)} MB
+                              </p>
+                              <div className="absolute top-1 right-1">
+                                <span className={`px-2 py-1 text-xs rounded-full ${
+                                  fileItem.status === 'success' ? 'bg-green-100 text-green-800' :
+                                  fileItem.status === 'uploading' ? 'bg-blue-100 text-blue-800' :
+                                  fileItem.status === 'error' ? 'bg-red-100 text-red-800' :
+                                  'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {fileItem.status === 'success' ? '✓' :
+                                   fileItem.status === 'uploading' ? '⏳' :
+                                   fileItem.status === 'error' ? '✗' :
+                                   '⏸️'}
+                                </span>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
         ))}

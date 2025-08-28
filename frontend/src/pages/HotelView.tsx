@@ -26,6 +26,7 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTranslation } from 'react-i18next';
 import { DialogClose } from '@/components/ui/dialog';
+import RoomCategoryImages from '@/components/RoomCategoryImages';
 
 const HotelView = () => {
   const { id } = useParams<{ id: string }>();
@@ -656,6 +657,9 @@ const HotelView = () => {
                                 <p key={key}><span className="font-medium capitalize">{label}:</span> {formatBooleanValue(value)}</p>
                               );
                             })}
+                            
+                          {/* Room Category Images */}
+                          <RoomCategoryImages categoryId={category.id} />
                         </CardContent>
                       </Card>
                     );

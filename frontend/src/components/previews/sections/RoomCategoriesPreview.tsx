@@ -1,14 +1,24 @@
-import { DoorOpen } from "lucide-react";
+import { DoorOpen, Image } from "lucide-react";
 import { useTranslation } from "react-i18next";
 // import { RoomCategoryFormValues } from "@/components/forms/RoomCategoryForm"; // No longer needed
 import { RoomCategoryInput } from "@/apiClient/roomsApi"; // Import the correct type
 
+interface FileItem {
+  file?: File;
+  fileTypeCode: string;
+  progress: number;
+  status: 'pending' | 'uploading' | 'success' | 'error';
+  error?: string;
+  response?: any;
+}
+
 interface RoomCategoriesPreviewProps {
   // roomCategories: Partial<RoomCategoryFormValues>[]; // Old type
   roomCategories: Partial<RoomCategoryInput>[]; // Use the API input type
+  uploadedFiles?: { [key: string]: FileItem[] }; // Add uploaded files prop
 }
 
-const RoomCategoriesPreview = ({ roomCategories }: RoomCategoriesPreviewProps) => {
+const RoomCategoriesPreview = ({ roomCategories, uploadedFiles }: RoomCategoriesPreviewProps) => {
   const { t } = useTranslation();
   
   // Helper function to handle boolean display
@@ -62,6 +72,44 @@ const RoomCategoriesPreview = ({ roomCategories }: RoomCategoriesPreviewProps) =
               )}
               {category.baby_bed_available !== undefined && <p><span className="text-foreground">{t('rooms.preview.babyBed')}:</span> {formatBooleanValue(category.baby_bed_available)}</p>}
             </div>
+            
+            {/* Show images for this category */}
+            {uploadedFiles && uploadedFiles[index] && uploadedFiles[index].length > 0 && (
+              <div className="mt-3 pt-2 border-t border-gray-200">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Image className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {uploadedFiles[index].length} Bild(er) hochgeladen
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {uploadedFiles[index].map((fileItem, fileIndex) => (
+                    <div key={fileIndex} className="relative">
+                      {fileItem.file && (
+                        <img
+                          src={URL.createObjectURL(fileItem.file)}
+                          alt={`Preview ${fileItem.file.name}`}
+                          className="w-full h-16 object-cover rounded border"
+                        />
+                      )}
+                      <div className="absolute top-1 right-1">
+                        <span className={`px-1 py-0.5 text-xs rounded-full ${
+                          fileItem.status === 'success' ? 'bg-green-100 text-green-800' :
+                          fileItem.status === 'uploading' ? 'bg-blue-100 text-blue-800' :
+                          fileItem.status === 'error' ? 'bg-red-100 text-red-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {fileItem.status === 'success' ? '✓' :
+                           fileItem.status === 'uploading' ? '⏳' :
+                           fileItem.status === 'error' ? '✗' :
+                           '⏸️'}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </div>

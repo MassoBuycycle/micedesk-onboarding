@@ -1,12 +1,13 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useImperativeHandle, forwardRef } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Upload, X, FilePlus, File, Check, FolderOpen, Loader2, ArrowUp } from 'lucide-react';
 import { toast } from 'sonner';
-import { Card, CardContent } from '@/components/ui/card';
-import { uploadFile, getFileTypesByCategory, FileType } from '@/apiClient/filesApi';
+import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Progress } from '@/components/ui/progress';
+import { X, Upload, Image, PlusCircle, Lightbulb, FolderOpen, ArrowUp, Loader2, Check } from 'lucide-react';
+import { uploadFile } from '@/apiClient/filesApi';
+import { getFileTypesByCategory, FileType } from '@/apiClient/filesApi';
+import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Badge } from "@/components/ui/badge";
 
@@ -14,11 +15,12 @@ interface FileUploadProps {
   entityType: string;
   entityId?: number | string; // May be undefined until entity is created
   category: string;
-  fileTypeCode?: string;
-  onSuccess?: (files: any[]) => void;
+  fileTypeCode?: string; // This should be used as initialFileTypeCode
   maxFiles?: number;
   className?: string;
+  onSuccess?: (files: any[]) => void;
   autoUpload?: boolean; // If true, upload automatically when entityId is available
+  onFileChange?: (files: FileToUpload[]) => void; // Callback to expose file state
 }
 
 interface FileToUpload {
@@ -30,22 +32,74 @@ interface FileToUpload {
   response?: any;
 }
 
-export default function FileUpload({
+export interface FileUploadRef {
+  isUploadComplete: () => boolean;
+  getUploadStatus: () => { pending: number; uploading: number; success: number; error: number };
+  waitForUploads: () => Promise<void>;
+}
+
+const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
   entityType,
   entityId,
   category,
-  fileTypeCode: initialFileTypeCode,
-  onSuccess,
-  maxFiles = 20, // Increased default max to support more files
+  fileTypeCode,
+  maxFiles = 20,
   className = '',
   autoUpload = false,
-}: FileUploadProps) {
+  onSuccess,
+  onFileChange,
+}, ref) => {
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [fileTypes, setFileTypes] = useState<FileType[]>([]);
   const [isLoadingFileTypes, setIsLoadingFileTypes] = useState<boolean>(false);
   const [filesToUpload, setFilesToUpload] = useState<FileToUpload[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
   const [batchSize, setBatchSize] = useState<number>(5); // Default batch size for large uploads
+
+  // Use fileTypeCode as initialFileTypeCode if provided
+  const initialFileTypeCode = fileTypeCode;
+
+  // Expose methods to parent component via ref
+  useImperativeHandle(ref, () => ({
+    isUploadComplete: () => {
+      const allFiles = [...filesToUpload, ...uploadedFiles];
+      return allFiles.length === 0 || allFiles.every(f => f.status === 'success');
+    },
+    getUploadStatus: () => ({
+      pending: filesToUpload.filter(f => f.status === 'pending').length,
+      uploading: filesToUpload.filter(f => f.status === 'uploading').length,
+      success: filesToUpload.filter(f => f.status === 'success').length + uploadedFiles.length,
+      error: filesToUpload.filter(f => f.status === 'error').length
+    }),
+    waitForUploads: async () => {
+      if (isUploading) {
+        // Wait for current upload to complete
+        return new Promise<void>((resolve) => {
+          const checkUpload = () => {
+            if (!isUploading) {
+              resolve();
+            } else {
+              setTimeout(checkUpload, 100);
+            }
+          };
+          checkUpload();
+        });
+      }
+      return Promise.resolve();
+    }
+  }), [filesToUpload, uploadedFiles, isUploading]);
+
+  // Notify parent component of file changes
+  useEffect(() => {
+    if (onFileChange) {
+      console.log('[FileUpload] Calling onFileChange with:', {
+        filesToUpload: filesToUpload.length,
+        uploadedFiles: uploadedFiles.length,
+        totalFiles: filesToUpload.length + uploadedFiles.length
+      });
+      onFileChange([...filesToUpload, ...uploadedFiles]);
+    }
+  }, [filesToUpload, uploadedFiles, onFileChange]);
 
   // Fetch available file types for this category
   useEffect(() => {
@@ -69,9 +123,12 @@ export default function FileUpload({
         if (types.length > 0) {
           setFilesToUpload(prev => prev.map(file => ({
             ...file,
-            fileTypeCode: file.fileTypeCode || types[0].code
+            fileTypeCode: file.fileTypeCode || initialFileTypeCode || types[0].code
           })));
-          console.log('[FileUpload] Auto-assigned default file types to existing files');
+          console.log('[FileUpload] Auto-assigned default file types to existing files. Used:', {
+            initialFileTypeCode,
+            fallbackType: types[0].code
+          });
         }
       } catch (error) {
         console.error('Error fetching file types:', error);
@@ -86,11 +143,13 @@ export default function FileUpload({
 
   // Helper function to get the default file type code
   const getDefaultFileTypeCode = useCallback(() => {
+    // Prioritize the prop value, then fall back to first available file type
     const defaultCode = initialFileTypeCode || (fileTypes.length > 0 ? fileTypes[0].code : '');
     console.log('[FileUpload] getDefaultFileTypeCode called:', {
       initialFileTypeCode,
       availableFileTypes: fileTypes.map(t => ({ code: t.code, name: t.name })),
-      defaultCode
+      defaultCode,
+      priority: initialFileTypeCode ? 'from props' : 'from available types'
     });
     return defaultCode;
   }, [initialFileTypeCode, fileTypes]);
@@ -113,10 +172,16 @@ export default function FileUpload({
     // Create file entries for each dropped file with default file type
     const defaultFileTypeCode = getDefaultFileTypeCode();
     console.log('[FileUpload] Using default file type code:', defaultFileTypeCode);
+    console.log('[FileUpload] Available file types:', fileTypes.map(t => ({ code: t.code, name: t.name })));
+    console.log('[FileUpload] initialFileTypeCode from props:', initialFileTypeCode);
+    
+    // If we don't have a default yet, use the first available file type
+    const effectiveDefaultCode = defaultFileTypeCode || (fileTypes.length > 0 ? fileTypes[0].code : '');
+    console.log('[FileUpload] Effective default code:', effectiveDefaultCode);
     
     const newFiles = acceptedFiles.map(file => ({
       file,
-      fileTypeCode: defaultFileTypeCode,
+      fileTypeCode: effectiveDefaultCode,
       progress: 0,
       status: 'pending' as const
     }));
@@ -127,7 +192,7 @@ export default function FileUpload({
     if (acceptedFiles.length > 0) {
       toast.success(`${acceptedFiles.length} file(s) added to upload queue`);
     }
-  }, [getDefaultFileTypeCode]);
+  }, [getDefaultFileTypeCode, fileTypes, initialFileTypeCode]);
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
@@ -398,17 +463,38 @@ export default function FileUpload({
     }
   };
 
-  // Auto-upload effect: when autoUpload is enabled and we have pending/error files
+  // Auto-upload files when entityId is 'new' to ensure they're available for assignment
   useEffect(() => {
-    if (!autoUpload) return;
-
-    const hasPending = filesToUpload.some(f => f.status === 'pending' || f.status === 'error');
-    if (hasPending && !isUploading) {
-      console.log('[FileUpload] Auto-upload triggered with pending files:', filesToUpload.filter(f => f.status === 'pending' || f.status === 'error').length);
+    if (entityId === 'new' && filesToUpload.length > 0 && !isUploading) {
+      console.log('[FileUpload] Auto-uploading files for new entity');
       handleUploadFiles();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoUpload, filesToUpload]);
+  }, [entityId, filesToUpload.length, isUploading]);
+
+  // Expose upload status to parent component
+  useEffect(() => {
+    if (onFileChange) {
+      const allFiles = [...filesToUpload, ...uploadedFiles];
+      const hasUnfinishedUploads = allFiles.some(f => f.status === 'pending' || f.status === 'uploading');
+      const hasErrors = allFiles.some(f => f.status === 'error');
+      
+      console.log('[FileUpload] Calling onFileChange with:', {
+        filesToUpload: filesToUpload.length,
+        uploadedFiles: uploadedFiles.length,
+        totalFiles: allFiles.length,
+        hasUnfinishedUploads,
+        hasErrors,
+        uploadStatus: {
+          pending: filesToUpload.filter(f => f.status === 'pending').length,
+          uploading: filesToUpload.filter(f => f.status === 'uploading').length,
+          success: filesToUpload.filter(f => f.status === 'success').length + uploadedFiles.length,
+          error: filesToUpload.filter(f => f.status === 'error').length
+        }
+      });
+      
+      onFileChange(allFiles);
+    }
+  }, [filesToUpload, uploadedFiles, onFileChange]);
 
   // Debug effect to log state changes
   useEffect(() => {
@@ -549,7 +635,7 @@ export default function FileUpload({
                   >
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center space-x-2 min-w-0 flex-1">
-                        <File className="h-4 w-4 text-primary flex-shrink-0" />
+                        <FolderOpen className="h-4 w-4 text-primary flex-shrink-0" />
                         <div className="min-w-0 flex-1">
                           <div className="max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap text-sm font-medium">
                             {fileItem.file.name}
@@ -753,4 +839,6 @@ export default function FileUpload({
       )}
     </div>
   );
-} 
+});
+
+export default FileUpload; 
