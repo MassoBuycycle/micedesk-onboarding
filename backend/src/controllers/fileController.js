@@ -338,6 +338,21 @@ export const assignRoomCategoryFilesService = async (roomCategoryId) => {
   try {
     console.log(`[ASSIGN] Starting file assignment for room category ${roomCategoryId}`);
     
+    // First, let's see what temporary files exist in the database
+    const [allTempFiles] = await pool.query(
+      `SELECT id, storage_path, entity_type, entity_id, is_temporary
+       FROM files 
+       WHERE is_temporary = 1 AND entity_id = 0`
+    );
+    
+    console.log(`[ASSIGN] All temporary files in database:`, allTempFiles.map(f => ({
+      id: f.id,
+      storage_path: f.storage_path,
+      entity_type: f.entity_type,
+      entity_id: f.entity_id,
+      is_temporary: f.is_temporary
+    })));
+    
     // Use a more specific query to prevent race conditions
     // Only get files that are specifically uploaded for this room category
     const [tempFiles] = await pool.query(
@@ -347,10 +362,18 @@ export const assignRoomCategoryFilesService = async (roomCategoryId) => {
          AND is_temporary = 1 
          AND entity_id = 0
          AND storage_path LIKE ?`,
-      [`room-categories/new/room-category-images/images/%`]
+      [`room-categories/new/room-category-images/%`]
     );
 
     console.log(`[ASSIGN] Found ${tempFiles.length} temporary files to assign for room category ${roomCategoryId}`);
+    
+    // Debug: Show what files were found
+    if (tempFiles.length > 0) {
+      console.log(`[ASSIGN] Temporary files found:`, tempFiles.map(f => ({
+        id: f.id,
+        storage_path: f.storage_path
+      })));
+    }
 
     // No files to process – return early
     if (tempFiles.length === 0) {
