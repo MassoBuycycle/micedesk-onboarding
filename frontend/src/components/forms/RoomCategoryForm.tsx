@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -85,7 +85,7 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
   const [uploadedFiles, setUploadedFiles] = useState<{ [key: string]: FileItem[] }>({});
   const fileUploadRefs = useRef<{ [key: string]: FileUploadRef | null }>({});
 
-  const handleFileChange = (categoryIndex: number, files: FileItem[]) => {
+  const handleFileChange = useCallback((categoryIndex: number, files: FileItem[]) => {
     console.log(`[RoomCategoryForm] handleFileChange called for category ${categoryIndex}:`, {
       filesCount: files.length,
       files: files.map(f => ({
@@ -99,7 +99,7 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
       ...prev,
       [categoryIndex]: files
     }));
-  };
+  }, []);
 
   const form = useForm<FullCategoryFormValues>({ 
     resolver: zodResolver(formSchema),

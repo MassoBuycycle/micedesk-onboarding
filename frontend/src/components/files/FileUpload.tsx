@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useImperativeHandle, forwardRef } from 'react';
+import React, { useState, useEffect, useCallback, useImperativeHandle, forwardRef, useRef } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -90,14 +90,44 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
   }), [filesToUpload, uploadedFiles, isUploading]);
 
   // Notify parent component of file changes
+  const lastNotifiedState = useRef<string>('');
+  
   useEffect(() => {
     if (onFileChange) {
-      console.log('[FileUpload] Calling onFileChange with:', {
-        filesToUpload: filesToUpload.length,
-        uploadedFiles: uploadedFiles.length,
-        totalFiles: filesToUpload.length + uploadedFiles.length
+      const allFiles = [...filesToUpload, ...uploadedFiles];
+      
+      // Don't notify if there are no files and we've already notified about empty state
+      if (allFiles.length === 0 && lastNotifiedState.current === 'empty') {
+        return;
+      }
+      
+      const currentState = allFiles.length === 0 ? 'empty' : JSON.stringify({
+        filesToUploadCount: filesToUpload.length,
+        uploadedFilesCount: uploadedFiles.length,
+        totalFiles: allFiles.length,
+        statuses: allFiles.map(f => f.status)
       });
-      onFileChange([...filesToUpload, ...uploadedFiles]);
+      
+      // Only call onFileChange if the state has actually changed
+      if (currentState !== lastNotifiedState.current) {
+        lastNotifiedState.current = currentState;
+        
+        console.log('[FileUpload] Calling onFileChange with:', {
+          filesToUpload: filesToUpload.length,
+          uploadedFiles: uploadedFiles.length,
+          totalFiles: allFiles.length,
+          hasUnfinishedUploads: allFiles.some(f => f.status === 'pending' || f.status === 'uploading'),
+          hasErrors: allFiles.some(f => f.status === 'error'),
+          uploadStatus: {
+            pending: filesToUpload.filter(f => f.status === 'pending').length,
+            uploading: filesToUpload.filter(f => f.status === 'uploading').length,
+            success: filesToUpload.filter(f => f.status === 'success').length + uploadedFiles.length,
+            error: filesToUpload.filter(f => f.status === 'error').length
+          }
+        });
+        
+        onFileChange(allFiles);
+      }
     }
   }, [filesToUpload, uploadedFiles, onFileChange]);
 
