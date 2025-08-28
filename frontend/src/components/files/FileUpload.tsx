@@ -89,47 +89,24 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
     }
   }), [filesToUpload, uploadedFiles, isUploading]);
 
-  // Notify parent component of file changes
-  const lastNotifiedState = useRef<string>('');
-  
+  // Store the latest callback in a ref to avoid dependency issues
+  const onFileChangeRef = useRef(onFileChange);
+  onFileChangeRef.current = onFileChange;
+
+  // Notify parent component of file changes - only when files are actually added/removed/uploaded
   useEffect(() => {
-    if (onFileChange) {
+    if (onFileChangeRef.current && filesToUpload.length > 0) {
       const allFiles = [...filesToUpload, ...uploadedFiles];
-      
-      // Don't notify if there are no files and we've already notified about empty state
-      if (allFiles.length === 0 && lastNotifiedState.current === 'empty') {
-        return;
-      }
-      
-      const currentState = allFiles.length === 0 ? 'empty' : JSON.stringify({
-        filesToUploadCount: filesToUpload.length,
-        uploadedFilesCount: uploadedFiles.length,
-        totalFiles: allFiles.length,
-        statuses: allFiles.map(f => f.status)
-      });
-      
-      // Only call onFileChange if the state has actually changed
-      if (currentState !== lastNotifiedState.current) {
-        lastNotifiedState.current = currentState;
-        
-        console.log('[FileUpload] Calling onFileChange with:', {
-          filesToUpload: filesToUpload.length,
-          uploadedFiles: uploadedFiles.length,
-          totalFiles: allFiles.length,
-          hasUnfinishedUploads: allFiles.some(f => f.status === 'pending' || f.status === 'uploading'),
-          hasErrors: allFiles.some(f => f.status === 'error'),
-          uploadStatus: {
-            pending: filesToUpload.filter(f => f.status === 'pending').length,
-            uploading: filesToUpload.filter(f => f.status === 'uploading').length,
-            success: filesToUpload.filter(f => f.status === 'success').length + uploadedFiles.length,
-            error: filesToUpload.filter(f => f.status === 'error').length
-          }
-        });
-        
-        onFileChange(allFiles);
-      }
+      onFileChangeRef.current(allFiles);
     }
-  }, [filesToUpload, uploadedFiles, onFileChange]);
+  }, [filesToUpload.length, uploadedFiles.length]); // Only depend on counts, not the actual arrays
+
+  // Notify parent when all files are removed
+  useEffect(() => {
+    if (onFileChangeRef.current && filesToUpload.length === 0 && uploadedFiles.length === 0) {
+      onFileChangeRef.current([]);
+    }
+  }, [filesToUpload.length, uploadedFiles.length]);
 
   // Fetch available file types for this category
   useEffect(() => {
@@ -138,13 +115,10 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
       try {
         // Remove temp suffix (e.g., "-hotels-temp") if present so we query the real category
         const cleanCategory = category.replace(/-[^-]+-temp$/, '');
-        console.log('[FileUpload] Fetching file types for category:', cleanCategory);
         const types = await getFileTypesByCategory(cleanCategory);
-        console.log('[FileUpload] Found file types:', types);
         
         // Set default file type code if not provided and we have file types
         if (!initialFileTypeCode && types.length > 0) {
-          console.log('[FileUpload] Setting default file type code:', types[0].code);
         }
         
         setFileTypes(types);
@@ -155,13 +129,8 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
             ...file,
             fileTypeCode: file.fileTypeCode || initialFileTypeCode || types[0].code
           })));
-          console.log('[FileUpload] Auto-assigned default file types to existing files. Used:', {
-            initialFileTypeCode,
-            fallbackType: types[0].code
-          });
         }
       } catch (error) {
-        console.error('Error fetching file types:', error);
         toast.error('Failed to load file types');
       } finally {
         setIsLoadingFileTypes(false);
@@ -175,31 +144,26 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
   const getDefaultFileTypeCode = useCallback(() => {
     // First priority: use the prop value if provided
     if (initialFileTypeCode) {
-      console.log('[FileUpload] Using file type from props:', initialFileTypeCode);
       return initialFileTypeCode;
     }
     
     // Second priority: use the first available file type for this category
     if (fileTypes.length > 0) {
       const defaultType = fileTypes[0];
-      console.log('[FileUpload] Using first available file type:', defaultType);
       return defaultType.code;
     }
     
-    console.warn('[FileUpload] No file types available, cannot determine default');
     return '';
   }, [initialFileTypeCode, fileTypes]);
 
   // Enhanced file type validation
   const validateFileType = useCallback((fileTypeCode: string) => {
     if (!fileTypeCode) {
-      console.error('[FileUpload] No file type code provided');
       return false;
     }
     
     const availableTypes = fileTypes.map(t => t.code);
     if (!availableTypes.includes(fileTypeCode)) {
-      console.error('[FileUpload] Invalid file type code:', fileTypeCode, 'Available types:', availableTypes);
       return false;
     }
     
@@ -207,25 +171,12 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
   }, [fileTypes]);
 
   const onDrop = useCallback((acceptedFiles: File[], rejectedFiles: any[]) => {
-    console.log('[FileUpload] onDrop called with:', {
-      acceptedFilesCount: acceptedFiles.length,
-      rejectedFilesCount: rejectedFiles.length,
-      totalFiles: acceptedFiles.length + rejectedFiles.length
-    });
-    console.log('[FileUpload] Files dropped:', acceptedFiles.length, 'accepted files');
-    console.log('[FileUpload] Accepted file names:', acceptedFiles.map(f => f.name));
     if (rejectedFiles.length > 0) {
-      console.log('[FileUpload] Rejected files:', rejectedFiles.length, 'files');
-      console.log('[FileUpload] Rejected file names:', rejectedFiles.map(f => f.file.name));
-      console.log('[FileUpload] Rejection reasons:', rejectedFiles.map(f => f.errors));
       toast.error(`${rejectedFiles.length} file(s) were rejected. Please check file types and sizes.`);
     }
     
     // Create file entries for each dropped file with default file type
     const defaultFileTypeCode = getDefaultFileTypeCode();
-    console.log('[FileUpload] Using default file type code:', defaultFileTypeCode);
-    console.log('[FileUpload] Available file types:', fileTypes.map(t => ({ code: t.code, name: t.name })));
-    console.log('[FileUpload] initialFileTypeCode from props:', initialFileTypeCode);
     
     // Validate the default file type
     if (!validateFileType(defaultFileTypeCode)) {
@@ -235,7 +186,6 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
     
     // If we don't have a default yet, use the first available file type
     const effectiveDefaultCode = defaultFileTypeCode || (fileTypes.length > 0 ? fileTypes[0].code : '');
-    console.log('[FileUpload] Effective default code:', effectiveDefaultCode);
     
     if (!effectiveDefaultCode) {
       toast.error('No valid file type available. Please try refreshing the page.');
@@ -249,7 +199,6 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
       status: 'pending' as const
     }));
     
-    console.log('[FileUpload] Created file entries:', newFiles);
     setFilesToUpload(prev => [...prev, ...newFiles]);
     
     if (acceptedFiles.length > 0) {
@@ -271,12 +220,9 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
       'text/plain': ['.txt']
     },
     onDropAccepted: (files) => {
-      console.log('[FileUpload] Dropzone onDropAccepted called with:', files.length, 'files');
     },
     onDropRejected: (fileRejections) => {
-      console.log('[FileUpload] Dropzone onDropRejected called with:', fileRejections.length, 'rejections');
       fileRejections.forEach(rejection => {
-        console.log('[FileUpload] File rejected:', rejection.file.name, 'Errors:', rejection.errors);
       });
     }
   });
@@ -285,7 +231,6 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
   const handleManualClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('[FileUpload] Manual click triggered');
     
     // Create a temporary file input with multiple attribute
     const input = document.createElement('input');
@@ -293,32 +238,16 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
     input.multiple = true;
     input.accept = '.jpg,.jpeg,.png,.webp,.gif,.pdf,.doc,.docx,.txt';
     
-    // Add debugging
-    console.log('[FileUpload] Created file input with attributes:', {
-      type: input.type,
-      multiple: input.multiple,
-      accept: input.accept
-    });
-    
     input.onchange = (event) => {
       const target = event.target as HTMLInputElement;
-      console.log('[FileUpload] File input change event:', {
-        files: target.files,
-        fileCount: target.files?.length || 0
-      });
       
       if (target.files && target.files.length > 0) {
         const files = Array.from(target.files);
-        console.log('[FileUpload] Manual file selection:', files.length, 'files');
-        console.log('[FileUpload] Selected files:', files.map(f => ({ name: f.name, size: f.size, type: f.type })));
         
         // Use the same logic as onDrop for consistency
         const defaultFileTypeCode = getDefaultFileTypeCode();
-        console.log('[FileUpload] Manual selection using default file type code:', defaultFileTypeCode);
         
         onDrop(files, []); // No rejected files for manual selection
-      } else {
-        console.log('[FileUpload] No files selected in manual picker');
       }
     };
     
@@ -346,13 +275,11 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
       fileTypeCode: file.fileTypeCode || defaultCode
     })));
     
-    console.log('[FileUpload] Assigned default file type to files without types');
   }, [fileTypes.length, getDefaultFileTypeCode]);
 
   // Function to upload files in batches
   const handleBatchUpload = async (startIndex: number, endIndex: number) => {
     const batchFiles = filesToUpload.slice(startIndex, endIndex);
-    console.log(`[FileUpload] Processing batch ${startIndex + 1}-${endIndex} with ${batchFiles.length} files`);
     
     const effectiveEntityId = entityId || 'new';
     const successfulUploads: any[] = [];
@@ -390,7 +317,6 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
         ));
         
         successfulUploads.push(response);
-        console.log(`[FileUpload] Successfully uploaded file ${fileItem.file.name}`);
       } catch (error: any) {
         console.error(`Error uploading file ${fileItem.file.name}:`, error);
         
@@ -430,8 +356,6 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
     // Use 'new' as temporary entityId if not available
     const effectiveEntityId = entityId || 'new';
     
-    console.log(`[FileUpload] Starting upload for entityType: ${entityType}, entityId: ${effectiveEntityId}, category: ${category}`);
-    
     // Check if any files are missing file types and assign defaults
     const updatedFiles = filesToUpload.map(file => ({
       ...file,
@@ -464,14 +388,11 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
 
     // Use batch upload for large numbers of files
     if (updatedFiles.length > batchSize) {
-      console.log(`[FileUpload] Large upload detected (${updatedFiles.length} files), using batch upload with batch size ${batchSize}`);
       
       const totalBatches = Math.ceil(updatedFiles.length / batchSize);
       for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
         const startIndex = batchIndex * batchSize;
         const endIndex = Math.min(startIndex + batchSize, updatedFiles.length);
-        
-        console.log(`[FileUpload] Processing batch ${batchIndex + 1}/${totalBatches} (files ${startIndex + 1}-${endIndex})`);
         
         const batchResults = await handleBatchUpload(startIndex, endIndex);
         successfulUploads.push(...batchResults);
@@ -493,15 +414,6 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
         setFilesToUpload([...updatedFiles]);
 
         try {
-          console.log(`[FileUpload] Uploading file ${i + 1}/${updatedFiles.length}: ${updatedFiles[i].file.name}`);
-          console.log(`[FileUpload] File details:`, {
-            name: updatedFiles[i].file.name,
-            size: updatedFiles[i].file.size,
-            type: updatedFiles[i].file.type,
-            fileTypeCode: updatedFiles[i].fileTypeCode
-          });
-          console.log(`[FileUpload] Upload target: ${entityType}/${effectiveEntityId}/${category}`);
-          
           const response = await uploadFile(
             entityType,
             effectiveEntityId,
@@ -518,7 +430,6 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
           updatedFiles[i].response = response;
           successfulUploads.push(response);
           
-          console.log(`[FileUpload] Successfully uploaded file ${updatedFiles[i].file.name}`);
         } catch (error: any) {
           console.error(`Error uploading file ${updatedFiles[i].file.name}:`, error);
           updatedFiles[i].status = 'error';
@@ -534,10 +445,8 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
     if (successfulUploads.length > 0) {
       if (!entityId) {
         toast.success(`Successfully uploaded ${successfulUploads.length} file(s). They will be associated with the record when saved.`);
-        console.log(`[FileUpload] ${successfulUploads.length} files uploaded with temporary entityId 'new' - will be assigned when entity is created`);
       } else {
         toast.success(`Successfully uploaded ${successfulUploads.length} file(s)`);
-        console.log(`[FileUpload] ${successfulUploads.length} files uploaded successfully to entity ${entityId}`);
       }
       setUploadedFiles(prev => [...prev, ...successfulUploads]);
       
@@ -553,7 +462,6 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
   // Auto-upload files when entityId is 'new' to ensure they're available for assignment
   useEffect(() => {
     if (entityId === 'new' && filesToUpload.length > 0 && !isUploading) {
-      console.log('[FileUpload] Auto-uploading files for new entity');
       handleUploadFiles();
     }
   }, [entityId, filesToUpload.length, isUploading]);
@@ -565,33 +473,12 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
       const hasUnfinishedUploads = allFiles.some(f => f.status === 'pending' || f.status === 'uploading');
       const hasErrors = allFiles.some(f => f.status === 'error');
       
-      console.log('[FileUpload] Calling onFileChange with:', {
-        filesToUpload: filesToUpload.length,
-        uploadedFiles: uploadedFiles.length,
-        totalFiles: allFiles.length,
-        hasUnfinishedUploads,
-        hasErrors,
-        uploadStatus: {
-          pending: filesToUpload.filter(f => f.status === 'pending').length,
-          uploading: filesToUpload.filter(f => f.status === 'uploading').length,
-          success: filesToUpload.filter(f => f.status === 'success').length + uploadedFiles.length,
-          error: filesToUpload.filter(f => f.status === 'error').length
-        }
-      });
-      
       onFileChange(allFiles);
     }
   }, [filesToUpload, uploadedFiles, onFileChange]);
 
   // Debug effect to log state changes
   useEffect(() => {
-    console.log('[FileUpload] State updated:', {
-      filesToUploadCount: filesToUpload.length,
-      uploadedFilesCount: uploadedFiles.length,
-      isUploading,
-      entityId,
-      category
-    });
   }, [filesToUpload.length, uploadedFiles.length, isUploading, entityId, category]);
 
   const formatFileSize = (bytes: number) => {
@@ -613,8 +500,6 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
       toast.info('No failed uploads to retry');
       return;
     }
-    
-    console.log(`[FileUpload] Retrying ${failedFiles.length} failed uploads`);
     
     // Reset failed files to pending status
     setFilesToUpload(prev => prev.map(file => 
