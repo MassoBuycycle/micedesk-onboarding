@@ -316,7 +316,9 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
     console.log(`[ROOM_CATEGORIES] Received ${categoryInfosArray.length} categories:`, categoryInfosArray.map(cat => ({
         id: cat.id,
         category_name: cat.category_name,
-        pms_name: cat.pms_name
+        pms_name: cat.pms_name,
+        tempIndex: cat.tempIndex,
+        tempIndexType: typeof cat.tempIndex
     })));
     
     if (!Array.isArray(categoryInfosArray) || categoryInfosArray.length === 0) {

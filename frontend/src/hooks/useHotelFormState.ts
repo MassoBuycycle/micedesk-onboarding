@@ -880,7 +880,7 @@ export function useHotelFormState() {
                   return isNaN(num) ? undefined : num;
                 };
 
-                const roomCategoryPayload: RoomCategoryInput = {
+                const roomCategoryPayload: RoomCategoryInput & { tempIndex?: number } = {
                   category_name: catFromForm.category_name,
                   pms_name: catFromForm.pms_name,
                   num_rooms: safeParseInt(catFromForm.num_rooms),
@@ -894,6 +894,7 @@ export function useHotelFormState() {
                   extra_bed_available: typeof catFromForm.extra_bed_available === 'boolean' ? catFromForm.extra_bed_available : undefined,
                   is_accessible: typeof catFromForm.isAccessible === 'boolean' ? catFromForm.isAccessible : undefined,
                   has_balcony: typeof catFromForm.hasBalcony === 'boolean' ? catFromForm.hasBalcony : undefined,
+                  tempIndex: catFromForm.tempIndex, // Include tempIndex for backend processing
                 };
 
                 Object.keys(roomCategoryPayload).forEach(key => {
