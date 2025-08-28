@@ -63,6 +63,15 @@ export default function FileUpload({
         }
         
         setFileTypes(types);
+        
+        // If we have existing files without file types, update them with the first available type
+        if (types.length > 0) {
+          setFilesToUpload(prev => prev.map(file => ({
+            ...file,
+            fileTypeCode: file.fileTypeCode || types[0].code
+          })));
+          console.log('[FileUpload] Auto-assigned default file types to existing files');
+        }
       } catch (error) {
         console.error('Error fetching file types:', error);
         toast.error('Failed to load file types');
@@ -73,6 +82,17 @@ export default function FileUpload({
 
     fetchFileTypes();
   }, [category, initialFileTypeCode]);
+
+  // Helper function to get the default file type code
+  const getDefaultFileTypeCode = useCallback(() => {
+    const defaultCode = initialFileTypeCode || (fileTypes.length > 0 ? fileTypes[0].code : '');
+    console.log('[FileUpload] getDefaultFileTypeCode called:', {
+      initialFileTypeCode,
+      availableFileTypes: fileTypes.map(t => ({ code: t.code, name: t.name })),
+      defaultCode
+    });
+    return defaultCode;
+  }, [initialFileTypeCode, fileTypes]);
 
   const onDrop = useCallback((acceptedFiles: File[], rejectedFiles: any[]) => {
     console.log('[FileUpload] onDrop called with:', {
@@ -89,10 +109,13 @@ export default function FileUpload({
       toast.error(`${rejectedFiles.length} file(s) were rejected. Please check file types and sizes.`);
     }
     
-    // Create file entries for each dropped file
+    // Create file entries for each dropped file with default file type
+    const defaultFileTypeCode = getDefaultFileTypeCode();
+    console.log('[FileUpload] Using default file type code:', defaultFileTypeCode);
+    
     const newFiles = acceptedFiles.map(file => ({
       file,
-      fileTypeCode: initialFileTypeCode || (fileTypes.length > 0 ? fileTypes[0].code : ''),
+      fileTypeCode: defaultFileTypeCode,
       progress: 0,
       status: 'pending' as const
     }));
@@ -103,7 +126,7 @@ export default function FileUpload({
     if (acceptedFiles.length > 0) {
       toast.success(`${acceptedFiles.length} file(s) added to upload queue`);
     }
-  }, [initialFileTypeCode, fileTypes.length]);
+  }, [getDefaultFileTypeCode]);
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
@@ -159,6 +182,11 @@ export default function FileUpload({
         const files = Array.from(target.files);
         console.log('[FileUpload] Manual file selection:', files.length, 'files');
         console.log('[FileUpload] Selected files:', files.map(f => ({ name: f.name, size: f.size, type: f.type })));
+        
+        // Use the same logic as onDrop for consistency
+        const defaultFileTypeCode = getDefaultFileTypeCode();
+        console.log('[FileUpload] Manual selection using default file type code:', defaultFileTypeCode);
+        
         onDrop(files, []); // No rejected files for manual selection
       } else {
         console.log('[FileUpload] No files selected in manual picker');
@@ -177,6 +205,21 @@ export default function FileUpload({
     toast.info('Upload queue cleared');
   };
 
+  // Function to assign default file types to files that don't have them
+  const assignDefaultFileTypes = useCallback(() => {
+    if (fileTypes.length === 0) return;
+    
+    const defaultCode = getDefaultFileTypeCode();
+    if (!defaultCode) return;
+    
+    setFilesToUpload(prev => prev.map(file => ({
+      ...file,
+      fileTypeCode: file.fileTypeCode || defaultCode
+    })));
+    
+    console.log('[FileUpload] Assigned default file type to files without types');
+  }, [fileTypes.length, getDefaultFileTypeCode]);
+
   const updateFileTypeCode = (index: number, newFileTypeCode: string) => {
     setFilesToUpload(prev => 
       prev.map((item, i) => 
@@ -191,28 +234,26 @@ export default function FileUpload({
     
     console.log(`[FileUpload] Starting upload for entityType: ${entityType}, entityId: ${effectiveEntityId}, category: ${category}`);
     
-    // Check if any files are missing file types
-    const missingTypes = filesToUpload.some(file => !file.fileTypeCode);
-    if (missingTypes) {
-      // Try to assign default file type codes for files that don't have them
-      const updatedFiles = filesToUpload.map(file => ({
-        ...file,
-        fileTypeCode: file.fileTypeCode || (fileTypes.length > 0 ? fileTypes[0].code : '')
-      }));
-      
-      const stillMissingTypes = updatedFiles.some(file => !file.fileTypeCode);
-      if (stillMissingTypes) {
-        toast.error('Please select a file type for each file');
-        return;
-      }
-      
+    // Check if any files are missing file types and assign defaults
+    const updatedFiles = filesToUpload.map(file => ({
+      ...file,
+      fileTypeCode: file.fileTypeCode || getDefaultFileTypeCode()
+    }));
+    
+    const stillMissingTypes = updatedFiles.some(file => !file.fileTypeCode);
+    if (stillMissingTypes) {
+      toast.error('Unable to determine file types. Please try refreshing the page.');
+      return;
+    }
+    
+    // Update the state with the corrected file types
+    if (JSON.stringify(updatedFiles) !== JSON.stringify(filesToUpload)) {
       setFilesToUpload(updatedFiles);
     }
 
-    if (filesToUpload.length === 0) return;
+    if (updatedFiles.length === 0) return;
 
     setIsUploading(true);
-    const updatedFiles = [...filesToUpload];
     const successfulUploads: any[] = [];
 
     // Process files sequentially to avoid race conditions when using temporary entity IDs
@@ -320,6 +361,21 @@ export default function FileUpload({
 
   return (
     <div className={`space-y-4 ${className}`}>
+      {/* File Type Summary */}
+      {fileTypes.length > 0 && (
+        <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">Default File Type:</span>
+            <Badge variant="secondary" className="text-xs">
+              {fileTypes[0]?.name} ({fileTypes[0]?.code})
+            </Badge>
+          </div>
+          <div className="text-xs text-muted-foreground">
+            {fileTypes[0]?.allowed_extensions?.join(', ')}
+          </div>
+        </div>
+      )}
+      
       <Card className={`border-dashed ${isDragActive ? 'border-primary' : 'border-muted-foreground/20'}`}>
         <CardContent className="flex flex-col items-center justify-center p-6">
           <div
@@ -344,6 +400,11 @@ export default function FileUpload({
                 <p className="text-xs text-primary mt-1">
                   ✓ Multiple files supported (up to {maxFiles})
                 </p>
+                {fileTypes.length > 0 && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Default type: {fileTypes[0]?.name || 'Loading...'}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -357,6 +418,16 @@ export default function FileUpload({
                   <Badge variant="outline" className="text-xs">
                     {filesToUpload.length} file{filesToUpload.length !== 1 ? 's' : ''} in queue
                   </Badge>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={assignDefaultFileTypes}
+                    className="h-6 px-2 text-xs"
+                    disabled={fileTypes.length === 0}
+                  >
+                    Assign Default Types
+                  </Button>
                   <Button
                     type="button"
                     variant="ghost"
@@ -446,6 +517,12 @@ export default function FileUpload({
                             ))}
                           </SelectContent>
                         </Select>
+                        {/* Show if this is using the default file type */}
+                        {fileItem.fileTypeCode === getDefaultFileTypeCode() && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Using default file type
+                          </p>
+                        )}
                       </div>
                     </div>
 
