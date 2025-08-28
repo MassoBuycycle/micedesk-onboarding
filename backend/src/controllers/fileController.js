@@ -74,9 +74,10 @@ export const uploadFile = async (req, res) => {
     
     const fileTypeId = fileTypeRows[0].id;
     
-    // Handle special case for 'new' entityId
-    // For 'new' entityId, we store the file but it can be reassigned later
-    const effectiveEntityId = entityId === 'new' ? 0 : entityId;
+    // Handle special case for 'new' entityId and temp-{index} patterns
+    // For 'new' entityId or temp-{index}, we store the file but it can be reassigned later
+    const isTemporary = entityId === 'new' || entityId.toString().startsWith('temp-');
+    const effectiveEntityId = isTemporary ? 0 : entityId;
     
     console.log('[UPLOAD] About to insert file record:', {
       originalname,
@@ -86,7 +87,8 @@ export const uploadFile = async (req, res) => {
       effectiveEntityId,
       size,
       mimetype,
-      isTemporary: entityId === 'new' ? 1 : 0
+      isTemporary,
+      originalEntityId: entityId
     });
     
     // Save file metadata to database
@@ -99,8 +101,9 @@ export const uploadFile = async (req, res) => {
         entity_id, 
         size, 
         mime_type,
-        is_temporary
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        is_temporary,
+        temp_identifier
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         originalname,
         key,
@@ -109,7 +112,8 @@ export const uploadFile = async (req, res) => {
         effectiveEntityId,
         size,
         mimetype,
-        entityId === 'new' ? 1 : 0 // Mark as temporary if entityId is 'new'
+        isTemporary ? 1 : 0,
+        isTemporary ? entityId.toString() : null // Store the original temp identifier
       ]
     );
     
@@ -340,9 +344,10 @@ export const assignRoomCategoryFilesService = async (roomCategoryId, tempCategor
     
     // First, let's see what temporary files exist in the database
     const [allTempFiles] = await pool.query(
-      `SELECT id, storage_path, entity_type, entity_id, is_temporary
+      `SELECT id, storage_path, entity_type, entity_id, is_temporary, temp_identifier, created_at
        FROM files 
-       WHERE is_temporary = 1 AND entity_id = 0`
+       WHERE is_temporary = 1 AND entity_id = 0
+       ORDER BY created_at ASC`
     );
     
     console.log(`[ASSIGN] All temporary files in database:`, allTempFiles.map(f => ({
@@ -350,7 +355,9 @@ export const assignRoomCategoryFilesService = async (roomCategoryId, tempCategor
       storage_path: f.storage_path,
       entity_type: f.entity_type,
       entity_id: f.entity_id,
-      is_temporary: f.is_temporary
+      is_temporary: f.is_temporary,
+      temp_identifier: f.temp_identifier,
+      created_at: f.created_at
     })));
     
     // If we have a temp category index, only assign files for that specific category
@@ -364,26 +371,37 @@ export const assignRoomCategoryFilesService = async (roomCategoryId, tempCategor
          WHERE entity_type = 'room-categories' 
            AND is_temporary = 1 
            AND entity_id = 0
-           AND storage_path LIKE ?`,
-        [`room-categories/${tempId}/room-category-images/%`]
+           AND temp_identifier = ?
+         ORDER BY created_at ASC`,
+        [tempId]
       );
       
       console.log(`[ASSIGN] Found ${tempFiles.length} temporary files for temp category ${tempId}`);
     } else {
-      // Fallback: use the old logic for backward compatibility
-      [tempFiles] = await pool.query(
-        `SELECT id, storage_path 
+      // New strategy: assign files based on upload order and category creation order
+      // Get all temporary room category files ordered by upload time
+      const [allRoomCategoryTempFiles] = await pool.query(
+        `SELECT id, storage_path, created_at
          FROM files 
          WHERE entity_type = 'room-categories' 
            AND is_temporary = 1 
            AND entity_id = 0
-           AND storage_path LIKE ?`,
+           AND storage_path LIKE ?
+         ORDER BY created_at ASC`,
         [`room-categories/new/room-category-images/%`]
       );
       
-      console.log(`[ASSIGN] Found ${tempFiles.length} temporary files using fallback query`);
+      if (allRoomCategoryTempFiles.length === 0) {
+        console.log('[ASSIGN] No temporary files found');
+        return { message: 'No temporary room category files found', updatedCount: 0 };
+      }
+      
+      // For now, assign all files to this category
+      // In the future, we could implement a more sophisticated matching algorithm
+      tempFiles = allRoomCategoryTempFiles;
+      console.log(`[ASSIGN] Using upload order strategy - assigning all ${tempFiles.length} temporary files to category ${roomCategoryId}`);
     }
-    
+
     // Debug: Show what files were found
     if (tempFiles.length > 0) {
       console.log(`[ASSIGN] Temporary files found:`, tempFiles.map(f => ({

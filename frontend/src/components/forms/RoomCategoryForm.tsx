@@ -33,6 +33,7 @@ const roomCategoryFormSchema = z.object({
   isAccessible: z.boolean().default(false).nullable(),
   hasBalcony: z.boolean().default(false).nullable(),
   // baby_bed_price: z.string().optional(), // Not in DDL, omitting for now
+  tempIndex: z.number().optional(), // Add tempIndex field
 });
 
 export type RoomCategoryFormValues = z.infer<typeof roomCategoryFormSchema>;
@@ -85,12 +86,7 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
   const [uploadedFiles, setUploadedFiles] = useState<{ [key: string]: FileItem[] }>({});
   const fileUploadRefs = useRef<{ [key: string]: FileUploadRef | null }>({});
 
-  const handleFileChange = useCallback((categoryIndex: number, files: FileItem[]) => {
-    setUploadedFiles(prev => ({
-      ...prev,
-      [categoryIndex]: files
-    }));
-  }, []);
+
 
   const form = useForm<FullCategoryFormValues>({ 
     resolver: zodResolver(formSchema),
@@ -124,6 +120,20 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
     control: form.control,
     name: "categories",
   });
+
+  const handleFileChange = useCallback((categoryIndex: number, files: FileItem[]) => {
+    setUploadedFiles(prev => ({
+      ...prev,
+      [categoryIndex]: files
+    }));
+    
+    // Store the temp index in the form data so it can be passed to the backend
+    const currentCategories = form.getValues('categories');
+    if (currentCategories[categoryIndex] && !currentCategories[categoryIndex].id) {
+      // This is a new category, store the temp index
+      form.setValue(`categories.${categoryIndex}.tempIndex`, categoryIndex);
+    }
+  }, [form]);
 
   // Watch for changes to pass to parent if onChange is provided
   useEffect(() => {
@@ -185,14 +195,8 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
       return;
     }
     
-    // Add category index information to each category for file assignment
-    const categoriesWithIndex = data.categories.map((category, index) => ({
-      ...category,
-      _tempIndex: index // Add temporary index for file assignment
-    }));
-    
     // Proceed with form submission
-    onNext(categoriesWithIndex);
+    onNext(data.categories);
   };
 
   return (
@@ -438,7 +442,7 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                 <FileUpload
                   ref={(el) => fileUploadRefs.current[index] = el}
                   entityType="room-categories"
-                  entityId={`temp-${index}`}
+                  entityId={form.getValues(`categories.${index}.id`) || `temp-${index}`}
                   category="room-category-images"
                   fileTypeCode="room_photos"
                   maxFiles={20}

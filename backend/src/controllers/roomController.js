@@ -27,7 +27,7 @@ const ROOM_STANDARD_FEATURES_FIELDS = [
 const ROOM_CATEGORY_INFOS_FIELDS = [
     'category_name', 'pms_name', 'num_rooms', 'size', 'bed_type', 'surcharges_upsell',
     'room_features', 'second_person_surcharge', 'extra_bed_surcharge',
-    'baby_bed_available', 'extra_bed_available', 'is_accessible', 'has_balcony'
+    'baby_bed_available', 'extra_bed_available', 'is_accessible', 'has_balcony', 'tempIndex'
 ];
 const ROOM_OPERATIONAL_HANDLING_FIELDS = [ 
     'revenue_manager_name', 'revenue_contact_details', 'demand_calendar', 'demand_calendar_infos',
@@ -354,6 +354,7 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
         
         const createdCategories = [];
         const updatedCategories = [];
+        let categoryCreationOrder = 0; // Track the order of category creation
         
         // Check if there are any temporary files that need to be assigned
         const [tempFiles] = await connection.query(
@@ -445,16 +446,24 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                     
                     // Assign any temporary files to this room category
                     try {
-                        // Use the temp index from the frontend for precise file assignment
-                        const tempIndex = catInfo._tempIndex;
+                        // Extract the temp category index from the category data if available
+                        // The temp index should be stored in the category data when files are uploaded
+                        const tempIndex = catInfo.tempIndex || null;
+                        
+                        // If no temp index is available, we need to find files by other means
+                        if (!tempIndex) {
+                            console.log(`[ROOM_CATEGORIES] No temp index found for category ${categoryId}, using fallback file assignment`);
+                        }
+                        
                         await assignRoomCategoryFilesService(categoryId, tempIndex);
-                        console.log(`[ROOM_CATEGORIES] Assigned files to new category ${categoryId} from temp index ${tempIndex}`);
+                        console.log(`[ROOM_CATEGORIES] Assigned files to new category ${categoryId} with temp index ${tempIndex}`);
                     } catch (fileError) {
                         console.error(`Error assigning files to room category ${categoryId}:`, fileError);
                         // Don't fail the transaction if file assignment fails
                     }
                     
                     console.log(`[ROOM_CATEGORIES] Created new category ${categoryId}`);
+                    categoryCreationOrder++; // Increment the creation order
                 }
             }
         } else {
@@ -540,10 +549,10 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                             
                             // Assign any temporary files to this room category (even if none exist, this is safe)
                             try {
-                                // Use the temp index from the frontend for precise file assignment
-                                const tempIndex = catInfo._tempIndex;
+                                // Extract the temp category index from the category data if available
+                                const tempIndex = catInfo.tempIndex || null;
                                 await assignRoomCategoryFilesService(categoryId, tempIndex);
-                                console.log(`[ROOM_CATEGORIES] Assigned files to new category ${categoryId} from temp index ${tempIndex} (parallel)`);
+                                console.log(`[ROOM_CATEGORIES] Assigned files to new category ${categoryId} with temp index ${tempIndex}`);
                             } catch (fileError) {
                                 console.error(`Error assigning files to room category ${categoryId}:`, fileError);
                                 // Don't fail the transaction if file assignment fails
