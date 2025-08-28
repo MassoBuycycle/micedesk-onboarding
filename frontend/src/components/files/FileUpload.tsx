@@ -56,6 +56,12 @@ export default function FileUpload({
         console.log('[FileUpload] Fetching file types for category:', cleanCategory);
         const types = await getFileTypesByCategory(cleanCategory);
         console.log('[FileUpload] Found file types:', types);
+        
+        // Set default file type code if not provided and we have file types
+        if (!initialFileTypeCode && types.length > 0) {
+          console.log('[FileUpload] Setting default file type code:', types[0].code);
+        }
+        
         setFileTypes(types);
       } catch (error) {
         console.error('Error fetching file types:', error);
@@ -66,23 +72,38 @@ export default function FileUpload({
     };
 
     fetchFileTypes();
-  }, [category]);
+  }, [category, initialFileTypeCode]);
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    console.log('[FileUpload] Files dropped:', acceptedFiles.length, 'files');
-    console.log('[FileUpload] File names:', acceptedFiles.map(f => f.name));
+  const onDrop = useCallback((acceptedFiles: File[], rejectedFiles: any[]) => {
+    console.log('[FileUpload] onDrop called with:', {
+      acceptedFilesCount: acceptedFiles.length,
+      rejectedFilesCount: rejectedFiles.length,
+      totalFiles: acceptedFiles.length + rejectedFiles.length
+    });
+    console.log('[FileUpload] Files dropped:', acceptedFiles.length, 'accepted files');
+    console.log('[FileUpload] Accepted file names:', acceptedFiles.map(f => f.name));
+    if (rejectedFiles.length > 0) {
+      console.log('[FileUpload] Rejected files:', rejectedFiles.length, 'files');
+      console.log('[FileUpload] Rejected file names:', rejectedFiles.map(f => f.file.name));
+      console.log('[FileUpload] Rejection reasons:', rejectedFiles.map(f => f.errors));
+      toast.error(`${rejectedFiles.length} file(s) were rejected. Please check file types and sizes.`);
+    }
     
     // Create file entries for each dropped file
     const newFiles = acceptedFiles.map(file => ({
       file,
-      fileTypeCode: initialFileTypeCode || '',
+      fileTypeCode: initialFileTypeCode || (fileTypes.length > 0 ? fileTypes[0].code : ''),
       progress: 0,
       status: 'pending' as const
     }));
     
     console.log('[FileUpload] Created file entries:', newFiles);
     setFilesToUpload(prev => [...prev, ...newFiles]);
-  }, [initialFileTypeCode]);
+    
+    if (acceptedFiles.length > 0) {
+      toast.success(`${acceptedFiles.length} file(s) added to upload queue`);
+    }
+  }, [initialFileTypeCode, fileTypes.length]);
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
@@ -90,16 +111,70 @@ export default function FileUpload({
     multiple: true, // Allow multiple files
     noClick: false, // Ensure clicks are handled
     noKeyboard: false, // Ensure keyboard events are handled
+    accept: {
+      'image/*': ['.jpg', '.jpeg', '.png', '.webp', '.gif'],
+      'application/pdf': ['.pdf'],
+      'application/msword': ['.doc'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+      'text/plain': ['.txt']
+    },
+    onDropAccepted: (files) => {
+      console.log('[FileUpload] Dropzone onDropAccepted called with:', files.length, 'files');
+    },
+    onDropRejected: (fileRejections) => {
+      console.log('[FileUpload] Dropzone onDropRejected called with:', fileRejections.length, 'rejections');
+      fileRejections.forEach(rejection => {
+        console.log('[FileUpload] File rejected:', rejection.file.name, 'Errors:', rejection.errors);
+      });
+    }
   });
 
-  // Manual click handler as fallback
-  const handleManualClick = () => {
+  // Manual click handler as fallback - ensure it opens the file picker with multiple support
+  const handleManualClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     console.log('[FileUpload] Manual click triggered');
-    open();
+    
+    // Create a temporary file input with multiple attribute
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.multiple = true;
+    input.accept = '.jpg,.jpeg,.png,.webp,.gif,.pdf,.doc,.docx,.txt';
+    
+    // Add debugging
+    console.log('[FileUpload] Created file input with attributes:', {
+      type: input.type,
+      multiple: input.multiple,
+      accept: input.accept
+    });
+    
+    input.onchange = (event) => {
+      const target = event.target as HTMLInputElement;
+      console.log('[FileUpload] File input change event:', {
+        files: target.files,
+        fileCount: target.files?.length || 0
+      });
+      
+      if (target.files && target.files.length > 0) {
+        const files = Array.from(target.files);
+        console.log('[FileUpload] Manual file selection:', files.length, 'files');
+        console.log('[FileUpload] Selected files:', files.map(f => ({ name: f.name, size: f.size, type: f.type })));
+        onDrop(files, []); // No rejected files for manual selection
+      } else {
+        console.log('[FileUpload] No files selected in manual picker');
+      }
+    };
+    
+    input.click();
   };
 
   const handleRemoveFile = (index: number) => {
     setFilesToUpload(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const clearAllFiles = () => {
+    setFilesToUpload([]);
+    toast.info('Upload queue cleared');
   };
 
   const updateFileTypeCode = (index: number, newFileTypeCode: string) => {
@@ -119,8 +194,19 @@ export default function FileUpload({
     // Check if any files are missing file types
     const missingTypes = filesToUpload.some(file => !file.fileTypeCode);
     if (missingTypes) {
-      toast.error('Please select a file type for each file');
-      return;
+      // Try to assign default file type codes for files that don't have them
+      const updatedFiles = filesToUpload.map(file => ({
+        ...file,
+        fileTypeCode: file.fileTypeCode || (fileTypes.length > 0 ? fileTypes[0].code : '')
+      }));
+      
+      const stillMissingTypes = updatedFiles.some(file => !file.fileTypeCode);
+      if (stillMissingTypes) {
+        toast.error('Please select a file type for each file');
+        return;
+      }
+      
+      setFilesToUpload(updatedFiles);
     }
 
     if (filesToUpload.length === 0) return;
@@ -140,7 +226,14 @@ export default function FileUpload({
       setFilesToUpload([...updatedFiles]);
 
       try {
-        console.log(`[FileUpload] Uploading file ${i + 1}/${updatedFiles.length}: ${updatedFiles[i].file.name} to ${entityType}/${effectiveEntityId}/${category}`);
+        console.log(`[FileUpload] Uploading file ${i + 1}/${updatedFiles.length}: ${updatedFiles[i].file.name}`);
+        console.log(`[FileUpload] File details:`, {
+          name: updatedFiles[i].file.name,
+          size: updatedFiles[i].file.size,
+          type: updatedFiles[i].file.type,
+          fileTypeCode: updatedFiles[i].fileTypeCode
+        });
+        console.log(`[FileUpload] Upload target: ${entityType}/${effectiveEntityId}/${category}`);
         
         const response = await uploadFile(
           entityType,
@@ -195,10 +288,22 @@ export default function FileUpload({
 
     const hasPending = filesToUpload.some(f => f.status === 'pending' || f.status === 'error');
     if (hasPending && !isUploading) {
+      console.log('[FileUpload] Auto-upload triggered with pending files:', filesToUpload.filter(f => f.status === 'pending' || f.status === 'error').length);
       handleUploadFiles();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoUpload, filesToUpload]);
+
+  // Debug effect to log state changes
+  useEffect(() => {
+    console.log('[FileUpload] State updated:', {
+      filesToUploadCount: filesToUpload.length,
+      uploadedFilesCount: uploadedFiles.length,
+      isUploading,
+      entityId,
+      category
+    });
+  }, [filesToUpload.length, uploadedFiles.length, isUploading, entityId, category]);
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';
@@ -224,7 +329,7 @@ export default function FileUpload({
             } ${className}`}
             onClick={handleManualClick}
           >
-            <input {...getInputProps()} />
+            <input {...getInputProps()} multiple />
             <div className="flex flex-col items-center justify-center space-y-2">
               <div className="rounded-full bg-primary/10 p-2">
                 <Upload className="h-5 w-5 text-primary" />
@@ -236,6 +341,9 @@ export default function FileUpload({
                 <p className="text-xs text-muted-foreground">
                   or click to browse files
                 </p>
+                <p className="text-xs text-primary mt-1">
+                  ✓ Multiple files supported (up to {maxFiles})
+                </p>
               </div>
             </div>
           </div>
@@ -243,7 +351,23 @@ export default function FileUpload({
           {/* File List */}
           {filesToUpload.length > 0 && (
             <div className="w-full">
-              <h3 className="text-sm font-medium mb-2">Files to Upload</h3>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium">Files to Upload</h3>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-xs">
+                    {filesToUpload.length} file{filesToUpload.length !== 1 ? 's' : ''} in queue
+                  </Badge>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearAllFiles}
+                    className="h-6 px-2 text-xs"
+                  >
+                    Clear All
+                  </Button>
+                </div>
+              </div>
               <div className="space-y-2 max-h-[300px] overflow-y-auto">
                 {filesToUpload.map((fileItem, index) => (
                   <div 
@@ -343,21 +467,32 @@ export default function FileUpload({
 
           {/* Upload Button (hidden in autoUpload mode) */}
           {filesToUpload.length > 0 && !isUploading && !autoUpload && (
-            <Button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleUploadFiles();
-              }}
-              className="mt-4"
-              disabled={filesToUpload.length === 0 || filesToUpload.every(f => f.status === 'success')}
-            >
-              <ArrowUp className="mr-2 h-4 w-4" />
-              {filesToUpload.some(f => f.status === 'error') 
-                ? 'Retry Failed Uploads' 
-                : 'Upload All Files'}
-            </Button>
+            <div className="mt-4 space-y-2">
+              {/* Upload Status Summary */}
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>
+                  {filesToUpload.filter(f => f.status === 'pending').length} pending,{' '}
+                  {filesToUpload.filter(f => f.status === 'success').length} uploaded,{' '}
+                  {filesToUpload.filter(f => f.status === 'error').length} failed
+                </span>
+              </div>
+              
+              <Button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleUploadFiles();
+                }}
+                className="w-full"
+                disabled={filesToUpload.length === 0 || filesToUpload.every(f => f.status === 'success')}
+              >
+                <ArrowUp className="mr-2 h-4 w-4" />
+                {filesToUpload.some(f => f.status === 'error') 
+                  ? 'Retry Failed Uploads' 
+                  : 'Upload All Files'}
+              </Button>
+            </div>
           )}
 
           {/* Loading Indicator */}

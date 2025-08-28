@@ -647,6 +647,28 @@
       "paypal": "PayPal",
       "applePay": "Apple Pay",
       "googlePay": "Google Pay"
+    },
+    "preview": {
+      "roomOverview": "Zimmer-Übersicht",
+      "totalRooms": "Zimmer gesamt",
+      "accessibleRooms": "Behindertengerechte Zimmer",
+      "petsAllowed": "Haustiere erlaubt",
+      "internetAvailable": "Internet verfügbar",
+      "airConditioning": "Klimaanlage",
+      "checkIn": "Check-in",
+      "checkOut": "Check-out",
+      "roomCategories": "Zimmerkategorien",
+      "noCategoriesAdded": "Noch keine Zimmerkategorien hinzugefügt.",
+      "pmsDesignation": "PMS-Bezeichnung",
+      "roomCount": "Anzahl Zimmer",
+      "size": "Größe",
+      "bedType": "Bettentyp",
+      "roomFeatures": "Ausstattungsmerkmale",
+      "upsellCosts": "Upsell-Kosten",
+      "secondPersonSurcharge": "Aufpreis 2. Person",
+      "extraBed": "Zustellbett",
+      "extraBedSurcharge": "Aufpreis Zustellbett",
+      "babyBed": "Babybett"
     }
   },
   "events": {
