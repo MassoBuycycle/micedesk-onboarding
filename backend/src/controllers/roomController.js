@@ -27,7 +27,7 @@ const ROOM_STANDARD_FEATURES_FIELDS = [
 const ROOM_CATEGORY_INFOS_FIELDS = [
     'category_name', 'pms_name', 'num_rooms', 'size', 'bed_type', 'surcharges_upsell',
     'room_features', 'second_person_surcharge', 'extra_bed_surcharge',
-    'baby_bed_available', 'extra_bed_available', 'is_accessible', 'has_balcony', 'tempIndex'
+    'baby_bed_available', 'extra_bed_available', 'is_accessible', 'has_balcony'
 ];
 const ROOM_OPERATIONAL_HANDLING_FIELDS = [ 
     'revenue_manager_name', 'revenue_contact_details', 'demand_calendar', 'demand_calendar_infos',
@@ -384,7 +384,7 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                 }
                 
                 // Check if a category with this ID already exists for this room
-                // Only check by ID - new categories should be created even if they have the same name
+                // Also check by name to prevent duplicates
                 let existingCategories = [];
                 console.log(`[ROOM_CATEGORIES] Checking ID for category "${categoryData.category_name}":`, {
                     id: catInfo.id,
@@ -403,6 +403,13 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                         [catInfo.id, parsedRoomId]
                     );
                     console.log(`[ROOM_CATEGORIES] ID-based search for category ${catInfo.id}:`, existingCategories);
+                } else {
+                    // Check by name to prevent duplicates
+                    existingCategories = await connection.query(
+                        'SELECT id FROM room_category_infos WHERE room_id = ? AND category_name = ?',
+                        [parsedRoomId, categoryData.category_name]
+                    );
+                    console.log(`[ROOM_CATEGORIES] Name-based search for category "${categoryData.category_name}":`, existingCategories);
                 }
                 
                 console.log(`[ROOM_CATEGORIES] Final existingCategories result:`, existingCategories);
@@ -499,7 +506,7 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                 }
                 
                 // Check if a category with this ID already exists for this room
-                // Only check by ID - new categories should be created even if they have the same name
+                // Also check by name to prevent duplicates
                 let existingCategories = [];
                 console.log(`[ROOM_CATEGORIES] Checking ID for category "${categoryData.category_name}" (parallel):`, {
                     id: catInfo.id,
@@ -516,6 +523,12 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                     existingCategories = await connection.query(
                         'SELECT id FROM room_category_infos WHERE id = ? AND room_id = ?',
                         [catInfo.id, parsedRoomId]
+                    );
+                } else {
+                    // Check by name to prevent duplicates
+                    existingCategories = await connection.query(
+                        'SELECT id FROM room_category_infos WHERE room_id = ? AND category_name = ?',
+                        [parsedRoomId, categoryData.category_name]
                     );
                 }
                 
