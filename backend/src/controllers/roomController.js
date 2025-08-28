@@ -322,6 +322,16 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
     if (!Array.isArray(categoryInfosArray) || categoryInfosArray.length === 0) {
         return res.status(400).json({ error: 'Request body must be a non-empty array of category information.' });
     }
+    
+    console.log(`[ROOM_CATEGORIES] Processing ${categoryInfosArray.length} categories for room ${roomId}`);
+    console.log(`[ROOM_CATEGORIES] Raw category data received:`, categoryInfosArray.map(cat => ({
+        id: cat.id,
+        idType: typeof cat.id,
+        category_name: cat.category_name,
+        hasId: !!cat.id,
+        isIdNumber: typeof cat.id === 'number' && cat.id > 0
+    })));
+    
     const parsedRoomId = parseInt(roomId);
     if (isNaN(parsedRoomId)) {
         return res.status(400).json({ error: 'Invalid roomId parameter.'});
@@ -370,24 +380,27 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                     return res.status(400).json({ error: 'Each category info object must contain at least a category_name.', offendingItem: catInfo });
                 }
                 
-                // Check if a category with this name already exists for this room
-                // First try to use ID if provided, then fall back to name-based matching
+                // Check if a category with this ID already exists for this room
+                // Only check by ID - new categories should be created even if they have the same name
                 let existingCategories = [];
-                if (catInfo.id && typeof catInfo.id === 'number') {
+                console.log(`[ROOM_CATEGORIES] Checking ID for category "${categoryData.category_name}":`, {
+                    id: catInfo.id,
+                    idType: typeof catInfo.id,
+                    isIdNumber: typeof catInfo.id === 'number',
+                    isIdPositive: typeof catInfo.id === 'number' && catInfo.id > 0,
+                    willCheckById: !!(catInfo.id && typeof catInfo.id === 'number' && catInfo.id > 0)
+                });
+                
+                if (catInfo.id && typeof catInfo.id === 'number' && catInfo.id > 0) {
                     // Check by ID first
                     existingCategories = await connection.query(
                         'SELECT id FROM room_category_infos WHERE id = ? AND room_id = ?',
                         [catInfo.id, parsedRoomId]
                     );
+                    console.log(`[ROOM_CATEGORIES] ID-based search for category ${catInfo.id}:`, existingCategories);
                 }
                 
-                // If no match by ID, check by name
-                if (existingCategories.length === 0) {
-                    existingCategories = await connection.query(
-                        'SELECT id FROM room_category_infos WHERE room_id = ? AND category_name = ?',
-                        [parsedRoomId, categoryData.category_name]
-                    );
-                }
+                console.log(`[ROOM_CATEGORIES] Final existingCategories result:`, existingCategories);
                 
                 if (existingCategories.length > 0) {
                     // Update existing category
@@ -461,10 +474,18 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                     return res.status(400).json({ error: 'Each category info object must contain at least a category_name.', offendingItem: catInfo });
                 }
                 
-                // Check if a category with this name already exists for this room
-                // First try to use ID if provided, then fall back to name-based matching
+                // Check if a category with this ID already exists for this room
+                // Only check by ID - new categories should be created even if they have the same name
                 let existingCategories = [];
-                if (catInfo.id && typeof catInfo.id === 'number') {
+                console.log(`[ROOM_CATEGORIES] Checking ID for category "${categoryData.category_name}" (parallel):`, {
+                    id: catInfo.id,
+                    idType: typeof catInfo.id,
+                    isIdNumber: typeof catInfo.id === 'number',
+                    isIdPositive: typeof catInfo.id === 'number' && catInfo.id > 0,
+                    willCheckById: !!(catInfo.id && typeof catInfo.id === 'number' && catInfo.id > 0)
+                });
+                
+                if (catInfo.id && typeof catInfo.id === 'number' && catInfo.id > 0) {
                     // Check by ID first
                     existingCategories = await connection.query(
                         'SELECT id FROM room_category_infos WHERE id = ? AND room_id = ?',
@@ -472,13 +493,7 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                     );
                 }
                 
-                // If no match by ID, check by name
-                if (existingCategories.length === 0) {
-                    existingCategories = await connection.query(
-                        'SELECT id FROM room_category_infos WHERE room_id = ? AND category_name = ?',
-                        [parsedRoomId, categoryData.category_name]
-                    );
-                }
+                console.log(`[ROOM_CATEGORIES] Final existingCategories result:`, existingCategories);
                 
                 if (existingCategories.length > 0) {
                     // Update existing category
