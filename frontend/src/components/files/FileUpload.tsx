@@ -458,7 +458,8 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
 
   // Auto-upload files when entityId is 'new' to ensure they're available for assignment
   useEffect(() => {
-    if (entityId === 'new' && filesToUpload.length > 0 && !isUploading) {
+    // Only auto-upload if entityId exists and is not 'new'
+    if (entityId && entityId !== 'new' && filesToUpload.length > 0 && !isUploading) {
       handleUploadFiles();
     }
   }, [entityId, filesToUpload.length, isUploading]);
@@ -714,6 +715,34 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
             </div>
           )}
 
+          {/* Upload Button */}
+          {filesToUpload.length > 0 && entityId && entityId !== 'new' && (
+            <Button
+              onClick={handleUploadFiles}
+              disabled={isUploading}
+              className="w-full"
+            >
+              {isUploading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  <Upload className="mr-2 h-4 w-4" />
+                  Upload {filesToUpload.length} file{filesToUpload.length !== 1 ? 's' : ''}
+                </>
+              )}
+            </Button>
+          )}
+          
+          {/* Show message when no entityId */}
+          {filesToUpload.length > 0 && (!entityId || entityId === 'new') && (
+            <div className="text-sm text-muted-foreground bg-yellow-50 p-3 rounded-md border border-yellow-200">
+              <p>Please save the room category first before uploading images.</p>
+            </div>
+          )}
+
           {/* Upload Button (hidden in autoUpload mode) */}
           {filesToUpload.length > 0 && !isUploading && !autoUpload && (
             <div className="mt-4 space-y-2">
@@ -726,23 +755,7 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
                 </span>
               </div>
               
-              <Button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleUploadFiles();
-                }}
-                className="w-full"
-                disabled={filesToUpload.length === 0 || filesToUpload.every(f => f.status === 'success')}
-              >
-                <ArrowUp className="mr-2 h-4 w-4" />
-                {filesToUpload.some(f => f.status === 'error') 
-                  ? 'Retry Failed Uploads' 
-                  : filesToUpload.length > batchSize
-                    ? `Upload All ${filesToUpload.length} Files (in batches)`
-                    : `Upload All ${filesToUpload.length} Files`}
-              </Button>
+
                 {/* Retry failed uploads button */}
                 {filesToUpload.some(f => f.status === 'error') && (
                   <Button

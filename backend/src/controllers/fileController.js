@@ -74,9 +74,9 @@ export const uploadFile = async (req, res) => {
     
     const fileTypeId = fileTypeRows[0].id;
     
-    // Handle special case for 'new' entityId and temp-{index} patterns
-    // For 'new' entityId or temp-{index}, we store the file but it can be reassigned later
-    const isTemporary = entityId === 'new' || entityId.toString().startsWith('temp-');
+    // Handle special case for 'new' entityId
+    // For 'new' entityId, we store the file but it can be reassigned later
+    const isTemporary = entityId === 'new';
     const effectiveEntityId = isTemporary ? 0 : entityId;
     
     console.log('[UPLOAD] About to insert file record:', {
@@ -101,9 +101,8 @@ export const uploadFile = async (req, res) => {
         entity_id, 
         size, 
         mime_type,
-        is_temporary,
-        temp_identifier
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        is_temporary
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         originalname,
         key,
@@ -112,8 +111,7 @@ export const uploadFile = async (req, res) => {
         effectiveEntityId,
         size,
         mimetype,
-        isTemporary ? 1 : 0,
-        isTemporary ? entityId.toString() : null // Store the original temp identifier
+        isTemporary ? 1 : 0
       ]
     );
     

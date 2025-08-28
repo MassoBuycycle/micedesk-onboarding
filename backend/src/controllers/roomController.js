@@ -384,7 +384,7 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                 }
                 
                 // Check if a category with this ID already exists for this room
-                // Also check by name to prevent duplicates
+                // Only check by ID - new categories should be created even if they have the same name
                 let existingCategories = [];
                 console.log(`[ROOM_CATEGORIES] Checking ID for category "${categoryData.category_name}":`, {
                     id: catInfo.id,
@@ -403,13 +403,6 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                         [catInfo.id, parsedRoomId]
                     );
                     console.log(`[ROOM_CATEGORIES] ID-based search for category ${catInfo.id}:`, existingCategories);
-                } else {
-                    // Check by name to prevent duplicates
-                    existingCategories = await connection.query(
-                        'SELECT id FROM room_category_infos WHERE room_id = ? AND category_name = ?',
-                        [parsedRoomId, categoryData.category_name]
-                    );
-                    console.log(`[ROOM_CATEGORIES] Name-based search for category "${categoryData.category_name}":`, existingCategories);
                 }
                 
                 console.log(`[ROOM_CATEGORIES] Final existingCategories result:`, existingCategories);
@@ -457,26 +450,10 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                     
                     // Assign any temporary files to this room category
                     try {
-                        // Extract the temp category index from the category data if available
-                        // The temp index should be stored in the category data when files are uploaded
-                        const tempIndex = catInfo.tempIndex || null;
-                        
-                        console.log(`[ROOM_CATEGORIES] File assignment for category ${categoryId}:`, {
-                            categoryName: categoryData.category_name,
-                            tempIndex: tempIndex,
-                            tempIndexType: typeof tempIndex,
-                            hasTempIndex: !!tempIndex
-                        });
-                        
-                        // If no temp index is available, we need to find files by other means
-                        if (!tempIndex) {
-                            console.log(`[ROOM_CATEGORIES] No temp index found for category ${categoryId}, using fallback file assignment`);
-                        }
-                        
-                        await assignRoomCategoryFilesService(categoryId, tempIndex);
-                        console.log(`[ROOM_CATEGORIES] Assigned files to new category ${categoryId} with temp index ${tempIndex}`);
+                        // No temp logic needed - files will be uploaded after category creation
+                        console.log(`[ROOM_CATEGORIES] Skipping file assignment for new category ${categoryId} - files will be uploaded after creation`);
                     } catch (fileError) {
-                        console.error(`Error assigning files to room category ${categoryId}:`, fileError);
+                        console.error(`Error in file assignment for room category ${categoryId}:`, fileError);
                         // Don't fail the transaction if file assignment fails
                     }
                     
@@ -506,7 +483,7 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                 }
                 
                 // Check if a category with this ID already exists for this room
-                // Also check by name to prevent duplicates
+                // Only check by ID - new categories should be created even if they have the same name
                 let existingCategories = [];
                 console.log(`[ROOM_CATEGORIES] Checking ID for category "${categoryData.category_name}" (parallel):`, {
                     id: catInfo.id,
@@ -523,12 +500,6 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                     existingCategories = await connection.query(
                         'SELECT id FROM room_category_infos WHERE id = ? AND room_id = ?',
                         [catInfo.id, parsedRoomId]
-                    );
-                } else {
-                    // Check by name to prevent duplicates
-                    existingCategories = await connection.query(
-                        'SELECT id FROM room_category_infos WHERE room_id = ? AND category_name = ?',
-                        [parsedRoomId, categoryData.category_name]
                     );
                 }
                 
@@ -577,20 +548,10 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                             
                             // Assign any temporary files to this room category (even if none exist, this is safe)
                             try {
-                                // Extract the temp category index from the category data if available
-                                const tempIndex = catInfo.tempIndex || null;
-                                
-                                console.log(`[ROOM_CATEGORIES] File assignment for category ${categoryId} (parallel):`, {
-                                    categoryName: categoryData.category_name,
-                                    tempIndex: tempIndex,
-                                    tempIndexType: typeof tempIndex,
-                                    hasTempIndex: !!tempIndex
-                                });
-                                
-                                await assignRoomCategoryFilesService(categoryId, tempIndex);
-                                console.log(`[ROOM_CATEGORIES] Assigned files to new category ${categoryId} with temp index ${tempIndex}`);
+                                // No temp logic needed - files will be uploaded after category creation
+                                console.log(`[ROOM_CATEGORIES] Skipping file assignment for new category ${categoryId} (parallel) - files will be uploaded after creation`);
                             } catch (fileError) {
-                                console.error(`Error assigning files to room category ${categoryId}:`, fileError);
+                                console.error(`Error in file assignment for room category ${categoryId}:`, fileError);
                                 // Don't fail the transaction if file assignment fails
                             }
                             

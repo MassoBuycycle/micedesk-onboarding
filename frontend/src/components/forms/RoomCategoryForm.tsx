@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, ArrowRight, PlusCircle, Trash2, Image } from 'lucide-react';
 import { deleteRoomCategory } from '@/apiClient/roomsApi';
 import { toast } from 'sonner';
-import FileUpload, { FileUploadRef } from '@/components/files/FileUpload';
+import FileUpload from '@/components/files/FileUpload';
 import FileBrowser from '@/components/files/FileBrowser';
 // import RoomCategoryCard, { RoomCategory } from "./room-sections/RoomCategoryCard"; // Unused for now
 
@@ -33,14 +33,28 @@ const roomCategoryFormSchema = z.object({
   isAccessible: z.boolean().default(false).nullable(),
   hasBalcony: z.boolean().default(false).nullable(),
   // baby_bed_price: z.string().optional(), // Not in DDL, omitting for now
-  tempIndex: z.number().optional(), // Add tempIndex field
 });
 
 export type RoomCategoryFormValues = z.infer<typeof roomCategoryFormSchema>;
 
 // Define the overall form schema including the array of categories
 const formSchema = z.object({
-  categories: z.array(roomCategoryFormSchema)
+  categories: z.array(z.object({
+    id: z.number().optional(),
+    category_name: z.string().min(1, "Kategoriename ist erforderlich"),
+    pms_name: z.string().optional(),
+    num_rooms: z.number().min(0, "Anzahl Zimmer muss 0 oder mehr sein"),
+    size: z.number().min(0, "Größe muss 0 oder mehr sein"),
+    bed_type: z.string().optional(),
+    room_features: z.string().optional(),
+    surcharges_upsell: z.string().optional(),
+    second_person_surcharge: z.number().min(0, "Aufpreis muss 0 oder mehr sein"),
+    extra_bed_surcharge: z.number().min(0, "Aufpreis muss 0 oder mehr sein"),
+    baby_bed_available: z.boolean().default(false).nullable(),
+    extra_bed_available: z.boolean().default(false).nullable(),
+    isAccessible: z.boolean().default(false).nullable(),
+    hasBalcony: z.boolean().default(false).nullable(),
+  }))
 });
 
 export type FullCategoryFormValues = z.infer<typeof formSchema>;
@@ -84,8 +98,6 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
   mode 
 }) => {
   const [uploadedFiles, setUploadedFiles] = useState<{ [key: string]: FileItem[] }>({});
-  const fileUploadRefs = useRef<{ [key: string]: FileUploadRef | null }>({});
-
 
 
   const form = useForm<FullCategoryFormValues>({ 
@@ -126,20 +138,7 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
       ...prev,
       [categoryIndex]: files
     }));
-    
-    // Store the temp index in the form data so it can be passed to the backend
-    const currentCategories = form.getValues('categories');
-    if (currentCategories[categoryIndex] && !currentCategories[categoryIndex].id) {
-      // This is a new category, store the temp index
-      form.setValue(`categories.${categoryIndex}.tempIndex`, categoryIndex);
-      
-      // Trigger onChange to ensure tempIndex is passed to parent component
-      if (onChange) {
-        const updatedCategories = form.getValues('categories');
-        onChange(updatedCategories as Partial<RoomCategoryFormValues>[]);
-      }
-    }
-  }, [form, onChange]);
+  }, []);
 
   // Watch for changes to pass to parent if onChange is provided
   useEffect(() => {
@@ -177,29 +176,8 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
     console.log("=== ROOM CATEGORIES FORM SUBMIT ===");
     console.log("Form data:", data);
     
-    // Wait for all file uploads to complete before proceeding
-    const uploadPromises = Object.values(fileUploadRefs.current)
-      .filter(ref => ref !== null)
-      .map(ref => ref!.waitForUploads());
-    
-    try {
-      await Promise.all(uploadPromises);
-      console.log("All file uploads completed");
-    } catch (error) {
-      console.error("Error waiting for uploads:", error);
-      toast.error("Some files are still uploading. Please wait and try again.");
-      return;
-    }
-    
-    // Check if any uploads failed
-    const failedUploads = Object.values(fileUploadRefs.current)
-      .filter(ref => ref !== null)
-      .some(ref => ref!.getUploadStatus().error > 0);
-    
-    if (failedUploads) {
-      toast.error("Some files failed to upload. Please fix the errors and try again.");
-      return;
-    }
+    // No need to wait for file uploads since they can only happen after categories are saved
+    console.log("Proceeding with form submission - files will be uploaded after categories are saved");
     
     // Proceed with form submission
     onNext(data.categories);
@@ -416,53 +394,26 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
               <div className="border-t pt-6">
                 <div className="flex items-center gap-2 mb-4">
                   <Image className="h-5 w-5 text-primary" />
-                  <h4 className="text-lg font-medium">Zimmerkategorie Bilder</h4>
-                </div>
-                <div className="text-sm text-muted-foreground mb-4">
-                  Laden Sie Bilder für diese Zimmerkategorie hoch. Diese werden für die Präsentation der Zimmer verwendet.
+                  <h4 className="text-lg font-medium">Bilder für diese Kategorie</h4>
                 </div>
                 
-                {/* Upload Status Display */}
-                {fileUploadRefs.current[index] && (
-                  <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium">Upload Status:</span>
-                      <div className="flex items-center gap-2">
-                        {(() => {
-                          const status = fileUploadRefs.current[index]?.getUploadStatus();
-                          if (!status) return null;
-                          return (
-                            <>
-                              {status.pending > 0 && <span className="text-yellow-600">⏸️ {status.pending} pending</span>}
-                              {status.uploading > 0 && <span className="text-blue-600">⏳ {status.uploading} uploading</span>}
-                              {status.success > 0 && <span className="text-green-600">✓ {status.success} uploaded</span>}
-                              {status.error > 0 && <span className="text-red-600">✗ {status.error} failed</span>}
-                            </>
-                          );
-                        })()}
-                      </div>
-                    </div>
+                {/* Show message for new categories */}
+                {!form.getValues(`categories.${index}.id`) && (
+                  <div className="text-sm text-muted-foreground bg-blue-50 p-3 rounded-md border border-blue-200 mb-4">
+                    <p>💡 <strong>Tip:</strong> Speichern Sie zuerst die Kategorie, bevor Sie Bilder hochladen können.</p>
                   </div>
                 )}
                 
+                {/* File Upload Component */}
                 <FileUpload
-                  ref={(el) => fileUploadRefs.current[index] = el}
                   entityType="room-categories"
-                  entityId={form.getValues(`categories.${index}.id`) || `temp-${index}`}
+                  entityId={form.getValues(`categories.${index}.id`) || undefined}
                   category="room-category-images"
                   fileTypeCode="room_photos"
                   maxFiles={20}
                   className="w-full"
                   onFileChange={(files) => handleFileChange(index, files)}
                 />
-              </div>
-
-              {/* Display existing files and uploaded files for this category */}
-              <div className="border-t pt-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Image className="h-5 w-5 text-primary" />
-                  <h4 className="text-lg font-medium">Bilder für diese Kategorie</h4>
-                </div>
                 
                 {/* Show existing files if category has an ID */}
                 {form.getValues(`categories.${index}.id`) && (

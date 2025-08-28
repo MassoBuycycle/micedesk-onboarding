@@ -905,11 +905,6 @@ export function useHotelFormState() {
               });
 
               console.log(`Calling addCategoriesToRoom for Room ID ${createdRoomTypeId} with ${categoriesToSubmit.length} new categories`);
-              console.log(`Categories data being sent:`, categoriesToSubmit.map(cat => ({
-                category_name: cat.category_name,
-                tempIndex: (cat as any).tempIndex,
-                hasTempIndex: !!(cat as any).tempIndex
-              })));
               try {
                 const categoriesResponse = await addCategoriesToRoom(createdRoomTypeId, categoriesToSubmit);
                 toast.success(`${categoriesResponse.createdCategories.length} new categories added to Room ID ${createdRoomTypeId}.`);
