@@ -33,6 +33,14 @@ export const submitChanges = async (req, res, next) => {
     }
     
     // Create pending change record
+    console.log('Submitting changes for approval:');
+    console.log('Entry ID:', entryId);
+    console.log('Entry Type:', entryType);
+    console.log('Change Data:', changeData);
+    console.log('Original Data:', originalData);
+    console.log('Change Data Type:', typeof changeData);
+    console.log('Original Data Type:', typeof originalData);
+    
     const [result] = await connection.query(
       `INSERT INTO onboarding_pending_changes 
         (entry_id, entry_type, user_id, change_data, original_data)
@@ -113,11 +121,43 @@ export const getPendingChanges = async (req, res, next) => {
     const [changes] = await connection.query(query, params);
     
     // Parse JSON fields for easier consumption by clients
-    const parsedChanges = changes.map(change => ({
-      ...change,
-      change_data: change.change_data, // MySQL JSON fields are already parsed
-      original_data: change.original_data, // MySQL JSON fields are already parsed
-    }));
+    const parsedChanges = changes.map(change => {
+      console.log('Raw change_data from DB:', change.change_data);
+      console.log('Raw original_data from DB:', change.original_data);
+      console.log('change_data type:', typeof change.change_data);
+      console.log('original_data type:', typeof change.original_data);
+      
+      let parsedChangeData = change.change_data;
+      let parsedOriginalData = change.original_data;
+      
+      // Handle case where MySQL might return JSON as string
+      if (typeof change.change_data === 'string') {
+        try {
+          parsedChangeData = JSON.parse(change.change_data);
+        } catch (e) {
+          console.error('Failed to parse change_data JSON:', e);
+          parsedChangeData = null;
+        }
+      }
+      
+      if (typeof change.original_data === 'string') {
+        try {
+          parsedOriginalData = JSON.parse(change.original_data);
+        } catch (e) {
+          console.error('Failed to parse original_data JSON:', e);
+          parsedOriginalData = null;
+        }
+      }
+      
+      console.log('Parsed change_data:', parsedChangeData);
+      console.log('Parsed original_data:', parsedOriginalData);
+      
+      return {
+        ...change,
+        change_data: parsedChangeData,
+        original_data: parsedOriginalData,
+      };
+    });
     
     res.json(parsedChanges);
   } catch (error) {
@@ -158,9 +198,33 @@ export const getPendingChangeById = async (req, res, next) => {
     
     // Parse the JSON data
     const change = changes[0];
-    // MySQL JSON fields are already parsed, no need to parse again
-    change.change_data = change.change_data;
-    change.original_data = change.original_data;
+    console.log('Retrieved change from DB:', change);
+    console.log('Raw change_data:', change.change_data);
+    console.log('Raw original_data:', change.original_data);
+    console.log('change_data type:', typeof change.change_data);
+    console.log('original_data type:', typeof change.original_data);
+    
+    // Handle case where MySQL might return JSON as string
+    if (typeof change.change_data === 'string') {
+      try {
+        change.change_data = JSON.parse(change.change_data);
+      } catch (e) {
+        console.error('Failed to parse change_data JSON:', e);
+        change.change_data = null;
+      }
+    }
+    
+    if (typeof change.original_data === 'string') {
+      try {
+        change.original_data = JSON.parse(change.original_data);
+      } catch (e) {
+        console.error('Failed to parse original_data JSON:', e);
+        change.original_data = null;
+      }
+    }
+    
+    console.log('Parsed change_data:', change.change_data);
+    console.log('Parsed original_data:', change.original_data);
     
     res.json(change);
   } catch (error) {
@@ -220,8 +284,19 @@ export const reviewChange = async (req, res, next) => {
       // If approved, apply the changes to the actual data
       if (status === 'approved') {
         let changeData;
-        // MySQL JSON fields are already parsed, no need to parse again
-        changeData = change.change_data;
+        
+        // Handle case where MySQL might return JSON as string
+        if (typeof change.change_data === 'string') {
+          try {
+            changeData = JSON.parse(change.change_data);
+          } catch (e) {
+            return res.status(400).json({ 
+              error: 'Invalid change data format. Cannot apply changes.' 
+            });
+          }
+        } else {
+          changeData = change.change_data;
+        }
         
         if (!changeData || typeof changeData !== 'object') {
           return res.status(400).json({ 
@@ -364,11 +439,35 @@ export const getMyChanges = async (req, res, next) => {
     
     const [changes] = await connection.query(query, params);
     
-    const parsed = changes.map(change => ({
-      ...change,
-      change_data: change.change_data, // MySQL JSON fields are already parsed
-      original_data: change.original_data, // MySQL JSON fields are already parsed
-    }));
+    const parsed = changes.map(change => {
+      let parsedChangeData = change.change_data;
+      let parsedOriginalData = change.original_data;
+      
+      // Handle case where MySQL might return JSON as string
+      if (typeof change.change_data === 'string') {
+        try {
+          parsedChangeData = JSON.parse(change.change_data);
+        } catch (e) {
+          console.error('Failed to parse change_data JSON:', e);
+          parsedChangeData = null;
+        }
+      }
+      
+      if (typeof change.original_data === 'string') {
+        try {
+          parsedOriginalData = JSON.parse(change.original_data);
+        } catch (e) {
+          console.error('Failed to parse original_data JSON:', e);
+          parsedOriginalData = null;
+        }
+      }
+      
+      return {
+        ...change,
+        change_data: parsedChangeData,
+        original_data: parsedOriginalData,
+      };
+    });
     
     res.json(parsed);
   } catch (error) {
