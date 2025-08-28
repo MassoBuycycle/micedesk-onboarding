@@ -154,7 +154,7 @@ export const createOrUpdateMainRoomConfig = async (req, res, next) => {
         if (data.checkInTime !== undefined) data.check_in = data.checkInTime;
         if (data.checkOutTime !== undefined) data.check_out = data.checkOutTime;
         if (data.earlyCheckInPolicy !== undefined) data.early_check_in_time_frame = data.earlyCheckInPolicy;
-        if (data.lateCheckOutPolicy !== undefined) data.late_check_out_time = data.lateCheckOutPolicy;
+        if (data.lateCheckOutPolicy !== undefined) data.late_check_out_time_frame = data.lateCheckOutPolicy;
 
         // FIX: Add missing mappings for early check-in and late check-out FEES
         if (data.early_check_in_cost !== undefined) data.early_check_in_cost = data.early_check_in_cost;
@@ -191,17 +191,23 @@ export const createOrUpdateMainRoomConfig = async (req, res, next) => {
         const actualRoomsTableData = { ...baseRoomDataForRoomsTable }; 
         if (actualRoomsTableData) delete actualRoomsTableData.hotel_id;
 
+        // Check if room already exists for this hotel to prevent duplicates
         const [existingRooms] = await connection.query('SELECT id FROM rooms WHERE hotel_id = ? LIMIT 1', [hotelId]);
 
         if (existingRooms.length > 0) { 
             roomId = existingRooms[0].id;
+            console.log(`[ROOM_CONFIG] Updating existing room ${roomId} for hotel ${hotelId}`);
+            
             if (actualRoomsTableData && Object.keys(actualRoomsTableData).length > 0) {
                 const fields = Object.keys(actualRoomsTableData);
                 const fieldPlaceholders = fields.map(key => `${key} = ?`).join(', ');
                 const values = fields.map(key => actualRoomsTableData[key]);
                 await connection.query(`UPDATE rooms SET ${fieldPlaceholders} WHERE id = ?`, [...values, roomId]);
+                console.log(`[ROOM_CONFIG] Updated room ${roomId} with fields: ${fields.join(', ')}`);
             }
         } else { 
+            console.log(`[ROOM_CONFIG] Creating new room for hotel ${hotelId}`);
+            
             const dataToInsertForRooms = { ...actualRoomsTableData, hotel_id: hotelId }; 
             if (!dataToInsertForRooms.main_contact_name) dataToInsertForRooms.main_contact_name = 'Default Contact'; // Example default
 
@@ -214,6 +220,7 @@ export const createOrUpdateMainRoomConfig = async (req, res, next) => {
             const values = fields.map(key => dataToInsertForRooms[key]);
             const [result] = await connection.query(`INSERT INTO rooms (${fields.join(', ')}) VALUES (${fieldPlaceholders})`, values);
             roomId = result.insertId;
+            console.log(`[ROOM_CONFIG] Created new room ${roomId} for hotel ${hotelId}`);
         }
 
         const contactsData = await upsertRelatedData(connection, 'room_contacts', ROOM_CONTACTS_FIELDS, allRoomDataMapped, roomId);
@@ -318,34 +325,78 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
             await connection.rollback();
             return res.status(404).json({ error: `Room with ID ${parsedRoomId} not found.` });
         }
+        
         const createdCategories = [];
-        const insertPromises = [];
-        for (const catInfo of categoryInfosArray) {
-            const categoryData = extractDataForTable(catInfo, ROOM_CATEGORY_INFOS_FIELDS);
-            if (!categoryData || !categoryData.category_name) {
-                await connection.rollback();
-                return res.status(400).json({ error: 'Each category info object must contain at least a category_name.', offendingItem: catInfo });
-            }
-            const fields = Object.keys(categoryData);
-            const placeholders = fields.map(() => '?').join(', ');
-            const values = fields.map(f => categoryData[f]);
-            insertPromises.push(
-                connection.query(
+        
+        // Check if there are any temporary files that need to be assigned
+        const [tempFiles] = await connection.query(
+            `SELECT COUNT(*) as count FROM files 
+             WHERE entity_type = 'room-categories' AND is_temporary = 1 AND entity_id = 0`
+        );
+        const hasTempFiles = tempFiles[0].count > 0;
+        
+        if (hasTempFiles) {
+            console.log(`[ROOM_CATEGORIES] Found ${tempFiles[0].count} temporary files - processing categories sequentially to avoid race conditions`);
+            
+            // Process categories sequentially when files are involved to prevent race conditions
+            for (const catInfo of categoryInfosArray) {
+                const categoryData = extractDataForTable(catInfo, ROOM_CATEGORY_INFOS_FIELDS);
+                if (!categoryData || !categoryData.category_name) {
+                    await connection.rollback();
+                    return res.status(400).json({ error: 'Each category info object must contain at least a category_name.', offendingItem: catInfo });
+                }
+                
+                const fields = Object.keys(categoryData);
+                const placeholders = fields.map(() => '?').join(', ');
+                const values = fields.map(f => categoryData[f]);
+                
+                const [result] = await connection.query(
                     `INSERT INTO room_category_infos (room_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`,
                     [parsedRoomId, ...values]
-                ).then(([result]) => {
-                    const categoryId = result.insertId;
-                    createdCategories.push({ id: categoryId, room_id: parsedRoomId, ...categoryData });
-                    
-                    // Assign any temporary files to this room category
-                    return assignRoomCategoryFilesService(categoryId).catch(error => {
-                        console.error(`Error assigning files to room category ${categoryId}:`, error);
-                        // Don't fail the transaction if file assignment fails
-                    });
-                })
-            );
+                );
+                
+                const categoryId = result.insertId;
+                createdCategories.push({ id: categoryId, room_id: parsedRoomId, ...categoryData });
+                
+                // Assign any temporary files to this room category
+                try {
+                    await assignRoomCategoryFilesService(categoryId);
+                } catch (fileError) {
+                    console.error(`Error assigning files to room category ${categoryId}:`, fileError);
+                    // Don't fail the transaction if file assignment fails
+                }
+            }
+        } else {
+            console.log(`[ROOM_CATEGORIES] No temporary files found - processing categories in parallel for better performance`);
+            
+            // No files to assign, so we can process in parallel for better performance
+            const insertPromises = [];
+            for (const catInfo of categoryInfosArray) {
+                const categoryData = extractDataForTable(catInfo, ROOM_CATEGORY_INFOS_FIELDS);
+                if (!categoryData || !categoryData.category_name) {
+                    await connection.rollback();
+                    return res.status(400).json({ error: 'Each category info object must contain at least a category_name.', offendingItem: catInfo });
+                }
+                
+                const fields = Object.keys(categoryData);
+                const placeholders = fields.map(() => '?').join(', ');
+                const values = fields.map(f => categoryData[f]);
+                
+                insertPromises.push(
+                    connection.query(
+                        `INSERT INTO room_category_infos (room_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`,
+                        [parsedRoomId, ...values]
+                    ).then(([result]) => {
+                        const categoryId = result.insertId;
+                        createdCategories.push({ id: categoryId, room_id: parsedRoomId, ...categoryData });
+                        return categoryId;
+                    })
+                );
+            }
+            
+            await Promise.all(insertPromises);
         }
-        await Promise.all(insertPromises);
+        
         await connection.commit();
         res.status(201).json({
             success: true,

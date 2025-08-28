@@ -114,6 +114,8 @@ export default function FileUpload({
     // Use 'new' as temporary entityId if not available
     const effectiveEntityId = entityId || 'new';
     
+    console.log(`[FileUpload] Starting upload for entityType: ${entityType}, entityId: ${effectiveEntityId}, category: ${category}`);
+    
     // Check if any files are missing file types
     const missingTypes = filesToUpload.some(file => !file.fileTypeCode);
     if (missingTypes) {
@@ -127,6 +129,7 @@ export default function FileUpload({
     const updatedFiles = [...filesToUpload];
     const successfulUploads: any[] = [];
 
+    // Process files sequentially to avoid race conditions when using temporary entity IDs
     for (let i = 0; i < updatedFiles.length; i++) {
       // Skip already uploaded or errored files
       if (updatedFiles[i].status === 'success' || updatedFiles[i].status === 'error') {
@@ -137,6 +140,8 @@ export default function FileUpload({
       setFilesToUpload([...updatedFiles]);
 
       try {
+        console.log(`[FileUpload] Uploading file ${i + 1}/${updatedFiles.length}: ${updatedFiles[i].file.name} to ${entityType}/${effectiveEntityId}/${category}`);
+        
         const response = await uploadFile(
           entityType,
           effectiveEntityId,
@@ -152,6 +157,8 @@ export default function FileUpload({
         updatedFiles[i].status = 'success';
         updatedFiles[i].response = response;
         successfulUploads.push(response);
+        
+        console.log(`[FileUpload] Successfully uploaded file ${updatedFiles[i].file.name}`);
       } catch (error: any) {
         console.error(`Error uploading file ${updatedFiles[i].file.name}:`, error);
         updatedFiles[i].status = 'error';
@@ -166,8 +173,10 @@ export default function FileUpload({
     if (successfulUploads.length > 0) {
       if (!entityId) {
         toast.success(`Successfully uploaded ${successfulUploads.length} file(s). They will be associated with the record when saved.`);
+        console.log(`[FileUpload] ${successfulUploads.length} files uploaded with temporary entityId 'new' - will be assigned when entity is created`);
       } else {
         toast.success(`Successfully uploaded ${successfulUploads.length} file(s)`);
+        console.log(`[FileUpload] ${successfulUploads.length} files uploaded successfully to entity ${entityId}`);
       }
       setUploadedFiles(prev => [...prev, ...successfulUploads]);
       

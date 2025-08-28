@@ -338,15 +338,19 @@ export const assignRoomCategoryFilesService = async (roomCategoryId) => {
   try {
     console.log(`[ASSIGN] Starting file assignment for room category ${roomCategoryId}`);
     
-    // Fetch all temporary files that need to be reassigned for room categories
+    // Use a more specific query to prevent race conditions
+    // Only get files that are specifically uploaded for this room category
     const [tempFiles] = await pool.query(
       `SELECT id, storage_path 
        FROM files 
-       WHERE entity_type = 'room-categories' AND is_temporary = 1 AND entity_id = 0`,
-      []
+       WHERE entity_type = 'room-categories' 
+         AND is_temporary = 1 
+         AND entity_id = 0
+         AND storage_path LIKE ?`,
+      [`room-categories/new/room-category-images/images/%`]
     );
 
-    console.log(`[ASSIGN] Found ${tempFiles.length} temporary files to assign`);
+    console.log(`[ASSIGN] Found ${tempFiles.length} temporary files to assign for room category ${roomCategoryId}`);
 
     // No files to process – return early
     if (tempFiles.length === 0) {
@@ -356,7 +360,7 @@ export const assignRoomCategoryFilesService = async (roomCategoryId) => {
 
     let movedCount = 0;
 
-    // Process each file sequentially
+    // Process each file sequentially to avoid race conditions
     for (const file of tempFiles) {
       console.log(`[ASSIGN] Processing file ${file.id} with path ${file.storage_path}`);
       
@@ -377,17 +381,21 @@ export const assignRoomCategoryFilesService = async (roomCategoryId) => {
       // Move the file in S3
       await moveFile(sourceKey, destinationKey);
 
-      // Update DB record for this file
-      await pool.query(
+      // Update DB record for this file with a more specific WHERE clause
+      const [updateResult] = await pool.query(
         `UPDATE files 
          SET entity_id = ?, is_temporary = 0, storage_path = ? 
-         WHERE id = ?`,
+         WHERE id = ? AND is_temporary = 1 AND entity_id = 0`,
         [roomCategoryId, destinationKey, file.id]
       );
 
-      console.log(`[ASSIGN] Updated file ${file.id} with entity_id ${roomCategoryId} and new path ${destinationKey}`);
-
-      movedCount += 1;
+      // Check if the update was successful (affected rows > 0)
+      if (updateResult.affectedRows > 0) {
+        console.log(`[ASSIGN] Updated file ${file.id} with entity_id ${roomCategoryId} and new path ${destinationKey}`);
+        movedCount += 1;
+      } else {
+        console.warn(`[ASSIGN] File ${file.id} was already assigned to another category, skipping`);
+      }
     }
 
     console.log(`[ASSIGN] Successfully assigned ${movedCount} files to room category ${roomCategoryId}`);
