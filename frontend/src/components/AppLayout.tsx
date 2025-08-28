@@ -9,10 +9,10 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Search, Settings, LogOut, Sun, Moon } from 'lucide-react';
 import { AppSidebar } from './AppSidebar';
-import { Notifications } from './Notifications';
-import { QuickSearch } from './QuickSearch';
+import Notifications from './Notifications';
+import QuickSearch from './QuickSearch';
 import { Toaster } from '@/components/ui/toaster';
-import { Sonner } from '@/components/ui/sonner';
+import { Toaster as Sonner } from '@/components/ui/sonner';
 import { useMobile } from '@/hooks/use-mobile';
 
 export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
