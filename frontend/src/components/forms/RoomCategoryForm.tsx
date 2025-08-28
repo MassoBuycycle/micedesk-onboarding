@@ -86,15 +86,6 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
   const fileUploadRefs = useRef<{ [key: string]: FileUploadRef | null }>({});
 
   const handleFileChange = useCallback((categoryIndex: number, files: FileItem[]) => {
-    console.log(`[RoomCategoryForm] handleFileChange called for category ${categoryIndex}:`, {
-      filesCount: files.length,
-      files: files.map(f => ({
-        name: f.file?.name,
-        status: f.status,
-        fileTypeCode: f.fileTypeCode
-      }))
-    });
-    
     setUploadedFiles(prev => ({
       ...prev,
       [categoryIndex]: files

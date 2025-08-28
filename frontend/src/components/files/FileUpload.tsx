@@ -318,8 +318,6 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
         
         successfulUploads.push(response);
       } catch (error: any) {
-        console.error(`Error uploading file ${fileItem.file.name}:`, error);
-        
         // Extract specific error message
         let errorMessage = 'Error uploading file';
         if (error.response?.data?.error) {
@@ -431,7 +429,6 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
           successfulUploads.push(response);
           
         } catch (error: any) {
-          console.error(`Error uploading file ${updatedFiles[i].file.name}:`, error);
           updatedFiles[i].status = 'error';
           updatedFiles[i].error = error.message || 'Error uploading file';
         }
@@ -466,20 +463,7 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
     }
   }, [entityId, filesToUpload.length, isUploading]);
 
-  // Expose upload status to parent component
-  useEffect(() => {
-    if (onFileChange) {
-      const allFiles = [...filesToUpload, ...uploadedFiles];
-      const hasUnfinishedUploads = allFiles.some(f => f.status === 'pending' || f.status === 'uploading');
-      const hasErrors = allFiles.some(f => f.status === 'error');
-      
-      onFileChange(allFiles);
-    }
-  }, [filesToUpload, uploadedFiles, onFileChange]);
 
-  // Debug effect to log state changes
-  useEffect(() => {
-  }, [filesToUpload.length, uploadedFiles.length, isUploading, entityId, category]);
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';
