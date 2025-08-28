@@ -1135,20 +1135,21 @@ export function useHotelFormState() {
               if (mode === 'edit') {
                 console.log("=== EDIT MODE - HANDLING EVENT SPACES ===");
                 
-                // For event spaces, the API uses upsert which handles both updates and creates
-                // So we just need to prepare the data properly
-                // Note: Deletions are already handled by the EventSpacesForm component
-                
-                // All spaces (both existing and new) can be sent via upsertSpaces
-                const allSpaces = formSpaces.map(space => {
-                  // Remove the id field for the API payload (backend generates IDs)
-                  const { id, ...spaceData } = space;
-                  return spaceData;
+                // For event spaces, we need to preserve IDs for existing spaces and remove them for new ones
+                const spacesToProcess = formSpaces.map(space => {
+                  if (typeof space.id === 'number') {
+                    // Existing space - keep the ID for the backend to identify it
+                    return space;
+                  } else {
+                    // New space - remove the temporary UUID
+                    const { id, ...spaceData } = space;
+                    return spaceData;
+                  }
                 });
                 
-                console.log(`Upserting ${allSpaces.length} event spaces for event ID ${createdEventId}`);
-                await upsertSpaces(createdEventId, allSpaces);
-                toast.success(`${allSpaces.length} event spaces saved successfully`);
+                console.log(`Processing ${spacesToProcess.length} event spaces for event ID ${createdEventId}`);
+                await upsertSpaces(createdEventId, spacesToProcess);
+                toast.success(`${spacesToProcess.length} event spaces processed successfully`);
               } else {
                 console.log("=== ADD MODE - CREATING EVENT SPACES ===");
                 // In add mode, all spaces are new

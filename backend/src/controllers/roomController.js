@@ -327,6 +327,7 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
         }
         
         const createdCategories = [];
+        const updatedCategories = [];
         
         // Check if there are any temporary files that need to be assigned
         const [tempFiles] = await connection.query(
@@ -346,31 +347,73 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                     return res.status(400).json({ error: 'Each category info object must contain at least a category_name.', offendingItem: catInfo });
                 }
                 
-                const fields = Object.keys(categoryData);
-                const placeholders = fields.map(() => '?').join(', ');
-                const values = fields.map(f => categoryData[f]);
+                // Check if a category with this name already exists for this room
+                // First try to use ID if provided, then fall back to name-based matching
+                let existingCategories = [];
+                if (catInfo.id && typeof catInfo.id === 'number') {
+                    // Check by ID first
+                    existingCategories = await connection.query(
+                        'SELECT id FROM room_category_infos WHERE id = ? AND room_id = ?',
+                        [catInfo.id, parsedRoomId]
+                    );
+                }
                 
-                const [result] = await connection.query(
-                    `INSERT INTO room_category_infos (room_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`,
-                    [parsedRoomId, ...values]
-                );
+                // If no match by ID, check by name
+                if (existingCategories.length === 0) {
+                    existingCategories = await connection.query(
+                        'SELECT id FROM room_category_infos WHERE room_id = ? AND category_name = ?',
+                        [parsedRoomId, categoryData.category_name]
+                    );
+                }
                 
-                const categoryId = result.insertId;
-                createdCategories.push({ id: categoryId, room_id: parsedRoomId, ...categoryData });
-                
-                // Assign any temporary files to this room category
-                try {
-                    await assignRoomCategoryFilesService(categoryId);
-                } catch (fileError) {
-                    console.error(`Error assigning files to room category ${categoryId}:`, fileError);
-                    // Don't fail the transaction if file assignment fails
+                if (existingCategories.length > 0) {
+                    // Update existing category
+                    const categoryId = existingCategories[0].id;
+                    console.log(`[ROOM_CATEGORIES] Updating existing category ${categoryId} with name "${categoryData.category_name}"`);
+                    
+                    const fields = Object.keys(categoryData);
+                    const fieldPlaceholders = fields.map(key => `${key} = ?`).join(', ');
+                    const values = fields.map(key => categoryData[key]);
+                    
+                    await connection.query(
+                        `UPDATE room_category_infos SET ${fieldPlaceholders} WHERE id = ?`,
+                        [...values, categoryId]
+                    );
+                    
+                    updatedCategories.push({ id: categoryId, room_id: parsedRoomId, ...categoryData });
+                    console.log(`[ROOM_CATEGORIES] Updated category ${categoryId}`);
+                } else {
+                    // Create new category
+                    console.log(`[ROOM_CATEGORIES] Creating new category with name "${categoryData.category_name}"`);
+                    
+                    const fields = Object.keys(categoryData);
+                    const placeholders = fields.map(() => '?').join(', ');
+                    const values = fields.map(f => categoryData[f]);
+                    
+                    const [result] = await connection.query(
+                        `INSERT INTO room_category_infos (room_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`,
+                        [parsedRoomId, ...values]
+                    );
+                    
+                    const categoryId = result.insertId;
+                    createdCategories.push({ id: categoryId, room_id: parsedRoomId, ...categoryData });
+                    
+                    // Assign any temporary files to this room category
+                    try {
+                        await assignRoomCategoryFilesService(categoryId);
+                    } catch (fileError) {
+                        console.error(`Error assigning files to room category ${categoryId}:`, fileError);
+                        // Don't fail the transaction if file assignment fails
+                    }
+                    
+                    console.log(`[ROOM_CATEGORIES] Created new category ${categoryId}`);
                 }
             }
         } else {
             console.log(`[ROOM_CATEGORIES] No temporary files found - processing categories in parallel for better performance`);
             
             // No files to assign, so we can process in parallel for better performance
-            const insertPromises = [];
+            const processPromises = [];
             for (const catInfo of categoryInfosArray) {
                 const categoryData = extractDataForTable(catInfo, ROOM_CATEGORY_INFOS_FIELDS);
                 if (!categoryData || !categoryData.category_name) {
@@ -378,31 +421,76 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                     return res.status(400).json({ error: 'Each category info object must contain at least a category_name.', offendingItem: catInfo });
                 }
                 
-                const fields = Object.keys(categoryData);
-                const placeholders = fields.map(() => '?').join(', ');
-                const values = fields.map(f => categoryData[f]);
+                // Check if a category with this name already exists for this room
+                // First try to use ID if provided, then fall back to name-based matching
+                let existingCategories = [];
+                if (catInfo.id && typeof catInfo.id === 'number') {
+                    // Check by ID first
+                    existingCategories = await connection.query(
+                        'SELECT id FROM room_category_infos WHERE id = ? AND room_id = ?',
+                        [catInfo.id, parsedRoomId]
+                    );
+                }
                 
-                insertPromises.push(
-                    connection.query(
-                        `INSERT INTO room_category_infos (room_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`,
-                        [parsedRoomId, ...values]
-                    ).then(([result]) => {
-                        const categoryId = result.insertId;
-                        createdCategories.push({ id: categoryId, room_id: parsedRoomId, ...categoryData });
-                        return categoryId;
-                    })
-                );
+                // If no match by ID, check by name
+                if (existingCategories.length === 0) {
+                    existingCategories = await connection.query(
+                        'SELECT id FROM room_category_infos WHERE room_id = ? AND category_name = ?',
+                        [parsedRoomId, categoryData.category_name]
+                    );
+                }
+                
+                if (existingCategories.length > 0) {
+                    // Update existing category
+                    const categoryId = existingCategories[0].id;
+                    console.log(`[ROOM_CATEGORIES] Updating existing category ${categoryId} with name "${categoryData.category_name}"`);
+                    
+                    const fields = Object.keys(categoryData);
+                    const fieldPlaceholders = fields.map(key => `${key} = ?`).join(', ');
+                    const values = fields.map(key => categoryData[key]);
+                    
+                    await connection.query(
+                        `UPDATE room_category_infos SET ${fieldPlaceholders} WHERE id = ?`,
+                        [...values, categoryId]
+                    );
+                    
+                    updatedCategories.push({ id: categoryId, room_id: parsedRoomId, ...categoryData });
+                    console.log(`[ROOM_CATEGORIES] Updated category ${categoryId}`);
+                } else {
+                    // Create new category
+                    console.log(`[ROOM_CATEGORIES] Creating new category with name "${categoryData.category_name}"`);
+                    
+                    const fields = Object.keys(categoryData);
+                    const placeholders = fields.map(() => '?').join(', ');
+                    const values = fields.map(f => categoryData[f]);
+                    
+                    processPromises.push(
+                        connection.query(
+                            `INSERT INTO room_category_infos (room_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`,
+                            [parsedRoomId, ...values]
+                        ).then(([result]) => {
+                            const categoryId = result.insertId;
+                            createdCategories.push({ id: categoryId, room_id: parsedRoomId, ...categoryData });
+                            console.log(`[ROOM_CATEGORIES] Created new category ${categoryId}`);
+                            return categoryId;
+                        })
+                    );
+                }
             }
             
-            await Promise.all(insertPromises);
+            await Promise.all(processPromises);
         }
         
         await connection.commit();
-        res.status(201).json({
+        
+        const totalCategories = createdCategories.length + updatedCategories.length;
+        res.status(200).json({
             success: true,
             roomId: parsedRoomId,
-            message: `${createdCategories.length} category infos added to room ${parsedRoomId}.`,
-            createdCategories: createdCategories
+            message: `Processed ${totalCategories} categories (${createdCategories.length} created, ${updatedCategories.length} updated) for room ${parsedRoomId}.`,
+            createdCategories: createdCategories,
+            updatedCategories: updatedCategories,
+            totalCategories: totalCategories
         });
     } catch (error) {
         if (connection) await connection.rollback();

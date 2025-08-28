@@ -60,7 +60,7 @@ export const getEventSpaceById = async (req, res, next) => {
 };
 
 /**
- * Create a new space for an event
+ * Create or update event spaces (upsert functionality)
  */
 export const createEventSpace = async (req, res, next) => {
   const connection = await pool.getConnection();
@@ -79,18 +79,40 @@ export const createEventSpace = async (req, res, next) => {
     }
     
     const payload = Array.isArray(req.body) ? req.body : [req.body];
-    if(payload.length===0){
+    if(payload.length === 0){
       return res.status(400).json({error:'No space data provided'});
     }
 
-    const createdSpaces=[];
+    const createdSpaces = [];
+    const updatedSpaces = [];
 
-    for(const item of payload){
-      const spaceData={};
+    for(const item of payload) {
+      const spaceData = {};
       if(!item.name){
         return res.status(400).json({ error: 'Space name is required' });
       }
-      spaceData.name=item.name;
+      
+      // Check if a space with this name already exists for this event
+      // First try to use ID if provided, then fall back to name-based matching
+      let existingSpaces = [];
+      if (item.id && typeof item.id === 'number') {
+          // Check by ID first
+          existingSpaces = await connection.query(
+              'SELECT id FROM event_spaces WHERE id = ? AND event_id = ?',
+              [item.id, eventId]
+          );
+      }
+      
+      // If no match by ID, check by name
+      if (existingSpaces.length === 0) {
+          existingSpaces = await connection.query(
+              'SELECT id FROM event_spaces WHERE event_id = ? AND name = ?',
+              [eventId, item.name]
+          );
+      }
+      
+      // Prepare space data
+      spaceData.name = item.name;
       
       // Decimal fields
       if ('daily_rate' in item) {
@@ -175,34 +197,66 @@ export const createEventSpace = async (req, res, next) => {
       if ('has_tech_support' in item) 
         spaceData.has_tech_support = item.has_tech_support ? 1 : 0;
       
-      // Add the event ID
-      spaceData.event_id = eventId;
-      
-      console.log('Processed space data:', JSON.stringify(spaceData));
-      
-      // Insert the new space
-      const fields = Object.keys(spaceData);
-      const placeholders = Array(fields.length).fill('?').join(', ');
-      const values = Object.values(spaceData);
-      
-      console.log('SQL Insert:', `INSERT INTO event_spaces (${fields.join(', ')}) VALUES (${placeholders})`);
-      console.log('SQL Params:', values);
-      
-      const [insertResult] = await connection.query(
-        `INSERT INTO event_spaces (${fields.join(', ')}) VALUES (${placeholders})`,
-        values
-      );
-      
-      // Get the inserted space
-      const [spaces] = await connection.query(
-        'SELECT * FROM event_spaces WHERE id = ?',
-        [insertResult.insertId]
-      );
-      
-      createdSpaces.push(spaces[0]);
+      if (existingSpaces.length > 0) {
+        // Update existing space
+        const spaceId = existingSpaces[0].id;
+        console.log(`Updating existing space ${spaceId} with name "${item.name}"`);
+        
+        const setClause = Object.keys(spaceData)
+          .map(field => `${field} = ?`)
+          .join(', ');
+        
+        const updateValues = [...Object.values(spaceData), spaceId];
+        
+        await connection.query(
+          `UPDATE event_spaces SET ${setClause} WHERE id = ?`,
+          updateValues
+        );
+        
+        // Get the updated space
+        const [updatedSpace] = await connection.query(
+          'SELECT * FROM event_spaces WHERE id = ?',
+          [spaceId]
+        );
+        
+        updatedSpaces.push(updatedSpace[0]);
+        console.log(`Updated space ${spaceId}`);
+      } else {
+        // Create new space
+        console.log(`Creating new space with name "${item.name}"`);
+        
+        // Add the event ID
+        spaceData.event_id = eventId;
+        
+        // Insert the new space
+        const fields = Object.keys(spaceData);
+        const placeholders = Array(fields.length).fill('?').join(', ');
+        const values = Object.values(spaceData);
+        
+        const [insertResult] = await connection.query(
+          `INSERT INTO event_spaces (${fields.join(', ')}) VALUES (${placeholders})`,
+          values
+        );
+        
+        // Get the inserted space
+        const [spaces] = await connection.query(
+          'SELECT * FROM event_spaces WHERE id = ?',
+          [insertResult.insertId]
+        );
+        
+        createdSpaces.push(spaces[0]);
+        console.log(`Created new space ${insertResult.insertId}`);
+      }
     }
 
-    res.status(201).json({success:true,spaces:createdSpaces});
+    const totalSpaces = createdSpaces.length + updatedSpaces.length;
+    res.status(200).json({
+      success: true,
+      message: `Processed ${totalSpaces} spaces (${createdSpaces.length} created, ${updatedSpaces.length} updated)`,
+      createdSpaces,
+      updatedSpaces,
+      totalSpaces
+    });
   } catch (error) {
     console.error('Error in createEventSpace:', error);
     next(error);
