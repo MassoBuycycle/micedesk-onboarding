@@ -115,12 +115,8 @@ export const getPendingChanges = async (req, res, next) => {
     // Parse JSON fields for easier consumption by clients
     const parsedChanges = changes.map(change => ({
       ...change,
-      change_data: (() => {
-        try { return JSON.parse(change.change_data); } catch { return null; }
-      })(),
-      original_data: (() => {
-        try { return JSON.parse(change.original_data); } catch { return null; }
-      })(),
+      change_data: change.change_data, // MySQL JSON fields are already parsed
+      original_data: change.original_data, // MySQL JSON fields are already parsed
     }));
     
     res.json(parsedChanges);
@@ -162,16 +158,9 @@ export const getPendingChangeById = async (req, res, next) => {
     
     // Parse the JSON data
     const change = changes[0];
-    try {
-      change.change_data = JSON.parse(change.change_data);
-    } catch (e) {
-      change.change_data = null;
-    }
-    try {
-      change.original_data = JSON.parse(change.original_data);
-    } catch (e) {
-      change.original_data = null;
-    }
+    // MySQL JSON fields are already parsed, no need to parse again
+    change.change_data = change.change_data;
+    change.original_data = change.original_data;
     
     res.json(change);
   } catch (error) {
@@ -231,9 +220,10 @@ export const reviewChange = async (req, res, next) => {
       // If approved, apply the changes to the actual data
       if (status === 'approved') {
         let changeData;
-        try {
-          changeData = JSON.parse(change.change_data);
-        } catch (e) {
+        // MySQL JSON fields are already parsed, no need to parse again
+        changeData = change.change_data;
+        
+        if (!changeData || typeof changeData !== 'object') {
           return res.status(400).json({ 
             error: 'Invalid change data format. Cannot apply changes.' 
           });
@@ -376,8 +366,8 @@ export const getMyChanges = async (req, res, next) => {
     
     const parsed = changes.map(change => ({
       ...change,
-      change_data: (() => { try { return JSON.parse(change.change_data); } catch { return null; } })(),
-      original_data: (() => { try { return JSON.parse(change.original_data); } catch { return null; } })(),
+      change_data: change.change_data, // MySQL JSON fields are already parsed
+      original_data: change.original_data, // MySQL JSON fields are already parsed
     }));
     
     res.json(parsed);

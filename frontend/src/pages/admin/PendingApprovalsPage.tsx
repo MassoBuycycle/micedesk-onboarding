@@ -26,83 +26,134 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { CheckCircle } from "lucide-react";
 
-// Recursively render diff for nested objects/arrays
-const renderValue = (val: any) => {
-  if (val === null || val === undefined) return '-';
-  if (typeof val === 'object') return JSON.stringify(val, null, 2);
-  return String(val);
-};
-
 const renderDiff = (change: PendingChange) => {
-  console.log('Rendering diff for change:', change);
-  console.log('Original data:', change.original_data);
-  console.log('Change data:', change.change_data);
-  
   // Handle cases where data might be null, undefined, or invalid
   let original: any = {};
   let updated: any = {};
   
-  try {
-    if (change.original_data && typeof change.original_data === 'string') {
+  // The backend already parses the JSON, so we can use the data directly
+  if (change.original_data && typeof change.original_data === 'object') {
+    original = change.original_data;
+  } else if (change.original_data && typeof change.original_data === 'string') {
+    try {
       original = JSON.parse(change.original_data);
-    } else if (change.original_data && typeof change.original_data === 'object') {
-      original = change.original_data;
+    } catch (e) {
+      console.error('Error parsing original_data:', e);
+      original = {};
     }
-  } catch (e) {
-    console.error('Error parsing original_data:', e);
-    original = {};
   }
   
-  try {
-    if (change.change_data && typeof change.change_data === 'string') {
+  if (change.change_data && typeof change.change_data === 'object') {
+    updated = change.change_data;
+  } else if (change.change_data && typeof change.change_data === 'string') {
+    try {
       updated = JSON.parse(change.change_data);
-    } else if (change.change_data && typeof change.change_data === 'object') {
-      updated = change.change_data;
+    } catch (e) {
+      console.error('Error parsing change_data:', e);
+      updated = {};
     }
-  } catch (e) {
-    console.error('Error parsing change_data:', e);
-    updated = {};
   }
 
-  console.log('Parsed original:', original);
-  console.log('Parsed updated:', updated);
-
   const allKeys = Array.from(new Set([...Object.keys(original), ...Object.keys(updated)]));
-  console.log('All keys:', allKeys);
 
-  const renderRows = (keys: string[], parentKey = '') => {
-    return keys.map(key => {
-      const fullKey = parentKey ? `${parentKey}.${key}` : key;
-      const origVal = original && fullKey.split('.').reduce((o,k)=>o?.[k], original);
-      const newVal = updated && fullKey.split('.').reduce((o,k)=>o?.[k], updated);
+  // Helper function to format field values nicely
+  const formatValue = (value: any, fieldName: string): string => {
+    if (value === null || value === undefined) return '-';
+    if (value === '') return '(empty)';
+    
+    // Handle specific field types
+    if (fieldName.includes('phone') && typeof value === 'string') {
+      return value.replace(/^\+49\s*0/, '+49 '); // Format German phone numbers
+    }
+    
+    if (fieldName.includes('cost') && typeof value === 'number') {
+      return `€${value.toFixed(2)}`;
+    }
+    
+    if (fieldName.includes('rating') && typeof value === 'number') {
+      return `${value} ⭐`;
+    }
+    
+    if (fieldName.includes('year') && typeof value === 'number') {
+      return value.toString();
+    }
+    
+    if (fieldName.includes('km') && typeof value === 'number') {
+      return `${value} km`;
+    }
+    
+    if (fieldName.includes('rooms') && typeof value === 'number') {
+      return value.toString();
+    }
+    
+    if (Array.isArray(value)) {
+      return value.length > 0 ? value.join(', ') : '(empty)';
+    }
+    
+    if (typeof value === 'object') {
+      return '(complex data)';
+    }
+    
+    return String(value);
+  };
 
-      if (typeof origVal === 'object' || typeof newVal === 'object') {
-        const nestedKeys = Array.from(new Set([...Object.keys(origVal||{}), ...Object.keys(newVal||{})]));
-        return (
-          <div key={fullKey} className="mb-2">
-            <p className="font-medium underline mb-1 capitalize">{fullKey}</p>
-            {renderRows(nestedKeys, fullKey)}
-          </div>
-        );
-      }
-      return (
-        <div key={fullKey} className="grid grid-cols-2 gap-4 text-sm mb-2 p-2 border rounded">
-          <div className="text-center">
-            <div className="font-medium text-xs text-gray-500 mb-1">Original</div>
-            <span className={origVal!==newVal? 'text-red-600 font-medium':''}>{renderValue(origVal)}</span>
-          </div>
-          <div className="text-center">
-            <div className="font-medium text-xs text-gray-500 mb-1">Updated</div>
-            <span className={origVal!==newVal? 'text-green-600 font-medium':''}>{renderValue(newVal)}</span>
-          </div>
-          <div className="col-span-2 text-center mt-2">
-            <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded">
-              Field: {fullKey}
-            </span>
-          </div>
-        </div>
-      );
-    });
+  // Helper function to get a human-readable field name
+  const getFieldDisplayName = (fieldName: string): string => {
+    const fieldMappings: { [key: string]: string } = {
+      'name': 'Hotel Name',
+      'city': 'City',
+      'country': 'Country',
+      'street': 'Street Address',
+      'postal_code': 'Postal Code',
+      'email': 'Email Address',
+      'phone': 'Phone Number',
+      'website': 'Website',
+      'description': 'Description',
+      'star_rating': 'Star Rating',
+      'total_rooms': 'Total Rooms',
+      'opening_year': 'Opening Year',
+      'latest_renovation_year': 'Latest Renovation Year',
+      'conference_rooms': 'Conference Rooms',
+      'parking_remarks': 'Parking Information',
+      'planned_changes': 'Planned Changes',
+      'system_hotel_id': 'System Hotel ID',
+      'additional_links': 'Additional Links',
+      'opening_time_pool': 'Pool Opening Hours',
+      'opening_time_spa_area': 'Spa Area Opening Hours',
+      'opening_time_fitness_center': 'Fitness Center Opening Hours',
+      'equipment_spa_area': 'Spa Equipment',
+      'equipment_fitness_center': 'Fitness Equipment',
+      'billing_address_name': 'Billing Company Name',
+      'billing_address_street': 'Billing Street Address',
+      'billing_address_city': 'Billing City',
+      'billing_address_zip': 'Billing Postal Code',
+      'billing_address_vat': 'VAT Number',
+      'general_manager_name': 'General Manager Name',
+      'general_manager_email': 'General Manager Email',
+      'general_manager_phone': 'General Manager Phone',
+      'no_of_parking_spaces': 'Parking Spaces',
+      'parking_cost_per_day': 'Daily Parking Cost',
+      'parking_cost_per_hour': 'Hourly Parking Cost',
+      'no_of_parking_spaces_bus': 'Bus Parking Spaces',
+      'no_of_parking_spaces_disabled': 'Disabled Parking Spaces',
+      'no_of_parking_spaces_electric': 'Electric Vehicle Parking',
+      'no_of_parking_spaces_garage': 'Garage Parking Spaces',
+      'no_of_parking_spaces_outside': 'Outdoor Parking Spaces',
+      'distance_to_fair_km': 'Distance to Fair',
+      'distance_to_airport_km': 'Distance to Airport',
+      'distance_to_train_station': 'Distance to Train Station',
+      'distance_to_public_transport': 'Distance to Public Transport',
+      'distance_to_highway_km': 'Distance to Highway',
+      'attraction_in_the_area': 'Nearby Attractions',
+      'category': 'Hotel Category',
+      'pms_system': 'PMS System',
+      'opening_date': 'Opening Date',
+      'latest_renovation_date': 'Latest Renovation Date'
+    };
+    
+    return fieldMappings[fieldName] || fieldName.split('_').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
   };
 
   if (allKeys.length === 0) {
@@ -125,20 +176,129 @@ const renderDiff = (change: PendingChange) => {
     );
   }
 
+  // Filter out system fields and sort remaining fields
+  const displayKeys = allKeys
+    .filter(key => !['id', 'created_at', 'updated_at'].includes(key))
+    .sort((a, b) => {
+      // Sort by importance: name first, then location, then other fields
+      if (a === 'name') return -1;
+      if (b === 'name') return 1;
+      if (['city', 'country', 'street', 'postal_code'].includes(a)) return -1;
+      if (['city', 'country', 'street', 'postal_code'].includes(b)) return 1;
+      return a.localeCompare(b);
+    });
+
+  const changedFields = displayKeys.filter(key => original[key] !== updated[key]);
+  const unchangedFields = displayKeys.filter(key => original[key] === updated[key]);
+
   return (
     <div className="text-sm">
-      <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-        <p className="text-sm font-medium text-blue-800 mb-2">Data Comparison</p>
-        <p className="text-xs text-blue-600">
-          Showing changes between original and updated data. 
-          Red text indicates removed/changed values, green text indicates new/updated values.
-        </p>
+      {/* Summary Header */}
+      <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-blue-800 mb-2">📋 Change Summary</h3>
+            <p className="text-sm text-blue-700">
+              Review the changes below. <span className="font-medium text-red-600">Red text</span> shows removed/changed values, 
+              <span className="font-medium text-green-600"> green text</span> shows new/updated values.
+            </p>
+          </div>
+          <div className="text-right">
+            <div className="text-2xl font-bold text-blue-600">{changedFields.length}</div>
+            <div className="text-xs text-blue-600 uppercase tracking-wide">Fields Changed</div>
+          </div>
+        </div>
       </div>
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div className="text-center font-medium text-red-600">Original Data</div>
-        <div className="text-center font-medium text-green-600">Updated Data</div>
-      </div>
-      {renderRows(allKeys)}
+      
+      {/* Changed Fields */}
+      {changedFields.length > 0 && (
+        <div className="space-y-4">
+          <h4 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">
+            🔄 Changed Fields ({changedFields.length})
+          </h4>
+          {changedFields.map(key => {
+            const origVal = original[key];
+            const newVal = updated[key];
+            
+            return (
+              <div key={key} className="p-4 rounded-lg border border-orange-200 bg-orange-50 hover:bg-orange-100 transition-colors">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-semibold text-gray-800 text-base flex items-center">
+                    <span className="mr-2">📝</span>
+                    {getFieldDisplayName(key)}
+                  </h4>
+                  <span className="px-3 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded-full border border-orange-200">
+                    Changed
+                  </span>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <div className="text-xs font-medium text-gray-500 uppercase tracking-wide flex items-center">
+                      <span className="mr-2">❌</span>
+                      Original Value
+                    </div>
+                    <div className="p-3 bg-white rounded border border-red-200 shadow-sm">
+                      <span className="text-sm text-red-700 font-medium">
+                        {formatValue(origVal, key)}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="text-xs font-medium text-gray-500 uppercase tracking-wide flex items-center">
+                      <span className="mr-2">✅</span>
+                      New Value
+                    </div>
+                    <div className="p-3 bg-white rounded border border-green-200 shadow-sm">
+                      <span className="text-sm text-green-700 font-medium">
+                        {formatValue(newVal, key)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-3 pt-3 border-t border-orange-200">
+                  <div className="flex items-center text-xs text-orange-600">
+                    <span className="mr-2">🔄</span>
+                    <span>Field updated from <span className="font-medium">"{formatValue(origVal, key)}"</span> to <span className="font-medium">"{formatValue(newVal, key)}"</span></span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      
+      {/* Unchanged Fields Summary */}
+      {unchangedFields.length > 0 && (
+        <div className="mt-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <h4 className="font-medium text-gray-700 mb-2 flex items-center">
+            <span className="mr-2">📝</span>
+            Unchanged Fields
+          </h4>
+          <p className="text-sm text-gray-600">
+            {unchangedFields.length} fields remain unchanged in this update.
+          </p>
+          <details className="mt-3">
+            <summary className="text-sm text-gray-500 cursor-pointer hover:text-gray-700">
+              Click to view unchanged fields
+            </summary>
+            <div className="mt-2 grid grid-cols-2 md:grid-cols-3 gap-2">
+              {unchangedFields.slice(0, 12).map(key => (
+                <span key={key} className="text-xs bg-white px-2 py-1 rounded border text-gray-600">
+                  {getFieldDisplayName(key)}
+                </span>
+              ))}
+              {unchangedFields.length > 12 && (
+                <span className="text-xs bg-white px-2 py-1 rounded border text-gray-500">
+                  +{unchangedFields.length - 12} more
+                </span>
+              )}
+            </div>
+          </details>
+        </div>
+      )}
     </div>
   );
 };
@@ -219,27 +379,30 @@ const PendingApprovalsPage: React.FC = () => {
                         View
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-3xl">
+                    <DialogContent className="max-w-5xl max-h-[90vh]">
                       <DialogHeader>
-                        <DialogTitle>Review Change #{change.id}</DialogTitle>
-                        <DialogDescription>
+                        <DialogTitle className="text-xl">Review Change #{change.id}</DialogTitle>
+                        <DialogDescription className="text-base">
                           Compare previous and new data below. Approve or reject the change.
                         </DialogDescription>
                       </DialogHeader>
-                      <div className="max-h-[60vh] overflow-y-auto mt-4">
+                      <div className="max-h-[70vh] overflow-y-auto mt-6 px-1">
                         {renderDiff(change)}
                       </div>
-                      <DialogFooter className="mt-6 space-x-2">
+                      <DialogFooter className="mt-8 space-x-3">
                         <Button
                           variant="destructive"
+                          size="lg"
                           onClick={() => mutation.mutate({ id: change.id, status: "rejected" })}
                           disabled={mutation.isPending}
                         >
                           Reject
                         </Button>
                         <Button
+                          size="lg"
                           onClick={() => mutation.mutate({ id: change.id, status: "approved" })}
                           disabled={mutation.isPending}
+                          className="bg-green-600 hover:bg-green-700"
                         >
                           Approve
                         </Button>
