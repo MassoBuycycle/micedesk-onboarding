@@ -880,7 +880,7 @@ export function useHotelFormState() {
                   return isNaN(num) ? undefined : num;
                 };
 
-                const roomCategoryPayload: RoomCategoryInput & { tempIndex?: number } = {
+                const roomCategoryPayload: RoomCategoryInput = {
                   category_name: catFromForm.category_name,
                   pms_name: catFromForm.pms_name,
                   num_rooms: safeParseInt(catFromForm.num_rooms),
@@ -894,7 +894,6 @@ export function useHotelFormState() {
                   extra_bed_available: typeof catFromForm.extra_bed_available === 'boolean' ? catFromForm.extra_bed_available : undefined,
                   is_accessible: typeof catFromForm.isAccessible === 'boolean' ? catFromForm.isAccessible : undefined,
                   has_balcony: typeof catFromForm.hasBalcony === 'boolean' ? catFromForm.hasBalcony : undefined,
-                  tempIndex: catFromForm.tempIndex, // Include tempIndex for backend processing
                 };
 
                 Object.keys(roomCategoryPayload).forEach(key => {
@@ -906,6 +905,11 @@ export function useHotelFormState() {
               });
 
               console.log(`Calling addCategoriesToRoom for Room ID ${createdRoomTypeId} with ${categoriesToSubmit.length} new categories`);
+              console.log(`Categories data being sent:`, categoriesToSubmit.map(cat => ({
+                category_name: cat.category_name,
+                tempIndex: (cat as any).tempIndex,
+                hasTempIndex: !!(cat as any).tempIndex
+              })));
               try {
                 const categoriesResponse = await addCategoriesToRoom(createdRoomTypeId, categoriesToSubmit);
                 toast.success(`${categoriesResponse.createdCategories.length} new categories added to Room ID ${createdRoomTypeId}.`);

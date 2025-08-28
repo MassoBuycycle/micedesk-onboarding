@@ -16,7 +16,6 @@ export interface RoomCategoryInput { // This is for ADDING categories to an exis
   extra_bed_available?: boolean;
   is_accessible?: boolean;
   has_balcony?: boolean;
-  tempIndex?: number; // Temporary index for file assignment
 }
 
 export interface RoomCategory { // This is the structure of a category when fetched

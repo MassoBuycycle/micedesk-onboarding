@@ -132,8 +132,14 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
     if (currentCategories[categoryIndex] && !currentCategories[categoryIndex].id) {
       // This is a new category, store the temp index
       form.setValue(`categories.${categoryIndex}.tempIndex`, categoryIndex);
+      
+      // Trigger onChange to ensure tempIndex is passed to parent component
+      if (onChange) {
+        const updatedCategories = form.getValues('categories');
+        onChange(updatedCategories as Partial<RoomCategoryFormValues>[]);
+      }
     }
-  }, [form]);
+  }, [form, onChange]);
 
   // Watch for changes to pass to parent if onChange is provided
   useEffect(() => {

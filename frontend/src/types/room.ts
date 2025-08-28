@@ -84,5 +84,4 @@ export interface RoomCategoryInput {
   extra_bed_surcharge?: number;
   baby_bed_available?: boolean;
   extra_bed_available?: boolean;
-  tempIndex?: number; // Temporary index for file assignment
 } 
