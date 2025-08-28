@@ -143,16 +143,38 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
 
   // Helper function to get the default file type code
   const getDefaultFileTypeCode = useCallback(() => {
-    // Prioritize the prop value, then fall back to first available file type
-    const defaultCode = initialFileTypeCode || (fileTypes.length > 0 ? fileTypes[0].code : '');
-    console.log('[FileUpload] getDefaultFileTypeCode called:', {
-      initialFileTypeCode,
-      availableFileTypes: fileTypes.map(t => ({ code: t.code, name: t.name })),
-      defaultCode,
-      priority: initialFileTypeCode ? 'from props' : 'from available types'
-    });
-    return defaultCode;
+    // First priority: use the prop value if provided
+    if (initialFileTypeCode) {
+      console.log('[FileUpload] Using file type from props:', initialFileTypeCode);
+      return initialFileTypeCode;
+    }
+    
+    // Second priority: use the first available file type for this category
+    if (fileTypes.length > 0) {
+      const defaultType = fileTypes[0];
+      console.log('[FileUpload] Using first available file type:', defaultType);
+      return defaultType.code;
+    }
+    
+    console.warn('[FileUpload] No file types available, cannot determine default');
+    return '';
   }, [initialFileTypeCode, fileTypes]);
+
+  // Enhanced file type validation
+  const validateFileType = useCallback((fileTypeCode: string) => {
+    if (!fileTypeCode) {
+      console.error('[FileUpload] No file type code provided');
+      return false;
+    }
+    
+    const availableTypes = fileTypes.map(t => t.code);
+    if (!availableTypes.includes(fileTypeCode)) {
+      console.error('[FileUpload] Invalid file type code:', fileTypeCode, 'Available types:', availableTypes);
+      return false;
+    }
+    
+    return true;
+  }, [fileTypes]);
 
   const onDrop = useCallback((acceptedFiles: File[], rejectedFiles: any[]) => {
     console.log('[FileUpload] onDrop called with:', {
@@ -175,9 +197,20 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
     console.log('[FileUpload] Available file types:', fileTypes.map(t => ({ code: t.code, name: t.name })));
     console.log('[FileUpload] initialFileTypeCode from props:', initialFileTypeCode);
     
+    // Validate the default file type
+    if (!validateFileType(defaultFileTypeCode)) {
+      toast.error(`Invalid file type: ${defaultFileTypeCode}. Available types: ${fileTypes.map(t => t.code).join(', ')}`);
+      return;
+    }
+    
     // If we don't have a default yet, use the first available file type
     const effectiveDefaultCode = defaultFileTypeCode || (fileTypes.length > 0 ? fileTypes[0].code : '');
     console.log('[FileUpload] Effective default code:', effectiveDefaultCode);
+    
+    if (!effectiveDefaultCode) {
+      toast.error('No valid file type available. Please try refreshing the page.');
+      return;
+    }
     
     const newFiles = acceptedFiles.map(file => ({
       file,
@@ -192,7 +225,7 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
     if (acceptedFiles.length > 0) {
       toast.success(`${acceptedFiles.length} file(s) added to upload queue`);
     }
-  }, [getDefaultFileTypeCode, fileTypes, initialFileTypeCode]);
+  }, [getDefaultFileTypeCode, fileTypes, initialFileTypeCode, validateFileType]);
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
@@ -330,9 +363,25 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
         console.log(`[FileUpload] Successfully uploaded file ${fileItem.file.name}`);
       } catch (error: any) {
         console.error(`Error uploading file ${fileItem.file.name}:`, error);
+        
+        // Extract specific error message
+        let errorMessage = 'Error uploading file';
+        if (error.response?.data?.error) {
+          errorMessage = error.response.data.error;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
+        // Show specific error for file type issues
+        if (errorMessage.includes('File type not found')) {
+          errorMessage = `File type "${fileItem.fileTypeCode}" not found for category "${category}". Available types: ${fileTypes.map(t => t.code).join(', ')}`;
+        }
+        
         setFilesToUpload(prev => prev.map((f, idx) => 
-          idx === fileIndex ? { ...f, status: 'error' as const, error: error.message || 'Error uploading file' } : f
+          idx === fileIndex ? { ...f, status: 'error' as const, error: errorMessage } : f
         ));
+        
+        toast.error(`Failed to upload ${fileItem.file.name}: ${errorMessage}`);
       }
     }
     
@@ -358,6 +407,14 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
       ...file,
       fileTypeCode: file.fileTypeCode || getDefaultFileTypeCode()
     }));
+    
+    // Validate all file types before proceeding
+    const invalidFiles = updatedFiles.filter(file => !validateFileType(file.fileTypeCode));
+    if (invalidFiles.length > 0) {
+      const invalidTypes = [...new Set(invalidFiles.map(f => f.fileTypeCode))];
+      toast.error(`Invalid file types: ${invalidTypes.join(', ')}. Available types: ${fileTypes.map(t => t.code).join(', ')}`);
+      return;
+    }
     
     const stillMissingTypes = updatedFiles.some(file => !file.fileTypeCode);
     if (stillMissingTypes) {
@@ -518,6 +575,24 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
   const getFileTypeExtensions = (code: string) => {
     const fileType = fileTypes.find(type => type.code === code);
     return fileType ? fileType.allowed_extensions.join(', ') : '';
+  };
+
+  const retryFailedUploads = async () => {
+    const failedFiles = filesToUpload.filter(f => f.status === 'error');
+    if (failedFiles.length === 0) {
+      toast.info('No failed uploads to retry');
+      return;
+    }
+    
+    console.log(`[FileUpload] Retrying ${failedFiles.length} failed uploads`);
+    
+    // Reset failed files to pending status
+    setFilesToUpload(prev => prev.map(file => 
+      file.status === 'error' ? { ...file, status: 'pending' as const, error: undefined } : file
+    ));
+    
+    // Start upload process
+    await handleUploadFiles();
   };
 
   return (
@@ -769,6 +844,17 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
                     ? `Upload All ${filesToUpload.length} Files (in batches)`
                     : `Upload All ${filesToUpload.length} Files`}
               </Button>
+                {/* Retry failed uploads button */}
+                {filesToUpload.some(f => f.status === 'error') && (
+                  <Button
+                    onClick={retryFailedUploads}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    disabled={isUploading}
+                  >
+                    <ArrowUp className="mr-2 h-4 w-4" />
+                    Retry Failed Uploads
+                  </Button>
+                )}
             </div>
           )}
 
@@ -835,6 +921,15 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
           >
             Clear Upload History
           </Button>
+        </div>
+      )}
+      {/* Debug info for file types */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="mt-2 p-2 bg-gray-100 rounded text-xs">
+          <div className="font-medium">Debug Info:</div>
+          <div>Available file types: {fileTypes.map(t => `${t.code} (${t.name})`).join(', ')}</div>
+          <div>Selected file type: {getDefaultFileTypeCode()}</div>
+          <div>Category: {category}</div>
         </div>
       )}
     </div>
