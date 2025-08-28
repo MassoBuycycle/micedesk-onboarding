@@ -56,7 +56,9 @@
     "noUsersAssigned": "No users assigned",
     "unnamedHotel": "Unnamed Hotel",
     "download": "Download",
-    "createdAt": "Created At"
+    "createdAt": "Created At",
+    "saved": "Saved",
+    "saveFailed": "Save failed"
   },
   "pages": {
     "index": {
@@ -205,7 +207,9 @@
     "linkUrlPlaceholder": "https://example.com",
     "addLink": "Add Link",
     "allinvosCisboxNr": "Allinvos / Cisbox Nr.",
-    "plannedChangesDescription": "Describe any planned renovations or changes"
+    "plannedChangesDescription": "Describe any planned renovations or changes",
+    "generalManagerSection": "General Manager",
+    "generalManagerSectionDescription": "Contact information of the General Manager"
   },
   "hotelCategories": {
     "kongress": "Conference Hotel",
@@ -519,7 +523,40 @@
     "miceDeskHandlingScopeDetails": "MICE DESK Handling Details",
     "miceDeskHandlingScopeDescription": "e.g. from inquiry to contract, complete, inquiries only, etc.",
     "groupHandlingNotes": "Notes for Group Handling & Rates",
-    "groupHandlingNotesPlaceholder": "Additional information about group handling and rates"
+    "groupHandlingNotesPlaceholder": "Additional information about group handling and rates",
+    "roomInformation": "Room Information",
+    "roomInformationDescription": "Details about room types and counts",
+    "standardRoomFeatures": "Standard Room Features",
+    "standardRoomFeaturesDescription": "Please select all amenities available in standard rooms",
+    "paymentMethods": "Payment Methods",
+    "paymentMethodsDescription": "Select all accepted payment methods",
+    "singleRooms": "Single Rooms",
+    "doubleRooms": "Double Rooms",
+    "accessibleRooms": "Accessible Rooms",
+    "handling": "Room Handling",
+    "policies": "Room Policies",
+    "guaranteePolicy": "Guarantee Policy",
+    "cancellationPolicy": "Cancellation Policy",
+    "noShowPolicy": "No-Show Policy",
+    "position": "Position",
+    "phone": "Phone",
+    "email": "Email",
+    "checkInOutSection": "Check-in & Check-out",
+    "checkInOutDescription": "Availability and policies",
+    "formIntro": "Enter details about rooms and guest facilities for {{hotelName}}.",
+    "mainContactDescription": "Main contact for room-related inquiries",
+    "lateCheckOutFee": "Late Check-out Fee",
+    "connectedRooms": "Connected Rooms",
+    "earlyCheckInTimeFrame": "Early Check-in Time Frame",
+    "earlyCheckInTimeFrameDescription": "Time window for early check-in",
+    "earlyCheckInFee": "Early Check-in Fee",
+    "lateCheckOutTime": "Late Check-out Time",
+    "dogsAllowedDescription": "Are dogs allowed in the hotel?",
+    "dogFee": "Dog Fee",
+    "dogFeeInclusionsPlaceholder": "e.g. dog bed, bowl, treats",
+    "dogFeeInclusionsDescription": "Services included in the fee",
+    "petPolicy": "Pet Policy",
+    "petPolicyDescription": "Information about pet accommodation"
   },
   "events": {
     "title": "Events",
@@ -536,6 +573,7 @@
     "coordinator": "Event Coordinator",
     "coordinatorName": "Coordinator Name",
     "coordinatorContact": "Coordinator Contact",
+    "eventCoordinator": "Event Coordinator Available",
     "audioVisual": "Audio/Visual Equipment",
     "catering": "Catering Services",
     "outdoorSpace": "Outdoor Event Space",
@@ -544,6 +582,7 @@
     "uniqueSellingPoints": "Unique Selling Points",
     "available": "Available",
     "notAvailable": "Not Available",
+    "overview": "Events Overview",
     "eventForm": {
       "contact": {
         "sectionTitle": "Event Contact",
@@ -701,6 +740,7 @@
     "otherSystems": "Other Systems",
     "addSystemPlaceholder": "Enter system name",
     "created": "Contract details created successfully",
-    "updated": "Contract details updated successfully"
+    "updated": "Contract details updated successfully",
+    "noContractDetails": "No contract details available"
   }
 } 

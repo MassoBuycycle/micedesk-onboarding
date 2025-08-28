@@ -1,7 +1,6 @@
 import type { Config } from "tailwindcss";
 
 export default {
-	darkMode: ["class"],
 	content: [
 		"./pages/**/*.{ts,tsx}",
 		"./components/**/*.{ts,tsx}",
@@ -65,17 +64,14 @@ export default {
 				success: {
 					DEFAULT: '#56CA00',
 					light: '#78D533',
-					dark: '#4DB600',
 				},
 				warning: {
 					DEFAULT: '#FFB400',
 					light: '#FFC333',
-					dark: '#E6A200',
 				},
 				info: {
 					DEFAULT: '#16B1FF',
 					light: '#45C1FF',
-					dark: '#149FE6', 
 				},
 				error: {
 					DEFAULT: 'hsl(var(--destructive))'

@@ -1,36 +1,25 @@
-import { useIsMobile } from "@/hooks/use-mobile";
-import { SidebarProvider, SidebarInset, SidebarRail, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/AppSidebar";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { Search, Settings, User, LogOut, Sun, Moon } from "lucide-react";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { useAuth } from "@/context/AuthContext";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import QuickSearch from '@/components/QuickSearch';
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
-import Notifications from '@/components/Notifications';
+import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Search, Settings, LogOut, Sun, Moon } from 'lucide-react';
+import { AppSidebar } from './AppSidebar';
+import { Notifications } from './Notifications';
+import { QuickSearch } from './QuickSearch';
+import { Toaster } from '@/components/ui/toaster';
+import { Sonner } from '@/components/ui/sonner';
+import { useMobile } from '@/hooks/use-mobile';
 
-interface AppLayoutProps {
-  children: React.ReactNode;
-}
-
-export function AppLayout({ children }: AppLayoutProps) {
-  const isMobile = useIsMobile();
-  const { user, logout } = useAuth();
+export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
-  const { color: themeColor, dark, toggleDark } = useTheme();
+  const { user, logout } = useAuth();
+  const { color: themeColor } = useTheme();
+  const isMobile = useMobile();
 
   const [searchOpen, setSearchOpen] = useState(false);
 
@@ -68,10 +57,10 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <SidebarProvider defaultOpen={!isMobile}>
-      <div className="min-h-screen flex w-full bg-[#F7F7F9] dark:bg-[#28243D]">
+      <div className="min-h-screen flex w-full bg-[#F7F7F9]">
         <AppSidebar />
         <SidebarInset className="flex flex-col">
-          <header className="flex items-center justify-between p-4 bg-white dark:bg-[#312D4B] border-b shadow-sm">
+          <header className="flex items-center justify-between p-4 bg-white border-b shadow-sm">
             <div className="flex items-center gap-4">
               <SidebarTrigger className="text-gray-500 hover:text-primary" />
               <div className="relative max-w-md hidden md:block">
@@ -87,9 +76,6 @@ export function AppLayout({ children }: AppLayoutProps) {
             </div>
             <div className="flex items-center gap-1 md:gap-3">
               <Notifications />
-              <Button variant="ghost" size="icon" className="text-muted-foreground" onClick={() => toggleDark()}>
-                {dark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              </Button>
               <Button variant="ghost" size="icon" className="text-muted-foreground" onClick={() => navigate('/settings')}>
                 <Settings className="h-5 w-5" />
               </Button>

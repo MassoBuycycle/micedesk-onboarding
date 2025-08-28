@@ -56,7 +56,9 @@
     "noUsersAssigned": "Keine Benutzer zugewiesen",
     "unnamedHotel": "Unbenanntes Hotel",
     "download": "Herunterladen",
-    "createdAt": "Erstellt am"
+    "createdAt": "Erstellt am",
+    "saved": "Gespeichert",
+    "saveFailed": "Speichern fehlgeschlagen"
   },
   "pages": {
     "index": {
@@ -523,7 +525,6 @@
     "earlyCheckInTime": "Zeiten für Early Check In",
     "lateCheckOutTime": "Zeiten für Late Check Out",
     "earlyCheckInFee": "Gebühren für Early Check In",
-    "lateCheckOutFee": "Gebühren für Late Check Out",
     "paymentMethods": "Akzeptierte Zahlungsmittel",
     "singleRooms": "Anzahl Einzelzimmer",
     "doubleRooms": "Anzahl Doppelzimmer",
@@ -591,22 +592,33 @@
     "reservationHandlingDocs": "Handlings zu Zimmerreservierung (sofern vorhanden)",
     "formIntro": "Geben Sie Details zu den Zimmern und Gäste-Einrichtungen für {{hotelName}} an.",
     "mainContactDescription": "Hauptansprechpartner für zimmerbezogene Anfragen",
+    "lateCheckOutFee": "Gebühr für späten Check-out",
+    "connectedRooms": "Verbundene Zimmer",
+    "earlyCheckInTimeFrame": "Early Check-in Zeitraum",
+    "earlyCheckInTimeFrameDescription": "Zeitfenster für Early Check-in",
+    "earlyCheckInFee": "Gebühr für Early Check-in",
+    "lateCheckOutTime": "Zeiten für Late Check Out",
+    "dogsAllowedDescription": "Sind Hunde im Hotel erlaubt?",
+    "dogFee": "Hundegebühr",
+    "dogFeeInclusionsPlaceholder": "z.B. Hundebett, Napf, Leckerlis",
+    "dogFeeInclusionsDescription": "Leistungen, die in der Gebühr enthalten sind",
+    "petPolicy": "Haustier-Richtlinie",
+    "petPolicyDescription": "Informationen zur Unterbringung von Haustieren",
     "checkInOutSection": "Check-in & Check-out",
     "checkInOutDescription": "Verfügbarkeit und Richtlinien",
-    "earlyCheckInTimeFrame": "Zeitraum Early Check-in",
-    "earlyCheckInTimeFrameDescription": "Zeitfenster für einen Early Check-in",
     "dogFeeDescription": "Gebühr pro Haustier und Nacht/Aufenthalt",
-    "dogFeeInclusionsPlaceholder": "z. B. Hundebett, Napf, Snacks",
-    "dogFeeInclusionsDescription": "Leistungen, die in der Gebühr enthalten sind",
     "roomInformation": "Zimmerinformationen",
     "roomInformationDescription": "Details zu Zimmertypen und -anzahl",
     "standardRoomFeatures": "Standard Zimmerausstattung",
     "standardRoomFeaturesDescription": "Bitte alle in Standardzimmern verfügbaren Ausstattungen auswählen",
     "paymentMethodsDescription": "Wählen Sie alle akzeptierten Zahlungsmittel aus",
-    "petPolicy": "Haustier-Richtlinie",
-    "petPolicyDescription": "Informationen zur Unterbringung von Haustieren",
     "previous": "Zurück",
     "next": "Weiter",
+    "handling": "Zimmer-Handling",
+    "policies": "Zimmer-Richtlinien",
+    "guaranteePolicy": "Garantie-Richtlinie",
+    "cancellationPolicy": "Stornierungs-Richtlinie",
+    "noShowPolicy": "No-Show-Richtlinie",
     "features": {
       "showerToilet": "Dusche/Toilette",
       "bathtubToilet": "Badewanne/Toilette",
@@ -652,6 +664,7 @@
     "coordinator": "Veranstaltungskoordinator",
     "coordinatorName": "Name des Koordinators",
     "coordinatorContact": "Kontakt des Koordinators",
+    "eventCoordinator": "Veranstaltungskoordinator verfügbar",
     "audioVisual": "Audio/Visuelle Ausstattung",
     "catering": "Catering-Services",
     "outdoorSpace": "Außenbereich für Veranstaltungen",
@@ -660,6 +673,7 @@
     "uniqueSellingPoints": "Alleinstellungsmerkmale",
     "available": "Verfügbar",
     "notAvailable": "Nicht verfügbar",
+    "overview": "Veranstaltungen-Übersicht",
     "eventForm": {
       "contact": {
         "sectionTitle": "Ansprechpartner Veranstaltung",
@@ -815,6 +829,7 @@
     "otherSystems": "Weitere Systeme",
     "addSystemPlaceholder": "Systemname eingeben",
     "created": "Vertragsdetails erfolgreich erstellt",
-    "updated": "Vertragsdetails erfolgreich aktualisiert"
+    "updated": "Vertragsdetails erfolgreich aktualisiert",
+    "noContractDetails": "Keine Vertragsdetails verfügbar"
   }
 } 

@@ -6,10 +6,6 @@ interface ThemeContextType {
   color: string;
   /** Update theme color (hex) */
   setColor: (hex: string) => void;
-  /** true if dark mode enabled */
-  dark: boolean;
-  /** toggle or explicitly set dark mode */
-  toggleDark: (value?: boolean) => void;
 }
 
 const DEFAULT_COLOR = '#10B981'; // same default used in settings
@@ -17,8 +13,6 @@ const DEFAULT_COLOR = '#10B981'; // same default used in settings
 const ThemeContext = createContext<ThemeContextType>({
   color: DEFAULT_COLOR,
   setColor: () => {},
-  dark: false,
-  toggleDark: () => {},
 });
 
 function hexToHsl(hex: string): { h: number; s: number; l: number } | null {
@@ -77,19 +71,19 @@ function applyColorVariables(hex: string) {
   // Accent – lighten by ~20%
   const lAccent = Math.min(l + 60, 94);
   set('--accent', `${h} ${s}% ${lAccent}%`);
-  // Use foreground white if accent is dark (<55) else black
-  set('--accent-foreground', lAccent < 40 ? '0 0% 100%' : '0 0% 0%');
+  // Use foreground black for accent
+  set('--accent-foreground', '0 0% 0%');
 
   // Sidebar colors – darken by ~25%
   const lSidebar = Math.max(l - 25, 0);
   set('--sidebar-background', `${h} ${s}% ${lSidebar}%`);
   // Primary sidebar item (active)
   set('--sidebar-primary', `${h} ${s}% ${l}%`);
-  set('--sidebar-primary-foreground', l < 60 ? '0 0% 100%' : '0 0% 0%');
+  set('--sidebar-primary-foreground', '0 0% 100%');
   // Accent hover
   const lSidebarAccent = Math.max(lSidebar + 10, 0);
   set('--sidebar-accent', `${h} ${s}% ${lSidebarAccent}%`);
-  set('--sidebar-accent-foreground', lSidebarAccent < 55 ? '0 0% 100%' : '0 0% 0%');
+  set('--sidebar-accent-foreground', '0 0% 100%');
   // Border & ring for sidebar
   const lBorder = Math.max(lSidebar - 10, 0);
   set('--sidebar-border', `${h} ${s}% ${lBorder}%`);
@@ -99,8 +93,6 @@ function applyColorVariables(hex: string) {
 export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { user } = useAuth();
   const [color, setColor] = useState<string>(DEFAULT_COLOR);
-  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const [dark, setDark] = useState<boolean>(prefersDark);
 
   // Load color from localStorage when user changes
   useEffect(() => {
@@ -108,12 +100,9 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const stored = localStorage.getItem(`userSettings_${user.id}`);
     if (stored) {
       try {
-        const parsed = JSON.parse(stored) as { color?: string; dark?: boolean };
+        const parsed = JSON.parse(stored) as { color?: string };
         if (parsed.color) {
           setColor(parsed.color);
-        }
-        if (typeof parsed.dark === 'boolean') {
-          setDark(parsed.dark);
         }
       } catch (e) {
         // ignore parse error
@@ -126,35 +115,12 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     applyColorVariables(color);
   }, [color]);
 
-  // Apply or remove dark class
-  useEffect(() => {
-    const root = document.documentElement;
-    if (dark) {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-  }, [dark]);
-
   const value: ThemeContextType = {
     color,
     setColor: (hex: string) => {
       setColor(hex);
       applyColorVariables(hex);
     },
-    dark,
-    toggleDark: (value?: boolean) => {
-      const newVal = typeof value === 'boolean' ? value : !dark;
-      setDark(newVal);
-      // persist if user present
-      if (user?.id) {
-        const existing = localStorage.getItem(`userSettings_${user.id}`);
-        let parsed: any = {};
-        try { if (existing) parsed = JSON.parse(existing); } catch {}
-        parsed.dark = newVal;
-        localStorage.setItem(`userSettings_${user.id}`, JSON.stringify(parsed));
-      }
-    }
   };
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
