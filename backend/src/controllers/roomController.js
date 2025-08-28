@@ -27,7 +27,7 @@ const ROOM_STANDARD_FEATURES_FIELDS = [
 const ROOM_CATEGORY_INFOS_FIELDS = [
     'category_name', 'pms_name', 'num_rooms', 'size', 'bed_type', 'surcharges_upsell',
     'room_features', 'second_person_surcharge', 'extra_bed_surcharge',
-    'baby_bed_available', 'extra_bed_available'
+    'baby_bed_available', 'extra_bed_available', 'is_accessible', 'has_balcony'
 ];
 const ROOM_OPERATIONAL_HANDLING_FIELDS = [ 
     'revenue_manager_name', 'revenue_contact_details', 'demand_calendar', 'demand_calendar_infos',
@@ -311,6 +311,14 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
     const connection = await pool.getConnection();
     const { roomId } = req.params;
     const categoryInfosArray = req.body; 
+    
+    console.log(`[ROOM_CATEGORIES] Starting addCategoryInfosToRoom for room ${roomId}`);
+    console.log(`[ROOM_CATEGORIES] Received ${categoryInfosArray.length} categories:`, categoryInfosArray.map(cat => ({
+        id: cat.id,
+        category_name: cat.category_name,
+        pms_name: cat.pms_name
+    })));
+    
     if (!Array.isArray(categoryInfosArray) || categoryInfosArray.length === 0) {
         return res.status(400).json({ error: 'Request body must be a non-empty array of category information.' });
     }
@@ -318,13 +326,21 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
     if (isNaN(parsedRoomId)) {
         return res.status(400).json({ error: 'Invalid roomId parameter.'});
     }
+    
+    console.log(`[ROOM_CATEGORIES] Parsed room ID: ${parsedRoomId}`);
+    
     try {
         await connection.beginTransaction();
+        console.log(`[ROOM_CATEGORIES] Transaction started`);
+        
         const [roomExists] = await connection.query('SELECT id FROM rooms WHERE id = ?', [parsedRoomId]);
         if (roomExists.length === 0) {
+            console.log(`[ROOM_CATEGORIES] Room ${parsedRoomId} not found, rolling back`);
             await connection.rollback();
             return res.status(404).json({ error: `Room with ID ${parsedRoomId} not found.` });
         }
+        
+        console.log(`[ROOM_CATEGORIES] Room ${parsedRoomId} exists, proceeding with category creation`);
         
         const createdCategories = [];
         const updatedCategories = [];
@@ -342,7 +358,14 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
             // Process categories sequentially when files are involved to prevent race conditions
             for (const catInfo of categoryInfosArray) {
                 const categoryData = extractDataForTable(catInfo, ROOM_CATEGORY_INFOS_FIELDS);
+                console.log(`[ROOM_CATEGORIES] Processing category:`, {
+                    original: catInfo,
+                    extracted: categoryData,
+                    hasCategoryName: !!categoryData?.category_name
+                });
+                
                 if (!categoryData || !categoryData.category_name) {
+                    console.log(`[ROOM_CATEGORIES] Invalid category data, rolling back`);
                     await connection.rollback();
                     return res.status(400).json({ error: 'Each category info object must contain at least a category_name.', offendingItem: catInfo });
                 }
@@ -390,10 +413,19 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                     const placeholders = fields.map(() => '?').join(', ');
                     const values = fields.map(f => categoryData[f]);
                     
-                    const [result] = await connection.query(
-                        `INSERT INTO room_category_infos (room_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`,
-                        [parsedRoomId, ...values]
-                    );
+                    // Execute INSERT directly in sequential mode
+                    const insertSQL = `INSERT INTO room_category_infos (room_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`;
+                    const insertValues = [parsedRoomId, ...values];
+                    
+                    console.log(`[ROOM_CATEGORIES] Executing INSERT:`, {
+                        sql: insertSQL,
+                        values: insertValues,
+                        roomId: parsedRoomId,
+                        fields: fields,
+                        placeholders: placeholders
+                    });
+                    
+                    const [result] = await connection.query(insertSQL, insertValues);
                     
                     const categoryId = result.insertId;
                     createdCategories.push({ id: categoryId, room_id: parsedRoomId, ...categoryData });
@@ -401,6 +433,7 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                     // Assign any temporary files to this room category
                     try {
                         await assignRoomCategoryFilesService(categoryId);
+                        console.log(`[ROOM_CATEGORIES] Assigned files to new category ${categoryId}`);
                     } catch (fileError) {
                         console.error(`Error assigning files to room category ${categoryId}:`, fileError);
                         // Don't fail the transaction if file assignment fails
@@ -416,7 +449,14 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
             const processPromises = [];
             for (const catInfo of categoryInfosArray) {
                 const categoryData = extractDataForTable(catInfo, ROOM_CATEGORY_INFOS_FIELDS);
+                console.log(`[ROOM_CATEGORIES] Processing category (parallel):`, {
+                    original: catInfo,
+                    extracted: categoryData,
+                    hasCategoryName: !!categoryData?.category_name
+                });
+                
                 if (!categoryData || !categoryData.category_name) {
+                    console.log(`[ROOM_CATEGORIES] Invalid category data (parallel), rolling back`);
                     await connection.rollback();
                     return res.status(400).json({ error: 'Each category info object must contain at least a category_name.', offendingItem: catInfo });
                 }
@@ -465,15 +505,33 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                     const values = fields.map(f => categoryData[f]);
                     
                     processPromises.push(
-                        connection.query(
-                            `INSERT INTO room_category_infos (room_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`,
-                            [parsedRoomId, ...values]
-                        ).then(([result]) => {
+                        (async () => {
+                            const insertSQL = `INSERT INTO room_category_infos (room_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`;
+                            const insertValues = [parsedRoomId, ...values];
+                            
+                            console.log(`[ROOM_CATEGORIES] Executing INSERT (parallel):`, {
+                                sql: insertSQL,
+                                values: insertValues,
+                                roomId: parsedRoomId,
+                                fields: fields,
+                                placeholders: placeholders
+                            });
+                            
+                            const [result] = await connection.query(insertSQL, insertValues);
                             const categoryId = result.insertId;
                             createdCategories.push({ id: categoryId, room_id: parsedRoomId, ...categoryData });
+                            
+                            // Assign any temporary files to this room category (even if none exist, this is safe)
+                            try {
+                                await assignRoomCategoryFilesService(categoryId);
+                            } catch (fileError) {
+                                console.error(`Error assigning files to room category ${categoryId}:`, fileError);
+                                // Don't fail the transaction if file assignment fails
+                            }
+                            
                             console.log(`[ROOM_CATEGORIES] Created new category ${categoryId}`);
                             return categoryId;
-                        })
+                        })()
                     );
                 }
             }
@@ -482,16 +540,29 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
         }
         
         await connection.commit();
+        console.log(`[ROOM_CATEGORIES] Transaction committed successfully. Created: ${createdCategories.length}, Updated: ${updatedCategories.length}`);
+        
+        // Log the created categories for debugging
+        if (createdCategories.length > 0) {
+            console.log(`[ROOM_CATEGORIES] Created categories:`, createdCategories.map(cat => ({
+                id: cat.id,
+                room_id: cat.room_id,
+                category_name: cat.category_name
+            })));
+        }
         
         const totalCategories = createdCategories.length + updatedCategories.length;
-        res.status(200).json({
+        const response = {
             success: true,
             roomId: parsedRoomId,
             message: `Processed ${totalCategories} categories (${createdCategories.length} created, ${updatedCategories.length} updated) for room ${parsedRoomId}.`,
             createdCategories: createdCategories,
             updatedCategories: updatedCategories,
             totalCategories: totalCategories
-        });
+        };
+        
+        console.log(`[ROOM_CATEGORIES] Sending response:`, response);
+        res.status(200).json(response);
     } catch (error) {
         if (connection) await connection.rollback();
         console.error('Error in addCategoryInfosToRoom:', error);

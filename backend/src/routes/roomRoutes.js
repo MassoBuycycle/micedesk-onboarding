@@ -37,6 +37,9 @@ router.post('/', createRoom); // Changed from '/types' and uses new createRoom
 // Route for adding multiple category infos to an existing room
 router.post('/:roomId/categories', addCategoryInfosToRoom);
 
+// Route for getting room categories by room ID
+router.get('/:roomId/categories', getRoomCategories);
+
 // Room Categories routes
 router.get('/types/:roomId/categories', getRoomCategories);
 router.get('/categories/:id', getRoomCategoryById);

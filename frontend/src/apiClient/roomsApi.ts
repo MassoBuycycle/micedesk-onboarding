@@ -14,6 +14,8 @@ export interface RoomCategoryInput { // This is for ADDING categories to an exis
   extra_bed_surcharge?: number;
   baby_bed_available?: boolean;
   extra_bed_available?: boolean;
+  is_accessible?: boolean;
+  has_balcony?: boolean;
 }
 
 export interface RoomCategory { // This is the structure of a category when fetched
@@ -224,7 +226,7 @@ export const updateRoomCategory = async (categoryId: number, categoryData: RoomC
 
 // API Endpoint for Getting Room Categories
 export const getRoomCategories = async (roomId: number): Promise<RoomCategory[]> => {
-  return apiGet(`/rooms/types/${roomId}/categories`, `Failed to fetch room categories for room ${roomId}`);
+  return apiGet(`/rooms/${roomId}/categories`, `Failed to fetch room categories for room ${roomId}`);
 };
 
 export interface RoomOperationalHandlingInput {

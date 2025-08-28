@@ -892,6 +892,8 @@ export function useHotelFormState() {
                   extra_bed_surcharge: safeParseFloat(catFromForm.extra_bed_surcharge),
                   baby_bed_available: typeof catFromForm.baby_bed_available === 'boolean' ? catFromForm.baby_bed_available : undefined,
                   extra_bed_available: typeof catFromForm.extra_bed_available === 'boolean' ? catFromForm.extra_bed_available : undefined,
+                  is_accessible: typeof catFromForm.isAccessible === 'boolean' ? catFromForm.isAccessible : undefined,
+                  has_balcony: typeof catFromForm.hasBalcony === 'boolean' ? catFromForm.hasBalcony : undefined,
                 };
 
                 Object.keys(roomCategoryPayload).forEach(key => {

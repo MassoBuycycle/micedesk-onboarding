@@ -36,7 +36,7 @@ export default function FileUpload({
   category,
   fileTypeCode: initialFileTypeCode,
   onSuccess,
-  maxFiles = 10, // Increased default max to support multiple files
+  maxFiles = 20, // Increased default max to support more files
   className = '',
   autoUpload = false,
 }: FileUploadProps) {
@@ -45,6 +45,7 @@ export default function FileUpload({
   const [isLoadingFileTypes, setIsLoadingFileTypes] = useState<boolean>(false);
   const [filesToUpload, setFilesToUpload] = useState<FileToUpload[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
+  const [batchSize, setBatchSize] = useState<number>(5); // Default batch size for large uploads
 
   // Fetch available file types for this category
   useEffect(() => {
@@ -220,6 +221,59 @@ export default function FileUpload({
     console.log('[FileUpload] Assigned default file type to files without types');
   }, [fileTypes.length, getDefaultFileTypeCode]);
 
+  // Function to upload files in batches
+  const handleBatchUpload = async (startIndex: number, endIndex: number) => {
+    const batchFiles = filesToUpload.slice(startIndex, endIndex);
+    console.log(`[FileUpload] Processing batch ${startIndex + 1}-${endIndex} with ${batchFiles.length} files`);
+    
+    const effectiveEntityId = entityId || 'new';
+    const successfulUploads: any[] = [];
+    
+    for (let i = 0; i < batchFiles.length; i++) {
+      const fileIndex = startIndex + i;
+      const fileItem = batchFiles[i];
+      
+      if (fileItem.status === 'success' || fileItem.status === 'error') {
+        continue;
+      }
+      
+      // Update status to uploading
+      setFilesToUpload(prev => prev.map((f, idx) => 
+        idx === fileIndex ? { ...f, status: 'uploading' as const } : f
+      ));
+      
+      try {
+        const response = await uploadFile(
+          entityType,
+          effectiveEntityId,
+          category,
+          fileItem.fileTypeCode,
+          fileItem.file,
+          (progress) => {
+            setFilesToUpload(prev => prev.map((f, idx) => 
+              idx === fileIndex ? { ...f, progress } : f
+            ));
+          }
+        );
+        
+        // Update status to success
+        setFilesToUpload(prev => prev.map((f, idx) => 
+          idx === fileIndex ? { ...f, status: 'success' as const, response } : f
+        ));
+        
+        successfulUploads.push(response);
+        console.log(`[FileUpload] Successfully uploaded file ${fileItem.file.name}`);
+      } catch (error: any) {
+        console.error(`Error uploading file ${fileItem.file.name}:`, error);
+        setFilesToUpload(prev => prev.map((f, idx) => 
+          idx === fileIndex ? { ...f, status: 'error' as const, error: error.message || 'Error uploading file' } : f
+        ));
+      }
+    }
+    
+    return successfulUploads;
+  };
+
   const updateFileTypeCode = (index: number, newFileTypeCode: string) => {
     setFilesToUpload(prev => 
       prev.map((item, i) => 
@@ -256,50 +310,71 @@ export default function FileUpload({
     setIsUploading(true);
     const successfulUploads: any[] = [];
 
-    // Process files sequentially to avoid race conditions when using temporary entity IDs
-    for (let i = 0; i < updatedFiles.length; i++) {
-      // Skip already uploaded or errored files
-      if (updatedFiles[i].status === 'success' || updatedFiles[i].status === 'error') {
-        continue;
-      }
-
-      updatedFiles[i].status = 'uploading';
-      setFilesToUpload([...updatedFiles]);
-
-      try {
-        console.log(`[FileUpload] Uploading file ${i + 1}/${updatedFiles.length}: ${updatedFiles[i].file.name}`);
-        console.log(`[FileUpload] File details:`, {
-          name: updatedFiles[i].file.name,
-          size: updatedFiles[i].file.size,
-          type: updatedFiles[i].file.type,
-          fileTypeCode: updatedFiles[i].fileTypeCode
-        });
-        console.log(`[FileUpload] Upload target: ${entityType}/${effectiveEntityId}/${category}`);
+    // Use batch upload for large numbers of files
+    if (updatedFiles.length > batchSize) {
+      console.log(`[FileUpload] Large upload detected (${updatedFiles.length} files), using batch upload with batch size ${batchSize}`);
+      
+      const totalBatches = Math.ceil(updatedFiles.length / batchSize);
+      for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
+        const startIndex = batchIndex * batchSize;
+        const endIndex = Math.min(startIndex + batchSize, updatedFiles.length);
         
-        const response = await uploadFile(
-          entityType,
-          effectiveEntityId,
-          category,
-          updatedFiles[i].fileTypeCode,
-          updatedFiles[i].file,
-          (progress) => {
-            updatedFiles[i].progress = progress;
-            setFilesToUpload([...updatedFiles]);
-          }
-        );
-
-        updatedFiles[i].status = 'success';
-        updatedFiles[i].response = response;
-        successfulUploads.push(response);
+        console.log(`[FileUpload] Processing batch ${batchIndex + 1}/${totalBatches} (files ${startIndex + 1}-${endIndex})`);
         
-        console.log(`[FileUpload] Successfully uploaded file ${updatedFiles[i].file.name}`);
-      } catch (error: any) {
-        console.error(`Error uploading file ${updatedFiles[i].file.name}:`, error);
-        updatedFiles[i].status = 'error';
-        updatedFiles[i].error = error.message || 'Error uploading file';
+        const batchResults = await handleBatchUpload(startIndex, endIndex);
+        successfulUploads.push(...batchResults);
+        
+        // Small delay between batches to avoid overwhelming the server
+        if (batchIndex < totalBatches - 1) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
       }
+    } else {
+      // Process files sequentially for smaller uploads
+      for (let i = 0; i < updatedFiles.length; i++) {
+        // Skip already uploaded or errored files
+        if (updatedFiles[i].status === 'success' || updatedFiles[i].status === 'error') {
+          continue;
+        }
 
-      setFilesToUpload([...updatedFiles]);
+        updatedFiles[i].status = 'uploading';
+        setFilesToUpload([...updatedFiles]);
+
+        try {
+          console.log(`[FileUpload] Uploading file ${i + 1}/${updatedFiles.length}: ${updatedFiles[i].file.name}`);
+          console.log(`[FileUpload] File details:`, {
+            name: updatedFiles[i].file.name,
+            size: updatedFiles[i].file.size,
+            type: updatedFiles[i].file.type,
+            fileTypeCode: updatedFiles[i].fileTypeCode
+          });
+          console.log(`[FileUpload] Upload target: ${entityType}/${effectiveEntityId}/${category}`);
+          
+          const response = await uploadFile(
+            entityType,
+            effectiveEntityId,
+            category,
+            updatedFiles[i].fileTypeCode,
+            updatedFiles[i].file,
+            (progress) => {
+              updatedFiles[i].progress = progress;
+              setFilesToUpload([...updatedFiles]);
+            }
+          );
+
+          updatedFiles[i].status = 'success';
+          updatedFiles[i].response = response;
+          successfulUploads.push(response);
+          
+          console.log(`[FileUpload] Successfully uploaded file ${updatedFiles[i].file.name}`);
+        } catch (error: any) {
+          console.error(`Error uploading file ${updatedFiles[i].file.name}:`, error);
+          updatedFiles[i].status = 'error';
+          updatedFiles[i].error = error.message || 'Error uploading file';
+        }
+
+        setFilesToUpload([...updatedFiles]);
+      }
     }
 
     setIsUploading(false);
@@ -405,6 +480,9 @@ export default function FileUpload({
                     Default type: {fileTypes[0]?.name || 'Loading...'}
                   </p>
                 )}
+                <p className="text-xs text-muted-foreground mt-1">
+                  💡 Tip: For best performance, upload 10-15 files at a time
+                </p>
               </div>
             </div>
           </div>
@@ -439,22 +517,48 @@ export default function FileUpload({
                   </Button>
                 </div>
               </div>
-              <div className="space-y-2 max-h-[300px] overflow-y-auto">
+              
+              {/* File Count Summary */}
+              {filesToUpload.length > 10 && (
+                <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-700">
+                  <div className="flex items-center justify-between">
+                    <span><strong>Large upload queue:</strong> {filesToUpload.length} files. Consider uploading in smaller batches for better performance.</span>
+                    <div className="flex items-center gap-2">
+                      <span>Batch size:</span>
+                      <Select value={String(batchSize)} onValueChange={(value) => setBatchSize(Number(value))}>
+                        <SelectTrigger className="h-6 w-16 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="3">3</SelectItem>
+                          <SelectItem value="5">5</SelectItem>
+                          <SelectItem value="10">10</SelectItem>
+                          <SelectItem value="15">15</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              <div className="space-y-2 max-h-[400px] overflow-y-auto border rounded-lg p-2">
                 {filesToUpload.map((fileItem, index) => (
                   <div 
                     key={`${fileItem.file.name}-${index}`}
-                    className="flex flex-col rounded-lg border border-muted bg-background p-2"
+                    className="flex flex-col rounded-lg border border-muted bg-background p-2 hover:bg-muted/50 transition-colors"
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center space-x-2">
-                        <File className="h-5 w-5 text-primary" />
-                        <div>
-                          <div className="max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap text-sm">
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center space-x-2 min-w-0 flex-1">
+                        <File className="h-4 w-4 text-primary flex-shrink-0" />
+                        <div className="min-w-0 flex-1">
+                          <div className="max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap text-sm font-medium">
                             {fileItem.file.name}
                           </div>
-                          <span className="text-xs text-muted-foreground">
-                            {formatFileSize(fileItem.file.size)}
-                          </span>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <span>{formatFileSize(fileItem.file.size)}</span>
+                            <span>•</span>
+                            <span>{fileItem.file.type}</span>
+                          </div>
                         </div>
                       </div>
                       {fileItem.status !== 'uploading' && (
@@ -467,38 +571,46 @@ export default function FileUpload({
                             e.stopPropagation();
                             handleRemoveFile(index);
                           }}
+                          className="h-6 w-6 p-0 flex-shrink-0"
                         >
-                          <X className="h-4 w-4" />
+                          <X className="h-3 w-3" />
                         </Button>
                       )}
                     </div>
 
                     {/* Status Badges */}
-                    {fileItem.status === 'error' && (
-                      <Badge variant="destructive" className="self-start mb-2">
-                        {fileItem.error || 'Upload failed'}
-                      </Badge>
-                    )}
-                    {fileItem.status === 'success' && (
-                      <Badge variant="outline" className="self-start mb-2 bg-green-50 text-green-700 border-green-200">
-                        Upload successful
-                      </Badge>
-                    )}
+                    <div className="flex items-center gap-2 mb-1">
+                      {fileItem.status === 'error' && (
+                        <Badge variant="destructive" className="text-xs px-2 py-0.5">
+                          {fileItem.error || 'Upload failed'}
+                        </Badge>
+                      )}
+                      {fileItem.status === 'success' && (
+                        <Badge variant="outline" className="text-xs px-2 py-0.5 bg-green-50 text-green-700 border-green-200">
+                          Upload successful
+                        </Badge>
+                      )}
+                      {fileItem.status === 'uploading' && (
+                        <Badge variant="outline" className="text-xs px-2 py-0.5 bg-blue-50 text-blue-700 border-blue-200">
+                          Uploading...
+                        </Badge>
+                      )}
+                    </div>
 
                     {/* Type Selection & Progress */}
-                    <div className="flex items-center gap-2 mt-1">
+                    <div className="flex items-center gap-2">
                       <div className="flex-1">
                         <Select 
                           value={fileItem.fileTypeCode} 
                           onValueChange={(value) => updateFileTypeCode(index, value)}
                           disabled={isLoadingFileTypes || fileItem.status === 'uploading' || fileItem.status === 'success'}
                         >
-                          <SelectTrigger className="w-full h-8 text-xs">
+                          <SelectTrigger className="w-full h-7 text-xs">
                             <SelectValue placeholder="Select document type">
                               {isLoadingFileTypes 
                                 ? 'Loading...' 
                                 : fileItem.fileTypeCode 
-                                  ? `${fileTypes.find(t => t.code === fileItem.fileTypeCode)?.name || fileItem.fileTypeCode} (${getFileTypeExtensions(fileItem.fileTypeCode)})`
+                                  ? `${fileTypes.find(t => t.code === fileItem.fileTypeCode)?.name || fileItem.fileTypeCode}`
                                   : 'Select document type'
                               }
                             </SelectValue>
@@ -528,12 +640,12 @@ export default function FileUpload({
 
                     {/* Progress Bar */}
                     {fileItem.status === 'uploading' && (
-                      <div className="mt-2 w-full space-y-1">
-                        <div className="flex justify-between text-xs">
+                      <div className="mt-1 w-full space-y-1">
+                        <div className="flex justify-between text-xs text-muted-foreground">
                           <span>Uploading...</span>
                           <span>{fileItem.progress}%</span>
                         </div>
-                        <Progress value={fileItem.progress} />
+                        <Progress value={fileItem.progress} className="h-1" />
                       </div>
                     )}
                   </div>
@@ -567,7 +679,9 @@ export default function FileUpload({
                 <ArrowUp className="mr-2 h-4 w-4" />
                 {filesToUpload.some(f => f.status === 'error') 
                   ? 'Retry Failed Uploads' 
-                  : 'Upload All Files'}
+                  : filesToUpload.length > batchSize
+                    ? `Upload All ${filesToUpload.length} Files (in batches)`
+                    : `Upload All ${filesToUpload.length} Files`}
               </Button>
             </div>
           )}
