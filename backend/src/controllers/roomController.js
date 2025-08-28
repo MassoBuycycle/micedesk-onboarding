@@ -372,7 +372,9 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                 console.log(`[ROOM_CATEGORIES] Processing category:`, {
                     original: catInfo,
                     extracted: categoryData,
-                    hasCategoryName: !!categoryData?.category_name
+                    hasCategoryName: !!categoryData?.category_name,
+                    tempIndexInOriginal: catInfo.tempIndex,
+                    tempIndexInExtracted: categoryData?.tempIndex
                 });
                 
                 if (!categoryData || !categoryData.category_name) {
@@ -389,7 +391,9 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                     idType: typeof catInfo.id,
                     isIdNumber: typeof catInfo.id === 'number',
                     isIdPositive: typeof catInfo.id === 'number' && catInfo.id > 0,
-                    willCheckById: !!(catInfo.id && typeof catInfo.id === 'number' && catInfo.id > 0)
+                    willCheckById: !!(catInfo.id && typeof catInfo.id === 'number' && catInfo.id > 0),
+                    tempIndex: catInfo.tempIndex,
+                    tempIndexType: typeof catInfo.tempIndex
                 });
                 
                 if (catInfo.id && typeof catInfo.id === 'number' && catInfo.id > 0) {
@@ -450,6 +454,13 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                         // The temp index should be stored in the category data when files are uploaded
                         const tempIndex = catInfo.tempIndex || null;
                         
+                        console.log(`[ROOM_CATEGORIES] File assignment for category ${categoryId}:`, {
+                            categoryName: categoryData.category_name,
+                            tempIndex: tempIndex,
+                            tempIndexType: typeof tempIndex,
+                            hasTempIndex: !!tempIndex
+                        });
+                        
                         // If no temp index is available, we need to find files by other means
                         if (!tempIndex) {
                             console.log(`[ROOM_CATEGORIES] No temp index found for category ${categoryId}, using fallback file assignment`);
@@ -476,7 +487,9 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                 console.log(`[ROOM_CATEGORIES] Processing category (parallel):`, {
                     original: catInfo,
                     extracted: categoryData,
-                    hasCategoryName: !!categoryData?.category_name
+                    hasCategoryName: !!categoryData?.category_name,
+                    tempIndexInOriginal: catInfo.tempIndex,
+                    tempIndexInExtracted: categoryData?.tempIndex
                 });
                 
                 if (!categoryData || !categoryData.category_name) {
@@ -493,7 +506,9 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                     idType: typeof catInfo.id,
                     isIdNumber: typeof catInfo.id === 'number',
                     isIdPositive: typeof catInfo.id === 'number' && catInfo.id > 0,
-                    willCheckById: !!(catInfo.id && typeof catInfo.id === 'number' && catInfo.id > 0)
+                    willCheckById: !!(catInfo.id && typeof catInfo.id === 'number' && catInfo.id > 0),
+                    tempIndex: catInfo.tempIndex,
+                    tempIndexType: typeof catInfo.tempIndex
                 });
                 
                 if (catInfo.id && typeof catInfo.id === 'number' && catInfo.id > 0) {
@@ -551,6 +566,14 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                             try {
                                 // Extract the temp category index from the category data if available
                                 const tempIndex = catInfo.tempIndex || null;
+                                
+                                console.log(`[ROOM_CATEGORIES] File assignment for category ${categoryId} (parallel):`, {
+                                    categoryName: categoryData.category_name,
+                                    tempIndex: tempIndex,
+                                    tempIndexType: typeof tempIndex,
+                                    hasTempIndex: !!tempIndex
+                                });
+                                
                                 await assignRoomCategoryFilesService(categoryId, tempIndex);
                                 console.log(`[ROOM_CATEGORIES] Assigned files to new category ${categoryId} with temp index ${tempIndex}`);
                             } catch (fileError) {
