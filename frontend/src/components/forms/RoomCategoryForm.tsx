@@ -443,7 +443,7 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                   entityType="room-categories"
                   entityId={form.getValues(`categories.${index}.id`) || 'new'}
                   category="room-category-images"
-                  fileTypeCode="images"
+                  fileTypeCode="room_photos"
                   maxFiles={20}
                   className="w-full"
                   onFileChange={(files) => handleFileChange(index, files)}
