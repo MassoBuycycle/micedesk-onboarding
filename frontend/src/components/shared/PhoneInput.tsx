@@ -11,6 +11,7 @@ const COUNTRY_CODES = [
   { code: '+44', label: '🇬🇧 +44' },
   { code: '+33', label: '🇫🇷 +33' },
   { code: '+39', label: '🇮🇹 +39' },
+  { code: '+351', label: '🇵🇹 +351' },
 ] as const;
 
 interface PhoneInputProps {
