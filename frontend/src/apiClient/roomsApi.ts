@@ -192,13 +192,7 @@ export const deleteRoomType = async (id: number): Promise<{ success: boolean }> 
 };
 
 // API Endpoints for Room Info (/api/rooms/info - general hotel_info)
-export const getRoomInfo = async (): Promise<RoomInfo> => {
-  return apiGet('/rooms/info', 'Failed to fetch room info');
-};
-
-export const updateRoomInfo = async (roomInfoData: RoomInfoUpdateInput): Promise<RoomInfo> => {
-  return apiPut('/rooms/info', roomInfoData, 'Failed to update room info');
-};
+// Removed getRoomInfo and updateRoomInfo: the app no longer reads or writes general room info via /rooms/info.
 
 // API Endpoints for Room Handling (associates with a specific roomId)
 export const getRoomTypeHandling = async (roomTypeId: number): Promise<RoomTypeHandling> => {

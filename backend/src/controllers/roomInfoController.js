@@ -6,34 +6,7 @@ import pool from '../db/config.js';
  * @param {import('express').Response} res - Express response object
  * @param {import('express').NextFunction} next - Express next middleware function
  */
-export const getRoomInfo = async (req, res, next) => {
-  const connection = await pool.getConnection();
-  try {
-    const [hotelInfoRows] = await connection.query('SELECT * FROM hotel_info LIMIT 1');
-    const hotelInfo = hotelInfoRows[0] || {};
-    
-    // Get payment methods
-    const [paymentMethodsRows] = await connection.query('SELECT name FROM onboarding_payment_methods WHERE enabled = TRUE');
-    const paymentMethods = paymentMethodsRows.map(method => method.name);
-    
-    // Get standard features
-    const [standardFeaturesRows] = await connection.query('SELECT name FROM onboarding_standard_features');
-    const standardFeatures = standardFeaturesRows.map(feature => feature.name);
-    
-    // Combine all data into a single response object
-    const response = {
-      ...hotelInfo,
-      payment_methods: paymentMethods,
-      standard_features: standardFeatures
-    };
-
-    res.status(200).json(response);
-  } catch (error) {
-    next(error);
-  } finally {
-    connection.release();
-  }
-};
+// Removed getRoomInfo: the generic hotel_info aggregate is no longer queried.
 
 /**
  * Update room information
@@ -41,45 +14,7 @@ export const getRoomInfo = async (req, res, next) => {
  * @param {import('express').Response} res - Express response object
  * @param {import('express').NextFunction} next - Express next middleware function
  */
-export const updateRoomInfo = async (req, res, next) => {
-  const connection = await pool.getConnection();
-  try {
-    const updatedInfo = req.body;
-    
-    await connection.beginTransaction();
-
-    // Update standard_features if provided
-    if (updatedInfo.standard_features) {
-      await connection.query('DELETE FROM onboarding_standard_features');
-      if (updatedInfo.standard_features.length > 0) {
-        const insertValues = updatedInfo.standard_features.map(feature => [feature]);
-        await connection.query('INSERT INTO onboarding_standard_features (name) VALUES ?', [insertValues]);
-      }
-    }
-    
-    // Update payment_methods if provided
-    if (updatedInfo.payment_methods) {
-      await connection.query('DELETE FROM onboarding_payment_methods');
-      if (updatedInfo.payment_methods.length > 0) {
-        const insertValues = updatedInfo.payment_methods.map(method => [method, true]);
-        await connection.query('INSERT INTO onboarding_payment_methods (name, enabled) VALUES ?', [insertValues]);
-      }
-    }
-    
-    // Note: This controller doesn't update the `hotel_info` table itself,
-    // only the global lookup tables. A more complete implementation might update hotel_info.
-    
-    await connection.commit();
-    
-    // After updating, return the new complete set of room info
-    return getRoomInfo(req, res, next);
-  } catch (error) {
-    if (connection) await connection.rollback();
-    next(error);
-  } finally {
-    if (connection) connection.release();
-  }
-};
+// Removed updateRoomInfo: we don't persist or mutate generic hotel_info anymore.
 
 /**
  * Get standard room features

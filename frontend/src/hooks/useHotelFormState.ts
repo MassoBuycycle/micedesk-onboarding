@@ -15,7 +15,6 @@ import {
   RoomInfo,
   getRoomTypeById,
   getRoomTypeHandling,
-  getRoomInfo,
   getRoomCategories
 } from "@/apiClient/roomsApi";
 import { HotelFormValues } from "@/components/forms/HotelForm";
@@ -136,12 +135,7 @@ export function useHotelFormState() {
       // For now, we'll assume room categories and handling will be loaded 
       // when the room info step is completed
       
-      try {
-        // Try to get room info from the general endpoint
-        roomData = await getRoomInfo();
-      } catch (err) {
-        console.warn('Could not fetch room data for hotel', hotelId, err);
-      }
+      // Removed fetching general room info from /rooms/info since it's not persisted
 
       // Try to fetch any existing events for this hotel
       let events = [] as any[];

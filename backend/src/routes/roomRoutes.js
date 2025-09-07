@@ -19,8 +19,6 @@ import {
 } from '../controllers/roomCategoryController.js';
 
 import {
-  getRoomInfo,
-  updateRoomInfo,
   getStandardRoomFeatures,
   updateStandardRoomFeatures
 } from '../controllers/roomInfoController.js';
@@ -47,9 +45,7 @@ router.post('/types/:roomId/categories', createRoomCategory);
 router.put('/categories/:id', updateRoomCategory);
 router.delete('/categories/:id', deleteRoomCategory);
 
-// Room Info routes
-router.get('/info', getRoomInfo);
-router.put('/info', updateRoomInfo);
+// Room Info routes (removed generic hotel_info endpoints that relied on deprecated table)
 router.get('/features', getStandardRoomFeatures);
 router.put('/features', updateStandardRoomFeatures);
 
