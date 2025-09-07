@@ -56,6 +56,7 @@ const operationalSchema = z.object({
   call_off_quota: z.boolean().default(false),
   call_off_method: z.string().optional(),
   call_off_deadlines: z.string().optional(),
+  call_off_notes: z.string().optional(),
   commission_rules: z.string().optional(),
   free_spot_policy_leisure_groups: z.string().optional(),
   restricted_dates: z.string().optional(),
@@ -120,6 +121,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
       final_invoice_handling: '',
       deposit_invoice_responsible: '',
       info_invoice_created: false,
+      call_off_notes: '',
       ...initialData,
     },
   });
@@ -245,6 +247,20 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
                 )}
               />
             )}
+            {/* Additional note for call-off quotas */}
+            <FormField
+              control={form.control}
+              name="call_off_notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Notiz zu Abrufkontingenten</FormLabel>
+                  <FormDescription>Weitere Details zum Handling von Abrufkontingenten (optional)</FormDescription>
+                  <FormControl>
+                    <Textarea {...field} className="min-h-[100px]" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
           </CardContent>
         </Card>
 
@@ -273,7 +289,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
                 name="group_reservation_category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Reservierungskategorie</FormLabel>
+                    <FormLabel>Standard kategorie Gruppen</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -634,40 +650,27 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
                 </FormItem>
               )}
             />
+            {/* Always show a simple note field instead of a toggle */}
             <FormField
               control={form.control}
-              name="handled_by_mice_desk"
+              name="mice_desk_handling_scope"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <FormItem>
                   <FormLabel>{t('rooms.miceDeskHandlingScope')}</FormLabel>
+                  <FormDescription>
+                    {t('rooms.miceDeskHandlingScopeDescription')}
+                  </FormDescription>
                   <FormControl>
-                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    <Textarea 
+                      {...field} 
+                      className="min-h-[100px]"
+                      placeholder={t('rooms.miceDeskHandlingScopeDescription')}
+                    />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
-            {form.watch('handled_by_mice_desk') && (
-              <FormField
-                control={form.control}
-                name="mice_desk_handling_scope"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('rooms.miceDeskHandlingScopeDetails')}</FormLabel>
-                    <FormDescription>
-                      {t('rooms.miceDeskHandlingScopeDescription')}
-                    </FormDescription>
-                    <FormControl>
-                      <Textarea 
-                        {...field} 
-                        className="min-h-[100px]"
-                        placeholder={t('rooms.miceDeskHandlingScopeDescription')}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
           </CardContent>
         </Card>
 

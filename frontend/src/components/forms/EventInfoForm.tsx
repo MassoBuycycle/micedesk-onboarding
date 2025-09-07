@@ -843,7 +843,8 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
             />
             
             {/* 5. Wie viele Tage im Voraus kann der Gast die Materialien für seine Veranstaltung senden? */}
-            <NumberField
+            {/* Wunsch: Freitext (z. B. "7-10" oder Hinweise), nicht nur Zahl */}
+            <TextField
               form={form}
               name="operations.advance_days_for_material"
               label={t('events.eventForm.operations.materialAdvanceDays')}
@@ -865,6 +866,21 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
           description=""
         >
           <div className="space-y-6">
+            {/* Einlagerung kostenfrei? Wenn Nein, Preise angeben */}
+            <SwitchField
+              form={form}
+              name="operations.storage_free_of_charge"
+              label={t('events.eventForm.operations.storageFreeOfCharge')}
+            />
+            {!form.watch('operations.storage_free_of_charge') && (
+              <TextareaField
+                form={form}
+                name="operations.storage_pricing_info"
+                label={t('events.eventForm.operations.storagePricingInfo')}
+                rows={3}
+                placeholder={t('events.eventForm.operations.storagePricingInfoPlaceholder')}
+              />
+            )}
             {/* Wird bei allen VA's ein Depo verlangt */}
             <SwitchField
               form={form}

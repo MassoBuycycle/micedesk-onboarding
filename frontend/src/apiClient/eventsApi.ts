@@ -160,7 +160,8 @@ export interface EventHandlingInput {
   lunch_location?: string | null;
   min_participants_package?: number;
   coffee_break_location?: string | null;
-  advance_days_for_material?: number;
+  advance_days_for_material?: any;
+  advance_days_for_material?: any;
   room_drop_cost?: number;
   hotel_exclusive_clients?: boolean;
   deposit_needed_event?: boolean;
@@ -169,6 +170,8 @@ export interface EventHandlingInput {
   informational_invoice_created?: boolean;
   payment_methods_events?: Record<string, boolean> | null;
   final_invoice_handling_event?: string | null;
+  storage_free_of_charge?: boolean;
+  storage_pricing_info?: string;
 }
 
 // Helper for error handling

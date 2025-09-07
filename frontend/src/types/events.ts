@@ -37,11 +37,18 @@ export interface EventOperationsInput {
   last_minute_lead_time?: string;
   deposit_invoice_creator?: string;
   min_participants_package?: number;
-  advance_days_for_material?: number;
+  /**
+   * Vorlaufzeit Material – wird nun als Freitext im bestehenden Feld geführt
+   */
+  advance_days_for_material?: any;
   room_drop_cost?: number;
   deposit_rules_event?: string;
   payment_methods_events?: string[];
   final_invoice_handling_event?: string;
+  /** Einlagerung kostenfrei? */
+  storage_free_of_charge?: boolean;
+  /** Preisinfo falls Einlagerung nicht kostenfrei */
+  storage_pricing_info?: string;
 }
 
 export interface EventFinancialsInput {
