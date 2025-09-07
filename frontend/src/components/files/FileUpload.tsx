@@ -6,10 +6,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Progress } from '@/components/ui/progress';
 import { X, Upload, Image, PlusCircle, Lightbulb, FolderOpen, ArrowUp, Loader2, Check } from 'lucide-react';
 import { uploadFile } from '@/apiClient/filesApi';
-import { getFileTypesByCategory, FileType } from '@/apiClient/filesApi';
+import { FileType } from '@/apiClient/filesApi';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Badge } from "@/components/ui/badge";
+import { useFileTypes, useDefaultFileTypeCode } from '@/hooks/useFileTypes';
 
 interface FileUploadProps {
   entityType: string;
@@ -50,14 +51,14 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
   onFileChange,
 }, ref) => {
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  const [fileTypes, setFileTypes] = useState<FileType[]>([]);
-  const [isLoadingFileTypes, setIsLoadingFileTypes] = useState<boolean>(false);
+  const { data: fileTypes = [], isLoading: isLoadingFileTypes } = useFileTypes(category);
   const [filesToUpload, setFilesToUpload] = useState<FileToUpload[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
   const [batchSize, setBatchSize] = useState<number>(5); // Default batch size for large uploads
 
   // Use fileTypeCode as initialFileTypeCode if provided
   const initialFileTypeCode = fileTypeCode;
+  const defaultFileTypeCode = useDefaultFileTypeCode(fileTypes, initialFileTypeCode);
 
   // Expose methods to parent component via ref
   useImperativeHandle(ref, () => ({
@@ -108,53 +109,17 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
     }
   }, [filesToUpload.length, uploadedFiles.length]);
 
-  // Fetch available file types for this category
+  // Ensure queued files have a valid file type code once types are available
   useEffect(() => {
-    const fetchFileTypes = async () => {
-      setIsLoadingFileTypes(true);
-      try {
-        // Remove temp suffix (e.g., "-hotels-temp") if present so we query the real category
-        const cleanCategory = category.replace(/-[^-]+-temp$/, '');
-        const types = await getFileTypesByCategory(cleanCategory);
-        
-        // Set default file type code if not provided and we have file types
-        if (!initialFileTypeCode && types.length > 0) {
-        }
-        
-        setFileTypes(types);
-        
-        // If we have existing files without file types, update them with the first available type
-        if (types.length > 0) {
-          setFilesToUpload(prev => prev.map(file => ({
-            ...file,
-            fileTypeCode: file.fileTypeCode || initialFileTypeCode || types[0].code
-          })));
-        }
-      } catch (error) {
-        toast.error('Failed to load file types');
-      } finally {
-        setIsLoadingFileTypes(false);
-      }
-    };
-
-    fetchFileTypes();
-  }, [category, initialFileTypeCode]);
+    if (fileTypes.length === 0) return;
+    setFilesToUpload(prev => prev.map(file => ({
+      ...file,
+      fileTypeCode: file.fileTypeCode || defaultFileTypeCode
+    })));
+  }, [fileTypes.length, defaultFileTypeCode]);
 
   // Helper function to get the default file type code
-  const getDefaultFileTypeCode = useCallback(() => {
-    // First priority: use the prop value if provided
-    if (initialFileTypeCode) {
-      return initialFileTypeCode;
-    }
-    
-    // Second priority: use the first available file type for this category
-    if (fileTypes.length > 0) {
-      const defaultType = fileTypes[0];
-      return defaultType.code;
-    }
-    
-    return '';
-  }, [initialFileTypeCode, fileTypes]);
+  const getDefaultFileTypeCode = useCallback(() => defaultFileTypeCode, [defaultFileTypeCode]);
 
   // Enhanced file type validation
   const validateFileType = useCallback((fileTypeCode: string) => {
@@ -175,20 +140,14 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
       toast.error(`${rejectedFiles.length} file(s) were rejected. Please check file types and sizes.`);
     }
     
-    // Create file entries for each dropped file with default file type
-    const defaultFileTypeCode = getDefaultFileTypeCode();
-    
-    // Validate the default file type
-    if (!validateFileType(defaultFileTypeCode)) {
-      toast.error(`Invalid file type: ${defaultFileTypeCode}. Available types: ${fileTypes.map(t => t.code).join(', ')}`);
-      return;
-    }
-    
-    // If we don't have a default yet, use the first available file type
-    const effectiveDefaultCode = defaultFileTypeCode || (fileTypes.length > 0 ? fileTypes[0].code : '');
+    // Determine a safe default file type code
+    const availableCodes = fileTypes.map(t => t.code);
+    const effectiveDefaultCode = (initialFileTypeCode && availableCodes.includes(initialFileTypeCode))
+      ? initialFileTypeCode
+      : (fileTypes[0]?.code || '');
     
     if (!effectiveDefaultCode) {
-      toast.error('No valid file type available. Please try refreshing the page.');
+      toast.error('No file types available yet. Please wait a moment and try again.');
       return;
     }
     
@@ -204,7 +163,7 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
     if (acceptedFiles.length > 0) {
       toast.success(`${acceptedFiles.length} file(s) added to upload queue`);
     }
-  }, [getDefaultFileTypeCode, fileTypes, initialFileTypeCode, validateFileType]);
+  }, [fileTypes, initialFileTypeCode]);
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
@@ -227,31 +186,11 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
     }
   });
 
-  // Manual click handler as fallback - ensure it opens the file picker with multiple support
+  // Open file dialog using dropzone API
   const handleManualClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    // Create a temporary file input with multiple attribute
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.multiple = true;
-    input.accept = '.jpg,.jpeg,.png,.webp,.gif,.pdf,.doc,.docx,.txt';
-    
-    input.onchange = (event) => {
-      const target = event.target as HTMLInputElement;
-      
-      if (target.files && target.files.length > 0) {
-        const files = Array.from(target.files);
-        
-        // Use the same logic as onDrop for consistency
-        const defaultFileTypeCode = getDefaultFileTypeCode();
-        
-        onDrop(files, []); // No rejected files for manual selection
-      }
-    };
-    
-    input.click();
+    open();
   };
 
   const handleRemoveFile = (index: number) => {
@@ -456,13 +395,13 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
     }
   };
 
-  // Auto-upload files when entityId is 'new' to ensure they're available for assignment
+  // Auto-upload if enabled and entityId is available
   useEffect(() => {
-    // Only auto-upload if entityId exists and is not 'new'
+    if (!autoUpload) return;
     if (entityId && entityId !== 'new' && filesToUpload.length > 0 && !isUploading) {
       handleUploadFiles();
     }
-  }, [entityId, filesToUpload.length, isUploading]);
+  }, [autoUpload, entityId, filesToUpload.length, isUploading]);
 
 
 

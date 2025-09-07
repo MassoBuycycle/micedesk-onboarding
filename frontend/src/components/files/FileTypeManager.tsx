@@ -19,7 +19,8 @@ import {
   FolderOpen
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { getAllFileTypes, createFileType, deleteFileType, FileType } from '@/apiClient/filesApi';
+import { createFileType, deleteFileType, FileType } from '@/apiClient/filesApi';
+import { useFileTypes } from '@/hooks/useFileTypes';
 import {
   Dialog,
   DialogContent,
@@ -45,9 +46,7 @@ const mbToBytes = (mb: number) => mb * 1024 * 1024;
 const bytesToMB = (bytes: number) => bytes / (1024 * 1024);
 
 export default function FileTypeManager() {
-  const [fileTypes, setFileTypes] = useState<FileType[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: fileTypes = [], isLoading: loading, error, refetch } = useFileTypes();
   const [categories, setCategories] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<string>("all");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -73,26 +72,14 @@ export default function FileTypeManager() {
   });
 
   const fetchFileTypes = async () => {
-    setLoading(true);
-    try {
-      const data = await getAllFileTypes();
-      setFileTypes(data);
-      setError(null);
-      
-      // Extract categories
-      const uniqueCategories = Array.from(
-        new Set(data.map((type: FileType) => type.category))
-      );
-      setCategories(uniqueCategories as string[]);
-      
-      if (uniqueCategories.length > 0 && activeTab === 'all') {
-        setActiveTab(uniqueCategories[0] as string);
-      }
-    } catch (error) {
-      console.error('Error fetching file types:', error);
-      setError('Failed to load file types');
-    } finally {
-      setLoading(false);
+    // Deprecated: now using React Query via useFileTypes. Keep function name to minimize diff in usages.
+    const data = fileTypes;
+    const uniqueCategories = Array.from(
+      new Set(data.map((type: FileType) => type.category))
+    );
+    setCategories(uniqueCategories as string[]);
+    if (uniqueCategories.length > 0 && activeTab === 'all') {
+      setActiveTab(uniqueCategories[0] as string);
     }
   };
 
@@ -174,7 +161,7 @@ export default function FileTypeManager() {
       });
       
       // Refresh data
-      fetchFileTypes();
+      refetch();
     } catch (error: any) {
       console.error('Error creating file type:', error);
       toast.error(error.message || 'Failed to create file type');
@@ -194,7 +181,7 @@ export default function FileTypeManager() {
       setFileTypeToDelete(null);
       
       // Refresh data
-      fetchFileTypes();
+      refetch();
     } catch (error: any) {
       console.error('Error deleting file type:', error);
       
@@ -210,7 +197,7 @@ export default function FileTypeManager() {
 
   useEffect(() => {
     fetchFileTypes();
-  }, []);
+  }, [fileTypes.length]);
 
   const filteredFileTypes = activeTab === 'all'
     ? fileTypes

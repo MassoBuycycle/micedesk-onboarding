@@ -6,6 +6,7 @@ import FileUpload from './FileUpload';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getEntityFiles, deleteFile, FileData } from '@/apiClient/filesApi';
+import { useEntityFiles, useDeleteFile } from '@/hooks/useEntityFiles';
 
 interface SectionFileUploadProps {
   entityId?: number | string; // Hotel ID (can be null initially)
@@ -81,17 +82,8 @@ export default function SectionFileUpload({
 
   // Fetch existing files
   const queryClient = useQueryClient();
-  const { data: existingFiles = [], isLoading: loadingFiles } = useQuery<FileData[]>({
-    queryKey: ['sectionFiles', uploadEntityType, uploadEntityId, uploadCategory],
-    queryFn: () => getEntityFiles(uploadEntityType, uploadEntityId!, uploadCategory),
-    enabled: !!uploadEntityId,
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const deleteMut = useMutation({
-    mutationFn: (fileId:number)=>deleteFile(fileId),
-    onSuccess: ()=> queryClient.invalidateQueries({ queryKey: ['sectionFiles', uploadEntityType, uploadEntityId, uploadCategory] }),
-  });
+  const { data: existingFiles = [], isLoading: loadingFiles } = useEntityFiles(uploadEntityType, uploadEntityId, uploadCategory);
+  const deleteMut = useDeleteFile(uploadEntityType, uploadEntityId, uploadCategory);
 
   return (
     <Card className={`mt-6 ${className}`}>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   Table, 
   TableBody, 
@@ -19,7 +19,8 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { getFileIcon } from '@/lib/fileUtils.tsx';
-import { FileData, getEntityFiles, deleteFile } from '@/apiClient/filesApi';
+import { FileData } from '@/apiClient/filesApi';
+import { useEntityFiles, useDeleteFile } from '@/hooks/useEntityFiles';
 import {
   Dialog,
   DialogContent,
@@ -47,47 +48,23 @@ export default function FileBrowser({
   onFileDelete,
   className = '',
 }: FileBrowserProps) {
-  const [files, setFiles] = useState<FileData[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [fileToDelete, setFileToDelete] = useState<FileData | null>(null);
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const { data: files = [], isLoading, error } = useEntityFiles(entityType, entityId, category);
+  const deleteMut = useDeleteFile(entityType, entityId, category);
 
-  const fetchFiles = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const fileData = await getEntityFiles(entityType, entityId, category);
-      setFiles(fileData);
-    } catch (error: any) {
-      console.error('Error fetching files:', error);
-      setError(error.message || 'Failed to load files');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteFile = async () => {
+  const handleDeleteFile = () => {
     if (!fileToDelete) return;
-
-    setIsDeleting(true);
-    try {
-      await deleteFile(fileToDelete.id);
-      
-      // Update the file list
-      setFiles(files.filter(file => file.id !== fileToDelete.id));
-      toast.success('File deleted successfully');
-      
-      // Call the onFileDelete callback if provided
-      if (onFileDelete) onFileDelete();
-    } catch (error: any) {
-      console.error('Error deleting file:', error);
-      toast.error(error.message || 'Failed to delete file');
-    } finally {
-      setIsDeleting(false);
-      setFileToDelete(null);
-    }
+    deleteMut.mutate(fileToDelete.id, {
+      onSuccess: () => {
+        toast.success('File deleted successfully');
+        if (onFileDelete) onFileDelete();
+        setFileToDelete(null);
+      },
+      onError: (err: any) => {
+        console.error('Error deleting file:', err);
+        toast.error(err?.message || 'Failed to delete file');
+      }
+    });
   };
 
   const formatFileSize = (bytes: number) => {
@@ -107,27 +84,24 @@ export default function FileBrowser({
     }).format(date);
   };
 
-  useEffect(() => {
-    if (entityId) {
-      fetchFiles();
-    }
-  }, [entityType, entityId, category]);
+  const sortedFiles = (files || []).slice().sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   return (
+    <>
     <Card className={className}>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        {loading ? (
+        {isLoading ? (
           <div className="flex h-32 items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : error ? (
           <div className="flex h-32 items-center justify-center">
-            <p className="text-destructive">{error}</p>
+            <p className="text-destructive">{(error as any)?.message || 'Failed to load files'}</p>
           </div>
-        ) : files.length === 0 ? (
+        ) : sortedFiles.length === 0 ? (
           <div className="flex h-32 items-center justify-center">
             <p className="text-muted-foreground">No files found</p>
           </div>
@@ -143,7 +117,7 @@ export default function FileBrowser({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {files.map((file) => (
+              {sortedFiles.map((file) => (
                 <TableRow key={file.id}>
                   <TableCell>
                     <div className="flex items-center space-x-2">
@@ -165,47 +139,14 @@ export default function FileBrowser({
                       >
                         <Download className="h-4 w-4" />
                       </Button>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setFileToDelete(file)}
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Delete File</DialogTitle>
-                            <DialogDescription>
-                              Are you sure you want to delete "{fileToDelete?.original_name}"? This action cannot be undone.
-                            </DialogDescription>
-                          </DialogHeader>
-                          <DialogFooter>
-                            <Button
-                              variant="outline"
-                              onClick={() => setFileToDelete(null)}
-                            >
-                              Cancel
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              onClick={handleDeleteFile}
-                              disabled={isDeleting}
-                            >
-                              {isDeleting ? (
-                                <>
-                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                  Deleting...
-                                </>
-                              ) : (
-                                'Delete'
-                              )}
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setFileToDelete(file)}
+                        title="Delete"
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -215,5 +156,40 @@ export default function FileBrowser({
         )}
       </CardContent>
     </Card>
+    {fileToDelete && (
+      <Dialog open={!!fileToDelete} onOpenChange={(open) => { if (!open) setFileToDelete(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete File</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete "{fileToDelete.original_name}"? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setFileToDelete(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteFile}
+              disabled={deleteMut.isPending}
+            >
+              {deleteMut.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    )}
+    </>
   );
 } 
