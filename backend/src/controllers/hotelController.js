@@ -15,7 +15,7 @@ const HOTEL_FIELDS = [
   'total_rooms', 'conference_rooms', 'pms_system',
   'opening_time_pool', 'opening_time_fitness_center', 'equipment_fitness_center',
   'opening_time_spa_area', 'equipment_spa_area',
-  'planned_changes', 'attraction_in_the_area', 'additional_links',
+  'planned_changes', 'attraction_in_the_area', 'additional_links', 'external_billing_id',
   // Billing
   'billing_address_name', 'billing_address_street', 'billing_address_zip',
   'billing_address_city', 'billing_address_vat',

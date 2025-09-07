@@ -677,6 +677,7 @@ export function useHotelFormState() {
             const payload: MainRoomConfigInput = {
               hotel_id: currentHotelId,
               main_contact_name: formValues.main_contact_name_room, 
+              main_contact_position: formValues.main_contact_position_room,
               reception_hours: formValues.reception_hours,
               phone: formValues.room_phone, 
               email: formValues.room_email, 
