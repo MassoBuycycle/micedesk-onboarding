@@ -1040,10 +1040,7 @@ export function useHotelFormState() {
               // Technical data
               if (evData.technical && Object.keys(evData.technical).length > 0) {
                 console.log("API call: upsertTechnical with data:", evData.technical);
-                // TODO: Uncomment when backend endpoint is implemented
-                /*
                 try {
-                  // Import the technical API if available
                   const { createOrUpdateEventTechnicalInfo } = await import('@/apiClient/eventsApi');
                   const techRes = await createOrUpdateEventTechnicalInfo(eventId, evData.technical);
                   console.log("upsertTechnical response:", techRes);
@@ -1051,8 +1048,6 @@ export function useHotelFormState() {
                   console.error("Error in upsertTechnical:", err);
                   toast.error("Failed to save technical data but proceeding");
                 }
-                */
-                console.log("Technical endpoint not yet implemented in backend - skipping");
               }
               
               // Contracting data
