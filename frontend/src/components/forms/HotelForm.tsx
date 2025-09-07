@@ -63,6 +63,7 @@ const createHotelFormSchema = (t: any) => z.object({
   
   // Location & Distances
   distanceToAirportKm: z.coerce.number().optional(),
+  airportNote: z.string().optional().or(z.literal('')),
   distanceToHighwayKm: z.coerce.number().optional(),
   distanceToFairKm: z.coerce.number().optional(),
   distanceToTrainStation: z.coerce.number().optional(),
@@ -143,6 +144,7 @@ const HotelForm = ({ initialData = {}, onNext, onChange, mode = 'add' }: HotelFo
       openingDate: undefined,
       latestRenovationDate: undefined,
       distanceToAirportKm: undefined,
+      airportNote: '',
       distanceToHighwayKm: undefined,
       distanceToFairKm: undefined,
       distanceToTrainStation: undefined,
@@ -257,6 +259,7 @@ const HotelForm = ({ initialData = {}, onNext, onChange, mode = 'add' }: HotelFo
         parking_cost_per_day: data.parkingCostPerDay || 0,
         parking_remarks: data.parkingRemarks || '',
         distance_to_airport_km: data.distanceToAirportKm || 0,
+        airport_note: data.airportNote || '',
         distance_to_highway_km: data.distanceToHighwayKm || 0,
         distance_to_fair_km: data.distanceToFairKm || 0,
         distance_to_train_station: data.distanceToTrainStation || 0,

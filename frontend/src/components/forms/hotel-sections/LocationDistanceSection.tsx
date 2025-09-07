@@ -35,6 +35,14 @@ const LocationDistanceSection = ({ form }: LocationDistanceSectionProps) => {
           placeholder="0.0"
           className="text-sm"
         />
+        <TextareaField
+          form={form}
+          name="airportNote"
+          label={t('hotel.airportNote')}
+          placeholder={t('forms.placeholders.optionalNote')}
+          rows={2}
+          className="text-sm"
+        />
         
         <NumberField
           form={form}

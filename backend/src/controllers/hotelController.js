@@ -22,7 +22,7 @@ const HOTEL_FIELDS = [
   // Contacts
   'phone', 'general_manager_name', 'general_manager_phone', 'general_manager_email', 'email', 'website',
   // Distances
-  'distance_to_airport_km', 'distance_to_highway_km', 'distance_to_fair_km',
+  'distance_to_airport_km', 'airport_note', 'distance_to_highway_km', 'distance_to_fair_km',
   'distance_to_train_station', 'distance_to_public_transport',
   // Parking
   'no_of_parking_spaces', 'no_of_parking_spaces_garage', 'no_of_parking_spaces_electric',
