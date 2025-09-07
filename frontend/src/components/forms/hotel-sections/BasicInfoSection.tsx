@@ -114,6 +114,14 @@ const BasicInfoSection = ({ form }: BasicInfoSectionProps) => {
           type="url"
           placeholder={t("forms.placeholders.enterWebsite")}
           className="text-sm"
+          onBlur={(e:any)=>{
+            const val = e.target.value?.trim();
+            if (!val) return;
+            // If no scheme present, prepend https://
+            if (!/^https?:\/\//i.test(val)) {
+              form.setValue('website', `https://${val}`);
+            }
+          }}
         />
       </TwoColumnGrid>
 
