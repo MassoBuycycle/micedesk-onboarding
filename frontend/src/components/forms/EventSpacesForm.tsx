@@ -45,13 +45,13 @@ const initialSpaceState: EventSpace = {
   half_day_rate: "",
   size: "",
   dimensions: "",
-  cap_rounds: 0,
-  cap_theatre: 0,
-  cap_classroom: 0,
-  cap_u_shape: 0,
-  cap_boardroom: 0,
-  cap_cabaret: 0,
-  cap_cocktail: 0,
+  cap_rounds: "",
+  cap_theatre: "",
+  cap_classroom: "",
+  cap_u_shape: "",
+  cap_boardroom: "",
+  cap_cabaret: "",
+  cap_cocktail: "",
   features: ""
 };
 
@@ -300,9 +300,10 @@ const EventSpacesForm = ({ initialData = [], selectedHotel, createdEventId, onNe
                     id={`cap_theatre-${space.id}`} 
                     type="number"
                     min="0"
-                    value={space.cap_theatre}
+                    value={space.cap_theatre || ''}
                     onChange={(e) => updateEventSpace(space.id!, "cap_theatre", e.target.value)}
-                    placeholder="0"
+                    placeholder={t('events.eventForm.spaces.theatre')}
+                    onWheel={(e) => e.currentTarget.blur()}
                   />
                 </div>
                 
@@ -312,9 +313,10 @@ const EventSpacesForm = ({ initialData = [], selectedHotel, createdEventId, onNe
                     id={`cap_classroom-${space.id}`} 
                     type="number"
                     min="0"
-                    value={space.cap_classroom}
+                    value={space.cap_classroom || ''}
                     onChange={(e) => updateEventSpace(space.id!, "cap_classroom", e.target.value)}
-                    placeholder="0"
+                    placeholder={t('events.eventForm.spaces.classroom')}
+                    onWheel={(e) => e.currentTarget.blur()}
                   />
                 </div>
                 
@@ -324,9 +326,10 @@ const EventSpacesForm = ({ initialData = [], selectedHotel, createdEventId, onNe
                     id={`cap_u_shape-${space.id}`} 
                     type="number"
                     min="0"
-                    value={space.cap_u_shape}
+                    value={space.cap_u_shape || ''}
                     onChange={(e) => updateEventSpace(space.id!, "cap_u_shape", e.target.value)}
-                    placeholder="0"
+                    placeholder={t('events.eventForm.spaces.uShape')}
+                    onWheel={(e) => e.currentTarget.blur()}
                   />
                 </div>
                 
@@ -336,9 +339,10 @@ const EventSpacesForm = ({ initialData = [], selectedHotel, createdEventId, onNe
                     id={`cap_boardroom-${space.id}`} 
                     type="number"
                     min="0"
-                    value={space.cap_boardroom}
+                    value={space.cap_boardroom || ''}
                     onChange={(e) => updateEventSpace(space.id!, "cap_boardroom", e.target.value)}
-                    placeholder="0"
+                    placeholder={t('events.eventForm.spaces.boardroom')}
+                    onWheel={(e) => e.currentTarget.blur()}
                   />
                 </div>
                 
@@ -348,9 +352,10 @@ const EventSpacesForm = ({ initialData = [], selectedHotel, createdEventId, onNe
                     id={`cap_rounds-${space.id}`} 
                     type="number"
                     min="0"
-                    value={space.cap_rounds}
+                    value={space.cap_rounds || ''}
                     onChange={(e) => updateEventSpace(space.id!, "cap_rounds", e.target.value)}
-                    placeholder="0"
+                    placeholder={t('events.eventForm.spaces.rounds')}
+                    onWheel={(e) => e.currentTarget.blur()}
                   />
                 </div>
                 
@@ -360,9 +365,10 @@ const EventSpacesForm = ({ initialData = [], selectedHotel, createdEventId, onNe
                     id={`cap_cabaret-${space.id}`} 
                     type="number"
                     min="0"
-                    value={space.cap_cabaret}
+                    value={space.cap_cabaret || ''}
                     onChange={(e) => updateEventSpace(space.id!, "cap_cabaret", e.target.value)}
-                    placeholder="0"
+                    placeholder={t('events.eventForm.spaces.cabaret')}
+                    onWheel={(e) => e.currentTarget.blur()}
                   />
                 </div>
               </div>

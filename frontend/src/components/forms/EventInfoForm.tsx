@@ -784,13 +784,13 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
                 form={form}
                 name={`equipment.${idx}.quantity`}
                 label=""
-                placeholder="0"
+                placeholder={t('events.eventForm.equipment.quantity')}
               />
               <NumberField
                 form={form}
                 name={`equipment.${idx}.price`}
                 label=""
-                placeholder="0.00"
+                placeholder={t('events.eventForm.equipment.pricePerUnit')}
                 step="0.01"
               />
             </div>

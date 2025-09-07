@@ -33,19 +33,19 @@ const roomFormSchema = z.object({
   room_email: z.string().email("Invalid email address"),
   check_in_time: z.string().min(1, "Check-in time is required"),
   check_out_time: z.string().min(1, "Check-out time is required"),
-  early_checkin_fee: z.coerce.number().min(0).default(0),
-  late_checkout_fee: z.coerce.number().min(0).default(0),
+  early_checkin_fee: z.preprocess((v) => v === '' || v === null ? undefined : v, z.coerce.number().min(0).optional()),
+  late_checkout_fee: z.preprocess((v) => v === '' || v === null ? undefined : v, z.coerce.number().min(0).optional()),
   early_check_in_time_frame: z.string().optional(),
   late_check_out_tme: z.string().optional(),
   reception_hours: z.string().optional(),
   payment_methods: z.array(z.string()).default([]),
   standard_features: z.array(z.string()).default([]),
-  single_rooms: z.coerce.number().min(0).default(0),
-  double_rooms: z.coerce.number().min(0).default(0),
-  connected_rooms: z.coerce.number().min(0).default(0),
-  accessible_rooms: z.coerce.number().min(0).default(0),
+  single_rooms: z.preprocess((v) => v === '' || v === null ? undefined : v, z.coerce.number().min(0).optional()),
+  double_rooms: z.preprocess((v) => v === '' || v === null ? undefined : v, z.coerce.number().min(0).optional()),
+  connected_rooms: z.preprocess((v) => v === '' || v === null ? undefined : v, z.coerce.number().min(0).optional()),
+  accessible_rooms: z.preprocess((v) => v === '' || v === null ? undefined : v, z.coerce.number().min(0).optional()),
   dogs_allowed: z.boolean().default(false),
-  dog_fee: z.coerce.number().min(0).default(0),
+  dog_fee: z.preprocess((v) => v === '' || v === null ? undefined : v, z.coerce.number().min(0).optional()),
   dog_fee_inclusions: z.string().optional(),
 });
 
@@ -73,19 +73,19 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
       room_email: '',
       check_in_time: '14:00',
       check_out_time: '12:00',
-      early_checkin_fee: 0,
-      late_checkout_fee: 0,
+      early_checkin_fee: undefined as unknown as number, // leave empty
+      late_checkout_fee: undefined as unknown as number, // leave empty
       early_check_in_time_frame: '',
       late_check_out_tme: '',
       reception_hours: '24/7',
       payment_methods: [],
       standard_features: [],
-      single_rooms: 0,
-      double_rooms: 0,
-      connected_rooms: 0,
-      accessible_rooms: 0,
+      single_rooms: undefined as unknown as number, // leave empty
+      double_rooms: undefined as unknown as number, // leave empty
+      connected_rooms: undefined as unknown as number, // leave empty
+      accessible_rooms: undefined as unknown as number, // leave empty
       dogs_allowed: false,
-      dog_fee: 0,
+      dog_fee: undefined as unknown as number, // leave empty
       dog_fee_inclusions: '',
       ...initialData
     }
@@ -277,7 +277,7 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                   <FormItem>
                     <FormLabel>{t('rooms.earlyCheckInFee')}</FormLabel>
                     <FormControl>
-                      <Input type="number" min="0" step="0.01" {...field} />
+                      <Input type="number" min="0" step="0.01" placeholder={t('rooms.earlyCheckInFee')} {...field} value={field.value ?? ''} onWheel={(e) => e.currentTarget.blur()} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -305,7 +305,7 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                   <FormItem>
                     <FormLabel>{t('rooms.lateCheckOutFee')}</FormLabel>
                     <FormControl>
-                      <Input type="number" min="0" step="0.01" {...field} />
+                      <Input type="number" min="0" step="0.01" placeholder={t('rooms.lateCheckOutFee')} {...field} value={field.value ?? ''} onWheel={(e) => e.currentTarget.blur()} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -344,7 +344,7 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                   <FormItem>
                     <FormLabel>{t('rooms.singleRooms')}</FormLabel>
                     <FormControl>
-                      <Input type="number" min="0" {...field} />
+                      <Input type="number" min="0" placeholder={t('rooms.singleRooms')} {...field} value={field.value ?? ''} onWheel={(e) => e.currentTarget.blur()} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -358,7 +358,7 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                   <FormItem>
                     <FormLabel>{t('rooms.doubleRooms')}</FormLabel>
                     <FormControl>
-                      <Input type="number" min="0" {...field} />
+                      <Input type="number" min="0" placeholder={t('rooms.doubleRooms')} {...field} value={field.value ?? ''} onWheel={(e) => e.currentTarget.blur()} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -372,7 +372,7 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                   <FormItem>
                     <FormLabel>{t('rooms.connectedRooms')}</FormLabel>
                     <FormControl>
-                      <Input type="number" min="0" {...field} />
+                      <Input type="number" min="0" placeholder={t('rooms.connectedRooms')} {...field} value={field.value ?? ''} onWheel={(e) => e.currentTarget.blur()} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -386,7 +386,7 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                   <FormItem>
                     <FormLabel>{t('rooms.accessibleRooms')}</FormLabel>
                     <FormControl>
-                      <Input type="number" min="0" {...field} />
+                      <Input type="number" min="0" placeholder={t('rooms.accessibleRooms')} {...field} value={field.value ?? ''} onWheel={(e) => e.currentTarget.blur()} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -519,7 +519,7 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                     <FormItem>
                       <FormLabel>{t('rooms.dogFee')}</FormLabel>
                       <FormControl>
-                        <Input type="number" min="0" step="0.01" {...field} />
+                        <Input type="number" min="0" step="0.01" placeholder={t('rooms.dogFee')} {...field} value={field.value ?? ''} onWheel={(e) => e.currentTarget.blur()} />
                       </FormControl>
                       <FormDescription>{t('rooms.dogFeeDescription')}</FormDescription>
                       <FormMessage />

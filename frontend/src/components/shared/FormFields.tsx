@@ -101,8 +101,16 @@ export const NumberField: React.FC<NumberFieldProps> = ({
             max={max}
             step={step}
             {...field}
-            // Ensure field.onChange receives a number
-            onChange={e => field.onChange(e.target.valueAsNumber)}
+            value={field.value ?? ''}
+            // Ensure field.onChange supports empty values
+            onChange={e => {
+              const value = e.target.value;
+              if (value === '') {
+                field.onChange(undefined);
+              } else {
+                field.onChange(e.target.valueAsNumber);
+              }
+            }}
             // Prevent scroll wheel from changing the value
             onWheel={(e) => e.currentTarget.blur()}
             // Add class to hide spinner buttons

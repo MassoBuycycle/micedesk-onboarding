@@ -43,13 +43,13 @@ const formSchema = z.object({
     id: z.number().optional(),
     category_name: z.string().min(1, "Kategoriename ist erforderlich"),
     pms_name: z.string().optional(),
-    num_rooms: z.number().min(0, "Anzahl Zimmer muss 0 oder mehr sein"),
-    size: z.number().min(0, "Größe muss 0 oder mehr sein"),
+    num_rooms: z.preprocess((v) => v === '' || v === null ? undefined : v, z.number().min(0, "Anzahl Zimmer muss 0 oder mehr sein").optional()),
+    size: z.preprocess((v) => v === '' || v === null ? undefined : v, z.number().min(0, "Größe muss 0 oder mehr sein").optional()),
     bed_type: z.string().optional(),
     room_features: z.string().optional(),
     surcharges_upsell: z.string().optional(),
-    second_person_surcharge: z.number().min(0, "Aufpreis muss 0 oder mehr sein"),
-    extra_bed_surcharge: z.number().min(0, "Aufpreis muss 0 oder mehr sein"),
+    second_person_surcharge: z.number().min(0, "Aufpreis muss 0 oder mehr sein").optional(),
+    extra_bed_surcharge: z.number().min(0, "Aufpreis muss 0 oder mehr sein").optional(),
     baby_bed_available: z.boolean().default(false).nullable(),
     extra_bed_available: z.boolean().default(false).nullable(),
     isAccessible: z.boolean().default(false).nullable(),
@@ -105,13 +105,13 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
         extra_bed_available: false,
         baby_bed_available: false,
         pms_name: '',
-        num_rooms: 0,
-        size: 0,
+        num_rooms: undefined as unknown as number,
+        size: undefined as unknown as number,
         bed_type: '',
         room_features: '',
-        surcharges_upsell: '0',
-        second_person_surcharge: 0,
-        extra_bed_surcharge: 0,
+        surcharges_upsell: '',
+        second_person_surcharge: undefined as unknown as number,
+        extra_bed_surcharge: undefined as unknown as number,
         isAccessible: false,
         hasBalcony: false,
        }],
@@ -217,7 +217,7 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                   render={({ field }) => (
                                       <FormItem>
                     <FormLabel>Anzahl Zimmer</FormLabel>
-                    <FormControl><Input type="number" min="0" placeholder="0" {...field} value={field.value || '0'} onWheel={(e) => e.currentTarget.blur()} /></FormControl>
+                    <FormControl><Input type="number" min="0" placeholder="Anzahl Zimmer" {...field} value={field.value ?? ''} onWheel={(e) => e.currentTarget.blur()} /></FormControl>
                     <FormMessage />
                   </FormItem>
                   )}
@@ -230,7 +230,7 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Größe (m²)</FormLabel>
-                      <FormControl><Input type="number" min="0" placeholder="0" {...field} value={field.value || '0'} /></FormControl>
+                      <FormControl><Input type="number" min="0" placeholder="Größe (m²)" {...field} value={field.value ?? ''} onWheel={(e) => e.currentTarget.blur()} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

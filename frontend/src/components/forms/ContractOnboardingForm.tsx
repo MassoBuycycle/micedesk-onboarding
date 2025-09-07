@@ -140,7 +140,7 @@ const ContractOnboardingForm: React.FC<ContractOnboardingFormProps> = ({
             type="number"
             value={localData.fte_count || ''}
             onChange={(e) => handleNumberChange('fte_count', e.target.value)}
-            placeholder="0"
+            placeholder={t('contract.fteCount')}
             disabled={readOnly}
             className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             onWheel={(e) => e.currentTarget.blur()}
