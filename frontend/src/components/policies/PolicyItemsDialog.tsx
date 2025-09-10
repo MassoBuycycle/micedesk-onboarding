@@ -201,7 +201,13 @@ const PolicyItemsDialog = ({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form 
+            onSubmit={form.handleSubmit(onSubmit, (errors) => {
+              console.error('Policy items validation errors:', errors);
+              toast.error('Bitte prüfen Sie die Eingaben in den Richtlinien-Elementen');
+            })}
+            className="space-y-6"
+          >
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-medium">Policy Items</h4>
@@ -389,7 +395,13 @@ const PolicyItemsDialog = ({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button 
+                type="submit" 
+                disabled={isSubmitting}
+                onClick={() => {
+                  console.log('Save Items clicked');
+                }}
+              >
                 {isSubmitting ? 'Saving...' : 'Save Items'}
               </Button>
             </DialogFooter>
