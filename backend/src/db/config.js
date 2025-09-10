@@ -10,7 +10,12 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME || 'hotel_cms',
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  // Faster failure when DB is unreachable
+  connectTimeout: Number(process.env.DB_CONNECT_TIMEOUT_MS || 10000), // 10s
+  // Keep TCP connections alive to reduce idle disconnects
+  enableKeepAlive: true,
+  keepAliveInitialDelay: Number(process.env.DB_KEEPALIVE_DELAY_MS || 10000) // 10s
 });
 
 // ------------------------------------------------------------------
@@ -90,3 +95,23 @@ pool.getConnection = async (...args) => {
 };
 
 export default pool; 
+
+// ------------------------------------------------------------------
+// Background keepalive ping to prevent idle disconnects in hosted envs
+// ------------------------------------------------------------------
+// Only run in non-test environments and when not explicitly disabled
+if (process.env.NODE_ENV !== 'test' && process.env.DB_KEEPALIVE !== 'false') {
+  const intervalMs = Number(process.env.DB_KEEPALIVE_INTERVAL_MS || 45000); // 45s
+  const keepAlive = async () => {
+    try {
+      await pool.query('SELECT 1');
+    } catch (err) {
+      console.warn('[DB keepalive] ping failed:', err.message);
+    }
+  };
+  const timer = setInterval(keepAlive, intervalMs);
+  // Do not keep the event loop alive for this timer
+  if (typeof timer.unref === 'function') {
+    timer.unref();
+  }
+}

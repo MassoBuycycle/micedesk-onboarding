@@ -134,11 +134,11 @@ const RoomTypeDetailsForm: React.FC<RoomTypeDetailsFormProps> = ({
             onClick={() => onPrevious(form.getValues())}
             className="gap-1"
           >
-            <ArrowLeft className="h-4 w-4" /> Previous
+            <ArrowLeft className="h-4 w-4" /> {t('common.previous')}
           </Button>
           
           <Button type="submit" className="gap-1">
-             Next <ArrowRight className="h-4 w-4" />
+             {t('common.next')} <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
       </form>

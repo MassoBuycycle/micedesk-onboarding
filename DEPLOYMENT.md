@@ -243,3 +243,57 @@ Your Database Server
 - [ ] SSL/TLS enabled where possible
 
 **🎉 You're live!** Both services auto-deploy on code changes. 
+
+---
+
+## 🛡️ Railway Reliability Settings (Prevent random unresponsiveness)
+
+Configure these in your Railway service to keep the backend stable:
+
+### Health checks
+- Health Check Path: `/ready` (ensures DB connectivity)
+- Expect status: 200-299
+- Railway will only mark deployments healthy once this returns OK. Unhealthy services auto-restart.
+
+### Restart policy and scale
+- Restart Policy: On Failure (default) or Always (both are fine with health checks enabled)
+- Min Instances: 1
+
+### Prevent sleeping/idle shutdowns
+- Free/dev plans may sleep on inactivity. To avoid:
+  - Use a paid plan, or
+  - Set an external uptime monitor (e.g., UptimeRobot) to ping `/health` every 5 minutes.
+
+### Environment variables for stability
+Add these in Railway → Variables (matching the new backend hardening):
+
+```bash
+# DB connection hardening
+DB_CONNECT_TIMEOUT_MS=10000
+DB_KEEPALIVE=true
+DB_KEEPALIVE_INTERVAL_MS=45000
+DB_KEEPALIVE_DELAY_MS=10000
+
+# Server
+NODE_ENV=production
+PORT=3001
+```
+
+### Graceful shutdown
+The server handles `SIGTERM`/`SIGINT`, finishes in-flight requests, closes the DB pool, then exits. Railway will roll to a new instance automatically on deploys.
+
+### Timeouts
+HTTP keep-alive, headers, and request timeouts are set in code to prevent slowloris/hanging requests. If you use a custom proxy in front of Railway, align its timeouts with:
+- keepAliveTimeout ≈ 61s
+- headersTimeout ≈ 65s
+- requestTimeout ≈ 30s
+
+### Monitoring & alerts
+- Add a monitor to `/ready` to catch DB outages early.
+- Enable Railway notifications to Slack/Discord for deploy failures and restarts.
+- Use `railway logs` to inspect incidents.
+
+### Troubleshooting unresponsive service
+- Check `/health` (process up) vs `/ready` (process + DB ready).
+- If `/health` is OK but `/ready` fails: investigate database connectivity, credentials, or firewall.
+- Review recent deploys and logs for OOM or unhandled exceptions.

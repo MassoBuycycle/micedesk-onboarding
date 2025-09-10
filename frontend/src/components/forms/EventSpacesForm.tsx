@@ -308,14 +308,14 @@ const EventSpacesForm = ({ initialData = [], selectedHotel, createdEventId, onNe
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor={`cap_classroom-${space.id}`}>{t('events.eventForm.spaces.classroom')}</Label>
+                  <Label htmlFor={`cap_classroom-${space.id}`}>{t('events.eventForm.spaces.parliamentary') || t('events.eventForm.spaces.classroom')}</Label>
                   <Input 
                     id={`cap_classroom-${space.id}`} 
                     type="number"
                     min="0"
                     value={space.cap_classroom || ''}
                     onChange={(e) => updateEventSpace(space.id!, "cap_classroom", e.target.value)}
-                    placeholder={t('events.eventForm.spaces.classroom')}
+                    placeholder={t('events.eventForm.spaces.parliamentary') || t('events.eventForm.spaces.classroom')}
                     onWheel={(e) => e.currentTarget.blur()}
                   />
                 </div>
@@ -334,27 +334,27 @@ const EventSpacesForm = ({ initialData = [], selectedHotel, createdEventId, onNe
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor={`cap_boardroom-${space.id}`}>{t('events.eventForm.spaces.boardroom')}</Label>
+                  <Label htmlFor={`cap_boardroom-${space.id}`}>{t('events.eventForm.spaces.block') || t('events.eventForm.spaces.boardroom')}</Label>
                   <Input 
                     id={`cap_boardroom-${space.id}`} 
                     type="number"
                     min="0"
                     value={space.cap_boardroom || ''}
                     onChange={(e) => updateEventSpace(space.id!, "cap_boardroom", e.target.value)}
-                    placeholder={t('events.eventForm.spaces.boardroom')}
+                    placeholder={t('events.eventForm.spaces.block') || t('events.eventForm.spaces.boardroom')}
                     onWheel={(e) => e.currentTarget.blur()}
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor={`cap_rounds-${space.id}`}>{t('events.eventForm.spaces.rounds')}</Label>
+                  <Label htmlFor={`cap_rounds-${space.id}`}>{t('events.eventForm.spaces.roundTables') || t('events.eventForm.spaces.rounds')}</Label>
                   <Input 
                     id={`cap_rounds-${space.id}`} 
                     type="number"
                     min="0"
                     value={space.cap_rounds || ''}
                     onChange={(e) => updateEventSpace(space.id!, "cap_rounds", e.target.value)}
-                    placeholder={t('events.eventForm.spaces.rounds')}
+                    placeholder={t('events.eventForm.spaces.roundTables') || t('events.eventForm.spaces.rounds')}
                     onWheel={(e) => e.currentTarget.blur()}
                   />
                 </div>
@@ -381,10 +381,10 @@ const EventSpacesForm = ({ initialData = [], selectedHotel, createdEventId, onNe
 
       <div className="flex justify-between mt-8">
         <Button type="button" variant="outline" onClick={handlePrevious} className="gap-1">
-          <ArrowLeft className="h-4 w-4" /> Previous
+          <ArrowLeft className="h-4 w-4" /> {t('common.previous')}
         </Button>
         <Button type="button" onClick={handleNext} className="gap-1">
-          Next <ArrowRight className="h-4 w-4" />
+          {t('common.next')} <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
     </div>

@@ -805,10 +805,14 @@
         "seatingCapacities": "Bestuhlung",
         "theatre": "Theater",
         "classroom": "Schulung",
+        "parliamentary": "Parlamentarisch",
         "uShape": "U-Form",
         "boardroom": "Boardroom",
+        "block": "Block",
         "rounds": "Rundtische",
+        "roundTables": "Runde Tische",
         "cabaret": "Cabaret",
+        "cocktail": "Empfang",
         "validationRequired": "Bitte geben Sie einen Namen für alle Veranstaltungsräume an",
         "mustHaveOne": "Sie müssen mindestens einen Veranstaltungsraum haben"
       }
