@@ -1,3 +1,11 @@
+/**
+ * Typed API client helpers wrapping fetch with auth and error handling.
+ *
+ * Exports helpers for GET/POST/PUT/PATCH/DELETE that:
+ * - Attach JWT auth headers when present
+ * - Provide uniform error parsing via handleResponseError
+ * - Offer optional debug logging controlled by API_LOGGING_ENABLED
+ */
 import { API_BASE_URL, API_LOGGING_ENABLED } from './config';
 import { getAuthToken } from './authApi';
 
@@ -7,13 +15,8 @@ import { getAuthToken } from './authApi';
 const logApiCall = (method: string, endpoint: string, data?: any, headers?: any) => {
   if (!API_LOGGING_ENABLED) return;
   
-  console.group(`🚀 ${method} ${endpoint}`);
-  console.log('URL:', `${API_BASE_URL}${endpoint}`);
-  console.log('Headers:', headers);
   if (data) {
-    console.log('Request Body:', data);
   }
-  console.groupEnd();
 };
 
 /**
@@ -23,11 +26,6 @@ const logApiResponse = (method: string, endpoint: string, response: Response, da
   if (!API_LOGGING_ENABLED) return;
   
   const logStyle = response.ok ? '✅' : '❌';
-  console.group(`${logStyle} ${method} ${endpoint} - ${response.status} ${response.statusText}`);
-  console.log('Status:', response.status);
-  console.log('Response Headers:', Object.fromEntries(response.headers.entries()));
-  console.log('Response Body:', data);
-  console.groupEnd();
 };
 
 /**

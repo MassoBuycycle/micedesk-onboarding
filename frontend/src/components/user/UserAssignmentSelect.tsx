@@ -140,7 +140,6 @@ const UserAssignmentSelect = ({ hotelId, hotelName, onAssignUser }: UserAssignme
         setError(null);
         prevHotelIdRef.current = hotelId;
       } catch (err) {
-        console.error("Error fetching users:", err);
         setError("Failed to load users. Using mock data as fallback.");
         // Use mock data as fallback
         const mockAssignedUsers = mockUsers.filter(user => 
@@ -211,7 +210,6 @@ const UserAssignmentSelect = ({ hotelId, hotelName, onAssignUser }: UserAssignme
         
         successCount++;
       } catch (err) {
-        console.error(`Error assigning user ${userId}:`, err);
         errorCount++;
       }
     }
@@ -257,7 +255,6 @@ const UserAssignmentSelect = ({ hotelId, hotelName, onAssignUser }: UserAssignme
       
       toast.success(`${userToRemove.name} has been removed from ${hotelName}`);
     } catch (err) {
-      console.error("Error removing user:", err);
       toast.error("Failed to remove user. Please try again.");
     }
   };

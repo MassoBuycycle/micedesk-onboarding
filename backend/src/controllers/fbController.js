@@ -52,7 +52,6 @@ export const upsertFbContact = async (req, res, next) => {
             data: updatedContact[0] 
         });
     } catch (error) {
-        console.error('Error in upsertFbContact:', error);
         if (error.code === 'ER_NO_REFERENCED_ROW_2') { // Should be caught by hotel existence check
             return res.status(400).json({ error: `Hotel with ID ${hotelId} not found (foreign key constraint).` });
         }
@@ -81,7 +80,6 @@ export const getFbContact = async (req, res, next) => {
         }
         res.status(200).json({ success: true, data: contact[0] });
     } catch (error) {
-        console.error('Error in getFbContact:', error);
         next(error);
     } finally {
         if (connection) connection.release();
@@ -107,7 +105,6 @@ export const deleteFbContact = async (req, res, next) => {
         }
         res.status(200).json({ success: true, message: 'F&B contact information deleted.' });
     } catch (error) {
-        console.error('Error in deleteFbContact:', error);
         next(error);
     } finally {
         if (connection) connection.release();

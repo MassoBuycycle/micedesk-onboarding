@@ -36,9 +36,9 @@ export const getEventOperations = async (req, res) => {
         return res.status(404).json({ error: 'Event not found' });
       }
       
-      // Get operations data
+      // Get operations from unified event_details
       const [operations] = await connection.query(
-        'SELECT * FROM event_operations WHERE event_id = ?',
+        'SELECT * FROM event_details WHERE event_id = ?',
         [eventId]
       );
       
@@ -63,7 +63,6 @@ export const getEventOperations = async (req, res) => {
       connection.release();
     }
   } catch (error) {
-    console.error('Error fetching event operations information:', error);
     res.status(500).json({ error: 'Failed to fetch operations information' });
   }
 };
@@ -86,7 +85,6 @@ export const createOrUpdateEventOperations = async (req, res) => {
         return res.status(404).json({ error: 'Event not found' });
       }
       
-      console.log('Received operations data:', JSON.stringify(req.body));
       
       // Build data object automatically based on allowed field list
       const operationsData = extractDataForTable(req.body, EVENT_OPERATIONS_FIELDS) || {};
@@ -96,11 +94,10 @@ export const createOrUpdateEventOperations = async (req, res) => {
         operationsData.payment_methods_events = JSON.stringify(operationsData.payment_methods_events);
       }
       
-      console.log('Processed operations data:', JSON.stringify(operationsData));
       
-      // Check if operations record already exists
+      // Check if unified record already exists
       const [existingRows] = await connection.query(
-        'SELECT id FROM event_operations WHERE event_id = ?',
+        'SELECT event_id FROM event_details WHERE event_id = ?',
         [eventId]
       );
       
@@ -111,7 +108,7 @@ export const createOrUpdateEventOperations = async (req, res) => {
           const setClause = fields.map(f => `${f} = ?`).join(', ');
           const values = fields.map(f => operationsData[f]);
           await connection.query(
-            `UPDATE event_operations SET ${setClause} WHERE event_id = ?`,
+            `UPDATE event_details SET ${setClause} WHERE event_id = ?`,
             [...values, eventId]
           );
         }
@@ -121,14 +118,14 @@ export const createOrUpdateEventOperations = async (req, res) => {
         const placeholders = fields.map(() => '?').join(', ');
         const values = fields.map(f => operationsData[f]);
         await connection.query(
-          `INSERT INTO event_operations (event_id${fields.length ? ', ' + fields.join(', ') : ''}) VALUES (?${fields.length ? ', ' + placeholders : ''})`,
+          `INSERT INTO event_details (event_id${fields.length ? ', ' + fields.join(', ') : ''}) VALUES (?${fields.length ? ', ' + placeholders : ''})`,
           [eventId, ...values]
         );
       }
       
       // Get the updated operations data
       const [operationsRows] = await connection.query(
-        'SELECT * FROM event_operations WHERE event_id = ?',
+        'SELECT * FROM event_details WHERE event_id = ?',
         [eventId]
       );
       
@@ -145,7 +142,6 @@ export const createOrUpdateEventOperations = async (req, res) => {
       connection.release();
     }
   } catch (error) {
-    console.error('Error in createOrUpdateEventOperations:', error);
     res.status(500).json({ error: 'Failed to save operations information' });
   }
 }; 

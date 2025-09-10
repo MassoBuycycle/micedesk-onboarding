@@ -155,7 +155,6 @@ const PolicyItemsDialog = ({
 
     setIsSubmitting(true);
     try {
-      console.log('Submitting policy items (PATCH):', data.items);
       const res = await updateInformationPolicy(policy.id, {
         items: data.items
       });
@@ -166,7 +165,6 @@ const PolicyItemsDialog = ({
       }
       onSuccess();
     } catch (error: any) {
-      console.error("Error updating policy items:", error);
       toast.error(error?.message || t("policies.failedToUpdateItems"));
     } finally {
       setIsSubmitting(false);
@@ -205,7 +203,6 @@ const PolicyItemsDialog = ({
         <Form {...form}>
           <form 
             onSubmit={form.handleSubmit(onSubmit, (errors) => {
-              console.error('Policy items validation errors:', errors);
               toast.error('Bitte prüfen Sie die Eingaben in den Richtlinien-Elementen');
             })}
             className="space-y-6"
@@ -337,7 +334,6 @@ const PolicyItemsDialog = ({
                               control={form.control}
                               name={`items.${itemIndex}.details.${detailIndex}.default`}
                               render={({ field }) => {
-                                console.log(`Field value for detail ${detailIndex}:`, field.value);
                                 return (
                                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 bg-blue-50 border-blue-200 flex-1 mr-2">
                                     <div>
@@ -349,7 +345,6 @@ const PolicyItemsDialog = ({
                                         <Switch 
                                           checked={field.value || false} 
                                           onCheckedChange={(checked) => {
-                                            console.log(`Setting default to:`, checked);
                                             field.onChange(checked);
                                           }}
                                           className="data-[state=checked]:bg-blue-600"
@@ -395,7 +390,6 @@ const PolicyItemsDialog = ({
                 type="submit" 
                 disabled={isSubmitting}
                 onClick={() => {
-                  console.log('Save Items clicked');
                 }}
               >
                 {isSubmitting ? t('common.saving') : t('policies.saveItems')}

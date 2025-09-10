@@ -27,7 +27,6 @@ router.get('/:lang', (req, res) => {
     const data = fs.readFileSync(filePath, 'utf-8');
     res.json(JSON.parse(data));
   } catch (err) {
-    console.error('Read locale error', err);
     res.status(500).json({ message: 'Failed to read locale file' });
   }
 });
@@ -44,7 +43,6 @@ router.put('/:lang', express.json({ limit: '2mb' }), (req, res) => {
     fs.writeFileSync(filePath, JSON.stringify(translations, null, 2), 'utf-8');
     res.json({ message: 'Locale saved' });
   } catch (err) {
-    console.error('Write locale error', err);
     res.status(500).json({ message: 'Failed to write locale file' });
   }
 });

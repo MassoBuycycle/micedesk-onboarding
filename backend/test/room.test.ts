@@ -65,7 +65,6 @@ describe('Room API - /api/rooms', () => {
       }
     });
 
-    // TODOs for other tests
   });
 
   describe('POST /:roomId/categories', () => {
@@ -163,9 +162,4 @@ describe('Room API - /api/rooms', () => {
     // For now, this might leave a room in the DB after tests.
   });
 
-  afterAll(async () => {
-    if (createdRoomId) {
-      // console.log(`Room created with ID: ${createdRoomId} - manual cleanup might be needed.`);
-    }
-  });
 });

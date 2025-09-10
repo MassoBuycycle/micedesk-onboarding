@@ -159,7 +159,6 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
       setUsers(formattedUsers);
       setError(null);
     } catch (err) {
-      console.error("Failed to fetch users:", err);
       setError("Failed to load users. Please try again later.");
     } finally {
       setLoading(false);
@@ -172,7 +171,6 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
       const roles = await getAllRoles();
       setRoles(roles);
     } catch (err) {
-      console.error("Failed to fetch roles:", err);
       toast.error("Failed to load roles. Default roles may not be available.");
     }
   };
@@ -202,7 +200,6 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
       
       setLoading(false);
     } catch (err) {
-      console.error("Failed to load user for editing:", err);
       toast.error("Failed to load user information. Redirecting to users list.");
       navigate("/users");
     }

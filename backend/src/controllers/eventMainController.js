@@ -197,54 +197,28 @@ export const createEvent = async (req, res, next) => {
         );
         const eventId = eventResult.insertId;
 
-        // 2. Insert into `event_booking`
-        const bookingData = extractDataForTable(eventDataMapped, EVENT_BOOKING_FIELDS);
-        if (bookingData) {
-            const fields = Object.keys(bookingData);
-            if (fields.length > 0) {
-                const placeholders = fields.map(() => '?').join(', ');
-                const values = fields.map(f => bookingData[f]);
-                await connection.query(
-                    `INSERT INTO event_booking (event_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`,
-                    [eventId, ...values]
-                );
-            }
+        // 2-4. Insert unified details into `event_details` table
+        const bookingData = extractDataForTable(eventDataMapped, EVENT_BOOKING_FIELDS) || {};
+        const financialsData = extractDataForTable(eventDataMapped, EVENT_FINANCIALS_FIELDS) || {};
+        const operationsData = extractDataForTable(eventDataMapped, EVENT_OPERATIONS_FIELDS) || {};
+        if (financialsData.payment_methods && typeof financialsData.payment_methods !== 'string') {
+            financialsData.payment_methods = JSON.stringify(financialsData.payment_methods);
         }
-
-        // 3. Insert into `event_financials`
-        const financialsData = extractDataForTable(eventDataMapped, EVENT_FINANCIALS_FIELDS);
-        if (financialsData) {
-            if (financialsData.payment_methods && typeof financialsData.payment_methods !== 'string') {
-                financialsData.payment_methods = JSON.stringify(financialsData.payment_methods);
-            }
-            const fields = Object.keys(financialsData);
-            if (fields.length > 0) {
-                const placeholders = fields.map(() => '?').join(', ');
-                const values = fields.map(f => financialsData[f]);
-                await connection.query(
-                    `INSERT INTO event_financials (event_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`,
-                    [eventId, ...values]
-                );
-            }
+        if (operationsData.payment_methods_events && typeof operationsData.payment_methods_events !== 'string') {
+            operationsData.payment_methods_events = JSON.stringify(operationsData.payment_methods_events);
         }
-
-        // 4. Insert into `event_operations`
-        const operationsData = extractDataForTable(eventDataMapped, EVENT_OPERATIONS_FIELDS);
-        if (operationsData) {
-            // Handle JSON field
-            if (operationsData.payment_methods_events && typeof operationsData.payment_methods_events !== 'string') {
-                operationsData.payment_methods_events = JSON.stringify(operationsData.payment_methods_events);
-            }
-            
-            const fields = Object.keys(operationsData);
-            if (fields.length > 0) {
-                const placeholders = fields.map(() => '?').join(', ');
-                const values = fields.map(f => operationsData[f]);
-                await connection.query(
-                    `INSERT INTO event_operations (event_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`,
-                    [eventId, ...values]
-                );
-            }
+        const unified = { ...bookingData, ...financialsData, ...operationsData };
+        if (Object.keys(unified).length > 0) {
+            const fields = Object.keys(unified);
+            const placeholders = fields.map(() => '?').join(', ');
+            const values = fields.map(f => unified[f]);
+            await connection.query(
+                `INSERT INTO event_details (event_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`,
+                [eventId, ...values]
+            );
+        } else {
+            // ensure row exists
+            await connection.query('INSERT INTO event_details (event_id) VALUES (?)', [eventId]);
         }
         
         // 5. Insert into `event_spaces` (handling for a single space if data present)
@@ -278,7 +252,6 @@ export const createEvent = async (req, res, next) => {
 
     } catch (error) {
         await connection.rollback();
-        console.error('Error in createEvent:', error);
         if (error.code === 'ER_NO_REFERENCED_ROW_2') {
             return res.status(400).json({ error: `Invalid hotel_id: ${eventDataMapped.hotel_id}` });
         }

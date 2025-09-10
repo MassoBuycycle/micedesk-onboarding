@@ -118,11 +118,6 @@ const FormStepContent = ({
             selectedHotel={formData.hotel}
             createdEventId={createdEventId}
             onNext={(data) => {
-              console.log("===== EventInfoForm onNext called =====");
-              console.log("Selected hotel in FormStepContent:", formData.hotel);
-              console.log("Event data:", data);
-              console.log("Contact in data:", data.contact);
-              console.log("hotel_id in contact:", data.contact?.hotel_id);
               onNext("eventsInfo", data);
             }}
             onPrevious={(data) => onPrevious("eventsInfo", data)}

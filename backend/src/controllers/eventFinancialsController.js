@@ -17,9 +17,9 @@ export const getEventFinancials = async (req, res) => {
         return res.status(404).json({ error: 'Event not found' });
       }
       
-      // Get financials data
+      // Get financials data from unified event_details
       const [financialsRows] = await connection.query(
-        'SELECT * FROM event_financials WHERE event_id = ?',
+        'SELECT event_id, requires_deposit, deposit_rules, deposit_invoicer, has_info_invoice, payment_methods, invoice_handling, commission_rules, has_minimum_spent, created_at, updated_at FROM event_details WHERE event_id = ?',
         [eventId]
       );
       
@@ -32,7 +32,6 @@ export const getEventFinancials = async (req, res) => {
         try {
           financialsRows[0].payment_methods = JSON.parse(financialsRows[0].payment_methods);
         } catch (err) {
-          console.error('Error parsing payment_methods JSON:', err);
         }
       }
       
@@ -41,7 +40,6 @@ export const getEventFinancials = async (req, res) => {
       connection.release();
     }
   } catch (error) {
-    console.error('Error fetching event financials information:', error);
     res.status(500).json({ error: 'Failed to fetch financials information' });
   }
 };
@@ -63,7 +61,6 @@ export const createOrUpdateEventFinancials = async (req, res) => {
         return res.status(404).json({ error: 'Event not found' });
       }
       
-      console.log('Received financials data:', JSON.stringify(req.body));
       
       // Extract and process all fields from request body
       const financialsData = {};
@@ -97,11 +94,10 @@ export const createOrUpdateEventFinancials = async (req, res) => {
         }
       }
       
-      console.log('Processed financials data:', JSON.stringify(financialsData));
       
-      // Check if financials record exists
+      // Check if unified details record exists
       const [existingRows] = await connection.query(
-        'SELECT event_id FROM event_financials WHERE event_id = ?',
+        'SELECT event_id FROM event_details WHERE event_id = ?',
         [eventId]
       );
       
@@ -112,7 +108,7 @@ export const createOrUpdateEventFinancials = async (req, res) => {
           const setClause = fields.map(f => `${f} = ?`).join(', ');
           const values = fields.map(f => financialsData[f]);
           await connection.query(
-            `UPDATE event_financials SET ${setClause} WHERE event_id = ?`,
+            `UPDATE event_details SET ${setClause} WHERE event_id = ?`,
             [...values, eventId]
           );
         }
@@ -122,21 +118,20 @@ export const createOrUpdateEventFinancials = async (req, res) => {
         const placeholders = fields.map(() => '?').join(', ');
         const values = fields.map(f => financialsData[f]);
         await connection.query(
-          `INSERT INTO event_financials (event_id${fields.length ? ', ' + fields.join(', ') : ''}) VALUES (?${fields.length ? ', ' + placeholders : ''})`,
+          `INSERT INTO event_details (event_id${fields.length ? ', ' + fields.join(', ') : ''}) VALUES (?${fields.length ? ', ' + placeholders : ''})`,
           [eventId, ...values]
         );
       }
       
       // Retrieve updated record
       const [financialsRows] = await connection.query(
-        'SELECT * FROM event_financials WHERE event_id = ?',
+        'SELECT event_id, requires_deposit, deposit_rules, deposit_invoicer, has_info_invoice, payment_methods, invoice_handling, commission_rules, has_minimum_spent, created_at, updated_at FROM event_details WHERE event_id = ?',
         [eventId]
       );
       if (financialsRows[0] && typeof financialsRows[0].payment_methods === 'string') {
         try {
           financialsRows[0].payment_methods = JSON.parse(financialsRows[0].payment_methods);
         } catch (err) {
-          console.error('Error parsing payment_methods JSON:', err);
         }
       }
       
@@ -148,8 +143,6 @@ export const createOrUpdateEventFinancials = async (req, res) => {
       connection.release();
     }
   } catch (error) {
-    console.error('Error in createOrUpdateEventFinancials:', error);
-    console.error('Full error details:', error.message, error.code, error.sqlMessage);
     res.status(500).json({ 
       error: 'Failed to save financials information',
       details: error.message || error.sqlMessage || 'Unknown database error'

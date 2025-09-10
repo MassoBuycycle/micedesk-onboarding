@@ -34,7 +34,6 @@ const UserAssignmentDialog: React.FC<UserAssignmentDialogProps> = ({
         onAssignmentUpdate();
       }
     } catch (error) {
-      console.error("Error assigning user:", error);
       toast.error("Failed to assign user. Please try again.");
     }
   };

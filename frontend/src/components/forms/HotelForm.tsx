@@ -179,10 +179,7 @@ const HotelForm = ({ initialData = {}, onNext, onChange, mode = 'add' }: HotelFo
   useEffect(() => {
     const errors = form.formState.errors;
     if (Object.keys(errors).length > 0) {
-      console.log("=== FORM VALIDATION ERRORS ===");
-      console.log("Form errors:", errors);
       Object.entries(errors).forEach(([field, error]) => {
-        console.log(`Field "${field}":`, error?.message);
       });
     }
   }, [form.formState.errors]);
@@ -208,22 +205,15 @@ const HotelForm = ({ initialData = {}, onNext, onChange, mode = 'add' }: HotelFo
   };
 
   const onSubmit = async (data: HotelFormValues) => {
-    console.log("=== HOTEL FORM SUBMIT STARTED ===");
-    console.log("Form data received:", data);
-    console.log("isSubmitting:", isSubmitting);
-    console.log("onNext function type:", typeof onNext);
-    console.log("onNext function:", onNext);
     
     // Safety check for onNext callback
     if (typeof onNext !== 'function') {
-      console.error("onNext is not a function:", onNext);
       toast.error("Form submission error: Invalid callback function");
       return;
     }
     
     setIsSubmitting(true);
     try {
-      console.log("Processing form submission...");
       
       // Transform the form data to match the database schema (this mapping might still be useful for preparing data for useHotelFormState)
       const hotelDataFromForm = {
@@ -275,9 +265,7 @@ const HotelForm = ({ initialData = {}, onNext, onChange, mode = 'add' }: HotelFo
         additional_links: data.additionalLinks || [],
       };
 
-      console.log("Transformed hotel data:", hotelDataFromForm);
 
-      // TODO: Review if hotelDataFromForm transformation is still fully needed here.
       // The data is passed to useHotelFormState via onNext(data), 
       // and useHotelFormState now handles the API call with HotelInput.
       // This transformation might be redundant if 'data: HotelFormValues' itself is compatible 
@@ -285,7 +273,6 @@ const HotelForm = ({ initialData = {}, onNext, onChange, mode = 'add' }: HotelFo
 
       // const result = await createOrUpdateHotel(hotelDataFromForm); // OLD API CALL - REMOVED
       
-      console.log("About to show success toast...");
       toast.success(mode === 'edit' ? t("messages.success.hotelInfoUpdated") : t("messages.success.hotelInfoCompleted"));
       
       // Set isSubmitted to true and fetch or set hotel ID if available
@@ -294,28 +281,20 @@ const HotelForm = ({ initialData = {}, onNext, onChange, mode = 'add' }: HotelFo
       const newHotelId = data.id || 1;
       setHotelId(newHotelId); 
       
-      console.log("About to call onNext with data:", data);
-      console.log("onNext function:", onNext);
       
       // onNext passes the raw form data (HotelFormValues) to useHotelFormState
       // useHotelFormState then uses its formData.hotel (which this data becomes)
       // to construct the HotelInput for the actual API call on the final step.
       try {
         onNext(data);
-        console.log("onNext called successfully");
       } catch (onNextError) {
-        console.error("Error calling onNext:", onNextError);
         toast.error("Error proceeding to next step. Please try again.");
         return;
       }
       
-      console.log("=== HOTEL FORM SUBMIT COMPLETED ===");
     } catch (error) {
-      console.error('=== ERROR IN HOTEL FORM SUBMIT ===');
-      console.error('Error in HotelForm onSubmit:', error);
       toast.error(t("messages.error.failedToProcessHotelInfo"));
     } finally {
-      console.log("Setting isSubmitting to false");
       setIsSubmitting(false);
     }
   };
@@ -342,12 +321,6 @@ const HotelForm = ({ initialData = {}, onNext, onChange, mode = 'add' }: HotelFo
   };
 
   const handleSubmitClick = () => {
-    console.log("=== SUBMIT BUTTON CLICKED ===");
-    console.log("Current form values:", form.getValues());
-    console.log("Form state:", form.formState);
-    console.log("Is form valid?", form.formState.isValid);
-    console.log("Form errors:", form.formState.errors);
-    console.log("isSubmitting:", isSubmitting);
   };
 
   return (

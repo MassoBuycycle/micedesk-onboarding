@@ -115,7 +115,6 @@ const PolicyFormDialog = ({
       
       onSuccess();
     } catch (error) {
-      console.error("Error saving policy:", error);
       toast.error(isEditing ? t("policies.failedToUpdatePolicy") : t("policies.failedToCreatePolicy"));
     } finally {
       setIsSubmitting(false);

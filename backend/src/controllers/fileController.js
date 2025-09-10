@@ -8,7 +8,6 @@ import { getSignedUrl, deleteFile, moveFile } from '../services/s3Service.js';
 export const uploadFile = async (req, res) => {
   try {
     // Verbose logging for debugging uploads
-    console.log('[UPLOAD] Incoming request', {
       params: req.params,
       headers: {
         'content-type': req.headers['content-type'],
@@ -28,7 +27,6 @@ export const uploadFile = async (req, res) => {
       fileTypeCode 
     } = req.params;
     
-    console.log('[UPLOAD] Processing upload for:', {
       entityType,
       entityId,
       category,
@@ -45,7 +43,6 @@ export const uploadFile = async (req, res) => {
       location
     } = req.file;
     
-    console.log('[UPLOAD] File processed by multer', {
       originalname,
       mimetype,
       size,
@@ -59,7 +56,6 @@ export const uploadFile = async (req, res) => {
       [fileTypeCode, category]
     );
     
-    console.log('[UPLOAD] File type query result:', {
       fileTypeCode,
       category,
       foundRows: fileTypeRows.length,
@@ -79,7 +75,6 @@ export const uploadFile = async (req, res) => {
     const isTemporary = entityId === 'new';
     const effectiveEntityId = isTemporary ? 0 : entityId;
     
-    console.log('[UPLOAD] About to insert file record:', {
       originalname,
       key,
       fileTypeId,
@@ -115,7 +110,6 @@ export const uploadFile = async (req, res) => {
       ]
     );
     
-    console.log('[UPLOAD] File record inserted:', {
       insertId: result.insertId,
       affectedRows: result.affectedRows
     });
@@ -130,7 +124,6 @@ export const uploadFile = async (req, res) => {
     const file = fileRows[0];
     const signedUrl = await getSignedUrl(file.storage_path);
     
-    console.log('[UPLOAD] File upload completed successfully:', {
       fileId: file.id,
       storagePath: file.storage_path,
       entityType: file.entity_type,
@@ -143,7 +136,6 @@ export const uploadFile = async (req, res) => {
       url: signedUrl
     });
   } catch (error) {
-    console.error('Error uploading file:', error);
     res.status(500).json({ error: 'Failed to upload file' });
   }
 };
@@ -174,7 +166,6 @@ export const getFilesByEntity = async (req, res) => {
     
     res.status(200).json(filesWithUrls);
   } catch (error) {
-    console.error(`Error getting files for ${entityType} ${entityId}:`, error);
     res.status(500).json({ error: 'Failed to get files' });
   }
 };
@@ -205,7 +196,6 @@ export const getFilesByEntityAndCategory = async (req, res) => {
     
     res.status(200).json(filesWithUrls);
   } catch (error) {
-    console.error(`Error getting ${category} files for ${entityType} ${entityId}:`, error);
     res.status(500).json({ error: 'Failed to get files' });
   }
 };
@@ -237,7 +227,6 @@ export const getFileById = async (req, res) => {
       url: signedUrl
     });
   } catch (error) {
-    console.error(`Error getting file ${fileId}:`, error);
     res.status(500).json({ error: 'Failed to get file' });
   }
 };
@@ -266,7 +255,6 @@ export const deleteFileById = async (req, res) => {
     
     res.status(200).json({ message: 'File deleted successfully' });
   } catch (error) {
-    console.error(`Error deleting file ${fileId}:`, error);
     res.status(500).json({ error: 'Failed to delete file' });
   }
 };
@@ -301,7 +289,6 @@ export const assignTemporaryFiles = async (req, res) => {
       // Build destination key by swapping second path segment (entityId)
       const pathParts = sourceKey.split('/');
       if (pathParts.length < 2) {
-        console.warn(`Unexpected key format for ${sourceKey}. Skipping.`);
         continue;
       }
 
@@ -327,7 +314,6 @@ export const assignTemporaryFiles = async (req, res) => {
       updatedCount: movedCount
     });
   } catch (error) {
-    console.error(`Error assigning temporary files for ${entityType} ${entityId}:`, error);
     res.status(500).json({ error: 'Failed to assign temporary files' });
   }
 };
@@ -338,7 +324,6 @@ export const assignTemporaryFiles = async (req, res) => {
  */
 export const assignRoomCategoryFilesService = async (roomCategoryId, tempCategoryIndex = null) => {
   try {
-    console.log(`[ASSIGN] Starting file assignment for room category ${roomCategoryId} with temp index ${tempCategoryIndex}`);
     
     // First, let's see what temporary files exist in the database
     const [allTempFiles] = await pool.query(
@@ -348,7 +333,6 @@ export const assignRoomCategoryFilesService = async (roomCategoryId, tempCategor
        ORDER BY created_at ASC`
     );
     
-    console.log(`[ASSIGN] All temporary files in database:`, allTempFiles.map(f => ({
       id: f.id,
       storage_path: f.storage_path,
       entity_type: f.entity_type,
@@ -374,7 +358,6 @@ export const assignRoomCategoryFilesService = async (roomCategoryId, tempCategor
         [tempId]
       );
       
-      console.log(`[ASSIGN] Found ${tempFiles.length} temporary files for temp category ${tempId}`);
     } else {
       // New strategy: assign files based on upload order and category creation order
       // Get all temporary room category files ordered by upload time
@@ -390,19 +373,16 @@ export const assignRoomCategoryFilesService = async (roomCategoryId, tempCategor
       );
       
       if (allRoomCategoryTempFiles.length === 0) {
-        console.log('[ASSIGN] No temporary files found');
         return { message: 'No temporary room category files found', updatedCount: 0 };
       }
       
       // For now, assign all files to this category
       // In the future, we could implement a more sophisticated matching algorithm
       tempFiles = allRoomCategoryTempFiles;
-      console.log(`[ASSIGN] Using upload order strategy - assigning all ${tempFiles.length} temporary files to category ${roomCategoryId}`);
     }
 
     // Debug: Show what files were found
     if (tempFiles.length > 0) {
-      console.log(`[ASSIGN] Temporary files found:`, tempFiles.map(f => ({
         id: f.id,
         storage_path: f.storage_path
       })));
@@ -410,7 +390,6 @@ export const assignRoomCategoryFilesService = async (roomCategoryId, tempCategor
 
     // No files to process – return early
     if (tempFiles.length === 0) {
-      console.log('[ASSIGN] No temporary files found');
       return { message: 'No temporary room category files found', updatedCount: 0 };
     }
 
@@ -418,21 +397,18 @@ export const assignRoomCategoryFilesService = async (roomCategoryId, tempCategor
 
     // Process each file sequentially to avoid race conditions
     for (const file of tempFiles) {
-      console.log(`[ASSIGN] Processing file ${file.id} with path ${file.storage_path}`);
       
       const sourceKey = file.storage_path; // e.g. room-categories/new/room-category-images/images/filename.jpg
 
       // Build destination key by swapping second path segment (entityId)
       const pathParts = sourceKey.split('/');
       if (pathParts.length < 2) {
-        console.warn(`Unexpected key format for ${sourceKey}. Skipping.`);
         continue;
       }
 
       pathParts[1] = String(roomCategoryId); // Replace 'new' with actual room category id
       const destinationKey = pathParts.join('/');
 
-      console.log(`[ASSIGN] Moving file from ${sourceKey} to ${destinationKey}`);
 
       // Move the file in S3
       await moveFile(sourceKey, destinationKey);
@@ -447,21 +423,17 @@ export const assignRoomCategoryFilesService = async (roomCategoryId, tempCategor
 
       // Check if the update was successful (affected rows > 0)
       if (updateResult.affectedRows > 0) {
-        console.log(`[ASSIGN] Updated file ${file.id} with entity_id ${roomCategoryId} and new path ${destinationKey}`);
         movedCount += 1;
       } else {
-        console.warn(`[ASSIGN] File ${file.id} was already assigned to another category, skipping`);
       }
     }
 
-    console.log(`[ASSIGN] Successfully assigned ${movedCount} files to room category ${roomCategoryId}`);
 
     return {
       message: 'Room category files assigned successfully',
       updatedCount: movedCount
     };
   } catch (error) {
-    console.error(`Error assigning room category files for room category ${roomCategoryId}:`, error);
     throw error;
   }
 };
@@ -505,7 +477,6 @@ export const getRoomFilesByHotel = async (req, res) => {
 
     res.json(filesWithUrls);
   } catch (err) {
-    console.error('Error getRoomFilesByHotel', err);
     res.status(500).json({ error: 'Failed to get room files for hotel' });
   }
 }; 

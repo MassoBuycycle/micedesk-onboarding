@@ -161,7 +161,6 @@ export const getFullHotelDetails = async (req, res, next) => {
       }
     });
   } catch (error) {
-    console.error('Error in getFullHotelDetails:', error);
     next(error);
   } finally {
     if (connection) connection.release();

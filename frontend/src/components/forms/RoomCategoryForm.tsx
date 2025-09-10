@@ -148,7 +148,6 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
         toast.success('Category deleted successfully');
         remove(index);
       } catch (error) {
-        console.error('Error deleting category:', error);
         toast.error('Failed to delete category. Please try again.');
       }
     } else {
@@ -158,11 +157,8 @@ const RoomCategoryForm: React.FC<RoomCategoryFormProps> = ({
   };
 
   const onSubmit = async (data: FullCategoryFormValues) => {
-    console.log("=== ROOM CATEGORIES FORM SUBMIT ===");
-    console.log("Form data:", data);
     
     // No need to wait for file uploads since they can only happen after categories are saved
-    console.log("Proceeding with form submission - files will be uploaded after categories are saved");
     
     // Proceed with form submission
     onNext(data.categories);

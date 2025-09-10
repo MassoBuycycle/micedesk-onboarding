@@ -170,24 +170,20 @@ export const createRoom = async (mainRoomConfigData: MainRoomConfigInput): Promi
 // Deprecated or to be re-evaluated based on new model:
 export const getAllRoomTypes = async (): Promise<RoomType[]> => {
   // This would need to fetch from /api/rooms and map to RoomType[] if still needed
-  console.warn("getAllRoomTypes is likely deprecated or needs rework.");
   return Promise.resolve([]);
 };
 
 export const getRoomTypeById = async (id: number): Promise<RoomType | null> => {
   // This would fetch /api/rooms/:id
-  console.warn("getRoomTypeById is likely deprecated or needs rework.");
   return Promise.resolve(null);
 };
 
 export const updateRoomType = async (id: number, roomTypeData: RoomTypeUpdateInput): Promise<{ success: boolean; roomTypeId: number; roomType: RoomType }> => {
   // This would PUT to /api/rooms/:id with RoomTypeUpdateInput (if still used for standalone types)
-  console.warn("updateRoomType is likely deprecated or needs rework.");
   throw new Error("updateRoomType is deprecated");
 };
 
 export const deleteRoomType = async (id: number): Promise<{ success: boolean }> => {
-  console.warn("deleteRoomType is likely deprecated or needs rework.");
   throw new Error("deleteRoomType is deprecated");
 };
 

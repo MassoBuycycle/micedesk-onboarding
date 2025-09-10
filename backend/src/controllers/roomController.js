@@ -196,17 +196,14 @@ export const createOrUpdateMainRoomConfig = async (req, res, next) => {
 
         if (existingRooms.length > 0) { 
             roomId = existingRooms[0].id;
-            console.log(`[ROOM_CONFIG] Updating existing room ${roomId} for hotel ${hotelId}`);
             
             if (actualRoomsTableData && Object.keys(actualRoomsTableData).length > 0) {
                 const fields = Object.keys(actualRoomsTableData);
                 const fieldPlaceholders = fields.map(key => `${key} = ?`).join(', ');
                 const values = fields.map(key => actualRoomsTableData[key]);
                 await connection.query(`UPDATE rooms SET ${fieldPlaceholders} WHERE id = ?`, [...values, roomId]);
-                console.log(`[ROOM_CONFIG] Updated room ${roomId} with fields: ${fields.join(', ')}`);
             }
         } else { 
-            console.log(`[ROOM_CONFIG] Creating new room for hotel ${hotelId}`);
             
             const dataToInsertForRooms = { ...actualRoomsTableData, hotel_id: hotelId }; 
             if (!dataToInsertForRooms.main_contact_name) dataToInsertForRooms.main_contact_name = 'Default Contact'; // Example default
@@ -220,7 +217,6 @@ export const createOrUpdateMainRoomConfig = async (req, res, next) => {
             const values = fields.map(key => dataToInsertForRooms[key]);
             const [result] = await connection.query(`INSERT INTO rooms (${fields.join(', ')}) VALUES (${fieldPlaceholders})`, values);
             roomId = result.insertId;
-            console.log(`[ROOM_CONFIG] Created new room ${roomId} for hotel ${hotelId}`);
         }
 
         const contactsData = await upsertRelatedData(connection, 'room_contacts', ROOM_CONTACTS_FIELDS, allRoomDataMapped, roomId);
@@ -254,7 +250,6 @@ export const createOrUpdateMainRoomConfig = async (req, res, next) => {
 
     } catch (error) {
         if (connection) await connection.rollback();
-        console.error('Error in createOrUpdateMainRoomConfig:', error);
         next(error);
     } finally {
         if (connection) connection.release();
@@ -312,8 +307,6 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
     const { roomId } = req.params;
     const categoryInfosArray = req.body; 
     
-    console.log(`[ROOM_CATEGORIES] Starting addCategoryInfosToRoom for room ${roomId}`);
-    console.log(`[ROOM_CATEGORIES] Received ${categoryInfosArray.length} categories:`, categoryInfosArray.map(cat => ({
         id: cat.id,
         category_name: cat.category_name,
         pms_name: cat.pms_name
@@ -323,8 +316,6 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
         return res.status(400).json({ error: 'Request body must be a non-empty array of category information.' });
     }
     
-    console.log(`[ROOM_CATEGORIES] Processing ${categoryInfosArray.length} categories for room ${roomId}`);
-    console.log(`[ROOM_CATEGORIES] Raw category data received:`, categoryInfosArray.map(cat => ({
         id: cat.id,
         idType: typeof cat.id,
         category_name: cat.category_name,
@@ -337,20 +328,16 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
         return res.status(400).json({ error: 'Invalid roomId parameter.'});
     }
     
-    console.log(`[ROOM_CATEGORIES] Parsed room ID: ${parsedRoomId}`);
     
     try {
         await connection.beginTransaction();
-        console.log(`[ROOM_CATEGORIES] Transaction started`);
         
         const [roomExists] = await connection.query('SELECT id FROM rooms WHERE id = ?', [parsedRoomId]);
         if (roomExists.length === 0) {
-            console.log(`[ROOM_CATEGORIES] Room ${parsedRoomId} not found, rolling back`);
             await connection.rollback();
             return res.status(404).json({ error: `Room with ID ${parsedRoomId} not found.` });
         }
         
-        console.log(`[ROOM_CATEGORIES] Room ${parsedRoomId} exists, proceeding with category creation`);
         
         const createdCategories = [];
         const updatedCategories = [];
@@ -364,12 +351,10 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
         const hasTempFiles = tempFiles[0].count > 0;
         
         if (hasTempFiles) {
-            console.log(`[ROOM_CATEGORIES] Found ${tempFiles[0].count} temporary files - processing categories sequentially to avoid race conditions`);
             
             // Process categories sequentially when files are involved to prevent race conditions
             for (const catInfo of categoryInfosArray) {
                 const categoryData = extractDataForTable(catInfo, ROOM_CATEGORY_INFOS_FIELDS);
-                console.log(`[ROOM_CATEGORIES] Processing category:`, {
                     original: catInfo,
                     extracted: categoryData,
                     hasCategoryName: !!categoryData?.category_name,
@@ -378,7 +363,6 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                 });
                 
                 if (!categoryData || !categoryData.category_name) {
-                    console.log(`[ROOM_CATEGORIES] Invalid category data, rolling back`);
                     await connection.rollback();
                     return res.status(400).json({ error: 'Each category info object must contain at least a category_name.', offendingItem: catInfo });
                 }
@@ -386,7 +370,6 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                 // Check if a category with this ID already exists for this room
                 // Only check by ID - new categories should be created even if they have the same name
                 let existingCategories = [];
-                console.log(`[ROOM_CATEGORIES] Checking ID for category "${categoryData.category_name}":`, {
                     id: catInfo.id,
                     idType: typeof catInfo.id,
                     isIdNumber: typeof catInfo.id === 'number',
@@ -402,15 +385,12 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                         'SELECT id FROM room_category_infos WHERE id = ? AND room_id = ?',
                         [catInfo.id, parsedRoomId]
                     );
-                    console.log(`[ROOM_CATEGORIES] ID-based search for category ${catInfo.id}:`, existingCategories);
                 }
                 
-                console.log(`[ROOM_CATEGORIES] Final existingCategories result:`, existingCategories);
                 
                 if (existingCategories.length > 0) {
                     // Update existing category
                     const categoryId = existingCategories[0].id;
-                    console.log(`[ROOM_CATEGORIES] Updating existing category ${categoryId} with name "${categoryData.category_name}"`);
                     
                     const fields = Object.keys(categoryData);
                     const fieldPlaceholders = fields.map(key => `${key} = ?`).join(', ');
@@ -422,10 +402,8 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                     );
                     
                     updatedCategories.push({ id: categoryId, room_id: parsedRoomId, ...categoryData });
-                    console.log(`[ROOM_CATEGORIES] Updated category ${categoryId}`);
                 } else {
                     // Create new category
-                    console.log(`[ROOM_CATEGORIES] Creating new category with name "${categoryData.category_name}"`);
                     
                     const fields = Object.keys(categoryData);
                     const placeholders = fields.map(() => '?').join(', ');
@@ -435,7 +413,6 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                     const insertSQL = `INSERT INTO room_category_infos (room_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`;
                     const insertValues = [parsedRoomId, ...values];
                     
-                    console.log(`[ROOM_CATEGORIES] Executing INSERT:`, {
                         sql: insertSQL,
                         values: insertValues,
                         roomId: parsedRoomId,
@@ -451,24 +428,19 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                     // Assign any temporary files to this room category
                     try {
                         // No temp logic needed - files will be uploaded after category creation
-                        console.log(`[ROOM_CATEGORIES] Skipping file assignment for new category ${categoryId} - files will be uploaded after creation`);
                     } catch (fileError) {
-                        console.error(`Error in file assignment for room category ${categoryId}:`, fileError);
                         // Don't fail the transaction if file assignment fails
                     }
                     
-                    console.log(`[ROOM_CATEGORIES] Created new category ${categoryId}`);
                     categoryCreationOrder++; // Increment the creation order
                 }
             }
         } else {
-            console.log(`[ROOM_CATEGORIES] No temporary files found - processing categories in parallel for better performance`);
             
             // No files to assign, so we can process in parallel for better performance
             const processPromises = [];
             for (const catInfo of categoryInfosArray) {
                 const categoryData = extractDataForTable(catInfo, ROOM_CATEGORY_INFOS_FIELDS);
-                console.log(`[ROOM_CATEGORIES] Processing category (parallel):`, {
                     original: catInfo,
                     extracted: categoryData,
                     hasCategoryName: !!categoryData?.category_name,
@@ -477,7 +449,6 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                 });
                 
                 if (!categoryData || !categoryData.category_name) {
-                    console.log(`[ROOM_CATEGORIES] Invalid category data (parallel), rolling back`);
                     await connection.rollback();
                     return res.status(400).json({ error: 'Each category info object must contain at least a category_name.', offendingItem: catInfo });
                 }
@@ -485,7 +456,6 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                 // Check if a category with this ID already exists for this room
                 // Only check by ID - new categories should be created even if they have the same name
                 let existingCategories = [];
-                console.log(`[ROOM_CATEGORIES] Checking ID for category "${categoryData.category_name}" (parallel):`, {
                     id: catInfo.id,
                     idType: typeof catInfo.id,
                     isIdNumber: typeof catInfo.id === 'number',
@@ -503,12 +473,10 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                     );
                 }
                 
-                console.log(`[ROOM_CATEGORIES] Final existingCategories result:`, existingCategories);
                 
                 if (existingCategories.length > 0) {
                     // Update existing category
                     const categoryId = existingCategories[0].id;
-                    console.log(`[ROOM_CATEGORIES] Updating existing category ${categoryId} with name "${categoryData.category_name}"`);
                     
                     const fields = Object.keys(categoryData);
                     const fieldPlaceholders = fields.map(key => `${key} = ?`).join(', ');
@@ -520,10 +488,8 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                     );
                     
                     updatedCategories.push({ id: categoryId, room_id: parsedRoomId, ...categoryData });
-                    console.log(`[ROOM_CATEGORIES] Updated category ${categoryId}`);
                 } else {
                     // Create new category
-                    console.log(`[ROOM_CATEGORIES] Creating new category with name "${categoryData.category_name}"`);
                     
                     const fields = Object.keys(categoryData);
                     const placeholders = fields.map(() => '?').join(', ');
@@ -534,7 +500,6 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                             const insertSQL = `INSERT INTO room_category_infos (room_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`;
                             const insertValues = [parsedRoomId, ...values];
                             
-                            console.log(`[ROOM_CATEGORIES] Executing INSERT (parallel):`, {
                                 sql: insertSQL,
                                 values: insertValues,
                                 roomId: parsedRoomId,
@@ -549,13 +514,10 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                             // Assign any temporary files to this room category (even if none exist, this is safe)
                             try {
                                 // No temp logic needed - files will be uploaded after category creation
-                                console.log(`[ROOM_CATEGORIES] Skipping file assignment for new category ${categoryId} (parallel) - files will be uploaded after creation`);
                             } catch (fileError) {
-                                console.error(`Error in file assignment for room category ${categoryId}:`, fileError);
                                 // Don't fail the transaction if file assignment fails
                             }
                             
-                            console.log(`[ROOM_CATEGORIES] Created new category ${categoryId}`);
                             return categoryId;
                         })()
                     );
@@ -566,11 +528,9 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
         }
         
         await connection.commit();
-        console.log(`[ROOM_CATEGORIES] Transaction committed successfully. Created: ${createdCategories.length}, Updated: ${updatedCategories.length}`);
         
         // Log the created categories for debugging
         if (createdCategories.length > 0) {
-            console.log(`[ROOM_CATEGORIES] Created categories:`, createdCategories.map(cat => ({
                 id: cat.id,
                 room_id: cat.room_id,
                 category_name: cat.category_name
@@ -587,11 +547,9 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
             totalCategories: totalCategories
         };
         
-        console.log(`[ROOM_CATEGORIES] Sending response:`, response);
         res.status(200).json(response);
     } catch (error) {
         if (connection) await connection.rollback();
-        console.error('Error in addCategoryInfosToRoom:', error);
         next(error);
     } finally {
         if (connection) connection.release();
@@ -640,7 +598,6 @@ export const getOperationalHandlingByRoomId = async (req, res, next) => {
       data: results[0]
     });
   } catch (error) {
-    console.error('Error in getOperationalHandlingByRoomId:', error);
     next(error);
   } finally {
     if (connection) connection.release();
@@ -756,7 +713,6 @@ export const createOrUpdateOperationalHandling = async (req, res, next) => {
     });
   } catch (error) {
     if (connection) await connection.rollback();
-    console.error('Error in createOrUpdateOperationalHandling:', error);
     next(error);
   } finally {
     if (connection) connection.release();

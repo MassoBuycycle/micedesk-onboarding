@@ -27,11 +27,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { CheckCircle } from "lucide-react";
 
 const renderDiff = (change: PendingChange) => {
-  console.log('Frontend received change:', change);
-  console.log('Frontend change_data type:', typeof change.change_data);
-  console.log('Frontend original_data type:', typeof change.original_data);
-  console.log('Frontend change_data:', change.change_data);
-  console.log('Frontend original_data:', change.original_data);
   
   // Handle cases where data might be null, undefined, or invalid
   let original: any = {};
@@ -44,7 +39,6 @@ const renderDiff = (change: PendingChange) => {
     try {
       original = JSON.parse(change.original_data);
     } catch (e) {
-      console.error('Error parsing original_data:', e);
       original = {};
     }
   }
@@ -55,7 +49,6 @@ const renderDiff = (change: PendingChange) => {
     try {
       updated = JSON.parse(change.change_data);
     } catch (e) {
-      console.error('Error parsing change_data:', e);
       updated = {};
     }
   }

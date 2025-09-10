@@ -190,16 +190,11 @@ export const getAllEvents = async (): Promise<EventMain[]> => {
 };
 
 export const createEvent = async (data: EventInput): Promise<{ eventId: number }> => {
-  console.log("==== createEvent API CALL ====");
-  console.log("API URL:", `/events`);
-  console.log("Request data:", data);
   
   try {
     const responseData = await apiPost('/events', data, 'Failed to create event');
-    console.log("API Response data:", responseData);
     return responseData;
   } catch (error) {
-    console.error("Error in createEvent API call:", error);
     throw error;
   }
 };

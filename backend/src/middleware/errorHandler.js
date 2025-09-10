@@ -6,8 +6,6 @@
  * @param {import('express').NextFunction} next - Express next middleware function
  */
 export const errorHandler = (err, req, res, next) => {
-  console.error('Error:', err.message);
-  console.error(err.stack);
   
   // Set appropriate status code
   const statusCode = res.statusCode !== 200 ? res.statusCode : 500;

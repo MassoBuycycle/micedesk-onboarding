@@ -50,7 +50,6 @@ const Add = ({ mode = 'add' }: AddProps) => {
         hasLoadedRef.current = true;
         
         try {
-          console.log("Loading hotel data for edit mode, ID:", id);
           
           // Safety check for getFullHotelDetails function
           if (typeof getFullHotelDetails !== 'function') {
@@ -63,7 +62,6 @@ const Add = ({ mode = 'add' }: AddProps) => {
           }
           
           const hotelData = await getFullHotelDetails(hotelId);
-          console.log("Hotel data loaded:", hotelData);
           
           if (!hotelData || !hotelData.hotel) {
             throw new Error('Hotel data not found');
@@ -87,10 +85,8 @@ const Add = ({ mode = 'add' }: AddProps) => {
           await setHotelDataFromApi(hotelData);
           setHotelIdForEdit(hotelId);
           
-          console.log("Hotel data set successfully for edit mode");
           toast.success(t("pages.add.loadedForEditing"));
         } catch (error: any) {
-          console.error("Error loading hotel data:", error);
           toast.error(t("pages.add.failedToLoad") + ": " + error.message);
           // Navigate back to hotel list on error
           navigate('/view');
@@ -103,15 +99,11 @@ const Add = ({ mode = 'add' }: AddProps) => {
 
   // Log the effective hotel ID for debugging
   useEffect(() => {
-    console.log("Effective hotel ID changed:", effectiveHotelId);
-    console.log("createdHotelId:", createdHotelId);
-    console.log("routeHotelId:", routeHotelId);
   }, [effectiveHotelId, createdHotelId, routeHotelId]);
 
   // If we're on the events step, double-check we have a valid hotel ID
   useEffect(() => {
     if (activeStep === 'eventsInfo' && (!effectiveHotelId || effectiveHotelId === 0)) {
-      console.error("⚠️ On events step but no valid hotel ID! effectiveHotelId:", effectiveHotelId);
       toast.error(t("pages.add.missingHotelId"));
     }
   }, [activeStep, effectiveHotelId, t]);

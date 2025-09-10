@@ -52,11 +52,4 @@ describe('User API - /api/users', () => {
     expect(response.body.user.email).toBe(updatedUserData.email);
   });
 
-  // Cleanup: Delete the created user
-  afterAll(async () => {
-    if (createdUserId) {
-      const res = await request(app).delete(`/api/users/${createdUserId}`);
-      // console.log(`Cleanup for user ${createdUserId}: Status ${res.status}`);
-    }
-  });
 }); 

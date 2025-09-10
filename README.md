@@ -67,6 +67,8 @@ open DEPLOYMENT.md
 - **[Deployment Guide](DEPLOYMENT.md)**: Complete production deployment instructions
 - **[API Documentation](backend/API_DOCUMENTATION.md)**: Backend API reference
 - **Database Schema**: Auto-generated tables with `onboarding_` prefix
+- **[Technical Handover](HANDOVER.md)**: Architecture, key modules, operations
+- **[Environment Setup](ENVIRONMENT.md)**: Example `.env` values for backend/frontend
 
 ## 🔧 Configuration
 

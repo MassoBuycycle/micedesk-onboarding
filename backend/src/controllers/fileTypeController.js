@@ -8,7 +8,6 @@ export const getAllFileTypes = async (req, res) => {
     const [rows] = await pool.query('SELECT * FROM file_types ORDER BY category, name');
     res.status(200).json(rows);
   } catch (error) {
-    console.error('Error getting file types:', error);
     res.status(500).json({ error: 'Failed to get file types' });
   }
 };
@@ -26,7 +25,6 @@ export const getFileTypesByCategory = async (req, res) => {
     );
     res.status(200).json(rows);
   } catch (error) {
-    console.error(`Error getting file types for category ${category}:`, error);
     res.status(500).json({ error: 'Failed to get file types for category' });
   }
 };
@@ -46,7 +44,6 @@ export const getFileTypeById = async (req, res) => {
     
     res.status(200).json(rows[0]);
   } catch (error) {
-    console.error(`Error getting file type ${id}:`, error);
     res.status(500).json({ error: 'Failed to get file type' });
   }
 };
@@ -69,7 +66,6 @@ export const getFileTypeByCodeAndCategory = async (req, res) => {
     
     res.status(200).json(rows[0]);
   } catch (error) {
-    console.error(`Error getting file type ${code} for category ${category}:`, error);
     res.status(500).json({ error: 'Failed to get file type' });
   }
 };
@@ -113,7 +109,6 @@ export const createFileType = async (req, res) => {
     
     res.status(201).json(insertedRows[0]);
   } catch (error) {
-    console.error('Error creating file type:', error);
     res.status(500).json({ error: 'Failed to create file type' });
   }
 };
@@ -182,7 +177,6 @@ export const updateFileType = async (req, res) => {
     
     res.status(200).json(updatedRows[0]);
   } catch (error) {
-    console.error(`Error updating file type ${id}:`, error);
     res.status(500).json({ error: 'Failed to update file type' });
   }
 };
@@ -221,7 +215,6 @@ export const deleteFileType = async (req, res) => {
     
     res.status(200).json({ message: 'File type deleted successfully' });
   } catch (error) {
-    console.error(`Error deleting file type ${id}:`, error);
     res.status(500).json({ error: 'Failed to delete file type' });
   }
 };
@@ -250,13 +243,11 @@ export const validateFileType = async (req, res, next) => {
       try {
         req.fileType.allowed_extensions = JSON.parse(req.fileType.allowed_extensions);
       } catch (err) {
-        console.error('Error parsing allowed_extensions:', err);
       }
     }
     
     next();
   } catch (error) {
-    console.error(`Error validating file type ${fileTypeCode} for category ${category}:`, error);
     res.status(500).json({ error: 'Failed to validate file type' });
   }
 }; 

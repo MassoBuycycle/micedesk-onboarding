@@ -102,7 +102,6 @@ const EventSpacesForm = ({ initialData = [], selectedHotel, createdEventId, onNe
         await deleteEventSpace(createdEventId, id);
         toast.success('Event space deleted successfully');
       } catch (error) {
-        console.error('Error deleting event space:', error);
         toast.error('Failed to delete event space. Please try again.');
         return; // Don't remove from local state if API call fails
       }

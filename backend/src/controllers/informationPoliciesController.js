@@ -258,7 +258,6 @@ export const updateInformationPolicy = async (req, res, next) => {
     
     // Update items if provided
     if (items && Array.isArray(items)) {
-      console.log('Updating items for policy:', id, 'Items:', items);
       
       // Delete existing items and their details
       await connection.query(
@@ -302,9 +301,7 @@ export const updateInformationPolicy = async (req, res, next) => {
         }
       }
       
-      console.log('Items updated successfully for policy:', id);
     } else {
-      console.log('No items provided for policy:', id);
     }
     
     await connection.commit();

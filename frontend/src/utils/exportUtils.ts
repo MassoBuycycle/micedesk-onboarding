@@ -109,7 +109,6 @@ export const exportToPDF = async (data: ExportData) => {
         // Adjust text width to make room for the image
         y = 35;
       } catch (err) {
-        console.error("Error loading image:", err);
         // Continue without the image
         y = 35;
       }
@@ -333,10 +332,8 @@ export const exportToPDF = async (data: ExportData) => {
     
     // Save the PDF
     doc.save(`${data.name.replace(/\s+/g, '_')}_Details.pdf`);
-    console.log("PDF generation completed successfully");
     return true;
   } catch (error) {
-    console.error("Error generating PDF:", error);
     throw error;
   }
 };

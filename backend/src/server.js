@@ -1,3 +1,18 @@
+/**
+ * Express API server entry point.
+ *
+ * Responsibilities:
+ * - Configure middleware (CORS, JSON body parsing, request logging)
+ * - Mount authentication and protected API routes
+ * - Expose health/readiness probes used by orchestration platforms
+ * - Start HTTP server (except in test env) with hardened timeouts
+ * - Perform graceful shutdown on process signals and fatal errors
+ *
+ * Environment variables:
+ * - PORT: HTTP port (default 3001)
+ * - CORS_ORIGIN: Allowed origin(s) for CORS (default '*')
+ * - NODE_ENV: When 'test', the HTTP server is not started
+ */
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
@@ -113,7 +128,6 @@ app.use(errorHandler);
 let server;
 if (process.env.NODE_ENV !== 'test') {
   server = app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
   });
 
   // Harden HTTP server against slowloris and hanging requests
@@ -128,16 +142,13 @@ let isShuttingDown = false;
 async function shutdown(signal) {
   if (isShuttingDown) return;
   isShuttingDown = true;
-  console.log(`[${signal}] Received. Shutting down gracefully...`);
   try {
     if (server) {
       await new Promise((resolve) => server.close(resolve));
     }
     await pool.end();
-    console.log('Shutdown complete.');
     process.exit(0);
   } catch (err) {
-    console.error('Error during shutdown:', err);
     process.exit(1);
   }
 }
@@ -146,12 +157,10 @@ process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
 
 process.on('unhandledRejection', (reason) => {
-  console.error('Unhandled Rejection:', reason);
   shutdown('unhandledRejection');
 });
 
 process.on('uncaughtException', (err) => {
-  console.error('Uncaught Exception:', err);
   shutdown('uncaughtException');
 });
 

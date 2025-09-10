@@ -71,7 +71,6 @@ const FoodBeverageForm = ({
   
   // Early return with error handling if selectedHotel is not provided
   if (!selectedHotel) {
-    console.error("❌ FoodBeverageForm: selectedHotel is required but not provided");
     return (
       <div className="p-6 text-center bg-red-50 border border-red-200 rounded-lg">
         <h3 className="text-lg font-semibold text-red-800 mb-2">Missing Hotel Information</h3>
@@ -123,9 +122,6 @@ const FoodBeverageForm = ({
   });
   
   // Debug the initial data
-  console.log("🔍 FoodBeverageForm initialData received:", initialData);
-  console.log("🔍 Restaurants in initialData:", initialData.restaurants);
-  console.log("🔍 Bars in initialData:", initialData.bars);
   
   const [formData, setFormData] = useState<FoodBeverageDetails>({
     hotel_id: selectedHotel?.id || 0,
@@ -165,7 +161,6 @@ const FoodBeverageForm = ({
     const sanitizedRestaurants = initialData.restaurants && Array.isArray(initialData.restaurants) && initialData.restaurants.length > 0 
       ? initialData.restaurants.map(sanitizeRestaurant)
       : [{ id: generateId(), ...initialRestaurantState }];
-    console.log("🔍 Sanitized restaurants:", sanitizedRestaurants);
     return sanitizedRestaurants;
   });
 
@@ -173,7 +168,6 @@ const FoodBeverageForm = ({
     const sanitizedBars = initialData.bars && Array.isArray(initialData.bars) && initialData.bars.length > 0 
       ? initialData.bars.map(sanitizeBar) 
       : [{ id: generateId(), ...initialBarState }];
-    console.log("🔍 Sanitized bars:", sanitizedBars);
     return sanitizedBars;
   });
 
@@ -330,12 +324,10 @@ const FoodBeverageForm = ({
         throw new Error("Hotel ID is missing for F&B submission");
       }
       await upsertFoodBeverageDetails(hotelId, payload);
-      console.log("✅ F&B details saved for hotel", hotelId);
       
       // Show success dialog instead of immediate navigation
       setShowSuccessDialog(true);
     } catch (error) {
-      console.error("Error submitting form:", error);
       toast.error("Fehler beim Hinzufügen des Hotels", {
         description: "Bitte versuchen Sie es später erneut."
       });
@@ -377,7 +369,6 @@ const FoodBeverageForm = ({
         const { getFoodBeverageDetails } = await import('@/apiClient/fbDetailsApi');
         const details = await getFoodBeverageDetails(selectedHotel.id);
         if (details) {
-          console.log('✅ Loaded F&B details from API:', details);
           // Sanitize restaurants & bars
           const sanitizedRestaurants = Array.isArray(details.restaurants) ? details.restaurants.map(sanitizeRestaurant) : [];
           const sanitizedBars = Array.isArray(details.bars) ? details.bars.map(sanitizeBar) : [];
@@ -392,7 +383,6 @@ const FoodBeverageForm = ({
           }));
         }
       } catch (err) {
-        console.error('Failed to load F&B details:', err);
       }
     };
     loadFnbDetails();

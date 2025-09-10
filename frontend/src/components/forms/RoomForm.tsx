@@ -110,7 +110,6 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
       
       onNext(data); // Pass data to useHotelFormState
     } catch (error) {
-      console.error('Error in RoomForm onSubmit:', error);
       toast.error("An error occurred in the room form step.");
     } finally {
       setIsSubmitting(false);

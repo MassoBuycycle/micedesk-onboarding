@@ -114,7 +114,6 @@ const FileBrowserLoader: React.FC<{
         setFileBrowser(() => module.default);
         setIsLoaded(true);
       } catch (error) {
-        console.error("Error loading FileBrowser component:", error);
       }
     };
 

@@ -1,3 +1,13 @@
+/**
+ * AWS S3 integration utilities.
+ *
+ * Provides:
+ * - Multer middleware for direct S3 uploads (private ACL)
+ * - List, signed URL generation, delete, and move operations
+ *
+ * Env vars:
+ * - AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_S3_BUCKET
+ */
 import multer from 'multer';
 import multerS3 from 'multer-s3';
 import path from 'path';
@@ -80,7 +90,6 @@ export const listFiles = async (prefix) => {
     const data = await s3Client.send(command);
     return data.Contents || [];
   } catch (error) {
-    console.error('Error listing files from S3:', error);
     throw error;
   }
 };
@@ -96,7 +105,6 @@ export const getSignedUrl = async (key, expiresIn = 3600) => {
     const command = new GetObjectCommand(params);
     return await awsGetSignedUrl(s3Client, command, { expiresIn });
   } catch (error) {
-    console.error('Error generating signed URL:', error);
     throw error;
   }
 };
@@ -112,7 +120,6 @@ export const deleteFile = async (key) => {
     const command = new DeleteObjectCommand(params);
     return await s3Client.send(command);
   } catch (error) {
-    console.error('Error deleting file from S3:', error);
     throw error;
   }
 };
@@ -136,7 +143,6 @@ export const moveFile = async (sourceKey, destinationKey) => {
 
     return true;
   } catch (error) {
-    console.error(`Error moving file from ${sourceKey} to ${destinationKey}:`, error);
     throw error;
   }
 };

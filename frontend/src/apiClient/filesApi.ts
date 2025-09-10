@@ -92,14 +92,10 @@ export const uploadFile = async (
       fileSize: file.size,
     };
 
-    console.groupCollapsed('[UPLOAD] Initialising upload');
-    console.table(debugInfo);
-    console.groupEnd();
 
     xhr.open('POST', fullUrl);
     
     // Debug authentication
-    console.log('Upload request details:', {
       url: fullUrl,
       hasToken: !!token,
       tokenPrefix: token ? token.substring(0, 10) + '...' : 'none'
@@ -108,7 +104,6 @@ export const uploadFile = async (
     if (token) {
       xhr.setRequestHeader('Authorization', `Bearer ${token}`);
     } else {
-      console.warn('No authentication token found - this may cause a 401/405 error');
     }
     
     xhr.upload.onprogress = (e) => {
@@ -119,10 +114,6 @@ export const uploadFile = async (
     };
     
     xhr.onload = () => {
-      console.groupCollapsed('[UPLOAD] Upload completed');
-      console.log('Status:', xhr.status, xhr.statusText);
-      console.log('All response headers:\n', xhr.getAllResponseHeaders());
-      console.groupEnd();
 
       if (xhr.status >= 200 && xhr.status < 300) {
         resolve(JSON.parse(xhr.responseText));
@@ -139,7 +130,6 @@ export const uploadFile = async (
           }
         }
         
-        console.error('Upload failed:', {
           ...debugInfo,
           status: xhr.status,
           statusText: xhr.statusText,
@@ -152,7 +142,6 @@ export const uploadFile = async (
     };
     
     xhr.onerror = () => {
-      console.error('[UPLOAD] Network error', debugInfo);
       reject(new Error('Network error during file upload'));
     };
     

@@ -1,3 +1,18 @@
+/**
+ * MySQL connection pool with automatic table prefixing.
+ *
+ * Key features:
+ * - Creates a pooled MySQL connection using mysql2/promise
+ * - Transparently rewrites SQL so bare table names are prefixed with TABLE_PREFIX
+ * - Patches pool.query and individual connections to apply prefixing
+ * - Optional keepalive ping for hosted environments
+ *
+ * Relevant env vars:
+ * - DB_HOST, DB_USER, DB_PASSWORD, DB_NAME
+ * - TABLE_PREFIX (default 'onboarding_')
+ * - DB_CONNECT_TIMEOUT_MS, DB_KEEPALIVE_DELAY_MS, DB_KEEPALIVE_INTERVAL_MS
+ * - NODE_ENV and DB_KEEPALIVE to toggle keepalive
+ */
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
 
@@ -34,7 +49,7 @@ const TABLES_TO_PREFIX = [
   'room_category_infos', 'room_operational_handling', 'room_standard_features',
   
   // Event management tables
-  'events', 'event_booking', 'event_financials', 'event_operations', 'event_spaces',
+  'events', 'event_details', 'event_booking', 'event_financials', 'event_operations', 'event_spaces',
   'event_equipment', 'event_av_equipment', 'event_contracting', 'event_technical', 
   'event_handling',
   
@@ -106,7 +121,6 @@ if (process.env.NODE_ENV !== 'test' && process.env.DB_KEEPALIVE !== 'false') {
     try {
       await pool.query('SELECT 1');
     } catch (err) {
-      console.warn('[DB keepalive] ping failed:', err.message);
     }
   };
   const timer = setInterval(keepAlive, intervalMs);

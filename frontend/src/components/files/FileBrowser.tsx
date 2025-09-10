@@ -61,7 +61,6 @@ export default function FileBrowser({
         setFileToDelete(null);
       },
       onError: (err: any) => {
-        console.error('Error deleting file:', err);
         toast.error(err?.message || 'Failed to delete file');
       }
     });

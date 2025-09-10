@@ -51,7 +51,6 @@ const HotelList = ({ searchQuery = "" }: HotelListProps) => {
         setHotels(data);
         setError(null);
       } catch (err) {
-        console.error("Failed to fetch hotels:", err);
         setError(t("pages.view.failedToLoadHotels"));
       } finally {
         setLoading(false);
@@ -77,7 +76,6 @@ const HotelList = ({ searchQuery = "" }: HotelListProps) => {
         dateAdded: new Date(apiUser.created_at).toISOString().split('T')[0]
       }));
     } catch (error) {
-      console.error(`Error fetching users for hotel ${hotelId}:`, error);
       return [];
     }
   }, []);
@@ -111,7 +109,6 @@ const HotelList = ({ searchQuery = "" }: HotelListProps) => {
         
         setHotelUsers(usersMap);
       } catch (err) {
-        console.error("Error fetching users for hotels:", err);
       }
     };
     
@@ -150,7 +147,6 @@ const HotelList = ({ searchQuery = "" }: HotelListProps) => {
       const data = await getAllHotels();
       setHotels(data);
     } catch (error: any) {
-      console.error("Error deleting hotel:", error);
       toast.error(error.message || t("hotels.deleteFailed"));
     }
   };

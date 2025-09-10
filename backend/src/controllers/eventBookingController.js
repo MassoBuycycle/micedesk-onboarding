@@ -15,7 +15,7 @@ export const getEventBooking = async (req, res) => {
     connection = await pool.getConnection();
 
     const [rows] = await connection.query(
-      'SELECT * FROM event_booking WHERE event_id = ?',
+      'SELECT event_id, has_options, allows_split_options, option_duration, allows_overbooking, rooms_only, last_minute_leadtime, contracted_companies, refused_requests, unwanted_marketing, requires_second_signature, exclusive_clients FROM event_details WHERE event_id = ?',
       [eventId]
     );
     
@@ -25,7 +25,6 @@ export const getEventBooking = async (req, res) => {
     
     res.json(rows[0]);
   } catch (error) {
-    console.error('Error fetching event booking information:', error);
     res.status(500).json({ error: 'Failed to fetch booking information' });
   } finally {
     if (connection) connection.release();
@@ -46,9 +45,9 @@ export const createOrUpdateEventBooking = async (req, res) => {
   try {
     connection = await pool.getConnection();
 
-    // Check if booking data already exists for this event
+    // Check if unified record already exists for this event
     const [existingRows] = await connection.query(
-      'SELECT event_id FROM event_booking WHERE event_id = ?',
+      'SELECT event_id FROM event_details WHERE event_id = ?',
       [eventId]
     );
     
@@ -90,7 +89,7 @@ export const createOrUpdateEventBooking = async (req, res) => {
         const setClause = fields.map(field => `${field} = ?`).join(', ');
         const values = fields.map(f => bookingData[f]);
         await connection.query(
-          `UPDATE event_booking SET ${setClause} WHERE event_id = ?`,
+          `UPDATE event_details SET ${setClause} WHERE event_id = ?`,
           [...values, eventId]
         );
       }
@@ -113,19 +112,19 @@ export const createOrUpdateEventBooking = async (req, res) => {
 
       if (fields.length > 0) {
         await connection.query(
-          `INSERT INTO event_booking (event_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`,
+          `INSERT INTO event_details (event_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`,
           [eventId, ...values]
         );
       } else {
         // If no additional fields provided just insert event_id
         await connection.query(
-          'INSERT INTO event_booking (event_id) VALUES (?)',
+          'INSERT INTO event_details (event_id) VALUES (?)',
           [eventId]
         );
       }
 
       const [createdRows] = await connection.query(
-        'SELECT * FROM event_booking WHERE event_id = ?',
+        'SELECT event_id, has_options, allows_split_options, option_duration, allows_overbooking, rooms_only, last_minute_leadtime, contracted_companies, refused_requests, unwanted_marketing, requires_second_signature, exclusive_clients FROM event_details WHERE event_id = ?',
         [eventId]
       );
 
@@ -136,8 +135,6 @@ export const createOrUpdateEventBooking = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error('Error saving event booking information:', error);
-    console.error('Full error details:', error.message, error.code, error.sqlMessage);
     res.status(500).json({ 
       error: 'Failed to save booking information',
       details: error.message || error.sqlMessage || 'Unknown database error'

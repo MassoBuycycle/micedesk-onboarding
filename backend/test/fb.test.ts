@@ -113,5 +113,4 @@ describe('Food & Beverage API - /api/hotels/:hotelId/fb', () => {
 
   });
 
-  // TODO: Add describe blocks for /restaurants, /bars, /breakfast, /policies etc.
 }); 

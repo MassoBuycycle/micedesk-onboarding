@@ -40,7 +40,6 @@ export const getContractDetails = async (req, res, next) => {
     
     res.status(200).json(contractData);
   } catch (error) {
-    console.error('Error in getContractDetails:', error);
     next(error);
   } finally {
     connection.release();
@@ -146,7 +145,6 @@ export const upsertContractDetails = async (req, res, next) => {
     
   } catch (error) {
     await connection.rollback();
-    console.error('Error in upsertContractDetails:', error);
     next(error);
   } finally {
     connection.release();
@@ -175,7 +173,6 @@ export const deleteContractDetails = async (req, res, next) => {
       message: 'Contract details deleted successfully' 
     });
   } catch (error) {
-    console.error('Error in deleteContractDetails:', error);
     next(error);
   } finally {
     connection.release();

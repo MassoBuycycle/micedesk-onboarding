@@ -205,7 +205,6 @@ const ViewDetail = () => {
       
       toast.success(`Exported ${detail.name} details as ${format.toUpperCase()}`);
     } catch (error) {
-      console.error(`Error exporting as ${format}:`, error);
       toast.error(`Failed to export as ${format}. Please try again.`);
     }
   };
@@ -223,16 +222,13 @@ const ViewDetail = () => {
 
   // Handle edit button click based on resource type
   const handleEditClick = () => {
-    console.log("Edit button clicked, type:", type, "id:", id);
     
     switch (type) {
       case 'hotel':
-        console.log("Navigating to hotel edit page:", `/edit/hotel/${id}`);
         navigate(`/edit/hotel/${id}`);
         break;
       // Add other cases as needed
       default:
-        console.log("Using in-page editing for type:", type);
         setIsEditing(true); // Fallback to in-page editing for other resource types
         break;
     }
@@ -287,7 +283,6 @@ const ViewDetail = () => {
       setIsEditing(false);
       toast.success("Hotel details updated successfully");
     } catch (error: any) {
-      console.error("Error saving hotel details:", error);
       toast.error(error.message || "Failed to update hotel details");
     }
   };

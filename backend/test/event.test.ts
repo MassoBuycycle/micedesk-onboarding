@@ -75,8 +75,6 @@ describe('Event API - /api/events', () => {
       }
     });
 
-    // TODO: Add test for invalid hotel_id
-    // TODO: Add tests for missing required fields for sub-tables if controller enforces them strictly
   });
 
   // describe('/equipment', () => { ... }); // Old AV equipment tests - to be reviewed/refactored

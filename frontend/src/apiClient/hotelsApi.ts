@@ -144,7 +144,6 @@ export const getAllHotels = async (): Promise<Hotel[]> => {
     // Safely return array, handle both direct array response and wrapped response
     return Array.isArray(response) ? response : (Array.isArray(response?.data) ? response.data : []);
   } catch (error) {
-    console.error('Error fetching hotels:', error);
     // Return empty array on error to prevent undefined issues
     return [];
   }
@@ -163,7 +162,6 @@ export const createHotel = async (hotelData: HotelInput): Promise<{ success: tru
       name: hotelData.name
     };
   } else {
-    console.error('Unexpected response structure from createHotel:', responseBody);
     throw new Error('Failed to process hotel creation response: Unexpected data structure from server.');
   }
 };

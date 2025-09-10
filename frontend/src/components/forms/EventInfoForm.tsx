@@ -196,9 +196,6 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
   // i18n translation hook
   const { t } = useTranslation();
   // Debug log to see what data we're receiving
-  console.log("EventInfoForm received initialData:", initialData);
-  console.log("EventInfoForm mode:", mode);
-  console.log("EventInfoForm createdEventId:", createdEventId);
   
   // Merge initialData with default values properly
   const defaultValues = {
@@ -318,7 +315,6 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
 
   useEffect(() => {
     // Skip equipment fetching since the endpoint doesn't work
-    console.log("Skipping equipment fetch due to backend endpoint issues");
   }, [form]);
 
   // Mapping helper will build the flattened payload for backend
@@ -359,7 +355,6 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
         price: item.price_per_unit || 0
       }));
     } catch (error) {
-      console.error("Failed to get equipment:", error);
       return [];
     }
   };
@@ -367,7 +362,6 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
   // Call to save equipment with correct field names
   const saveEventEquipment = async (eventId: number, equipmentItems: any[]) => {
     if (!equipmentItems || equipmentItems.length === 0) {
-      console.log("⚠️ No equipment items to save");
       return;
     }
     
@@ -382,18 +376,13 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
         }));
       
       if (equipmentData.length === 0) {
-        console.log("⚠️ No equipment items with non-zero values to save");
         return;
       }
       
-      console.log("📤 Saving equipment data payload:", JSON.stringify(equipmentData, null, 2));
       // Use the API function
       const result = await upsertEquipment(eventId, equipmentData);
-      console.log("✅ Equipment saved successfully! Response:", JSON.stringify(result, null, 2));
       return result;
     } catch (error) {
-      console.error("❌ Failed to save equipment:", error);
-      console.error("Error details:", error.message || error);
       throw error;
     }
   };
@@ -406,17 +395,13 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
       const hotelId = selectedHotel?.id;
       
       if (!hotelId) {
-        console.error("❌ Hotel ID is missing!");
-        console.log("selectedHotel:", selectedHotel);
         toast.error("Hotel ID is required but not available. Please ensure a hotel is selected.");
         return;
       }
       
-      console.log("✅ Using hotel ID:", hotelId);
       
       // If we're in edit mode and already have an event ID, don't create a new one
       if (mode === 'edit' && createdEventId) {
-        console.log("⏳ In edit mode with existing event ID:", createdEventId);
         
         // Create the full payload for onNext
         const fullPayload: EventInfoData = {
@@ -439,13 +424,11 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
           contracting: values.contracting || {},
         };
         
-        console.log("✅ Passing data to parent for saving");
         onNext(fullPayload);
         return;
       }
       
       // Only create a new event in add mode
-      console.log("⏳ Starting direct event creation with hotel ID:", hotelId);
       toast.info("Creating event...");
       
       // Step 1: Create the event with full payload
@@ -458,10 +441,8 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
       try {
         if (values.equipment && values.equipment.some(item => item.quantity > 0 || item.price > 0)) {
           await saveEventEquipment(eventId, values.equipment);
-          console.log("Equipment data saved successfully");
         }
       } catch (equipError) {
-        console.error("Failed to save equipment data:", equipError);
         toast.warning("Could not save equipment data, but continuing to next step");
       }
       
@@ -486,11 +467,9 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
         contracting: values.contracting || {},
       };
       
-      console.log("✅ Moving to next step with complete data");
       toast.success("Event created successfully!");
       onNext(fullPayload);
     } catch (error) {
-      console.error("❌ Submit failed:", error);
       toast.error(`Failed to create event: ${error.message}`);
     }
   };
@@ -512,13 +491,9 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
           // Check if user is authenticated
           const authToken = getAuthToken();
           if (!authToken) {
-            console.log("🔐 No authentication token found - skipping event data loading");
             return;
           }
           
-          console.log("🔄 Starting to fetch all event data for event ID:", createdEventId);
-          console.log("📊 Mode:", mode);
-          console.log("📊 Has initial data:", hasInitialData);
           
           // Import all the GET functions we need
           const { 
@@ -531,55 +506,42 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
           } = await import('@/apiClient/eventsApi');
           
           // Fetch all event data in parallel
-          console.log("📡 Fetching data from 5 endpoints in parallel...");
           const [mainData, bookingData, operationsData, financialsData, equipmentData] = await Promise.all([
             getEventById(createdEventId).catch(err=>{
-              console.error("❌ Failed to fetch main event data:", err.message||err);
               return null;
             }),
             getEventBooking(createdEventId).catch(err => {
-              console.error("❌ Failed to fetch booking data:", err.message || err);
               return null;
             }),
             getEventOperations(createdEventId).catch(err => {
-              console.error("❌ Failed to fetch operations data:", err.message || err);
               return null;
             }),
             getEventFinancials(createdEventId).catch(err => {
-              console.error("❌ Failed to fetch financials data:", err.message || err);
               return null;
             }),
             getEventAvEquipment(createdEventId).catch(err => {
-              console.error("❌ Failed to fetch equipment data:", err.message || err);
               return [];
             })
           ]);
           
           // Update form with fetched data
           if (bookingData) {
-            console.log("✅ Booking data fetched:", JSON.stringify(bookingData, null, 2));
             form.setValue("booking", bookingData);
           } else {
-            console.log("⚠️ No booking data received");
           }
           
           if (operationsData) {
-            console.log("✅ Operations data fetched:", JSON.stringify(operationsData, null, 2));
             // The API should return data in the correct format for EventOperationsInput
             form.setValue("operations", operationsData);
           } else {
-            console.log("⚠️ No operations data received");
           }
           
           if (financialsData) {
-            console.log("✅ Financials data fetched:", JSON.stringify(financialsData, null, 2));
             form.setValue("financials", financialsData);
           } else {
-            console.log("⚠️ No financials data received");
           }
           
           if (equipmentData && equipmentData.length > 0) {
-            console.log("✅ Equipment data fetched:", JSON.stringify(equipmentData, null, 2));
             // Map database items to form equipment
             equipmentData.forEach(item => {
               const index = DEFAULT_EQUIPMENT.findIndex(e => e.name === item.equipment_name);
@@ -589,38 +551,29 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
               }
             });
           } else {
-            console.log("⚠️ No equipment data received");
           }
           
           if(mainData){
-            console.log("✅ Main event data fetched:", JSON.stringify(mainData,null,2));
             form.setValue("contact.contact_name", mainData.contact_name||"");
             form.setValue("contact.contact_phone", mainData.contact_phone||"");
             form.setValue("contact.contact_email", mainData.contact_email||"");
             form.setValue("contact.contact_position", mainData.contact_position||"");
           } else {
-            console.log("⚠️ No main event data received");
           }
           
           // Technical and Contracting data would go here once the backend endpoints are implemented
           // For now, we'll skip them as they return 404
-          console.log("⏭️ Skipping technical and contracting data (endpoints not implemented)");
           
           // Trigger form validation
           form.trigger();
-          console.log("✅ Form data loaded and validation triggered");
           
         } catch (error: any) {
           // Check if it's an authentication error
           if (error.message?.includes('401') || error.message?.includes('Unauthorized')) {
-            console.log("🔐 Authentication required to fetch event data - skipping");
           } else {
-            console.error('❌ Unexpected error fetching event data:', error);
           }
         }
       } else if (hasInitialData) {
-        console.log("📦 Using initialData instead of fetching from API");
-        console.log("📦 Initial data content:", JSON.stringify(initialData, null, 2));
       }
     };
     

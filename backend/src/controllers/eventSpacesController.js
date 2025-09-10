@@ -24,7 +24,6 @@ export const getEventSpaces = async (req, res) => {
     
     res.status(200).json(spacesRows);
   } catch (error) {
-    console.error('Error fetching event spaces:', error);
     res.status(500).json({ error: 'Failed to fetch event spaces' });
   }
 };
@@ -70,7 +69,6 @@ export const createEventSpace = async (req, res, next) => {
       return res.status(400).json({ error: 'Event ID required' });
     }
     
-    console.log('Received space data:', JSON.stringify(req.body));
     
     // Check if event exists
     const [events] = await connection.query('SELECT id FROM events WHERE id = ?', [eventId]);
@@ -200,7 +198,6 @@ export const createEventSpace = async (req, res, next) => {
       if (existingSpaces.length > 0) {
         // Update existing space
         const spaceId = existingSpaces[0].id;
-        console.log(`Updating existing space ${spaceId} with name "${item.name}"`);
         
         const setClause = Object.keys(spaceData)
           .map(field => `${field} = ?`)
@@ -220,10 +217,8 @@ export const createEventSpace = async (req, res, next) => {
         );
         
         updatedSpaces.push(updatedSpace[0]);
-        console.log(`Updated space ${spaceId}`);
       } else {
         // Create new space
-        console.log(`Creating new space with name "${item.name}"`);
         
         // Add the event ID
         spaceData.event_id = eventId;
@@ -245,7 +240,6 @@ export const createEventSpace = async (req, res, next) => {
         );
         
         createdSpaces.push(spaces[0]);
-        console.log(`Created new space ${insertResult.insertId}`);
       }
     }
 
@@ -258,7 +252,6 @@ export const createEventSpace = async (req, res, next) => {
       totalSpaces
     });
   } catch (error) {
-    console.error('Error in createEventSpace:', error);
     next(error);
   } finally {
     connection.release();
@@ -276,7 +269,6 @@ export const updateEventSpace = async (req, res, next) => {
       return res.status(400).json({ error: 'Space ID required' });
     }
     
-    console.log('Received update space data:', JSON.stringify(req.body));
     
     // Check if space exists
     const [existingSpaces] = await connection.query(
@@ -382,7 +374,6 @@ export const updateEventSpace = async (req, res, next) => {
     if ('has_tech_support' in req.body) 
       spaceData.has_tech_support = req.body.has_tech_support ? 1 : 0;
     
-    console.log('Processed update space data:', JSON.stringify(spaceData));
     
     // Update the space
     if (Object.keys(spaceData).length > 0) {
@@ -392,8 +383,6 @@ export const updateEventSpace = async (req, res, next) => {
       
       const updateValues = [...Object.values(spaceData), spaceId];
       
-      console.log('SQL Update:', `UPDATE event_spaces SET ${setClause} WHERE id = ?`);
-      console.log('SQL Params:', updateValues);
       
       await connection.query(
         `UPDATE event_spaces SET ${setClause} WHERE id = ?`,
@@ -412,7 +401,6 @@ export const updateEventSpace = async (req, res, next) => {
       space: spaces[0]
     });
   } catch (error) {
-    console.error('Error in updateEventSpace:', error);
     next(error);
   } finally {
     connection.release();
@@ -451,7 +439,6 @@ export const deleteEventSpace = async (req, res, next) => {
       message: 'Space deleted successfully'
     });
   } catch (error) {
-    console.error('Error in deleteEventSpace:', error);
     next(error);
   } finally {
     connection.release();

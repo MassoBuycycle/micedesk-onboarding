@@ -47,7 +47,6 @@ export default function FileUploadDemo() {
           setFileTypeCode(response[0].code);
         }
       } catch (error) {
-        console.error('Error fetching file types:', error);
       }
     };
 
@@ -91,7 +90,6 @@ export default function FileUploadDemo() {
           setEntityId(options[0].id);
         }
       } catch (error) {
-        console.error(`Error fetching ${entityType}:`, error);
       }
     };
 

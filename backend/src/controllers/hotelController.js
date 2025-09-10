@@ -65,7 +65,6 @@ export const getAllHotels = async (req, res, next) => {
         try {
           hotel.additional_links = JSON.parse(hotel.additional_links);
         } catch (error) {
-          console.error('Error parsing additional_links JSON:', error);
           hotel.additional_links = [];
         }
       }
@@ -105,7 +104,6 @@ export const getHotelById = async (req, res, next) => {
       try {
         hotel.additional_links = JSON.parse(hotel.additional_links);
       } catch (error) {
-        console.error('Error parsing additional_links JSON:', error);
         hotel.additional_links = [];
       }
     }
@@ -202,7 +200,6 @@ export const createHotel = async (req, res, next) => {
     });
   } catch (error) {
     await connection.rollback();
-    console.error('Error in createHotel:', error);
     next(error);
   } finally {
     if (connection) connection.release();
@@ -270,14 +267,12 @@ export const updateHotel = async (req, res, next) => {
       try {
         hotel.additional_links = JSON.parse(hotel.additional_links);
       } catch (error) {
-        console.error('Error parsing additional_links JSON:', error);
         hotel.additional_links = [];
       }
     }
     
     res.status(200).json({ success: true, hotelId, hotel, message: 'Hotel updated successfully.' });
   } catch (error) {
-    console.error('Error in updateHotel:', error);
     next(error);
   } finally {
     if (connection) connection.release();
@@ -312,7 +307,6 @@ export const deleteHotel = async (req, res, next) => {
     
     res.status(200).json({ success: true, message: 'Hotel deleted successfully' });
   } catch (error) {
-    console.error("Error in deleteHotel:", error);
     next(error);
   } finally {
     if (connection) connection.release();

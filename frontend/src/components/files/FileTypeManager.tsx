@@ -163,7 +163,6 @@ export default function FileTypeManager() {
       // Refresh data
       refetch();
     } catch (error: any) {
-      console.error('Error creating file type:', error);
       toast.error(error.message || 'Failed to create file type');
     } finally {
       setIsSubmitting(false);
@@ -183,7 +182,6 @@ export default function FileTypeManager() {
       // Refresh data
       refetch();
     } catch (error: any) {
-      console.error('Error deleting file type:', error);
       
       if (error.message && error.message.includes('409')) {
         toast.error('Cannot delete file type that is being used by files');

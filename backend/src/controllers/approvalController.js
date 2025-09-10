@@ -33,13 +33,6 @@ export const submitChanges = async (req, res, next) => {
     }
     
     // Create pending change record
-    console.log('Submitting changes for approval:');
-    console.log('Entry ID:', entryId);
-    console.log('Entry Type:', entryType);
-    console.log('Change Data:', changeData);
-    console.log('Original Data:', originalData);
-    console.log('Change Data Type:', typeof changeData);
-    console.log('Original Data Type:', typeof originalData);
     
     const [result] = await connection.query(
       `INSERT INTO onboarding_pending_changes 
@@ -122,10 +115,6 @@ export const getPendingChanges = async (req, res, next) => {
     
     // Parse JSON fields for easier consumption by clients
     const parsedChanges = changes.map(change => {
-      console.log('Raw change_data from DB:', change.change_data);
-      console.log('Raw original_data from DB:', change.original_data);
-      console.log('change_data type:', typeof change.change_data);
-      console.log('original_data type:', typeof change.original_data);
       
       let parsedChangeData = change.change_data;
       let parsedOriginalData = change.original_data;
@@ -135,7 +124,6 @@ export const getPendingChanges = async (req, res, next) => {
         try {
           parsedChangeData = JSON.parse(change.change_data);
         } catch (e) {
-          console.error('Failed to parse change_data JSON:', e);
           parsedChangeData = null;
         }
       }
@@ -144,13 +132,10 @@ export const getPendingChanges = async (req, res, next) => {
         try {
           parsedOriginalData = JSON.parse(change.original_data);
         } catch (e) {
-          console.error('Failed to parse original_data JSON:', e);
           parsedOriginalData = null;
         }
       }
       
-      console.log('Parsed change_data:', parsedChangeData);
-      console.log('Parsed original_data:', parsedOriginalData);
       
       return {
         ...change,
@@ -198,18 +183,12 @@ export const getPendingChangeById = async (req, res, next) => {
     
     // Parse the JSON data
     const change = changes[0];
-    console.log('Retrieved change from DB:', change);
-    console.log('Raw change_data:', change.change_data);
-    console.log('Raw original_data:', change.original_data);
-    console.log('change_data type:', typeof change.change_data);
-    console.log('original_data type:', typeof change.original_data);
     
     // Handle case where MySQL might return JSON as string
     if (typeof change.change_data === 'string') {
       try {
         change.change_data = JSON.parse(change.change_data);
       } catch (e) {
-        console.error('Failed to parse change_data JSON:', e);
         change.change_data = null;
       }
     }
@@ -218,13 +197,10 @@ export const getPendingChangeById = async (req, res, next) => {
       try {
         change.original_data = JSON.parse(change.original_data);
       } catch (e) {
-        console.error('Failed to parse original_data JSON:', e);
         change.original_data = null;
       }
     }
     
-    console.log('Parsed change_data:', change.change_data);
-    console.log('Parsed original_data:', change.original_data);
     
     res.json(change);
   } catch (error) {
@@ -448,7 +424,6 @@ export const getMyChanges = async (req, res, next) => {
         try {
           parsedChangeData = JSON.parse(change.change_data);
         } catch (e) {
-          console.error('Failed to parse change_data JSON:', e);
           parsedChangeData = null;
         }
       }
@@ -457,7 +432,6 @@ export const getMyChanges = async (req, res, next) => {
         try {
           parsedOriginalData = JSON.parse(change.original_data);
         } catch (e) {
-          console.error('Failed to parse original_data JSON:', e);
           parsedOriginalData = null;
         }
       }

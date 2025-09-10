@@ -197,7 +197,6 @@ export const upsertFbDetails = async (req, res, next) => {
 
   } catch (error) {
     if (connection) await connection.rollback();
-    console.error('Error in upsertFbDetails:', error);
     next(error);
   } finally {
     if (connection) connection.release();
@@ -226,7 +225,6 @@ export const getFbDetails = async (req, res, next) => {
 
     res.status(200).json({ success: true, data: completeData });
   } catch (error) {
-    console.error('Error in getFbDetails:', error);
     next(error);
   } finally {
     if (connection) connection.release();
@@ -266,7 +264,6 @@ export const deleteFbDetails = async (req, res, next) => {
     res.status(200).json({ success: true, message: 'F&B details deleted completely.' });
   } catch (error) {
     if (connection) await connection.rollback();
-    console.error('Error in deleteFbDetails:', error);
     next(error);
   } finally {
     if (connection) connection.release();
@@ -289,7 +286,6 @@ export const getRestaurants = async (req, res, next) => {
     const [restaurants] = await connection.query('SELECT * FROM onboarding_fb_restaurants WHERE hotel_id = ? ORDER BY id', [hotelId]);
     res.status(200).json({ success: true, data: restaurants });
   } catch (error) {
-    console.error('Error in getRestaurants:', error);
     next(error);
   } finally {
     if (connection) connection.release();
@@ -312,7 +308,6 @@ export const getBars = async (req, res, next) => {
     const [bars] = await connection.query('SELECT * FROM onboarding_fb_bars WHERE hotel_id = ? ORDER BY id', [hotelId]);
     res.status(200).json({ success: true, data: bars });
   } catch (error) {
-    console.error('Error in getBars:', error);
     next(error);
   } finally {
     if (connection) connection.release();

@@ -48,7 +48,6 @@ const Policies = () => {
       const hotelsWithId = hotelsArray.filter(hotel => hotel.system_hotel_id && hotel.system_hotel_id.trim() !== '');
       setHotels(hotelsWithId);
     } catch (error) {
-      console.error("Error loading hotels:", error);
       setHotels([]); // Ensure we set an empty array on error
       toast.error(t("messages.error.failedToLoad"));
     }
@@ -61,7 +60,6 @@ const Policies = () => {
       // Ensure policiesData is always an array
       setPolicies(Array.isArray(policiesData) ? policiesData : []);
     } catch (error) {
-      console.error("Error loading policies:", error);
       setPolicies([]); // Ensure we set an empty array on error
       toast.error(t("policies.failedToUpdateItems"));
     } finally {
@@ -105,7 +103,6 @@ const Policies = () => {
         loadPolicies(selectedHotel.system_hotel_id);
       }
     } catch (error) {
-      console.error("Error deleting policy:", error);
       toast.error(t("policies.failedToDeletePolicy"));
     }
   };

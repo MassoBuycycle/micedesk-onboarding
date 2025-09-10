@@ -1,3 +1,13 @@
+/**
+ * useHotelFormState
+ *
+ * Centralized state machine for the multi-step Hotel onboarding flow.
+ * Manages IDs created across steps, aggregates form data, and orchestrates
+ * API calls for hotel, room configuration, events, F&B, and contracting.
+ *
+ * Returns control functions (e.g., setActiveStep, submit handlers) and
+ * structured state needed by UI forms and previews.
+ */
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { createHotel, HotelInput, FoodBeverageOutletInput, createFoodBeverageOutlet, updateHotel, getHotelById, getFoodBeverageOutlets, updateFoodBeverageOutlet, getFullHotelDetails } from "@/apiClient/hotelsApi";
@@ -103,7 +113,6 @@ export function useHotelFormState() {
   const setHotelIdForEdit = (hotelId: number) => {
     setCreatedHotelId(hotelId);
     setMode('edit');
-    console.log(`setHotelIdForEdit called: Setting mode to 'edit' for hotel ID ${hotelId}`);
   };
 
   const fetchAndSetHotelData = async (hotelId: number) => {
@@ -125,10 +134,8 @@ export function useHotelFormState() {
         if (fullHotelData.data.rooms && fullHotelData.data.rooms.length > 0) {
           const firstRoomId = fullHotelData.data.rooms[0].id;
           setCreatedRoomTypeId(firstRoomId);
-          console.log(`Set room type ID from existing data: ${firstRoomId}`);
         }
       } catch (err) {
-        console.warn('Could not fetch full hotel details', err);
       }
       
       // Note: In the future, we might need a way to fetch room ID by hotel ID
@@ -150,7 +157,6 @@ export function useHotelFormState() {
           const firstEventId = events[0].id;
           setCreatedEventId(firstEventId);
           
-          console.log(`🔄 Fetching detailed event data for event ID: ${firstEventId}`);
           
           // Import all the GET functions we need
           const { 
@@ -185,15 +191,6 @@ export function useHotelFormState() {
             getEventSpaces(firstEventId)
           ]);
           
-          console.log("📊 Event data fetch results:");
-          console.log("Contact:", eventContact.status === 'fulfilled' ? eventContact.value : "failed");
-          console.log("Booking:", bookingData.status === 'fulfilled' ? bookingData.value : "failed");
-          console.log("Operations:", operationsData.status === 'fulfilled' ? operationsData.value : "failed");
-          console.log("Financials:", financialsData.status === 'fulfilled' ? financialsData.value : "failed");
-          console.log("Equipment:", equipmentData.status === 'fulfilled' ? equipmentData.value : "failed");
-          console.log("Technical:", technicalData.status === 'fulfilled' ? technicalData.value : "failed");
-          console.log("Contracting:", contractingData.status === 'fulfilled' ? contractingData.value : "failed");
-          console.log("Spaces:", spacesData.status === 'fulfilled' ? spacesData.value : "failed");
           
           // Structure the detailed event data
           detailedEventData = {
@@ -207,10 +204,8 @@ export function useHotelFormState() {
             spaces: spacesData.status === 'fulfilled' ? (Array.isArray(spacesData.value) ? spacesData.value : []) : []
           };
           
-          console.log("✅ Structured detailed event data:", detailedEventData);
         }
       } catch (err) {
-        console.warn('Could not fetch events for hotel', hotelId, err);
       }
 
       const apiData: any = { hotel: hotelData };
@@ -240,14 +235,11 @@ export function useHotelFormState() {
 
       setHotelDataFromApi(apiData);
     } catch (error) {
-      console.error('fetchAndSetHotelData error', error);
       toast.error('Failed to fetch hotel data.');
     }
   };
 
   const setHotelDataFromApi = async (apiData: any) => {
-    console.log("=== SETTING HOTEL DATA FROM API ===");
-    console.log("Raw API data received:", apiData);
     
     // Transform hotel data from snake_case to camelCase for form compatibility
     const transformHotelData = (hotelData: any) => {
@@ -308,7 +300,6 @@ export function useHotelFormState() {
     };
     
     const transformedHotel = transformHotelData(apiData.hotel);
-    console.log("Transformed hotel data:", transformedHotel);
     
     // NEW helper to transform first room entry
     const transformRoomData = (roomAgg:any)=>{
@@ -367,7 +358,6 @@ export function useHotelFormState() {
     // If we have rooms data with IDs, set the first room's ID
     if (firstRoom && firstRoom.id) {
       setCreatedRoomTypeId(firstRoom.id);
-      console.log(`Set room type ID from API data: ${firstRoom.id}`);
     }
 
     const newFormData: HotelFormData = {
@@ -381,7 +371,6 @@ export function useHotelFormState() {
       contractOnboarding: apiData.contractDetails || {},
     };
     
-    console.log("Final mapped form data:", newFormData);
     
     setFormData(newFormData);
     setTempFormData(newFormData);
@@ -407,7 +396,6 @@ export function useHotelFormState() {
       contractOnboarding: !!(apiData.contractDetails && Object.keys(apiData.contractDetails).length > 0),
     };
     
-    console.log("Completed steps:", newCompletedSteps);
     setCompletedSteps(newCompletedSteps);
 
     // If backend provided events, store first event ID for edit flow
@@ -444,14 +432,9 @@ export function useHotelFormState() {
   };
 
   const handleNext = async (currentStep: FormStep, data: any) => {
-    console.log("=== handleNext called ===");
-    console.log("currentStep:", currentStep);
-    console.log("data:", data);
-    console.log("typeof onNext:", typeof handleNext);
     
     // Safety check to ensure we have valid data
     if (!data) {
-      console.error("No data provided to handleNext");
       toast.error("Invalid form data received");
       return;
     }
@@ -533,7 +516,6 @@ export function useHotelFormState() {
           Object.keys(hotelInput).forEach(key => hotelInput[key as keyof HotelInput] === undefined && delete hotelInput[key as keyof HotelInput]);
 
           if (createdHotelId === null) {
-            console.log("Calling createHotel with transformed data:", hotelInput);
             try {
               // Safety check for createHotel function
               if (typeof createHotel !== 'function') {
@@ -541,11 +523,6 @@ export function useHotelFormState() {
               }
               
               const hotelResponse = await createHotel(hotelInput);
-              console.log("=== HOTEL CREATION RESPONSE ===");
-              console.log("Full hotel response:", hotelResponse);
-              console.log("hotelResponse.hotelId:", hotelResponse.hotelId);
-              console.log("hotelResponse.name:", hotelResponse.name);
-              console.log("hotelResponse.success:", hotelResponse.success);
               
               if (hotelResponse.hotelId) {
                 // Update both state and local variable for immediate use
@@ -563,10 +540,6 @@ export function useHotelFormState() {
                 setFormData(updatedFormData);
                 setTempFormData(updatedFormData);
                 
-                console.log("=== HOTEL ID SET SUCCESSFULLY ===");
-                console.log("createdHotelId set to:", hotelResponse.hotelId);
-                console.log("currentHotelId set to:", currentHotelId);
-                console.log("formData.hotel.id set to:", hotelResponse.hotelId);
                 toast.success(`Hotel "${hotelResponse.name}" created (ID: ${hotelResponse.hotelId}).`);
                 
                 // Assign any temporary files to the new hotel
@@ -576,20 +549,15 @@ export function useHotelFormState() {
                     toast.success(`Assigned ${assignResult.updatedCount} temporary files to hotel.`);
                   }
                 } catch (fileError: any) {
-                  console.error("Error assigning temporary files:", fileError);
                   // Don't fail the hotel creation process for file assignment errors
                   toast.warning("Hotel created successfully, but there was an issue with file assignment.");
                 }
               } else {
-                console.error("=== HOTEL ID NOT FOUND IN RESPONSE ===");
-                console.error("Could not find hotel ID in response");
                 toast.error("Hotel created but ID not found in response. Please check the backend.");
                 setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
                 return;
               }
             } catch (createError: any) {
-              console.error("=== ERROR CREATING HOTEL ===");
-              console.error("Hotel creation failed:", createError);
               toast.error(`Failed to create hotel: ${createError.message}`);
               setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
               return;
@@ -614,7 +582,6 @@ export function useHotelFormState() {
                 await submitChanges(createdHotelId, 'hotel', hotelInput, originalHotel);
                 toast.success('Update request submitted for approval.');
               } catch (approvalError: any) {
-                console.error("Error in approval workflow:", approvalError);
                 toast.error(`Failed to submit for approval: ${approvalError.message}`);
                 setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
                 return;
@@ -626,7 +593,6 @@ export function useHotelFormState() {
                   throw new Error('updateHotel is not a function');
                 }
                 
-                console.log(`Calling updateHotel for ID ${createdHotelId} with transformed data:`, hotelInput);
                 await updateHotel(createdHotelId, hotelInput);
                 toast.success(`Hotel "${hotelInput.name || 'Details'}" updated (ID: ${createdHotelId}).`);
                 
@@ -637,12 +603,10 @@ export function useHotelFormState() {
                     toast.success(`Assigned ${assignResult.updatedCount} temporary files to hotel.`);
                   }
                 } catch (fileError: any) {
-                  console.error("Error assigning temporary files:", fileError);
                   // Don't fail the hotel update process for file assignment errors
                   toast.warning("Hotel updated successfully, but there was an issue with file assignment.");
                 }
               } catch (updateError: any) {
-                console.error("Error updating hotel:", updateError);
                 toast.error(`Failed to update hotel: ${updateError.message}`);
                 setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
                 return;
@@ -652,27 +616,16 @@ export function useHotelFormState() {
           break;
 
         case "roomInfo":
-          console.log("=== ROOM INFO STEP STARTED ===");
-          console.log("createdHotelId from state:", createdHotelId);
-          console.log("currentHotelId (immediate):", currentHotelId);
-          console.log("newFormData.roomInfo:", newFormData.roomInfo);
           
           if (!currentHotelId) {
-            console.error("=== HOTEL ID MISSING ===");
-            console.error("currentHotelId is null or undefined");
-            console.error("This means hotel creation step failed or hotel ID wasn't set properly");
             toast.error("Hotel ID not found. Please complete the Hotel step first.");
             setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
             return;
           }
           
-          console.log("=== HOTEL ID FOUND ===");
-          console.log("Using hotel ID:", currentHotelId);
           
           if (newFormData.roomInfo && Object.keys(newFormData.roomInfo).length > 0) {
             const formValues = newFormData.roomInfo as any; 
-            console.log("=== ROOM INFO FORM VALUES ===");
-            console.log("Form values received:", formValues);
 
             const payload: MainRoomConfigInput = {
               hotel_id: currentHotelId,
@@ -698,9 +651,6 @@ export function useHotelFormState() {
               dog_fee_inclusions: formValues.dog_fee_inclusions
             };
 
-            console.log("=== ROOM CREATION PAYLOAD ===");
-            console.log("Hotel ID being sent:", currentHotelId);
-            console.log("Complete room creation payload:", payload);
             
             Object.keys(payload).forEach(key => {
               if (payload[key as keyof MainRoomConfigInput] === undefined) {
@@ -708,53 +658,34 @@ export function useHotelFormState() {
               }
             });
 
-            console.log("=== CLEANED PAYLOAD ===");
-            console.log("Payload after removing undefined values:", payload);
-            console.log("Calling createRoom (for MainRoomConfig) with data:", payload);
             
             try {
               const roomConfigResponse = await createRoom(payload);
-              console.log("=== ROOM CREATION RESPONSE ===");
-              console.log("Room creation response:", roomConfigResponse);
               
               if (roomConfigResponse.data && roomConfigResponse.data.roomId) {
                 setCreatedRoomTypeId(roomConfigResponse.data.roomId);
-                console.log("=== ROOM ID SET SUCCESSFULLY ===");
-                console.log("Room ID set to:", roomConfigResponse.data.roomId);
                 toast.success(`Main Room Configuration saved (ID: ${roomConfigResponse.data.roomId}).`);
                 const mergedData = { ...newFormData, roomInfo: roomConfigResponse.data as Partial<MainRoomConfigInput> }; 
                 setFormData(mergedData);
                 setTempFormData(mergedData);
               } else {
-                console.error("=== ROOM ID NOT FOUND IN RESPONSE ===");
-                console.error("Room creation response structure:", roomConfigResponse);
                 toast.error("Failed to save Main Room Configuration: No Room ID returned.");
                 setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
                 return;
               }
             } catch (error: any) {
-              console.error("=== ERROR CREATING ROOM ===");
-              console.error("Room creation failed:", error);
-              console.error("Error details:", error.message);
               if (error.response) {
-                console.error("Error response:", error.response.data);
               }
               toast.error(`Failed to save Main Room Configuration: ${error.message}`);
               setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
               return;
             }
           } else {
-            console.log("=== NO ROOM INFO DATA ===");
-            console.log("Skipping room creation - no data provided");
             toast.info("Skipping Main Room Configuration save (no data provided).");
           }
           break;
 
         case "roomCategories":
-          console.log("=== ROOM CATEGORIES STEP START ===");
-          console.log("createdRoomTypeId:", createdRoomTypeId);
-          console.log("mode:", mode);
-          console.log("newFormData.roomCategories:", newFormData.roomCategories);
           
           if (!createdRoomTypeId) {
             toast.error("Main Room Configuration ID not found. Please complete the Room Info step.");
@@ -763,43 +694,32 @@ export function useHotelFormState() {
           } else if (newFormData.roomCategories && newFormData.roomCategories.length > 0) {
             // Get the current categories from the form
             const formCategories = newFormData.roomCategories as any[];
-            console.log("Form categories:", formCategories);
             
             // Separate existing categories (with id) from new ones (without id)
             const existingCategories = formCategories.filter(cat => cat.id);
             const newCategories = formCategories.filter(cat => !cat.id);
             
-            console.log("Existing categories (with ID):", existingCategories);
-            console.log("New categories (without ID):", newCategories);
             
             // If we're in edit mode, we need to handle updates and deletions
             if (mode === 'edit') {
-              console.log("=== EDIT MODE - UPDATING CATEGORIES ===");
               try {
                 // First, fetch the original categories to detect deletions
-                console.log("Fetching original categories for room ID:", createdRoomTypeId);
                 const originalCategories = await getRoomCategories(createdRoomTypeId);
-                console.log("Original categories from backend:", originalCategories);
                 
                 // Find categories to delete (in original but not in form)
                 const formCategoryIds = existingCategories.map(cat => cat.id);
-                console.log("Form category IDs:", formCategoryIds);
                 const categoriesToDelete = originalCategories.filter(
                   cat => cat.id && !formCategoryIds.includes(cat.id)
                 );
-                console.log("Categories to delete:", categoriesToDelete);
                 
                 // Delete removed categories
                 for (const cat of categoriesToDelete) {
                   if (cat.id) {
-                    console.log(`Deleting category ${cat.id}`);
                     await deleteRoomCategory(cat.id);
-                    console.log(`Deleted category ${cat.id}`);
                   }
                 }
                 
                 // Update existing categories
-                console.log("Updating existing categories:", existingCategories);
                 for (const catFromForm of existingCategories) {
                   const safeParseInt = (val: any): number | undefined => {
                     if (val === null || val === undefined || String(val).trim() === '') return undefined;
@@ -833,25 +753,20 @@ export function useHotelFormState() {
                     }
                   });
                   
-                  console.log(`Updating category ${catFromForm.id} with payload:`, updatePayload);
                   await updateRoomCategory(catFromForm.id, updatePayload);
-                  console.log(`Updated category ${catFromForm.id}`);
                 }
                 
                 toast.success(`Updated ${existingCategories.length} categories and deleted ${categoriesToDelete.length} categories.`);
               } catch (error: any) {
-                console.error("Error updating room categories:", error);
                 toast.error(`Failed to update room categories: ${error.message}`);
                 setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
                 return;
               }
             } else {
-              console.log("=== ADD MODE - NOT IN EDIT MODE ===");
             }
             
             // Create new categories (both in add and edit mode)
             if (newCategories.length > 0) {
-              console.log("=== CREATING NEW CATEGORIES ===");
               const categoriesToSubmit: RoomCategoryInput[] = newCategories.map(catFromFormAny => {
                 const catFromForm = catFromFormAny as any;
                 
@@ -890,12 +805,10 @@ export function useHotelFormState() {
                 return roomCategoryPayload;
               });
 
-              console.log(`Calling addCategoriesToRoom for Room ID ${createdRoomTypeId} with ${categoriesToSubmit.length} new categories`);
               try {
                 const categoriesResponse = await addCategoriesToRoom(createdRoomTypeId, categoriesToSubmit);
                 toast.success(`${categoriesResponse.createdCategories.length} new categories added to Room ID ${createdRoomTypeId}.`);
               } catch (catError: any) {
-                console.error("Error adding Room Categories:", catError);
                 toast.error(`Failed to add Room Categories: ${catError.message}`);
                 setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
                 return;
@@ -913,21 +826,14 @@ export function useHotelFormState() {
             return;
           }
           if (createdRoomTypeId && newFormData.roomHandling && Object.keys(newFormData.roomHandling).length > 0) {
-            console.log("Calling createOrUpdateRoomOperationalHandling with data:", newFormData.roomHandling);
             await createOrUpdateRoomOperationalHandling(createdRoomTypeId, newFormData.roomHandling as RoomOperationalHandlingInput);
             toast.success(`Handling info for Room ID ${createdRoomTypeId} saved.`);
           } else { toast.info("Skipping room handling (no room type ID or handling data)."); }
           break;
 
         case "eventsInfo":
-          console.log("==== EVENT INFO STEP ====");
-          console.log("currentHotelId:", currentHotelId);
-          console.log("createdEventId:", createdEventId);
-          console.log("mode:", mode);
-          console.log("newFormData.eventsInfo:", newFormData.eventsInfo);
           
           if (!currentHotelId) {
-            console.error("No hotel ID found! currentHotelId is null or undefined");
             toast.error("Hotel ID not found. Cannot create event.");
             setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
             return;
@@ -935,7 +841,6 @@ export function useHotelFormState() {
           
           try {
             if (newFormData.eventsInfo && Object.keys(newFormData.eventsInfo).length > 0) {
-              console.log("Processing eventsInfo data:", newFormData.eventsInfo);
               // Cast to EventInfoData to access nested properties
               const evData = newFormData.eventsInfo as EventInfoData;
               
@@ -952,14 +857,11 @@ export function useHotelFormState() {
               
               // Check if we need to create or update
               if (!eventId) {
-                console.log("Creating new event with contact data:", contactData);
                 const createRes = await createEvent(contactData);
-                console.log("createEvent response:", createRes);
                 eventId = createRes.eventId;
                 setCreatedEventId(eventId);
                 toast.success(`Event created (ID: ${eventId}).`);
               } else {
-                console.log("Updating existing event with ID:", eventId);
                 await updateEvent(eventId, contactData);
                 toast.success(`Event updated (ID: ${eventId}).`);
               }
@@ -968,44 +870,33 @@ export function useHotelFormState() {
               
               // Booking data
               if (evData.booking && Object.keys(evData.booking).length > 0) {
-                console.log("API call: upsertBooking with data:", evData.booking);
                 try {
                   const bookingRes = await upsertBooking(eventId, evData.booking);
-                  console.log("upsertBooking response:", bookingRes);
                 } catch (err) {
-                  console.error("Error in upsertBooking:", err);
                   toast.error("Failed to save booking data but proceeding");
                 }
               }
               
               // Operations data
               if (evData.operations && Object.keys(evData.operations).length > 0) {
-                console.log("API call: upsertOperations with data:", evData.operations);
                 try {
                   const opsRes = await upsertOperations(eventId, evData.operations);
-                  console.log("upsertOperations response:", opsRes);
                 } catch (err) {
-                  console.error("Error in upsertOperations:", err);
                   toast.error("Failed to save operations data but proceeding");
                 }
               }
               
               // Financials data
               if (evData.financials && Object.keys(evData.financials).length > 0) {
-                console.log("API call: upsertFinancials with data:", evData.financials);
                 try {
                   const finRes = await upsertFinancials(eventId, evData.financials);
-                  console.log("upsertFinancials response:", finRes);
                 } catch (err) {
-                  console.error("Error in upsertFinancials:", err);
                   toast.error("Failed to save financials data but proceeding");
                 }
               }
               
               // Equipment data
               if (evData.equipment && evData.equipment.length > 0) {
-                console.log("=== HANDLING EQUIPMENT DATA ===");
-                console.log("Equipment data:", evData.equipment);
                 
                 try {
                   if (mode === 'edit') {
@@ -1016,9 +907,7 @@ export function useHotelFormState() {
                       quantity: item.quantity || 0,
                       price: item.price_per_unit || item.price || 0
                     }));
-                    console.log("API call: upsertEquipment with mapped data:", mappedEquipment);
                     const equipRes = await upsertEquipment(eventId, mappedEquipment);
-                    console.log("upsertEquipment response:", equipRes);
                     toast.success("Equipment data updated successfully");
                   } else {
                     // In add mode, all equipment is new
@@ -1027,45 +916,34 @@ export function useHotelFormState() {
                       quantity: item.quantity || 0,
                       price: item.price_per_unit || item.price || 0
                     }));
-                    console.log("API call: upsertEquipment with data:", mappedEquipment);
                     const equipRes = await upsertEquipment(eventId, mappedEquipment);
-                    console.log("upsertEquipment response:", equipRes);
                   }
                 } catch (err) {
-                  console.error("Error in upsertEquipment:", err);
                   toast.error("Failed to save equipment data but proceeding");
                 }
               }
               
               // Technical data
               if (evData.technical && Object.keys(evData.technical).length > 0) {
-                console.log("API call: upsertTechnical with data:", evData.technical);
                 try {
                   const { createOrUpdateEventTechnicalInfo } = await import('@/apiClient/eventsApi');
                   const techRes = await createOrUpdateEventTechnicalInfo(eventId, evData.technical);
-                  console.log("upsertTechnical response:", techRes);
                 } catch (err) {
-                  console.error("Error in upsertTechnical:", err);
                   toast.error("Failed to save technical data but proceeding");
                 }
               }
               
               // Contracting data
               if (evData.contracting && Object.keys(evData.contracting).length > 0) {
-                console.log("API call: upsertContracting with data:", evData.contracting);
-                // TODO: Uncomment when backend endpoint is implemented
                 /*
                 try {
                   // Import the contracting API if available
                   const { createOrUpdateEventContractingInfo } = await import('@/apiClient/eventsApi');
                   const contractRes = await createOrUpdateEventContractingInfo(eventId, evData.contracting);
-                  console.log("upsertContracting response:", contractRes);
                 } catch (err) {
-                  console.error("Error in upsertContracting:", err);
                   toast.error("Failed to save contracting data but proceeding");
                 }
                 */
-                console.log("Contracting endpoint not yet implemented in backend - skipping");
               }
               
               toast.success("Event data saved successfully, proceeding to next step");
@@ -1075,12 +953,10 @@ export function useHotelFormState() {
             
             // Proceed to next step regardless of API success/failure
             if (nextStepKey) {
-              console.log("Proceeding to next step:", nextStepKey);
               setActiveStep(nextStepKey);
             }
             return;
           } catch (eventError: any) {
-            console.error("Error in events info step:", eventError);
             toast.error(`Error in events step: ${eventError.message || 'Unknown error'}`);
             // Still proceed to next step
             if (nextStepKey) {
@@ -1090,10 +966,6 @@ export function useHotelFormState() {
           }
 
         case "eventSpaces":
-          console.log("=== EVENT SPACES STEP START ===");
-          console.log("createdEventId:", createdEventId);
-          console.log("mode:", mode);
-          console.log("newFormData.eventSpaces:", newFormData.eventSpaces);
           
           if (!createdEventId) {
             toast.error("Event ID not found. Please complete the Event Info step first.");
@@ -1105,18 +977,14 @@ export function useHotelFormState() {
             // Handle event spaces data
             if (newFormData.eventSpaces && newFormData.eventSpaces.length > 0) {
               const formSpaces = newFormData.eventSpaces as any[];
-              console.log("Form spaces:", formSpaces);
               
               // Separate existing spaces (with numeric id) from new ones (with UUID or no id)
               const existingSpaces = formSpaces.filter(space => typeof space.id === 'number');
               const newSpaces = formSpaces.filter(space => typeof space.id !== 'number');
               
-              console.log("Existing spaces (with numeric ID):", existingSpaces);
-              console.log("New spaces (with UUID/no ID):", newSpaces);
               
               // If we're in edit mode, handle updates
               if (mode === 'edit') {
-                console.log("=== EDIT MODE - HANDLING EVENT SPACES ===");
                 
                 // For event spaces, we need to preserve IDs for existing spaces and remove them for new ones
                 const spacesToProcess = formSpaces.map(space => {
@@ -1130,11 +998,9 @@ export function useHotelFormState() {
                   }
                 });
                 
-                console.log(`Processing ${spacesToProcess.length} event spaces for event ID ${createdEventId}`);
                 await upsertSpaces(createdEventId, spacesToProcess);
                 toast.success(`${spacesToProcess.length} event spaces processed successfully`);
               } else {
-                console.log("=== ADD MODE - CREATING EVENT SPACES ===");
                 // In add mode, all spaces are new
                 const spacesToCreate = formSpaces.map(space => {
                   // Remove the id field for the API payload
@@ -1142,7 +1008,6 @@ export function useHotelFormState() {
                   return spaceData;
                 });
                 
-                console.log(`Creating ${spacesToCreate.length} event spaces for event ID ${createdEventId}`);
                 await upsertSpaces(createdEventId, spacesToCreate);
                 toast.success(`${spacesToCreate.length} event spaces created successfully`);
               }
@@ -1155,7 +1020,6 @@ export function useHotelFormState() {
               setActiveStep(nextStepKey);
             }
           } catch (error: any) {
-            console.error("Error in event spaces step:", error);
             toast.error(`Error in event spaces step: ${error.message || 'Unknown error'}`);
             setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
             return;
@@ -1172,8 +1036,6 @@ export function useHotelFormState() {
           // F&B form returns a single object with detailed info, not an array
           if (newFormData.foodBeverage && Object.keys(newFormData.foodBeverage).length > 0) {
             try {
-              console.log("Saving F&B details for hotel:", createdHotelId);
-              console.log("F&B data:", newFormData.foodBeverage);
               
               // Use the details API to save all F&B information
               await upsertFoodBeverageDetails(createdHotelId, newFormData.foodBeverage);
@@ -1185,7 +1047,6 @@ export function useHotelFormState() {
                 window.location.href = `/view/hotel/${createdHotelId}`;
               }, 1500);
             } catch (error: any) {
-              console.error("Error saving F&B details:", error);
               toast.error(`Failed to save F&B details: ${error.message}`);
               setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
               return;
@@ -1219,8 +1080,6 @@ export function useHotelFormState() {
           
           if (newFormData.contractOnboarding && Object.keys(newFormData.contractOnboarding).length > 0) {
             try {
-              console.log("Saving contract details for hotel:", currentHotelId);
-              console.log("Contract data:", newFormData.contractOnboarding);
               
               // Import and use the contract API
               const { upsertContractDetails } = await import('@/apiClient/contractApi');
@@ -1228,7 +1087,6 @@ export function useHotelFormState() {
               
               toast.success("Contract & onboarding details saved successfully!");
             } catch (error: any) {
-              console.error("Error saving contract details:", error);
               toast.error(`Failed to save contract details: ${error.message}`);
               setCompletedSteps(prev => ({ ...prev, [currentStep]: false }));
               return;
@@ -1256,13 +1114,10 @@ export function useHotelFormState() {
       // If execution reaches here, it means the API call (if any) for the current step was successful
       // and it was not the final step (or the final step logic returned early).
       if (nextStepKey) {
-        console.log("Proceeding to next step:", nextStepKey, "from current step:", currentStep);
         setActiveStep(nextStepKey);
       } else if (!isLastStep) {
-        console.error("Error: In a non-final step but nextStepKey is null.", currentStep);
       }
     } catch (error: any) {
-      console.error(`Error processing step ${currentStep}:`, error);
       toast.error(`Error: ${error.message || 'Unknown error'}`);
       setCompletedSteps(prev => ({ ...prev, [currentStep]: false })); // Mark step as incomplete
       return; // Don't proceed to next step on error

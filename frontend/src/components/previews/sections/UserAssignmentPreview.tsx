@@ -11,7 +11,6 @@ interface UserAssignmentPreviewProps {
 
 const UserAssignmentPreview = ({ hotelId, hotelName }: UserAssignmentPreviewProps) => {
   const handleAssignUser = (userId: string, hotelId: string) => {
-    console.log("Assigning user", userId, "to hotel", hotelId);
     // In a real app, you would make an API call here
     // You might also want to implement the approval workflow here
   };
