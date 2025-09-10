@@ -307,21 +307,11 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
     const { roomId } = req.params;
     const categoryInfosArray = req.body; 
     
-        id: cat.id,
-        category_name: cat.category_name,
-        pms_name: cat.pms_name
-    })));
-    
     if (!Array.isArray(categoryInfosArray) || categoryInfosArray.length === 0) {
         return res.status(400).json({ error: 'Request body must be a non-empty array of category information.' });
     }
     
-        id: cat.id,
-        idType: typeof cat.id,
-        category_name: cat.category_name,
-        hasId: !!cat.id,
-        isIdNumber: typeof cat.id === 'number' && cat.id > 0
-    })));
+    
     
     const parsedRoomId = parseInt(roomId);
     if (isNaN(parsedRoomId)) {
@@ -355,12 +345,6 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
             // Process categories sequentially when files are involved to prevent race conditions
             for (const catInfo of categoryInfosArray) {
                 const categoryData = extractDataForTable(catInfo, ROOM_CATEGORY_INFOS_FIELDS);
-                    original: catInfo,
-                    extracted: categoryData,
-                    hasCategoryName: !!categoryData?.category_name,
-                    tempIndexInOriginal: catInfo.tempIndex,
-                    tempIndexInExtracted: categoryData?.tempIndex
-                });
                 
                 if (!categoryData || !categoryData.category_name) {
                     await connection.rollback();
@@ -370,14 +354,6 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                 // Check if a category with this ID already exists for this room
                 // Only check by ID - new categories should be created even if they have the same name
                 let existingCategories = [];
-                    id: catInfo.id,
-                    idType: typeof catInfo.id,
-                    isIdNumber: typeof catInfo.id === 'number',
-                    isIdPositive: typeof catInfo.id === 'number' && catInfo.id > 0,
-                    willCheckById: !!(catInfo.id && typeof catInfo.id === 'number' && catInfo.id > 0),
-                    tempIndex: catInfo.tempIndex,
-                    tempIndexType: typeof catInfo.tempIndex
-                });
                 
                 if (catInfo.id && typeof catInfo.id === 'number' && catInfo.id > 0) {
                     // Check by ID first
@@ -413,13 +389,6 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                     const insertSQL = `INSERT INTO room_category_infos (room_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`;
                     const insertValues = [parsedRoomId, ...values];
                     
-                        sql: insertSQL,
-                        values: insertValues,
-                        roomId: parsedRoomId,
-                        fields: fields,
-                        placeholders: placeholders
-                    });
-                    
                     const [result] = await connection.query(insertSQL, insertValues);
                     
                     const categoryId = result.insertId;
@@ -441,12 +410,6 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
             const processPromises = [];
             for (const catInfo of categoryInfosArray) {
                 const categoryData = extractDataForTable(catInfo, ROOM_CATEGORY_INFOS_FIELDS);
-                    original: catInfo,
-                    extracted: categoryData,
-                    hasCategoryName: !!categoryData?.category_name,
-                    tempIndexInOriginal: catInfo.tempIndex,
-                    tempIndexInExtracted: categoryData?.tempIndex
-                });
                 
                 if (!categoryData || !categoryData.category_name) {
                     await connection.rollback();
@@ -456,14 +419,6 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                 // Check if a category with this ID already exists for this room
                 // Only check by ID - new categories should be created even if they have the same name
                 let existingCategories = [];
-                    id: catInfo.id,
-                    idType: typeof catInfo.id,
-                    isIdNumber: typeof catInfo.id === 'number',
-                    isIdPositive: typeof catInfo.id === 'number' && catInfo.id > 0,
-                    willCheckById: !!(catInfo.id && typeof catInfo.id === 'number' && catInfo.id > 0),
-                    tempIndex: catInfo.tempIndex,
-                    tempIndexType: typeof catInfo.tempIndex
-                });
                 
                 if (catInfo.id && typeof catInfo.id === 'number' && catInfo.id > 0) {
                     // Check by ID first
@@ -500,13 +455,6 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
                             const insertSQL = `INSERT INTO room_category_infos (room_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`;
                             const insertValues = [parsedRoomId, ...values];
                             
-                                sql: insertSQL,
-                                values: insertValues,
-                                roomId: parsedRoomId,
-                                fields: fields,
-                                placeholders: placeholders
-                            });
-                            
                             const [result] = await connection.query(insertSQL, insertValues);
                             const categoryId = result.insertId;
                             createdCategories.push({ id: categoryId, room_id: parsedRoomId, ...categoryData });
@@ -529,13 +477,7 @@ export const addCategoryInfosToRoom = async (req, res, next) => {
         
         await connection.commit();
         
-        // Log the created categories for debugging
-        if (createdCategories.length > 0) {
-                id: cat.id,
-                room_id: cat.room_id,
-                category_name: cat.category_name
-            })));
-        }
+        // Completed category processing
         
         const totalCategories = createdCategories.length + updatedCategories.length;
         const response = {

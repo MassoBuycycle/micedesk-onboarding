@@ -7,48 +7,14 @@ import { getSignedUrl, deleteFile, moveFile } from '../services/s3Service.js';
  */
 export const uploadFile = async (req, res) => {
   try {
-    // Verbose logging for debugging uploads
-      params: req.params,
-      headers: {
-        'content-type': req.headers['content-type'],
-        'content-length': req.headers['content-length'],
-        'user-agent': req.headers['user-agent']
-      }
-    });
 
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    const { 
-      entityType, 
-      entityId, 
-      category,
-      fileTypeCode 
-    } = req.params;
+    const { entityType, entityId, category, fileTypeCode } = req.params;
     
-      entityType,
-      entityId,
-      category,
-      fileTypeCode,
-      entityIdType: typeof entityId,
-      entityIdValue: entityId
-    });
-    
-    const {
-      originalname,
-      mimetype,
-      size,
-      key,
-      location
-    } = req.file;
-    
-      originalname,
-      mimetype,
-      size,
-      key,
-      location
-    });
+    const { originalname, mimetype, size, key } = req.file;
     
     // Get the file type ID
     const [fileTypeRows] = await pool.query(
@@ -56,11 +22,6 @@ export const uploadFile = async (req, res) => {
       [fileTypeCode, category]
     );
     
-      fileTypeCode,
-      category,
-      foundRows: fileTypeRows.length,
-      fileTypeId: fileTypeRows.length > 0 ? fileTypeRows[0].id : null
-    });
     
     if (fileTypeRows.length === 0) {
       // Delete the file from S3 if file type not found
@@ -75,16 +36,6 @@ export const uploadFile = async (req, res) => {
     const isTemporary = entityId === 'new';
     const effectiveEntityId = isTemporary ? 0 : entityId;
     
-      originalname,
-      key,
-      fileTypeId,
-      entityType,
-      effectiveEntityId,
-      size,
-      mimetype,
-      isTemporary,
-      originalEntityId: entityId
-    });
     
     // Save file metadata to database
     const [result] = await pool.query(
@@ -110,9 +61,6 @@ export const uploadFile = async (req, res) => {
       ]
     );
     
-      insertId: result.insertId,
-      affectedRows: result.affectedRows
-    });
     
     // Get the inserted file
     const [fileRows] = await pool.query(
@@ -124,12 +72,6 @@ export const uploadFile = async (req, res) => {
     const file = fileRows[0];
     const signedUrl = await getSignedUrl(file.storage_path);
     
-      fileId: file.id,
-      storagePath: file.storage_path,
-      entityType: file.entity_type,
-      entityId: file.entity_id,
-      isTemporary: file.is_temporary
-    });
     
     res.status(201).json({
       ...file,
@@ -324,7 +266,6 @@ export const assignTemporaryFiles = async (req, res) => {
  */
 export const assignRoomCategoryFilesService = async (roomCategoryId, tempCategoryIndex = null) => {
   try {
-    
     // First, let's see what temporary files exist in the database
     const [allTempFiles] = await pool.query(
       `SELECT id, storage_path, entity_type, entity_id, is_temporary, temp_identifier, created_at
@@ -332,16 +273,7 @@ export const assignRoomCategoryFilesService = async (roomCategoryId, tempCategor
        WHERE is_temporary = 1 AND entity_id = 0
        ORDER BY created_at ASC`
     );
-    
-      id: f.id,
-      storage_path: f.storage_path,
-      entity_type: f.entity_type,
-      entity_id: f.entity_id,
-      is_temporary: f.is_temporary,
-      temp_identifier: f.temp_identifier,
-      created_at: f.created_at
-    })));
-    
+
     // If we have a temp category index, only assign files for that specific category
     let tempFiles;
     if (tempCategoryIndex !== null) {
@@ -357,7 +289,6 @@ export const assignRoomCategoryFilesService = async (roomCategoryId, tempCategor
          ORDER BY created_at ASC`,
         [tempId]
       );
-      
     } else {
       // New strategy: assign files based on upload order and category creation order
       // Get all temporary room category files ordered by upload time
@@ -371,25 +302,18 @@ export const assignRoomCategoryFilesService = async (roomCategoryId, tempCategor
          ORDER BY created_at ASC`,
         [`room-categories/new/room-category-images/%`]
       );
-      
+
       if (allRoomCategoryTempFiles.length === 0) {
         return { message: 'No temporary room category files found', updatedCount: 0 };
       }
-      
+
       // For now, assign all files to this category
       // In the future, we could implement a more sophisticated matching algorithm
       tempFiles = allRoomCategoryTempFiles;
     }
 
-    // Debug: Show what files were found
-    if (tempFiles.length > 0) {
-        id: f.id,
-        storage_path: f.storage_path
-      })));
-    }
-
     // No files to process – return early
-    if (tempFiles.length === 0) {
+    if (!tempFiles || tempFiles.length === 0) {
       return { message: 'No temporary room category files found', updatedCount: 0 };
     }
 
@@ -397,7 +321,6 @@ export const assignRoomCategoryFilesService = async (roomCategoryId, tempCategor
 
     // Process each file sequentially to avoid race conditions
     for (const file of tempFiles) {
-      
       const sourceKey = file.storage_path; // e.g. room-categories/new/room-category-images/images/filename.jpg
 
       // Build destination key by swapping second path segment (entityId)
@@ -408,7 +331,6 @@ export const assignRoomCategoryFilesService = async (roomCategoryId, tempCategor
 
       pathParts[1] = String(roomCategoryId); // Replace 'new' with actual room category id
       const destinationKey = pathParts.join('/');
-
 
       // Move the file in S3
       await moveFile(sourceKey, destinationKey);
@@ -424,10 +346,8 @@ export const assignRoomCategoryFilesService = async (roomCategoryId, tempCategor
       // Check if the update was successful (affected rows > 0)
       if (updateResult.affectedRows > 0) {
         movedCount += 1;
-      } else {
       }
     }
-
 
     return {
       message: 'Room category files assigned successfully',
