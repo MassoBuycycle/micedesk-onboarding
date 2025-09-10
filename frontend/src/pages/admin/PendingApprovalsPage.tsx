@@ -27,7 +27,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { CheckCircle } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 
-const renderDiff = (change: PendingChange) => {
+const RenderDiff: React.FC<{ change: PendingChange }> = ({ change }) => {
   const { t } = useTranslation();
   
   // Handle cases where data might be null, undefined, or invalid
@@ -57,48 +57,36 @@ const renderDiff = (change: PendingChange) => {
 
   const allKeys = Array.from(new Set([...Object.keys(original), ...Object.keys(updated)]));
 
-  // Helper function to format field values nicely
   const formatValue = (value: any, fieldName: string): string => {
     if (value === null || value === undefined) return '-';
     if (value === '') return t('common.empty', '(empty)');
-    
-    // Handle specific field types
     if (fieldName.includes('phone') && typeof value === 'string') {
-      return value.replace(/^\+49\s*0/, '+49 '); // Format German phone numbers
+      return value.replace(/^\+49\s*0/, '+49 ');
     }
-    
     if (fieldName.includes('cost') && typeof value === 'number') {
       return `€${value.toFixed(2)}`;
     }
-    
     if (fieldName.includes('rating') && typeof value === 'number') {
       return `${value} ⭐`;
     }
-    
     if (fieldName.includes('year') && typeof value === 'number') {
       return value.toString();
     }
-    
     if (fieldName.includes('km') && typeof value === 'number') {
       return `${value} km`;
     }
-    
     if (fieldName.includes('rooms') && typeof value === 'number') {
       return value.toString();
     }
-    
     if (Array.isArray(value)) {
       return value.length > 0 ? value.join(', ') : t('common.empty', '(empty)');
     }
-    
     if (typeof value === 'object') {
       return t('common.complexData', '(complex data)');
     }
-    
     return String(value);
   };
 
-  // Helper function to get a human-readable field name
   const getFieldDisplayName = (fieldName: string): string => {
     const fieldMappings: { [key: string]: string } = {
       'name': t('hotel.name', 'Hotel Name'),
@@ -121,7 +109,7 @@ const renderDiff = (change: PendingChange) => {
       'additional_links': t('hotel.additionalLinks', 'Additional Links'),
       'opening_time_pool': t('hotel.poolHours', 'Pool Opening Hours'),
       'opening_time_spa_area': t('hotel.spaHours', 'Spa Area Opening Hours'),
-      'opening_time_fitness_center': t('hotel.fitnessHours', 'Fitness Center Opening Hours'),
+      'opening_time_fitness_center': t('hotel.fitnessHours', 'Fitness Center Hours'),
       'equipment_spa_area': t('hotel.spaEquipment', 'Spa Equipment'),
       'equipment_fitness_center': t('hotel.fitnessEquipment', 'Fitness Equipment'),
       'billing_address_name': t('hotel.billingName', 'Billing Company Name'),
@@ -177,11 +165,9 @@ const renderDiff = (change: PendingChange) => {
     );
   }
 
-  // Filter out system fields and sort remaining fields
   const displayKeys = allKeys
     .filter(key => !['id', 'created_at', 'updated_at'].includes(key))
     .sort((a, b) => {
-      // Sort by importance: name first, then location, then other fields
       if (a === 'name') return -1;
       if (b === 'name') return 1;
       if (['city', 'country', 'street', 'postal_code'].includes(a)) return -1;
@@ -194,7 +180,6 @@ const renderDiff = (change: PendingChange) => {
 
   return (
     <div className="text-sm">
-      {/* Summary Header */}
       <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
         <div className="flex items-center justify-between">
           <div>
@@ -213,7 +198,6 @@ const renderDiff = (change: PendingChange) => {
         </div>
       </div>
       
-      {/* Changed Fields */}
       {changedFields.length > 0 && (
         <div className="space-y-4">
           <h4 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">
@@ -273,7 +257,6 @@ const renderDiff = (change: PendingChange) => {
         </div>
       )}
       
-      {/* Unchanged Fields Summary */}
       {unchangedFields.length > 0 && (
         <div className="mt-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
           <h4 className="font-medium text-gray-700 mb-2 flex items-center">
@@ -391,7 +374,7 @@ const PendingApprovalsPage: React.FC = () => {
                         </DialogDescription>
                       </DialogHeader>
                       <div className="max-h-[70vh] overflow-y-auto mt-6 px-1">
-                        {renderDiff(change)}
+                        <RenderDiff change={change} />
                       </div>
                       <DialogFooter className="mt-8 space-x-3">
                         <Button
