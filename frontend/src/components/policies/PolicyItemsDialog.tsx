@@ -153,15 +153,19 @@ const PolicyItemsDialog = ({
 
     setIsSubmitting(true);
     try {
-      console.log('Submitting policy items:', data.items);
-      await updateInformationPolicy(policy.id, {
+      console.log('Submitting policy items (PATCH):', data.items);
+      const res = await updateInformationPolicy(policy.id, {
         items: data.items
       });
-      toast.success("Policy items updated successfully");
+      if (res?.success) {
+        toast.success("Policy items updated successfully");
+      } else {
+        toast.success("Policy items saved");
+      }
       onSuccess();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating policy items:", error);
-      toast.error("Failed to update policy items");
+      toast.error(error?.message || "Failed to update policy items");
     } finally {
       setIsSubmitting(false);
     }

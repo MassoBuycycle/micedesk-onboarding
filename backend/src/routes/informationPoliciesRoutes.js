@@ -20,6 +20,7 @@ router.post('/', createInformationPolicy);
 
 // Update an information policy
 router.put('/:id', updateInformationPolicy);
+router.patch('/:id', updateInformationPolicy);
 
 // Delete an information policy
 router.delete('/:id', deleteInformationPolicy);

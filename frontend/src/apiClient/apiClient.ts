@@ -122,6 +122,22 @@ export const apiPut = async (endpoint: string, data: any, defaultErrorMessage: s
 };
 
 /**
+ * PATCH request with authentication
+ */
+export const apiPatch = async (endpoint: string, data: any, defaultErrorMessage: string = 'Request failed') => {
+  const headers = getAuthHeaders();
+  logApiCall('PATCH', endpoint, data, headers);
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    method: 'PATCH',
+    headers,
+    body: JSON.stringify(data),
+  });
+  const responseData = await handleResponseError(response, defaultErrorMessage);
+  logApiResponse('PATCH', endpoint, response, responseData);
+  return responseData;
+};
+
+/**
  * DELETE request with authentication
  */
 export const apiDelete = async (endpoint: string, defaultErrorMessage: string = 'Request failed') => {

@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPut, apiDelete } from './apiClient';
+import { apiGet, apiPost, apiPut, apiDelete, apiPatch } from './apiClient';
 
 // Types for Information Policies
 export interface InformationPolicyItemDetail {
@@ -65,7 +65,7 @@ export const updateInformationPolicy = async (
   id: number,
   data: UpdateInformationPolicyInput
 ): Promise<{ success: boolean; message: string }> => {
-  return await apiPut(`/information-policies/${id}`, data, 'Failed to update information policy');
+  return await apiPatch(`/information-policies/${id}`, data, 'Failed to update information policy');
 };
 
 export const deleteInformationPolicy = async (
