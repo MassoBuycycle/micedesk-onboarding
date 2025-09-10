@@ -265,6 +265,7 @@ const HotelList = ({ searchQuery = "" }: HotelListProps) => {
                 (isAssigned && permissions.includes("edit_assigned")) || permissions.includes("edit_with_approval");
               const canManageAssignments = permissions.includes("assign_entries") || permissions.includes("edit_all");
               const canDelete = permissions.includes("edit_all");
+              
 
               return (
                 <TableRow key={hotel.id}>
