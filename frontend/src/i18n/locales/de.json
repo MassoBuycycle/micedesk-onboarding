@@ -914,18 +914,28 @@
     "updated": "Vertragsdetails erfolgreich aktualisiert",
     "noContractDetails": "Keine Vertragsdetails verfügbar"
   },
+  "securePage": {
+    "backToDashboard": "Zurück zum Dashboard",
+    "selectHotelTitle": "Hotel auswählen",
+    "selectHotelDescription": "Wählen Sie ein Hotel, um dessen sichere Zugangsdaten zu verwalten.",
+    "selectHotelPlaceholder": "Hotel auswählen"
+  },
   "secure": {
-    "title": "Sichere Zugangsdaten",
-    "apiKeys": "API-Schlüssel",
-    "clientSecrets": "Client-Secrets",
-    "addCredential": "Zugangsdaten hinzufügen",
-    "noCredentials": "Keine Zugangsdaten gespeichert",
-    "name": "Name",
-    "value": "Wert",
-    "copy": "Kopieren",
-    "copied": "Kopiert",
-    "reveal": "Anzeigen",
-    "hide": "Verbergen"
+    "sectionTitle": "Sichere Daten",
+    "sectionDescription": "Verwalten Sie sensible Zugangsdaten für {{hotelName}}",
+    "addEntry": "Eintrag hinzufügen",
+    "table": {
+      "noEntries": "Noch keine Einträge für sichere Daten"
+    },
+    "dialog": {
+      "addTitle": "Sichere Daten hinzufügen",
+      "description": "Zugangsdaten werden verschlüsselt gespeichert.",
+      "save": "Speichern"
+    },
+    "messages": {
+      "added": "Sichere Daten hinzugefügt",
+      "failedToAdd": "Hinzufügen fehlgeschlagen"
+    }
   },
   "userManagement": {
     "title": "Benutzer",

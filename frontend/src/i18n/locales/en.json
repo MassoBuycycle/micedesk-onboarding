@@ -809,18 +809,28 @@
     "updated": "Contract details updated successfully",
     "noContractDetails": "No contract details available"
   },
+  "securePage": {
+    "backToDashboard": "Back to Dashboard",
+    "selectHotelTitle": "Select Hotel",
+    "selectHotelDescription": "Choose a hotel to manage its secure credentials.",
+    "selectHotelPlaceholder": "Choose a hotel"
+  },
   "secure": {
-    "title": "Secure Credentials",
-    "apiKeys": "API Keys",
-    "clientSecrets": "Client Secrets",
-    "addCredential": "Add Credential",
-    "noCredentials": "No credentials saved",
-    "name": "Name",
-    "value": "Value",
-    "copy": "Copy",
-    "copied": "Copied",
-    "reveal": "Reveal",
-    "hide": "Hide"
+    "sectionTitle": "Secure Data",
+    "sectionDescription": "Manage sensitive credentials for {{hotelName}}",
+    "addEntry": "Add Entry",
+    "table": {
+      "noEntries": "No secure data entries yet"
+    },
+    "dialog": {
+      "addTitle": "Add Secure Data",
+      "description": "Credentials will be stored encrypted.",
+      "save": "Save"
+    },
+    "messages": {
+      "added": "Secure data added",
+      "failedToAdd": "Failed to add"
+    }
   },
   "userManagement": {
     "title": "Users",
