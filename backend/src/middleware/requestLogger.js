@@ -9,8 +9,7 @@ export const requestLogger = (req, res, next) => {
   
   res.on('finish', () => {
     const duration = Date.now() - start;
-      `${req.method} ${req.originalUrl} ${res.statusCode} - ${duration}ms`
-    );
+    // Intentionally silent after log cleanup; keep placeholder for future logger integration
   });
   
   next();
