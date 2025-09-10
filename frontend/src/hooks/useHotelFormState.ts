@@ -360,12 +360,65 @@ export function useHotelFormState() {
       setCreatedRoomTypeId(firstRoom.id);
     }
 
+    // Normalize events info (booleans/JSON) to match form schema
+    const normalizeEventsInfo = (eventsInfo: any) => {
+      if (!eventsInfo) return {} as any;
+      const out: any = {
+        contact: eventsInfo.contact || {},
+        booking: { ...(eventsInfo.booking || {}) },
+        operations: { ...(eventsInfo.operations || {}) },
+        financials: { ...(eventsInfo.financials || {}) },
+        technical: { ...(eventsInfo.technical || {}) },
+        contracting: { ...(eventsInfo.contracting || {}) },
+      };
+
+      // Helper: cast 0/1 -> boolean
+      const castBool = (v: any) => (typeof v === 'number' ? Boolean(v) : v);
+
+      // Booking booleans that may arrive as 0/1
+      ['has_options','allows_split_options','allows_overbooking','rooms_only','requires_second_signature','exclusive_clients']
+        .forEach((k) => { if (out.booking[k] !== undefined) out.booking[k] = castBool(out.booking[k]); });
+
+      // Operations booleans
+      [
+        'has_overtime_material','sent_over_time_material','has_storage','sold_with_rooms_only',
+        'hotel_exclusive_clients','has_minimum_spent','deposit_needed_event','informational_invoice_created',
+        'first_second_option','split_options','overbooking_policy','storage_free_of_charge'
+      ].forEach((k) => { if (out.operations[k] !== undefined) out.operations[k] = castBool(out.operations[k]); });
+
+      // Parse JSON arrays for operations
+      if (out.operations.payment_methods_events && typeof out.operations.payment_methods_events === 'string') {
+        try { out.operations.payment_methods_events = JSON.parse(out.operations.payment_methods_events); } catch { out.operations.payment_methods_events = []; }
+      }
+
+      // Financials booleans + JSON
+      ['requires_deposit','has_info_invoice','has_minimum_spent']
+        .forEach((k) => { if (out.financials[k] !== undefined) out.financials[k] = castBool(out.financials[k]); });
+      if (out.financials.payment_methods && typeof out.financials.payment_methods === 'string') {
+        try { out.financials.payment_methods = JSON.parse(out.financials.payment_methods); } catch { out.financials.payment_methods = []; }
+      }
+
+      // Technical booleans
+      [
+        'has_ac_or_ventilation','has_blackout_curtains','is_soundproof','has_daylight',
+        'is_hybrid_meeting_possible','technical_support_available'
+      ].forEach((k) => { if (out.technical[k] !== undefined) out.technical[k] = castBool(out.technical[k]); });
+
+      // Contracting booleans
+      ['first_second_option','split_options','overbooking_policy','deposit_required','second_signature_required']
+        .forEach((k) => { if (out.contracting[k] !== undefined) out.contracting[k] = castBool(out.contracting[k]); });
+
+      return out;
+    };
+
+    const normalizedEventsInfo = normalizeEventsInfo(apiData.eventsInfo);
+
     const newFormData: HotelFormData = {
       hotel: transformedHotel,
       roomInfo: roomInfoForm,
       roomCategories: apiData.roomCategories || [],
       roomHandling: roomHandlingForm,
-      eventsInfo: apiData.eventsInfo || {},
+      eventsInfo: normalizedEventsInfo,
       eventSpaces: apiData.eventSpaces || [],
       foodBeverage: apiData.fnb || apiData.foodBeverage || {},
       contractOnboarding: apiData.contractDetails || {},

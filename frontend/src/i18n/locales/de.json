@@ -760,7 +760,10 @@
         "coffeeLocation": "Kaffee-Ort",
         "coffeeBreakLocation": "Wo werden die Kaffeepausen serviert?",
         "roomDropCost": "Kosten für Room Drop",
-        "finalInvoiceHandling": "Handling Abschlussrechnung"
+        "finalInvoiceHandling": "Handling Abschlussrechnung",
+        "storageFreeOfCharge": "Einlagerung kostenfrei?",
+        "storagePricingInfo": "Preisinfo falls Einlagerung nicht kostenfrei",
+        "storagePricingInfoPlaceholder": "Bitte geben Sie die Preisdetails für die Einlagerung an"
       },
       "technical": {
         "sectionTitle": "Technik / Service und Preise",
