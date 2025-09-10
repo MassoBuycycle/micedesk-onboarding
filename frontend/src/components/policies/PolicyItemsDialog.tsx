@@ -78,11 +78,11 @@ const PolicyItemsDialog = ({
     if (open && policy) {
       const formattedItems: InformationPolicyItem[] = (policy.items ?? []).map(item => ({
         title: item.title ?? "",
-        is_condition: item.is_condition ?? false,
+        is_condition: (item.is_condition === true || item.is_condition === 1 || item.is_condition === '1') ? true : false,
         details: (item.details ?? []).map(detail => ({
           name: detail.name ?? "",
           description: detail.description ?? "",
-          default: detail.default ?? false
+          default: (detail.default === true || detail.default === 1 || detail.default === '1') ? true : false
         }))
       }));
 
