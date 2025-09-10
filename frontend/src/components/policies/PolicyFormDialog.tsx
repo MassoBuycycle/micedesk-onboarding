@@ -185,7 +185,7 @@ const PolicyFormDialog = ({
             {isEditing && policy && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-medium">Policy Items</h4>
+                  <h4 className="text-sm font-medium">{t("policies.policyItems")}</h4>
                   {onManageItems && (
                     <Button
                       type="button"
@@ -195,7 +195,7 @@ const PolicyFormDialog = ({
                       className="gap-2"
                     >
                       <Settings className="h-4 w-4" />
-                      Manage Items
+                      {t("policies.manageItems")}
                     </Button>
                   )}
                 </div>
@@ -217,7 +217,7 @@ const PolicyFormDialog = ({
                         </CardHeader>
                         <CardContent className="pt-0">
                           <div className="text-xs text-muted-foreground">
-                            {item.details?.length || 0} details
+                            {(item.details?.length || 0)} {t("policies.details")}
                           </div>
                         </CardContent>
                       </Card>
@@ -226,7 +226,7 @@ const PolicyFormDialog = ({
                 ) : (
                   <div className="text-center py-4 text-muted-foreground">
                     <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">No items added yet</p>
+                    <p className="text-sm">{t("policies.noPolicyItems")}</p>
                   </div>
                 )}
               </div>

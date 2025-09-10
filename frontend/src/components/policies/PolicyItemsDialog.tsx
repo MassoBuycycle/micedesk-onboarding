@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -60,6 +61,7 @@ const PolicyItemsDialog = ({
   onSuccess 
 }: PolicyItemsDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { t } = useTranslation();
 
   const form = useForm<PolicyItemsFormValues>({
     resolver: zodResolver(policyItemsFormSchema),
@@ -134,20 +136,20 @@ const PolicyItemsDialog = ({
 
   const onSubmit = async (data: PolicyItemsFormValues) => {
     if (!policy?.id) {
-      toast.error("Policy ID is required");
+      toast.error(t("policies.policyIdRequired"));
       return;
     }
 
     // Validate that we have at least one item with a title
     if (!data.items || data.items.length === 0) {
-      toast.error("Please add at least one policy item");
+      toast.error(t("policies.noPolicyItems"));
       return;
     }
 
     // Validate that all items have titles
     const invalidItems = data.items.filter(item => !item.title || item.title.trim() === '');
     if (invalidItems.length > 0) {
-      toast.error("All policy items must have titles");
+      toast.error(t("policies.itemTitleRequired"));
       return;
     }
 
@@ -158,14 +160,14 @@ const PolicyItemsDialog = ({
         items: data.items
       });
       if (res?.success) {
-        toast.success("Policy items updated successfully");
+        toast.success(t("policies.policyItemsUpdated"));
       } else {
-        toast.success("Policy items saved");
+        toast.success(t("policies.saveItems"));
       }
       onSuccess();
     } catch (error: any) {
       console.error("Error updating policy items:", error);
-      toast.error(error?.message || "Failed to update policy items");
+      toast.error(error?.message || t("policies.failedToUpdateItems"));
     } finally {
       setIsSubmitting(false);
     }
@@ -174,11 +176,11 @@ const PolicyItemsDialog = ({
   const getPolicyTypeLabel = (type: string) => {
     switch (type) {
       case 'room_information':
-        return 'Room Information';
+        return t("policies.policyTypes.roomInformation");
       case 'service_information':
-        return 'Service Information';
+        return t("policies.policyTypes.serviceInformation");
       case 'general_policies':
-        return 'General Policies';
+        return t("policies.policyTypes.generalPolicies");
       default:
         return type;
     }
@@ -189,12 +191,12 @@ const PolicyItemsDialog = ({
       <DialogContent className="sm:max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            Manage Policy Items
+            {t("policies.managePolicyItems")}
           </DialogTitle>
           <DialogDescription>
             {policy && (
               <>
-                Manage items for <strong>{getPolicyTypeLabel(policy.type)}</strong> policy
+                {t("policies.managePolicyItemsDescription", { policyType: getPolicyTypeLabel(policy.type) })}
               </>
             )}
           </DialogDescription>
@@ -210,7 +212,7 @@ const PolicyItemsDialog = ({
           >
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h4 className="text-sm font-medium">Policy Items</h4>
+                <h4 className="text-sm font-medium">{t("policies.policyItems")}</h4>
                 <Button
                   type="button"
                   variant="outline"
@@ -219,15 +221,15 @@ const PolicyItemsDialog = ({
                   className="gap-1"
                 >
                   <Plus className="h-4 w-4" />
-                  Add Item
+                  {t("policies.addItem")}
                 </Button>
               </div>
 
               {itemFields.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
                   <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>No policy items added yet.</p>
-                  <p className="text-sm">Click "Add Item" to create your first policy item.</p>
+                  <p>{t("policies.noPolicyItems")}</p>
+                  <p className="text-sm">{t("policies.noPolicyItemsDescription")}</p>
                 </div>
               )}
 
@@ -235,7 +237,7 @@ const PolicyItemsDialog = ({
                 <Card key={item.id} className="border-l-4 border-l-blue-500">
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
-                      <CardTitle className="text-sm">Policy Item {itemIndex + 1}</CardTitle>
+                      <CardTitle className="text-sm">{t("policies.policyItem", { number: itemIndex + 1 })}</CardTitle>
                       <Button
                         type="button"
                         variant="ghost"
@@ -254,9 +256,9 @@ const PolicyItemsDialog = ({
                       name={`items.${itemIndex}.title`}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Title*</FormLabel>
+                          <FormLabel>{t("policies.itemTitle")}*</FormLabel>
                           <FormControl>
-                            <Input {...field} placeholder="Enter item title" className="text-sm" />
+                            <Input {...field} placeholder={t("policies.itemTitlePlaceholder")} className="text-sm" />
                           </FormControl>
                           <FormMessage className="text-xs" />
                         </FormItem>
@@ -270,9 +272,9 @@ const PolicyItemsDialog = ({
                       render={({ field }) => (
                         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                           <div>
-                            <FormLabel>Is this a condition?</FormLabel>
+                            <FormLabel>{t("policies.isCondition")}</FormLabel>
                             <p className="text-xs text-muted-foreground">
-                              Mark if this item represents a condition or requirement
+                              {t("policies.isConditionDescription")}
                             </p>
                           </div>
                           <FormControl>
@@ -285,7 +287,7 @@ const PolicyItemsDialog = ({
                     {/* Item Details */}
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <FormLabel className="text-sm">Details</FormLabel>
+                        <FormLabel className="text-sm">{t("policies.details")}</FormLabel>
                         <Button
                           type="button"
                           variant="outline"
@@ -294,7 +296,7 @@ const PolicyItemsDialog = ({
                           className="gap-1"
                         >
                           <Plus className="h-3 w-3" />
-                          Add Detail
+                          {t("policies.addDetail")}
                         </Button>
                       </div>
 
@@ -306,9 +308,9 @@ const PolicyItemsDialog = ({
                               name={`items.${itemIndex}.details.${detailIndex}.name`}
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="text-xs">Detail Name*</FormLabel>
+                                  <FormLabel className="text-xs">{t("policies.detailName")}*</FormLabel>
                                   <FormControl>
-                                    <Input {...field} placeholder="Detail name" className="text-sm h-8" />
+                                    <Input {...field} placeholder={t("policies.detailNamePlaceholder")} className="text-sm h-8" />
                                   </FormControl>
                                   <FormMessage className="text-xs" />
                                 </FormItem>
@@ -320,13 +322,9 @@ const PolicyItemsDialog = ({
                               name={`items.${itemIndex}.details.${detailIndex}.description`}
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="text-xs">Description</FormLabel>
+                                  <FormLabel className="text-xs">{t("policies.detailDescription")}</FormLabel>
                                   <FormControl>
-                                    <Textarea 
-                                      {...field} 
-                                      placeholder="Detail description" 
-                                      className="text-sm min-h-[60px]" 
-                                    />
+                                    <Textarea {...field} placeholder={t("policies.detailDescriptionPlaceholder")} className="text-sm min-h-[60px]" />
                                   </FormControl>
                                   <FormMessage className="text-xs" />
                                 </FormItem>
@@ -343,10 +341,8 @@ const PolicyItemsDialog = ({
                                 return (
                                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 bg-blue-50 border-blue-200 flex-1 mr-2">
                                     <div>
-                                      <FormLabel className="text-xs font-medium text-blue-900">Default Policy</FormLabel>
-                                      <p className="text-xs text-blue-700">
-                                        Mark this as the default policy option
-                                      </p>
+                                      <FormLabel className="text-xs font-medium text-blue-900">{t("policies.defaultPolicy")}</FormLabel>
+                                      <p className="text-xs text-blue-700">{t("policies.markAsDefault")}</p>
                                     </div>
                                     <FormControl>
                                       <div className="flex items-center space-x-2">
@@ -359,7 +355,7 @@ const PolicyItemsDialog = ({
                                           className="data-[state=checked]:bg-blue-600"
                                         />
                                         <span className="text-xs text-blue-700">
-                                          {field.value ? 'Yes' : 'No'}
+                                          {field.value ? t('common.yes') : t('common.no')}
                                         </span>
                                       </div>
                                     </FormControl>
@@ -393,7 +389,7 @@ const PolicyItemsDialog = ({
                 onClick={() => onOpenChange(false)}
                 disabled={isSubmitting}
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button 
                 type="submit" 
@@ -402,7 +398,7 @@ const PolicyItemsDialog = ({
                   console.log('Save Items clicked');
                 }}
               >
-                {isSubmitting ? 'Saving...' : 'Save Items'}
+                {isSubmitting ? t('common.saving') : t('policies.saveItems')}
               </Button>
             </DialogFooter>
           </form>
