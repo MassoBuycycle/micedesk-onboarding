@@ -11,11 +11,13 @@ const EVENT_OPERATIONS_FIELDS = [
   'first_second_option', 'split_options', 'option_hold_duration', 'overbooking_policy',
   'deposit_required', 'accepted_payment_methods', 'commission_rules', 'second_signature_required',
   'has_overtime_material', 'coffee_break_location',
-  'has_storage', 'has_minimum_spent', 'minimum_spent_info'
+  'has_storage', 'has_minimum_spent', 'minimum_spent_info',
+  // Storage handling fields
+  'storage_free_of_charge', 'storage_pricing_info'
 ];
 
 const BOOLEAN_FIELDS = [
-  'sold_with_rooms_only','sent_over_time_material','hotel_exclusive_clients','has_overtime_material','has_storage','deposit_needed_event','informational_invoice_created','first_second_option','split_options','overbooking_policy','deposit_required','second_signature_required','has_minimum_spent'
+  'sold_with_rooms_only','sent_over_time_material','hotel_exclusive_clients','has_overtime_material','has_storage','deposit_needed_event','informational_invoice_created','first_second_option','split_options','overbooking_policy','deposit_required','second_signature_required','has_minimum_spent','storage_free_of_charge'
 ];
 
 /**

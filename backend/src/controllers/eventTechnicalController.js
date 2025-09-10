@@ -1,4 +1,11 @@
 import pool from '../db/config.js';
+import { extractDataForTable } from '../utils/dataMapping.js';
+
+const TECHNICAL_FIELDS = [
+  'beamer_lumens', 'copy_cost', 'software_presentation', 'wifi_data_rate',
+  'has_ac_or_ventilation', 'has_blackout_curtains', 'is_soundproof', 'has_daylight',
+  'is_hybrid_meeting_possible', 'technical_support_available', 'technical_notes'
+];
 
 /**
  * Get technical info for an event
@@ -49,7 +56,7 @@ export const createOrUpdateTechnical = async (req, res, next) => {
   const connection = await pool.getConnection();
   try {
     const eventId = parseInt(req.params.id);
-    const technicalData = req.body;
+    const technicalData = extractDataForTable(req.body, TECHNICAL_FIELDS) || {};
     
     // Validate required fields
     if (!eventId) {
