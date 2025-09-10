@@ -47,9 +47,9 @@ const PORT = process.env.PORT || 3001;
 // Trust reverse proxy (Railway)
 app.set('trust proxy', 1);
 
-// Configure CORS
+// Configure CORS (relaxed: allow all origins by reflecting the request origin)
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*',
+  origin: (origin, callback) => callback(null, true),
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
