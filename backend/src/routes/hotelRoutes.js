@@ -6,12 +6,13 @@ import {
   updateHotel, 
   deleteHotel 
 } from '../controllers/hotelController.js';
-import { getFullHotelDetails } from '../controllers/hotelAggregateController.js';
+import { getFullHotelDetails, getHotelsOverview } from '../controllers/hotelAggregateController.js';
 
 const router = express.Router();
 
 // Hotel routes
 router.get('/', getAllHotels);
+router.get('/overview', getHotelsOverview);
 router.get('/:id', getHotelById);
 router.post('/', createHotel);
 router.put('/:id', updateHotel);

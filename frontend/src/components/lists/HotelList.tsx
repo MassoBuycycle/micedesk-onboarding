@@ -48,7 +48,25 @@ const HotelList = ({ searchQuery = "" }: HotelListProps) => {
       try {
         setLoading(true);
         const data = await getAllHotels();
-        setHotels(data);
+        // If overview endpoint returns assigned users inline, capture them
+        const list = Array.isArray(data) ? data : [];
+        setHotels(list as Hotel[]);
+        // Preload users per hotel from payload if present
+        const usersMap: Record<string, User[]> = {};
+        list.forEach((h: any) => {
+          if (h.id && Array.isArray(h.assigned_users)) {
+            usersMap[String(h.id)] = h.assigned_users.map((u: any) => ({
+              id: String(u.id),
+              name: `${u.first_name} ${u.last_name}`,
+              email: u.email,
+              role: "viewer" as UserRole,
+              assignedHotels: u.has_all_access ? ["All Hotels"] : [h.name || ""],
+              status: "active",
+              dateAdded: new Date(u.created_at).toISOString().split('T')[0]
+            }));
+          }
+        });
+        setHotelUsers(usersMap);
         setError(null);
       } catch (err) {
         setError(t("pages.view.failedToLoadHotels"));

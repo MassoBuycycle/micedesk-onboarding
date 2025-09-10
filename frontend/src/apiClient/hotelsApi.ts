@@ -140,7 +140,7 @@ export interface FoodBeverageOutlet {
  */
 export const getAllHotels = async (): Promise<Hotel[]> => {
   try {
-    const response = await apiGet('/hotels', 'Failed to fetch hotels');
+    const response = await apiGet('/hotels/overview', 'Failed to fetch hotels');
     // Safely return array, handle both direct array response and wrapped response
     return Array.isArray(response) ? response : (Array.isArray(response?.data) ? response.data : []);
   } catch (error) {

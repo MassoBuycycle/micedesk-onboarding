@@ -808,5 +808,51 @@
     "created": "Contract details created successfully",
     "updated": "Contract details updated successfully",
     "noContractDetails": "No contract details available"
+  },
+  "secure": {
+    "title": "Secure Credentials",
+    "apiKeys": "API Keys",
+    "clientSecrets": "Client Secrets",
+    "addCredential": "Add Credential",
+    "noCredentials": "No credentials saved",
+    "name": "Name",
+    "value": "Value",
+    "copy": "Copy",
+    "copied": "Copied",
+    "reveal": "Reveal",
+    "hide": "Hide"
+  },
+  "userManagement": {
+    "title": "Users",
+    "addUser": "Add User",
+    "searchUsers": "Search users...",
+    "roles": "Roles",
+    "status": "Status"
+  },
+  "dataSettings": {
+    "title": "Data Settings",
+    "retention": "Data Retention",
+    "export": "Export Data",
+    "import": "Import Data",
+    "anonymize": "Anonymize",
+    "save": "Save Settings"
+  },
+  "approvals": {
+    "title": "Approvals",
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "review": "Review",
+    "approve": "Approve",
+    "reject": "Reject"
+  },
+  "rolesPermissions": {
+    "title": "Roles & Permissions",
+    "roles": "Roles",
+    "permissions": "Permissions",
+    "assign": "Assign",
+    "createRole": "Create Role",
+    "editRole": "Edit Role",
+    "deleteRole": "Delete Role"
   }
 } 

@@ -166,3 +166,91 @@ export const getFullHotelDetails = async (req, res, next) => {
     if (connection) connection.release();
   }
 }; 
+
+/**
+ * Lightweight overview for the "View Hotels" table.
+ * Returns all hotels with their assigned users in a single payload
+ * to avoid N+1 calls from the frontend.
+ */
+export const getHotelsOverview = async (req, res, next) => {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+
+    // 1) Fetch basic hotel info (only columns needed by list view)
+    const [hotels] = await connection.query(
+      `SELECT id, name, city, postal_code, star_rating, category FROM hotels ORDER BY created_at DESC`
+    );
+
+    if (!hotels || hotels.length === 0) {
+      return res.json({ success: true, data: [] });
+    }
+
+    const hotelIds = hotels.map(h => h.id);
+
+    // 2) Users specifically assigned to hotels
+    const [specificAssignments] = await connection.query(
+      `SELECT uha.hotel_id, u.id, u.first_name, u.last_name, u.email, u.created_at, u.updated_at,
+              FALSE AS has_all_access
+       FROM user_hotel_assignments uha
+       JOIN users u ON u.id = uha.user_id
+       WHERE uha.hotel_id IN (?)`,
+      [hotelIds]
+    );
+
+    // 3) Users with access to ALL hotels (attach to each hotel when composing)
+    const [allAccessUsers] = await connection.query(
+      `SELECT u.id, u.first_name, u.last_name, u.email, u.created_at, u.updated_at, TRUE AS has_all_access
+       FROM users u
+       JOIN user_all_hotels_access uaa ON u.id = uaa.user_id`
+    );
+
+    // Build map hotelId -> assigned users
+    const hotelIdToUsers = new Map();
+    hotels.forEach(h => hotelIdToUsers.set(h.id, []));
+
+    for (const row of specificAssignments) {
+      const list = hotelIdToUsers.get(row.hotel_id) || [];
+      list.push({
+        id: row.id,
+        first_name: row.first_name,
+        last_name: row.last_name,
+        email: row.email,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+        has_all_access: !!row.has_all_access,
+      });
+      hotelIdToUsers.set(row.hotel_id, list);
+    }
+
+    // Append all-access users to every hotel
+    for (const h of hotels) {
+      const list = hotelIdToUsers.get(h.id) || [];
+      const merged = list.concat(
+        allAccessUsers.map(u => ({
+          id: u.id,
+          first_name: u.first_name,
+          last_name: u.last_name,
+          email: u.email,
+          created_at: u.created_at,
+          updated_at: u.updated_at,
+          has_all_access: true,
+        }))
+      );
+      hotelIdToUsers.set(h.id, merged);
+    }
+
+    // Compose final payload
+    const payload = hotels.map(h => ({
+      ...h,
+      assigned_users: hotelIdToUsers.get(h.id) || [],
+      users_count: (hotelIdToUsers.get(h.id) || []).length,
+    }));
+
+    res.json({ success: true, data: payload });
+  } catch (error) {
+    next(error);
+  } finally {
+    if (connection) connection.release();
+  }
+};

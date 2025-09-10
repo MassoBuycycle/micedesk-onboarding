@@ -913,5 +913,51 @@
     "created": "Vertragsdetails erfolgreich erstellt",
     "updated": "Vertragsdetails erfolgreich aktualisiert",
     "noContractDetails": "Keine Vertragsdetails verfügbar"
+  },
+  "secure": {
+    "title": "Sichere Zugangsdaten",
+    "apiKeys": "API-Schlüssel",
+    "clientSecrets": "Client-Secrets",
+    "addCredential": "Zugangsdaten hinzufügen",
+    "noCredentials": "Keine Zugangsdaten gespeichert",
+    "name": "Name",
+    "value": "Wert",
+    "copy": "Kopieren",
+    "copied": "Kopiert",
+    "reveal": "Anzeigen",
+    "hide": "Verbergen"
+  },
+  "userManagement": {
+    "title": "Benutzer",
+    "addUser": "Benutzer hinzufügen",
+    "searchUsers": "Benutzer suchen...",
+    "roles": "Rollen",
+    "status": "Status"
+  },
+  "dataSettings": {
+    "title": "Daten­einstellungen",
+    "retention": "Datenaufbewahrung",
+    "export": "Daten exportieren",
+    "import": "Daten importieren",
+    "anonymize": "Anonymisieren",
+    "save": "Einstellungen speichern"
+  },
+  "approvals": {
+    "title": "Genehmigungen",
+    "pending": "Ausstehend",
+    "approved": "Genehmigt",
+    "rejected": "Abgelehnt",
+    "review": "Prüfen",
+    "approve": "Genehmigen",
+    "reject": "Ablehnen"
+  },
+  "rolesPermissions": {
+    "title": "Rollen & Berechtigungen",
+    "roles": "Rollen",
+    "permissions": "Berechtigungen",
+    "assign": "Zuweisen",
+    "createRole": "Rolle erstellen",
+    "editRole": "Rolle bearbeiten",
+    "deleteRole": "Rolle löschen"
   }
 } 
