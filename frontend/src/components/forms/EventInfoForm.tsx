@@ -197,14 +197,14 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
   const { t } = useTranslation();
   // Debug log to see what data we're receiving
   
-  // Merge initialData with default values properly
-  const defaultValues = {
+  // Helper to build defaults merged with incoming initialData
+  const buildDefaults = (data?: Partial<EventInfoData>) => ({
     contact: {
       contact_name: '',
       contact_phone: '',
       contact_email: '',
       contact_position: '',
-      ...(initialData?.contact || {})
+      ...(data?.contact || {})
     },
     booking: {
       has_options: false,
@@ -218,7 +218,7 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
       unwanted_marketing: '',
       requires_second_signature: false,
       exclusive_clients: false,
-      ...(initialData?.booking || {})
+      ...(data?.booking || {})
     },
     operations: {
       has_overtime_material: false,
@@ -241,7 +241,7 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
       deposit_rules_event: '',
       payment_methods_events: [],
       final_invoice_handling_event: '',
-      ...(initialData?.operations || {})
+      ...(data?.operations || {})
     },
     financials: {
       requires_deposit: false,
@@ -252,10 +252,10 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
       invoice_handling: '',
       commission_rules: '',
       has_minimum_spent: false,
-      ...(initialData?.financials || {})
+      ...(data?.financials || {})
     },
-    equipment: initialData?.equipment && initialData.equipment.length > 0 
-      ? initialData.equipment.map((item, index) => ({
+    equipment: data?.equipment && data.equipment.length > 0 
+      ? data.equipment.map((item, index) => ({
           name: DEFAULT_EQUIPMENT[index]?.name || item.name || "",
           quantity: item.quantity || 0,
           price: item.price || 0
@@ -277,7 +277,7 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
       is_hybrid_meeting_possible: false,
       technical_support_available: false,
       technical_notes: '',
-      ...(initialData?.technical || {})
+      ...(data?.technical || {})
     },
     contracting: {
       contracted_companies: '',
@@ -291,14 +291,22 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
       accepted_payment_methods: '',
       commission_rules: '',
       second_signature_required: false,
-      ...(initialData?.contracting || {})
+      ...(data?.contracting || {})
     }
-  };
+  });
+
+  // Merge initialData with default values properly
+  const defaultValues = buildDefaults(initialData);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues
   });
+
+  // Keep form values in sync when initialData updates (edit mode load)
+  useEffect(() => {
+    form.reset(buildDefaults(initialData));
+  }, [initialData]);
 
   const { fields: equipFields, append: addEquip, remove: removeEquip } = useFieldArray({
     control: form.control,
@@ -502,11 +510,12 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
             getEventOperations, 
             getEventFinancials,
             getEventAvEquipment,
-            getEventHandlingInfo
+            getEventTechnicalInfo,
+            getEventContractingInfo
           } = await import('@/apiClient/eventsApi');
           
           // Fetch all event data in parallel
-          const [mainData, bookingData, operationsData, financialsData, equipmentData] = await Promise.all([
+          const [mainData, bookingData, operationsData, financialsData, equipmentData, technicalData, contractingData] = await Promise.all([
             getEventById(createdEventId).catch(err=>{
               return null;
             }),
@@ -521,6 +530,12 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
             }),
             getEventAvEquipment(createdEventId).catch(err => {
               return [];
+            }),
+            getEventTechnicalInfo(createdEventId).catch(err => {
+              return null;
+            }),
+            getEventContractingInfo(createdEventId).catch(err => {
+              return null;
             })
           ]);
           
@@ -560,9 +575,27 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
             form.setValue("contact.contact_position", mainData.contact_position||"");
           } else {
           }
-          
-          // Technical and Contracting data would go here once the backend endpoints are implemented
-          // For now, we'll skip them as they return 404
+          // Technical
+          if (technicalData) {
+            // Cast numeric booleans if any
+            const cast = (v: any) => (typeof v === 'number' ? Boolean(v) : v);
+            const tech = { ...technicalData } as any;
+            [
+              'has_ac_or_ventilation','has_blackout_curtains','is_soundproof','has_daylight',
+              'is_hybrid_meeting_possible','technical_support_available'
+            ].forEach(k => { if (tech[k] !== undefined) tech[k] = cast(tech[k]); });
+            form.setValue('technical', tech);
+          }
+
+          // Contracting
+          if (contractingData) {
+            const cast = (v: any) => (typeof v === 'number' ? Boolean(v) : v);
+            const c = { ...contractingData } as any;
+            [
+              'first_second_option','split_options','overbooking_policy','deposit_required','second_signature_required'
+            ].forEach(k => { if (c[k] !== undefined) c[k] = cast(c[k]); });
+            form.setValue('contracting', c);
+          }
           
           // Trigger form validation
           form.trigger();
