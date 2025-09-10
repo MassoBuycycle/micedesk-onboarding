@@ -94,19 +94,21 @@ export const createEventSpace = async (req, res, next) => {
       // First try to use ID if provided, then fall back to name-based matching
       let existingSpaces = [];
       if (item.id && typeof item.id === 'number') {
-          // Check by ID first
-          existingSpaces = await connection.query(
-              'SELECT id FROM event_spaces WHERE id = ? AND event_id = ?',
-              [item.id, eventId]
-          );
+        // Check by ID first
+        const [byIdRows] = await connection.query(
+          'SELECT id FROM event_spaces WHERE id = ? AND event_id = ?',
+          [item.id, eventId]
+        );
+        existingSpaces = byIdRows;
       }
       
       // If no match by ID, check by name
-      if (existingSpaces.length === 0) {
-          existingSpaces = await connection.query(
-              'SELECT id FROM event_spaces WHERE event_id = ? AND name = ?',
-              [eventId, item.name]
-          );
+      if (!existingSpaces || existingSpaces.length === 0) {
+        const [byNameRows] = await connection.query(
+          'SELECT id FROM event_spaces WHERE event_id = ? AND name = ?',
+          [eventId, item.name]
+        );
+        existingSpaces = byNameRows;
       }
       
       // Prepare space data
@@ -195,7 +197,7 @@ export const createEventSpace = async (req, res, next) => {
       if ('has_tech_support' in item) 
         spaceData.has_tech_support = item.has_tech_support ? 1 : 0;
       
-      if (existingSpaces.length > 0) {
+      if (existingSpaces && existingSpaces.length > 0) {
         // Update existing space
         const spaceId = existingSpaces[0].id;
         

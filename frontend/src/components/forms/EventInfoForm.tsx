@@ -117,6 +117,9 @@ const operationsSchema = z.object({
   deposit_rules_event: z.string().optional(),
   payment_methods_events: z.array(z.string()).default([]),
   final_invoice_handling_event: z.string().optional(),
+  // Storage handling
+  storage_free_of_charge: z.boolean().default(false),
+  storage_pricing_info: z.string().optional(),
 });
 
 const financialsSchema = z.object({
