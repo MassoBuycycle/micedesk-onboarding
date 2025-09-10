@@ -59,7 +59,18 @@
     "createdAt": "Erstellt am",
     "saved": "Gespeichert",
     "saveFailed": "Speichern fehlgeschlagen",
-    "thisHotel": "dieses Hotel"
+    "thisHotel": "dieses Hotel",
+    "deleting": "Lösche...",
+    "view": "Anzeigen",
+    "id": "ID",
+    "date": "Datum",
+    "more": "mehr",
+    "submitted": "Eingereicht",
+    "available": "Verfügbar",
+    "missing": "Fehlt",
+    "empty": "(leer)",
+    "complexData": "(komplexe Daten)",
+    "back": "Zurück"
   },
   "pages": {
     "index": {
@@ -561,20 +572,6 @@
     "profile": "Profil",
     "avatar": "Avatar",
     "themeColor": "Themenfarbe"
-  },
-  "common": {
-    "saving": "Speichert...",
-    "deleting": "Lösche...",
-    "view": "Anzeigen",
-    "id": "ID",
-    "date": "Datum",
-    "more": "mehr",
-    "submitted": "Eingereicht",
-    "available": "Verfügbar",
-    "missing": "Fehlt",
-    "empty": "(leer)",
-    "complexData": "(komplexe Daten)",
-    "back": "Zurück"
   },
   "dateTime": {
     "today": "Heute",

@@ -58,7 +58,18 @@
     "download": "Download",
     "createdAt": "Created At",
     "saved": "Saved",
-    "saveFailed": "Save failed"
+    "saveFailed": "Save failed",
+    "deleting": "Deleting...",
+    "view": "View",
+    "id": "ID",
+    "date": "Date",
+    "more": "more",
+    "submitted": "Submitted",
+    "available": "Available",
+    "missing": "Missing",
+    "empty": "(empty)",
+    "complexData": "(complex data)",
+    "back": "Back"
   },
   "pages": {
     "index": {
@@ -556,20 +567,6 @@
     "profile": "Profile",
     "avatar": "Avatar",
     "themeColor": "Theme Color"
-  },
-  "common": {
-    "saving": "Saving...",
-    "deleting": "Deleting...",
-    "view": "View",
-    "id": "ID",
-    "date": "Date",
-    "more": "more",
-    "submitted": "Submitted",
-    "available": "Available",
-    "missing": "Missing",
-    "empty": "(empty)",
-    "complexData": "(complex data)",
-    "back": "Back"
   },
   "dateTime": {
     "today": "Today",

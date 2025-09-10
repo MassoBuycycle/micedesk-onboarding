@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
-import { getEntityFiles, FileData } from "@/apiClient/filesApi";
 import { 
   Table, 
   TableBody, 
@@ -38,6 +36,9 @@ const HotelList = ({ searchQuery = "" }: HotelListProps) => {
   const [error, setError] = useState<string | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
+  // Tracks if users were bootstrapped inline from the overview API
+  const usersBootstrappedRef = useRef<boolean>(false);
+
   // Function to trigger refreshing the user list
   const refreshUsers = useCallback(() => {
     setRefreshTrigger(prev => prev + 1);
@@ -53,8 +54,10 @@ const HotelList = ({ searchQuery = "" }: HotelListProps) => {
         setHotels(list as Hotel[]);
         // Preload users per hotel from payload if present
         const usersMap: Record<string, User[]> = {};
+        let bootstrapped = false;
         list.forEach((h: any) => {
           if (h.id && Array.isArray(h.assigned_users)) {
+            bootstrapped = true;
             usersMap[String(h.id)] = h.assigned_users.map((u: any) => ({
               id: String(u.id),
               name: `${u.first_name} ${u.last_name}`,
@@ -66,7 +69,10 @@ const HotelList = ({ searchQuery = "" }: HotelListProps) => {
             }));
           }
         });
-        setHotelUsers(usersMap);
+        if (bootstrapped) {
+          usersBootstrappedRef.current = true;
+          setHotelUsers(usersMap);
+        }
         setError(null);
       } catch (err) {
         setError(t("pages.view.failedToLoadHotels"));
@@ -76,11 +82,11 @@ const HotelList = ({ searchQuery = "" }: HotelListProps) => {
     };
 
     fetchHotels();
-  // Run once on mount; hotel list is refreshed explicitly on actions
-  // Avoid depending on t() to prevent refetch loops on i18n re-renders
+    // Run once on mount; hotel list is refreshed explicitly on actions
+    // Avoid depending on t() to prevent refetch loops on i18n re-renders
   }, []);
 
-  // Fetch users for a specific hotel
+  // Fetch users for a specific hotel (used only on-demand, e.g., after reassignment)
   const fetchUsersForHotel = useCallback(async (hotelId: string, hotelName?: string): Promise<User[]> => {
     try {
       const apiUsers = await getUsersByHotelId(hotelId);
@@ -103,7 +109,6 @@ const HotelList = ({ searchQuery = "" }: HotelListProps) => {
   // Refresh users for a specific hotel
   const refreshHotelUsers = useCallback(async (hotelId: string, hotelName?: string) => {
     if (!hotelId) return;
-    
     const users = await fetchUsersForHotel(hotelId, hotelName);
     setHotelUsers(prev => ({
       ...prev,
@@ -114,7 +119,12 @@ const HotelList = ({ searchQuery = "" }: HotelListProps) => {
   const fetchedUsersForHotelRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
-    // Fetch users for each hotel
+    // If users data came inline with the overview payload, skip the N+1 fetch.
+    if (usersBootstrappedRef.current && refreshTrigger === 0) {
+      return;
+    }
+
+    // Fetch users for each hotel (only if not bootstrapped or after explicit refresh)
     const fetchUsersForHotels = async () => {
       if (!hotels.length) return;
       
@@ -190,29 +200,13 @@ const HotelList = ({ searchQuery = "" }: HotelListProps) => {
     }
   };
 
-  // Render hotel name with main image (if any)
+  // Render hotel name with a placeholder icon (avoid per-row image fetch)
   const HotelNameWithImage: React.FC<{ hotel: Hotel }> = ({ hotel }) => {
-    const { data } = useQuery<FileData[]>({
-      queryKey: ['hotelMainImage', hotel.id],
-      queryFn: () => getEntityFiles('hotels', hotel.id as number, 'hotel'),
-      enabled: !!hotel.id,
-      staleTime: 10 * 60 * 1000,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-      retry: false,
-    });
-
-    const image: string | undefined = data?.find((f)=>f.file_type_code === 'main_image')?.url;
-
     return (
       <div className="flex items-center gap-2">
-        {image ? (
-          <img src={image} alt="hotel" className="w-8 h-8 rounded object-cover shrink-0" />
-        ) : (
-          <div className="w-8 h-8 flex items-center justify-center rounded bg-accent/20 text-accent-foreground shrink-0">
-            <Building2 className="h-4 w-4" />
-          </div>
-        )}
+        <div className="w-8 h-8 flex items-center justify-center rounded bg-accent/20 text-accent-foreground shrink-0">
+          <Building2 className="h-4 w-4" />
+        </div>
         <span>{hotel.name || t("common.unnamedHotel")}</span>
       </div>
     );

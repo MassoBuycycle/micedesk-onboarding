@@ -47,6 +47,19 @@ interface ContractOnboardingFormProps {
   mode?: 'add' | 'edit';
 }
 
+const formatDateForInput = (value?: string): string => {
+  if (!value) return '';
+  // Already yyyy-MM-dd
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+  try {
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return '';
+    return d.toISOString().slice(0, 10);
+  } catch {
+    return '';
+  }
+};
+
 const ContractOnboardingForm: React.FC<ContractOnboardingFormProps> = ({ 
   hotelId, 
   data, 
@@ -109,7 +122,7 @@ const ContractOnboardingForm: React.FC<ContractOnboardingFormProps> = ({
     handleFieldChange('access_other_systems', newSystems);
   }, [localData.access_other_systems, handleFieldChange]);
 
-  // Memoized sections for better performance
+  // Contracting section UI
   const contractingSection = useMemo(() => (
     <Card>
       <CardHeader>
@@ -120,31 +133,32 @@ const ContractOnboardingForm: React.FC<ContractOnboardingFormProps> = ({
         <CardDescription>{t('contract.contractingDescription')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Contract Model */}
-        <div className="space-y-2">
-          <Label htmlFor="contract_model">{t('contract.contractModel')}</Label>
-          <Input
-            id="contract_model"
-            value={localData.contract_model || ''}
-            onChange={(e) => handleFieldChange('contract_model', e.target.value)}
-            placeholder={t('contract.contractModelPlaceholder')}
-            disabled={readOnly}
-          />
-        </div>
+        {/* Contract fields */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="contract_model">{t('contract.contractModel')}</Label>
+            <Input
+              id="contract_model"
+              value={localData.contract_model || ''}
+              onChange={(e) => handleFieldChange('contract_model', e.target.value)}
+              disabled={readOnly}
+              placeholder={t('contract.contractModelPlaceholder')}
+            />
+          </div>
 
-        {/* FTE Count */}
-        <div className="space-y-2">
-          <Label htmlFor="fte_count">{t('contract.fteCount')}</Label>
-          <Input
-            id="fte_count"
-            type="number"
-            value={localData.fte_count || ''}
-            onChange={(e) => handleNumberChange('fte_count', e.target.value)}
-            placeholder={t('contract.fteCount')}
-            disabled={readOnly}
-            className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-            onWheel={(e) => e.currentTarget.blur()}
-          />
+          <div className="space-y-2">
+            <Label htmlFor="fte_count">{t('contract.fteCount')}</Label>
+            <Input
+              id="fte_count"
+              type="number"
+              min={0}
+              step="0.5"
+              value={localData.fte_count as any}
+              onChange={(e) => handleNumberChange('fte_count', e.target.value)}
+              disabled={readOnly}
+              placeholder={t('contract.fteCountPlaceholder')}
+            />
+          </div>
         </div>
 
         {/* Date Fields */}
@@ -154,7 +168,7 @@ const ContractOnboardingForm: React.FC<ContractOnboardingFormProps> = ({
             <Input
               id="onboarding_date"
               type="date"
-              value={localData.onboarding_date || ''}
+              value={formatDateForInput(localData.onboarding_date)}
               onChange={(e) => handleFieldChange('onboarding_date', e.target.value)}
               disabled={readOnly}
             />
@@ -165,7 +179,7 @@ const ContractOnboardingForm: React.FC<ContractOnboardingFormProps> = ({
             <Input
               id="contract_start_date"
               type="date"
-              value={localData.contract_start_date || ''}
+              value={formatDateForInput(localData.contract_start_date)}
               onChange={(e) => handleFieldChange('contract_start_date', e.target.value)}
               disabled={readOnly}
             />
@@ -198,112 +212,68 @@ const ContractOnboardingForm: React.FC<ContractOnboardingFormProps> = ({
         <CardDescription>{t('contract.technicalSetupDescription')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Email Addresses Created */}
-        <div className="flex items-center justify-between p-3 border rounded-lg">
-          <Label htmlFor="email_addresses_created" className="cursor-pointer">
-            {t('contract.emailAddressesCreated')}
-          </Label>
-          <Switch
-            id="email_addresses_created"
-            checked={localData.email_addresses_created || false}
-            onCheckedChange={(checked) => handleFieldChange('email_addresses_created', checked)}
-            disabled={readOnly}
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="email_addresses_created"
+              checked={!!localData.email_addresses_created}
+              onCheckedChange={(checked) => handleFieldChange('email_addresses_created', !!checked)}
+              disabled={readOnly}
+            />
+            <Label htmlFor="email_addresses_created">{t('contract.emailAddressesCreated')}</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="access_pms_system"
+              checked={!!localData.access_pms_system}
+              onCheckedChange={(checked) => handleFieldChange('access_pms_system', !!checked)}
+              disabled={readOnly}
+            />
+            <Label htmlFor="access_pms_system">{t('contract.pmsSystem')}</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="access_sc_tool"
+              checked={!!localData.access_sc_tool}
+              onCheckedChange={(checked) => handleFieldChange('access_sc_tool', !!checked)}
+              disabled={readOnly}
+            />
+            <Label htmlFor="access_sc_tool">S&C Tool</Label>
+          </div>
         </div>
 
-        {/* System Access */}
         <div className="space-y-2">
-          <Label className="text-base font-medium">{t('contract.systemAccess')}</Label>
-          
-          <div className="space-y-3">
-            {/* PMS System */}
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="access_pms_system"
-                checked={localData.access_pms_system || false}
-                onCheckedChange={(checked) => handleFieldChange('access_pms_system', checked)}
-                disabled={readOnly}
-              />
-              <Label
-                htmlFor="access_pms_system"
-                className="cursor-pointer text-sm font-normal"
-              >
-                {t('contract.pmsSystem')}
-              </Label>
-            </div>
-
-            {/* S&C Tool */}
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="access_sc_tool"
-                checked={localData.access_sc_tool || false}
-                onCheckedChange={(checked) => handleFieldChange('access_sc_tool', checked)}
-                disabled={readOnly}
-              />
-              <Label
-                htmlFor="access_sc_tool"
-                className="cursor-pointer text-sm font-normal"
-              >
-                {t('contract.scTool')}
-              </Label>
-            </div>
-
-            {/* Other Systems */}
-            <div className="space-y-2">
-              <Label className="text-sm">{t('contract.otherSystems')}</Label>
-              
-              {!readOnly && (
-                <div className="flex gap-2">
-                  <Input
-                    value={otherSystemInput}
-                    onChange={(e) => setOtherSystemInput(e.target.value)}
-                    placeholder={t('contract.addSystemPlaceholder')}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleAddOtherSystem();
-                      }
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={handleAddOtherSystem}
-                    disabled={!otherSystemInput.trim()}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-
-              {localData.access_other_systems && localData.access_other_systems.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {localData.access_other_systems.map((system: string, index: number) => (
-                    <Badge
-                      key={index}
-                      variant="secondary"
-                      className="flex items-center gap-1"
-                    >
-                      {system}
-                      {!readOnly && (
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveOtherSystem(index)}
-                          className="ml-1 hover:text-destructive"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      )}
-                    </Badge>
-                  ))}
-                </div>
-              )}
-            </div>
+          <Label>{t('contract.otherSystems')}</Label>
+          <div className="flex gap-2">
+            <Input
+              value={otherSystemInput}
+              onChange={(e) => setOtherSystemInput(e.target.value)}
+              disabled={readOnly}
+              placeholder={t('contract.addSystemPlaceholder')}
+            />
+            <Button type="button" onClick={handleAddOtherSystem} disabled={readOnly}>
+              <Plus className="h-4 w-4 mr-1" />
+              {t('common.add', 'Add')}
+            </Button>
           </div>
+          {(localData.access_other_systems || []).length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {(localData.access_other_systems || []).map((s: string, idx: number) => (
+                <Badge key={`${s}-${idx}`} variant="secondary" className="flex items-center gap-1">
+                  {s}
+                  {!readOnly && (
+                    <button type="button" onClick={() => handleRemoveOtherSystem(idx)}>
+                      <X className="h-3 w-3" />
+                    </button>
+                  )}
+                </Badge>
+              ))}
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
-  ), [localData, t, readOnly, otherSystemInput, handleFieldChange, handleAddOtherSystem, handleRemoveOtherSystem]);
+  ), [localData, t, readOnly, handleFieldChange, otherSystemInput, handleAddOtherSystem]);
 
   return (
     <div className="space-y-6">
@@ -340,4 +310,4 @@ const ContractOnboardingForm: React.FC<ContractOnboardingFormProps> = ({
   );
 };
 
-export default React.memo(ContractOnboardingForm); 
+export default ContractOnboardingForm; 
