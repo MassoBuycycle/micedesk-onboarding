@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
@@ -58,7 +58,9 @@ const HotelList = ({ searchQuery = "" }: HotelListProps) => {
     };
 
     fetchHotels();
-  }, [t]);
+  // Run once on mount; hotel list is refreshed explicitly on actions
+  // Avoid depending on t() to prevent refetch loops on i18n re-renders
+  }, []);
 
   // Fetch users for a specific hotel
   const fetchUsersForHotel = useCallback(async (hotelId: string, hotelName?: string): Promise<User[]> => {
@@ -91,23 +93,42 @@ const HotelList = ({ searchQuery = "" }: HotelListProps) => {
     }));
   }, [fetchUsersForHotel]);
 
+  const fetchedUsersForHotelRef = useRef<Set<string>>(new Set());
+
   useEffect(() => {
     // Fetch users for each hotel
     const fetchUsersForHotels = async () => {
       if (!hotels.length) return;
       
       try {
-        const usersMap: Record<string, User[]> = {};
-        
-        for (const hotel of hotels) {
-          if (hotel.id) {
-            const hotelId = hotel.id.toString();
-            const users = await fetchUsersForHotel(hotelId, hotel.name);
-            usersMap[hotelId] = users;
+        // Fetch only for hotels we haven't fetched yet or when forced via refreshTrigger
+        const pendingHotelIds: string[] = [];
+        hotels.forEach(h => {
+          if (h.id) {
+            const hid = h.id.toString();
+            if (!fetchedUsersForHotelRef.current.has(hid) || refreshTrigger > 0) {
+              pendingHotelIds.push(hid);
+            }
           }
-        }
-        
-        setHotelUsers(usersMap);
+        });
+
+        if (pendingHotelIds.length === 0 && refreshTrigger === 0) return;
+
+        const results = await Promise.allSettled(
+          pendingHotelIds.map(async hid => ({ hid, users: await fetchUsersForHotel(hid) }))
+        );
+
+        setHotelUsers(prev => {
+          const next: Record<string, User[]> = { ...prev };
+          results.forEach(r => {
+            if (r.status === 'fulfilled') {
+              const { hid, users } = r.value as { hid: string; users: User[] };
+              next[hid] = users;
+              fetchedUsersForHotelRef.current.add(hid);
+            }
+          });
+          return next;
+        });
       } catch (err) {
       }
     };
@@ -157,7 +178,10 @@ const HotelList = ({ searchQuery = "" }: HotelListProps) => {
       queryKey: ['hotelMainImage', hotel.id],
       queryFn: () => getEntityFiles('hotels', hotel.id as number, 'hotel'),
       enabled: !!hotel.id,
-      staleTime: 5 * 60 * 1000,
+      staleTime: 10 * 60 * 1000,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      retry: false,
     });
 
     const image: string | undefined = data?.find((f)=>f.file_type_code === 'main_image')?.url;

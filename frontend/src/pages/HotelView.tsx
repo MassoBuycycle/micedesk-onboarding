@@ -48,7 +48,11 @@ const HotelView = () => {
   const { data: hotelData } = useQuery<FullHotelResponse>({
     queryKey: ["hotelFull", hotelId],
     queryFn: () => getFullHotelDetails(hotelId),
-    enabled: !!hotelId
+    enabled: !!hotelId,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    retry: false,
   });
 
   // Fallback: if full-details response has no files, fetch directly via files API
@@ -56,13 +60,20 @@ const HotelView = () => {
     queryKey: ["hotelFiles", hotelId],
     queryFn: () => getEntityFiles("hotels", hotelId),
     enabled: !!hotelId && (!hotelData?.files || hotelData.files.length === 0),
-    staleTime: 5 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    retry: false,
   });
 
   const { data: policies } = useQuery<InformationPolicy[]>({
     queryKey: ["hotelPolicies", hotelId],
     queryFn: () => getInformationPoliciesByHotel(hotelData?.hotel?.system_hotel_id || ''),
-    enabled: !!hotelData?.hotel?.system_hotel_id
+    enabled: !!hotelData?.hotel?.system_hotel_id,
+    staleTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    retry: false,
   });
 
   const hotel = hotelData?.hotel;

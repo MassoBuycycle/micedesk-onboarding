@@ -160,7 +160,8 @@ const UserAssignmentSelect = ({ hotelId, hotelName, onAssignUser }: UserAssignme
     };
     
     fetchData();
-  }, [hotelId, hotelName]);
+  // Only refetch when the hotelId actually changes to avoid loops from parent re-renders
+  }, [hotelId]);
 
   // Capture trigger width whenever popover opens
   useEffect(() => {

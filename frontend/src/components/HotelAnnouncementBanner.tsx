@@ -10,6 +10,10 @@ const HotelAnnouncementBanner: React.FC<Props> = ({ hotelId }) => {
     queryKey: ['announcement', hotelId],
     queryFn: () => getHotelAnnouncement(hotelId),
     enabled: !!hotelId,
+    staleTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    retry: false,
   });
 
   if (!data) return null;
