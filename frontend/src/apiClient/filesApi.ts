@@ -95,11 +95,7 @@ export const uploadFile = async (
 
     xhr.open('POST', fullUrl);
     
-    // Debug authentication
-      url: fullUrl,
-      hasToken: !!token,
-      tokenPrefix: token ? token.substring(0, 10) + '...' : 'none'
-    });
+    // Debug authentication removed
     
     if (token) {
       xhr.setRequestHeader('Authorization', `Bearer ${token}`);
@@ -118,7 +114,7 @@ export const uploadFile = async (
       if (xhr.status >= 200 && xhr.status < 300) {
         resolve(JSON.parse(xhr.responseText));
       } else {
-        // Enhanced error handling for debugging
+        // Enhanced error handling
         let errorMessage = `HTTP ${xhr.status}: ${xhr.statusText}`;
         try {
           const errorResponse = JSON.parse(xhr.responseText);
@@ -129,14 +125,7 @@ export const uploadFile = async (
             errorMessage += ` - Response: ${xhr.responseText.substring(0, 200)}`;
           }
         }
-        
-          ...debugInfo,
-          status: xhr.status,
-          statusText: xhr.statusText,
-          responseText: xhr.responseText,
-          url: fullUrl,
-        });
-        
+
         reject(new Error(errorMessage));
       }
     };
