@@ -51,8 +51,10 @@ import { toast } from '@/components/ui/use-toast';
 import { AlertCircle, Edit, Trash, Plus } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useTranslation } from 'react-i18next';
 
 const RoleManagement: React.FC = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -98,13 +100,13 @@ const RoleManagement: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['roles'] });
       resetForm();
       toast({
-        title: 'Role created',
-        description: 'The role was created successfully',
+        title: t('admin.roles.created'),
+        description: t('admin.roles.createdDesc'),
       });
     },
     onError: (error: any) => {
       toast({
-        title: 'Failed to create role',
+        title: t('admin.roles.createFailed'),
         description: error.message,
         variant: 'destructive',
       });
@@ -118,13 +120,13 @@ const RoleManagement: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['roles'] });
       resetForm();
       toast({
-        title: 'Role updated',
-        description: 'The role was updated successfully',
+        title: t('admin.roles.updated'),
+        description: t('admin.roles.updatedDesc'),
       });
     },
     onError: (error: any) => {
       toast({
-        title: 'Failed to update role',
+        title: t('admin.roles.updateFailed'),
         description: error.message,
         variant: 'destructive',
       });
@@ -136,13 +138,13 @@ const RoleManagement: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['roles'] });
       toast({
-        title: 'Role deleted',
-        description: 'The role was deleted successfully',
+        title: t('admin.roles.deleted'),
+        description: t('admin.roles.deletedDesc'),
       });
     },
     onError: (error: any) => {
       toast({
-        title: 'Failed to delete role',
+        title: t('admin.roles.deleteFailed'),
         description: error.message,
         variant: 'destructive',
       });
@@ -155,13 +157,13 @@ const RoleManagement: React.FC = () => {
     onSuccess: () => {
       refetchRolePermissions();
       toast({
-        title: 'Permissions updated',
-        description: 'The role permissions were updated successfully',
+        title: t('admin.roles.permissionsUpdated'),
+        description: t('admin.roles.permissionsUpdatedDesc'),
       });
     },
     onError: (error: any) => {
       toast({
-        title: 'Failed to update permissions',
+        title: t('admin.roles.permissionsUpdateFailed'),
         description: error.message,
         variant: 'destructive',
       });
@@ -206,8 +208,8 @@ const RoleManagement: React.FC = () => {
     
     if (!roleName.trim()) {
       toast({
-        title: 'Validation error',
-        description: 'Role name is required',
+        title: t('forms.validation.required'),
+        description: t('admin.roles.roleNameRequired'),
         variant: 'destructive',
       });
       return;
@@ -231,7 +233,7 @@ const RoleManagement: React.FC = () => {
   
   // Handle role deletion
   const handleDelete = (role: Role) => {
-    if (window.confirm(`Are you sure you want to delete the role "${role.name}"?`)) {
+    if (window.confirm(t('admin.roles.confirmDelete', { name: role.name }))) {
       deleteRoleMutation.mutate(role.id);
     }
   };
@@ -275,7 +277,7 @@ const RoleManagement: React.FC = () => {
   };
   
   if (rolesLoading) {
-    return <div className="flex justify-center p-8">Loading roles...</div>;
+    return <div className="flex justify-center p-8">{t('admin.roles.loadingRoles')}</div>;
   }
   
   if (rolesError) {
@@ -283,7 +285,7 @@ const RoleManagement: React.FC = () => {
       <Alert variant="destructive" className="m-4">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          {(rolesError as Error).message || 'Failed to load roles'}
+          {(rolesError as Error).message || t('admin.roles.loadFailed')}
         </AlertDescription>
       </Alert>
     );
@@ -292,35 +294,35 @@ const RoleManagement: React.FC = () => {
   return (
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Role Management</h1>
+        <h1 className="text-3xl font-bold">{t('admin.roles.title')}</h1>
         <Button onClick={() => { setEditMode(false); setDialogOpen(true); }}>
           <Plus className="h-4 w-4 mr-2" />
-          Create Role
+          {t('admin.roles.createRole')}
         </Button>
       </div>
       
       <Tabs defaultValue="roles">
         <TabsList className="mb-4">
-          <TabsTrigger value="roles">Roles</TabsTrigger>
-          <TabsTrigger value="permissions">Permissions</TabsTrigger>
+          <TabsTrigger value="roles">{t('admin.roles.tabs.roles')}</TabsTrigger>
+          <TabsTrigger value="permissions">{t('admin.roles.tabs.permissions')}</TabsTrigger>
         </TabsList>
         
         <TabsContent value="roles">
           <Card>
             <CardHeader>
-              <CardTitle>System Roles</CardTitle>
+              <CardTitle>{t('admin.roles.systemRoles')}</CardTitle>
               <CardDescription>
-                Manage roles that define permissions for users in the system
+                {t('admin.roles.systemRolesDesc')}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>System Role</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>{t('common.name')}</TableHead>
+                    <TableHead>{t('common.description')}</TableHead>
+                    <TableHead>{t('admin.roles.systemRole')}</TableHead>
+                    <TableHead className="text-right">{t('common.actions')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -328,7 +330,7 @@ const RoleManagement: React.FC = () => {
                     <TableRow key={role.id}>
                       <TableCell className="font-medium">{role.name}</TableCell>
                       <TableCell>{role.description || '-'}</TableCell>
-                      <TableCell>{role.is_system ? 'Yes' : 'No'}</TableCell>
+                      <TableCell>{role.is_system ? t('common.yes') : t('common.no')}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button 
@@ -361,9 +363,9 @@ const RoleManagement: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card className="md:col-span-1">
               <CardHeader>
-                <CardTitle>Roles</CardTitle>
+                <CardTitle>{t('admin.roles.roles')}</CardTitle>
                 <CardDescription>
-                  Select a role to edit its permissions
+                  {t('admin.roles.selectRole')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -384,21 +386,21 @@ const RoleManagement: React.FC = () => {
             
             <Card className="md:col-span-2">
               <CardHeader>
-                <CardTitle>Permissions</CardTitle>
+                <CardTitle>{t('admin.roles.permissions')}</CardTitle>
                 <CardDescription>
                   {selectedRoleId 
-                    ? `Manage permissions for ${roles.find(r => r.id === selectedRoleId)?.name}`
-                    : 'Select a role to manage its permissions'
+                    ? t('admin.roles.managePermissionsFor', { name: roles.find(r => r.id === selectedRoleId)?.name })
+                    : t('admin.roles.selectRoleToManage')
                   }
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {!selectedRoleId ? (
                   <div className="text-center py-6 text-muted-foreground">
-                    Select a role from the left panel to edit its permissions
+                    {t('admin.roles.selectRoleFromLeft')}
                   </div>
                 ) : permissionsLoading ? (
-                  <div className="text-center py-6">Loading permissions...</div>
+                  <div className="text-center py-6">{t('admin.roles.loadingPermissions')}</div>
                 ) : (
                   <ScrollArea className="h-[400px] pr-4">
                     <div className="space-y-6">
@@ -456,7 +458,7 @@ const RoleManagement: React.FC = () => {
                   onClick={handleSavePermissions} 
                   disabled={!selectedRoleId || assignPermissionsMutation.isPending}
                 >
-                  {assignPermissionsMutation.isPending ? 'Saving...' : 'Save Permissions'}
+                  {assignPermissionsMutation.isPending ? t('common.saving') : t('admin.roles.savePermissions')}
                 </Button>
               </CardFooter>
             </Card>
@@ -469,12 +471,12 @@ const RoleManagement: React.FC = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {editMode ? 'Edit Role' : 'Create New Role'}
+              {editMode ? t('admin.roles.editRole') : t('admin.roles.createNewRole')}
             </DialogTitle>
             <DialogDescription>
               {editMode 
-                ? 'Update the details for this role' 
-                : 'Create a new role to assign to users'
+                ? t('admin.roles.updateRoleDetails') 
+                : t('admin.roles.createRoleDesc')
               }
             </DialogDescription>
           </DialogHeader>
@@ -482,20 +484,20 @@ const RoleManagement: React.FC = () => {
           <form onSubmit={handleSubmit}>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Role Name</Label>
+                <Label htmlFor="name">{t('admin.roles.roleName')}</Label>
                 <Input
                   id="name"
-                  placeholder="Enter role name"
+                  placeholder={t('admin.roles.roleNamePlaceholder') as string}
                   value={roleName}
                   onChange={e => setRoleName(e.target.value)}
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">{t('common.description')}</Label>
                 <Textarea
                   id="description"
-                  placeholder="Enter role description"
+                  placeholder={t('admin.roles.roleDescPlaceholder') as string}
                   value={roleDescription}
                   onChange={e => setRoleDescription(e.target.value)}
                   rows={3}
@@ -505,12 +507,12 @@ const RoleManagement: React.FC = () => {
             
             <DialogFooter>
               <Button type="button" variant="outline" onClick={resetForm}>
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button type="submit" disabled={createRoleMutation.isPending || updateRoleMutation.isPending}>
                 {createRoleMutation.isPending || updateRoleMutation.isPending
-                  ? 'Saving...'
-                  : editMode ? 'Update' : 'Create'
+                  ? t('common.saving')
+                  : editMode ? t('common.update') : t('common.create')
                 }
               </Button>
             </DialogFooter>

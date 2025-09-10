@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { getFileTypesByCategory } from '@/apiClient/filesApi';
 import { getAllHotels } from '@/apiClient/hotelsApi';
 import { getAllEvents } from '@/apiClient/eventsApi';
+import { useTranslation } from 'react-i18next';
 
 interface FileType {
   id: number;
@@ -25,6 +26,7 @@ interface EntityOption {
 }
 
 export default function FileUploadDemo() {
+  const { t } = useTranslation();
   const [entityType, setEntityType] = useState<string>('hotels');
   const [category, setCategory] = useState<string>('hotel');
   const [fileTypeCode, setFileTypeCode] = useState<string>('');
@@ -64,14 +66,14 @@ export default function FileUploadDemo() {
             const hotels = await getAllHotels();
             options = hotels.map((hotel: any) => ({
               id: hotel.id.toString(),
-              name: hotel.name || `Hotel ${hotel.id}`
+              name: hotel.name || `${t('common.unnamedHotel')} ${hotel.id}`
             }));
             break;
           case 'events':
             const events = await getAllEvents();
             options = events.map((event: any) => ({
               id: event.id.toString(),
-              name: event.name || `Event ${event.id}`
+              name: event.name || `${t('events.title')} ${event.id}`
             }));
             break;
           default:
@@ -79,7 +81,7 @@ export default function FileUploadDemo() {
             const defaultHotels = await getAllHotels();
             options = defaultHotels.map((hotel: any) => ({
               id: hotel.id.toString(),
-              name: hotel.name || `Hotel ${hotel.id}`
+              name: hotel.name || `${t('common.unnamedHotel')} ${hotel.id}`
             }));
         }
         
@@ -106,29 +108,29 @@ export default function FileUploadDemo() {
     <div className="space-y-8">
       <Card>
         <CardHeader>
-          <CardTitle>File Upload Demo</CardTitle>
+          <CardTitle>{t('admin.files.upload.title')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <div>
-              <Label>Entity Type</Label>
+              <Label>{t('admin.files.upload.entityType')}</Label>
               <Select value={entityType} onValueChange={setEntityType}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select entity type" />
+                  <SelectValue placeholder={t('admin.files.upload.selectEntityType') as string} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="hotels">Hotels</SelectItem>
-                  <SelectItem value="events">Events</SelectItem>
-                  <SelectItem value="rooms">Rooms</SelectItem>
+                  <SelectItem value="hotels">{t('hotels.title')}</SelectItem>
+                  <SelectItem value="events">{t('events.title')}</SelectItem>
+                  <SelectItem value="rooms">{t('rooms.title')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             
             <div>
-              <Label>Entity</Label>
+              <Label>{t('admin.files.upload.entity')}</Label>
               <Select value={entityId} onValueChange={setEntityId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select entity" />
+                  <SelectValue placeholder={t('admin.files.upload.selectEntity') as string} />
                 </SelectTrigger>
                 <SelectContent>
                   {entities.map(entity => (
@@ -141,25 +143,25 @@ export default function FileUploadDemo() {
             </div>
             
             <div>
-              <Label>Category</Label>
+              <Label>{t('admin.files.upload.category')}</Label>
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
+                  <SelectValue placeholder={t('admin.files.upload.selectCategory') as string} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="hotel">Hotel</SelectItem>
-                  <SelectItem value="event">Event</SelectItem>
-                  <SelectItem value="room">Room</SelectItem>
-                  <SelectItem value="fb">Food & Beverage</SelectItem>
+                  <SelectItem value="hotel">{t('hotels.title')}</SelectItem>
+                  <SelectItem value="event">{t('events.title')}</SelectItem>
+                  <SelectItem value="room">{t('rooms.title')}</SelectItem>
+                  <SelectItem value="fb">{t('foodBeverage.title', 'Food & Beverage')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             
             <div>
-              <Label>File Type</Label>
+              <Label>{t('admin.files.upload.fileType')}</Label>
               <Select value={fileTypeCode} onValueChange={setFileTypeCode}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select file type" />
+                  <SelectValue placeholder={t('admin.files.upload.selectFileType') as string} />
                 </SelectTrigger>
                 <SelectContent>
                   {filteredFileTypes.map(type => (
@@ -174,7 +176,7 @@ export default function FileUploadDemo() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
-              <h3 className="text-lg font-semibold mb-4">Upload File</h3>
+              <h3 className="text-lg font-semibold mb-4">{t('admin.files.upload.uploadFile')}</h3>
               {entityId && (
                 <FileUpload
                   entityType={entityType}
@@ -186,7 +188,7 @@ export default function FileUploadDemo() {
             </div>
             
             <div>
-              <h3 className="text-lg font-semibold mb-4">Files</h3>
+              <h3 className="text-lg font-semibold mb-4">{t('admin.files.upload.files')}</h3>
               {entityId && (
                 <FileBrowser
                   entityType={entityType}

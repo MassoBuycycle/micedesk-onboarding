@@ -25,8 +25,10 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { CheckCircle } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 
 const renderDiff = (change: PendingChange) => {
+  const { t } = useTranslation();
   
   // Handle cases where data might be null, undefined, or invalid
   let original: any = {};
@@ -58,7 +60,7 @@ const renderDiff = (change: PendingChange) => {
   // Helper function to format field values nicely
   const formatValue = (value: any, fieldName: string): string => {
     if (value === null || value === undefined) return '-';
-    if (value === '') return '(empty)';
+    if (value === '') return t('common.empty', '(empty)');
     
     // Handle specific field types
     if (fieldName.includes('phone') && typeof value === 'string') {
@@ -86,11 +88,11 @@ const renderDiff = (change: PendingChange) => {
     }
     
     if (Array.isArray(value)) {
-      return value.length > 0 ? value.join(', ') : '(empty)';
+      return value.length > 0 ? value.join(', ') : t('common.empty', '(empty)');
     }
     
     if (typeof value === 'object') {
-      return '(complex data)';
+      return t('common.complexData', '(complex data)');
     }
     
     return String(value);
@@ -99,55 +101,55 @@ const renderDiff = (change: PendingChange) => {
   // Helper function to get a human-readable field name
   const getFieldDisplayName = (fieldName: string): string => {
     const fieldMappings: { [key: string]: string } = {
-      'name': 'Hotel Name',
-      'city': 'City',
-      'country': 'Country',
-      'street': 'Street Address',
-      'postal_code': 'Postal Code',
-      'email': 'Email Address',
-      'phone': 'Phone Number',
-      'website': 'Website',
-      'description': 'Description',
-      'star_rating': 'Star Rating',
-      'total_rooms': 'Total Rooms',
-      'opening_year': 'Opening Year',
-      'latest_renovation_year': 'Latest Renovation Year',
-      'conference_rooms': 'Conference Rooms',
-      'parking_remarks': 'Parking Information',
-      'planned_changes': 'Planned Changes',
-      'system_hotel_id': 'System Hotel ID',
-      'additional_links': 'Additional Links',
-      'opening_time_pool': 'Pool Opening Hours',
-      'opening_time_spa_area': 'Spa Area Opening Hours',
-      'opening_time_fitness_center': 'Fitness Center Opening Hours',
-      'equipment_spa_area': 'Spa Equipment',
-      'equipment_fitness_center': 'Fitness Equipment',
-      'billing_address_name': 'Billing Company Name',
-      'billing_address_street': 'Billing Street Address',
-      'billing_address_city': 'Billing City',
-      'billing_address_zip': 'Billing Postal Code',
-      'billing_address_vat': 'VAT Number',
-      'general_manager_name': 'General Manager Name',
-      'general_manager_email': 'General Manager Email',
-      'general_manager_phone': 'General Manager Phone',
-      'no_of_parking_spaces': 'Parking Spaces',
-      'parking_cost_per_day': 'Daily Parking Cost',
-      'parking_cost_per_hour': 'Hourly Parking Cost',
-      'no_of_parking_spaces_bus': 'Bus Parking Spaces',
-      'no_of_parking_spaces_disabled': 'Disabled Parking Spaces',
-      'no_of_parking_spaces_electric': 'Electric Vehicle Parking',
-      'no_of_parking_spaces_garage': 'Garage Parking Spaces',
-      'no_of_parking_spaces_outside': 'Outdoor Parking Spaces',
-      'distance_to_fair_km': 'Distance to Fair',
-      'distance_to_airport_km': 'Distance to Airport',
-      'distance_to_train_station': 'Distance to Train Station',
-      'distance_to_public_transport': 'Distance to Public Transport',
-      'distance_to_highway_km': 'Distance to Highway',
-      'attraction_in_the_area': 'Nearby Attractions',
-      'category': 'Hotel Category',
-      'pms_system': 'PMS System',
-      'opening_date': 'Opening Date',
-      'latest_renovation_date': 'Latest Renovation Date'
+      'name': t('hotel.name', 'Hotel Name'),
+      'city': t('hotel.city', 'City'),
+      'country': t('hotel.country', 'Country'),
+      'street': t('hotel.street', 'Street Address'),
+      'postal_code': t('hotel.postalCode', 'Postal Code'),
+      'email': t('auth.email', 'Email Address'),
+      'phone': t('hotel.phone', 'Phone Number'),
+      'website': t('hotel.website', 'Website'),
+      'description': t('common.description', 'Description'),
+      'star_rating': t('hotel.starRating', 'Star Rating'),
+      'total_rooms': t('rooms.totalRooms', 'Total Rooms'),
+      'opening_year': t('hotel.openingDate', 'Opening Year'),
+      'latest_renovation_year': t('hotel.renovationDate', 'Latest Renovation Year'),
+      'conference_rooms': t('hotel.conferenceRooms', 'Conference Rooms'),
+      'parking_remarks': t('hotel.parkingRemarks', 'Parking Information'),
+      'planned_changes': t('hotel.plannedChanges', 'Planned Changes'),
+      'system_hotel_id': t('hotel.hotelId', 'System Hotel ID'),
+      'additional_links': t('hotel.additionalLinks', 'Additional Links'),
+      'opening_time_pool': t('hotel.poolHours', 'Pool Opening Hours'),
+      'opening_time_spa_area': t('hotel.spaHours', 'Spa Area Opening Hours'),
+      'opening_time_fitness_center': t('hotel.fitnessHours', 'Fitness Center Opening Hours'),
+      'equipment_spa_area': t('hotel.spaEquipment', 'Spa Equipment'),
+      'equipment_fitness_center': t('hotel.fitnessEquipment', 'Fitness Equipment'),
+      'billing_address_name': t('hotel.billingName', 'Billing Company Name'),
+      'billing_address_street': t('hotel.billingStreet', 'Billing Street Address'),
+      'billing_address_city': t('hotel.billingCity', 'Billing City'),
+      'billing_address_zip': t('hotel.billingZip', 'Billing Postal Code'),
+      'billing_address_vat': t('hotel.billingVat', 'VAT Number'),
+      'general_manager_name': t('hotel.generalManagerSection', 'General Manager Name'),
+      'general_manager_email': t('hotel.generalManagerSection', 'General Manager Email'),
+      'general_manager_phone': t('hotel.generalManagerSection', 'General Manager Phone'),
+      'no_of_parking_spaces': t('hotels.totalSpaces', 'Parking Spaces'),
+      'parking_cost_per_day': t('hotels.costPerDay', 'Daily Parking Cost'),
+      'parking_cost_per_hour': t('hotels.costPerHour', 'Hourly Parking Cost'),
+      'no_of_parking_spaces_bus': t('hotels.busSpaces', 'Bus Parking Spaces'),
+      'no_of_parking_spaces_disabled': t('hotels.disabledSpaces', 'Disabled Parking Spaces'),
+      'no_of_parking_spaces_electric': t('hotels.electricSpaces', 'Electric Vehicle Parking'),
+      'no_of_parking_spaces_garage': t('hotels.garageSpaces', 'Garage Parking Spaces'),
+      'no_of_parking_spaces_outside': t('hotels.outsideSpaces', 'Outdoor Parking Spaces'),
+      'distance_to_fair_km': t('hotels.fair', 'Distance to Fair'),
+      'distance_to_airport_km': t('hotels.airport', 'Distance to Airport'),
+      'distance_to_train_station': t('hotels.trainStation', 'Distance to Train Station'),
+      'distance_to_public_transport': t('hotels.publicTransport', 'Distance to Public Transport'),
+      'distance_to_highway_km': t('hotels.highway', 'Distance to Highway'),
+      'attraction_in_the_area': t('hotel.attractions', 'Nearby Attractions'),
+      'category': t('hotel.category', 'Hotel Category'),
+      'pms_system': t('hotel.pmsSystem', 'PMS System'),
+      'opening_date': t('hotel.openingDate', 'Opening Date'),
+      'latest_renovation_date': t('hotel.renovationDate', 'Latest Renovation Date')
     };
     
     return fieldMappings[fieldName] || fieldName.split('_').map(word => 
@@ -158,18 +160,18 @@ const renderDiff = (change: PendingChange) => {
   if (allKeys.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        <p className="text-lg font-medium mb-4">No Data Available for Comparison</p>
+        <p className="text-lg font-medium mb-4">{t('admin.approvals.noDataTitle')}</p>
         <div className="bg-gray-100 p-4 rounded-lg text-left">
-          <p className="text-sm mb-2"><strong>Change ID:</strong> {change.id}</p>
-          <p className="text-sm mb-2"><strong>Entry Type:</strong> {change.entry_type}</p>
-          <p className="text-sm mb-2"><strong>Entry ID:</strong> {change.entry_id}</p>
-          <p className="text-sm mb-2"><strong>Status:</strong> {change.status}</p>
-          <p className="text-sm mb-2"><strong>Submitted:</strong> {new Date(change.created_at).toLocaleString()}</p>
-          <p className="text-sm mb-2"><strong>Original Data:</strong> {change.original_data ? 'Available' : 'Missing'}</p>
-          <p className="text-sm mb-2"><strong>Change Data:</strong> {change.change_data ? 'Available' : 'Missing'}</p>
+          <p className="text-sm mb-2"><strong>{t('admin.approvals.changeId')}:</strong> {change.id}</p>
+          <p className="text-sm mb-2"><strong>{t('admin.approvals.entryType')}:</strong> {change.entry_type}</p>
+          <p className="text-sm mb-2"><strong>{t('admin.approvals.entryId')}:</strong> {change.entry_id}</p>
+          <p className="text-sm mb-2"><strong>{t('common.status', 'Status')}:</strong> {change.status}</p>
+          <p className="text-sm mb-2"><strong>{t('common.submitted', 'Submitted')}:</strong> {new Date(change.created_at).toLocaleString()}</p>
+          <p className="text-sm mb-2"><strong>{t('admin.approvals.originalData')}:</strong> {change.original_data ? t('common.available', 'Available') : t('common.missing', 'Missing')}</p>
+          <p className="text-sm mb-2"><strong>{t('admin.approvals.changeData')}:</strong> {change.change_data ? t('common.available', 'Available') : t('common.missing', 'Missing')}</p>
         </div>
         <p className="text-xs mt-4 text-gray-500">
-          This change request may have been created before the approval system was fully implemented.
+          {t('admin.approvals.legacyNote')}
         </p>
       </div>
     );
@@ -196,15 +198,17 @@ const renderDiff = (change: PendingChange) => {
       <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-blue-800 mb-2">📋 Change Summary</h3>
+            <h3 className="text-lg font-semibold text-blue-800 mb-2">📋 {t('admin.approvals.changeSummary')}</h3>
             <p className="text-sm text-blue-700">
-              Review the changes below. <span className="font-medium text-red-600">Red text</span> shows removed/changed values, 
-              <span className="font-medium text-green-600"> green text</span> shows new/updated values.
+              {t('admin.approvals.summaryHelp', {
+                red: t('admin.approvals.redText', 'Red'),
+                green: t('admin.approvals.greenText', 'green')
+              })}
             </p>
           </div>
           <div className="text-right">
             <div className="text-2xl font-bold text-blue-600">{changedFields.length}</div>
-            <div className="text-xs text-blue-600 uppercase tracking-wide">Fields Changed</div>
+            <div className="text-xs text-blue-600 uppercase tracking-wide">{t('admin.approvals.fieldsChanged')}</div>
           </div>
         </div>
       </div>
@@ -213,7 +217,7 @@ const renderDiff = (change: PendingChange) => {
       {changedFields.length > 0 && (
         <div className="space-y-4">
           <h4 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">
-            🔄 Changed Fields ({changedFields.length})
+            {t('admin.approvals.changedFields', { count: changedFields.length })}
           </h4>
           {changedFields.map(key => {
             const origVal = original[key];
@@ -227,7 +231,7 @@ const renderDiff = (change: PendingChange) => {
                     {getFieldDisplayName(key)}
                   </h4>
                   <span className="px-3 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded-full border border-orange-200">
-                    Changed
+                    {t('admin.approvals.changed')}
                   </span>
                 </div>
                 
@@ -235,7 +239,7 @@ const renderDiff = (change: PendingChange) => {
                   <div className="space-y-2">
                     <div className="text-xs font-medium text-gray-500 uppercase tracking-wide flex items-center">
                       <span className="mr-2">❌</span>
-                      Original Value
+                      {t('admin.approvals.originalValue')}
                     </div>
                     <div className="p-3 bg-white rounded border border-red-200 shadow-sm">
                       <span className="text-sm text-red-700 font-medium">
@@ -247,7 +251,7 @@ const renderDiff = (change: PendingChange) => {
                   <div className="space-y-2">
                     <div className="text-xs font-medium text-gray-500 uppercase tracking-wide flex items-center">
                       <span className="mr-2">✅</span>
-                      New Value
+                      {t('admin.approvals.newValue')}
                     </div>
                     <div className="p-3 bg-white rounded border border-green-200 shadow-sm">
                       <span className="text-sm text-green-700 font-medium">
@@ -260,7 +264,7 @@ const renderDiff = (change: PendingChange) => {
                 <div className="mt-3 pt-3 border-t border-orange-200">
                   <div className="flex items-center text-xs text-orange-600">
                     <span className="mr-2">🔄</span>
-                    <span>Field updated from <span className="font-medium">"{formatValue(origVal, key)}"</span> to <span className="font-medium">"{formatValue(newVal, key)}"</span></span>
+                    <span>{t('admin.approvals.fieldUpdated', { from: formatValue(origVal, key), to: formatValue(newVal, key) })}</span>
                   </div>
                 </div>
               </div>
@@ -274,14 +278,14 @@ const renderDiff = (change: PendingChange) => {
         <div className="mt-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
           <h4 className="font-medium text-gray-700 mb-2 flex items-center">
             <span className="mr-2">📝</span>
-            Unchanged Fields
+            {t('admin.approvals.unchangedFields')}
           </h4>
           <p className="text-sm text-gray-600">
-            {unchangedFields.length} fields remain unchanged in this update.
+            {t('admin.approvals.unchangedCount', { count: unchangedFields.length })}
           </p>
           <details className="mt-3">
             <summary className="text-sm text-gray-500 cursor-pointer hover:text-gray-700">
-              Click to view unchanged fields
+              {t('admin.approvals.viewUnchanged')}
             </summary>
             <div className="mt-2 grid grid-cols-2 md:grid-cols-3 gap-2">
               {unchangedFields.slice(0, 12).map(key => (
@@ -291,7 +295,7 @@ const renderDiff = (change: PendingChange) => {
               ))}
               {unchangedFields.length > 12 && (
                 <span className="text-xs bg-white px-2 py-1 rounded border text-gray-500">
-                  +{unchangedFields.length - 12} more
+                  +{unchangedFields.length - 12} {t('common.more', 'more')}
                 </span>
               )}
             </div>
@@ -303,6 +307,7 @@ const renderDiff = (change: PendingChange) => {
 };
 
 const PendingApprovalsPage: React.FC = () => {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -320,43 +325,43 @@ const PendingApprovalsPage: React.FC = () => {
       reviewChange(id, status),
     onSuccess: (_, variables) => {
       toast({
-        title: `Change ${variables.status}`,
-        description: `Change has been ${variables.status}.`,
+        title: t('admin.approvals.changeReviewedTitle', { status: t(`admin.approvals.${variables.status}`) }),
+        description: t('admin.approvals.changeReviewedDesc', { status: t(`admin.approvals.${variables.status}`) }),
       });
       queryClient.invalidateQueries({ queryKey: ["pendingChanges"] });
     },
     onError: (err: any) => {
       toast({
-        title: "Error",
-        description: err?.message || "Failed to review change.",
+        title: t('common.error'),
+        description: err?.message || t('admin.approvals.reviewFailed'),
         variant: "destructive",
       });
     },
   });
 
-  if (isPending) return <div>Loading...</div>;
-  if (isError) return <div>Error loading pending approvals.</div>;
+  if (isPending) return <div>{t('common.loading')}</div>;
+  if (isError) return <div>{t('admin.approvals.loadError')}</div>;
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold mb-6">Pending Approvals</h1>
+      <h1 className="text-2xl font-semibold mb-6">{t('admin.approvals.title')}</h1>
       {changes && changes.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 text-center text-muted-foreground gap-4">
           <CheckCircle className="h-12 w-12 text-success" />
-          <p className="text-lg font-medium">No pending approvals</p>
-          <p className="text-sm">Everything is up to date. Great job!</p>
+          <p className="text-lg font-medium">{t('admin.approvals.none')}</p>
+          <p className="text-sm">{t('admin.approvals.allUpToDate')}</p>
         </div>
       )}
       {changes && changes.length > 0 && (
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>ID</TableHead>
-              <TableHead>Entry Type</TableHead>
-              <TableHead>Entry ID</TableHead>
-              <TableHead>Submitted By</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Actions</TableHead>
+              <TableHead>{t('common.id', 'ID')}</TableHead>
+              <TableHead>{t('admin.approvals.entryType')}</TableHead>
+              <TableHead>{t('admin.approvals.entryId')}</TableHead>
+              <TableHead>{t('admin.approvals.submittedBy')}</TableHead>
+              <TableHead>{t('common.date', 'Date')}</TableHead>
+              <TableHead>{t('common.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -375,14 +380,14 @@ const PendingApprovalsPage: React.FC = () => {
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button size="sm" variant="outline">
-                        View
+                        {t('common.view')}
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-5xl max-h-[90vh]">
                       <DialogHeader>
-                        <DialogTitle className="text-xl">Review Change #{change.id}</DialogTitle>
+                        <DialogTitle className="text-xl">{t('admin.approvals.reviewChange', { id: change.id })}</DialogTitle>
                         <DialogDescription className="text-base">
-                          Compare previous and new data below. Approve or reject the change.
+                          {t('admin.approvals.reviewDescription')}
                         </DialogDescription>
                       </DialogHeader>
                       <div className="max-h-[70vh] overflow-y-auto mt-6 px-1">
@@ -395,7 +400,7 @@ const PendingApprovalsPage: React.FC = () => {
                           onClick={() => mutation.mutate({ id: change.id, status: "rejected" })}
                           disabled={mutation.isPending}
                         >
-                          Reject
+                          {t('admin.approvals.reject')}
                         </Button>
                         <Button
                           size="lg"
@@ -403,7 +408,7 @@ const PendingApprovalsPage: React.FC = () => {
                           disabled={mutation.isPending}
                           className="bg-green-600 hover:bg-green-700"
                         >
-                          Approve
+                          {t('admin.approvals.approve')}
                         </Button>
                       </DialogFooter>
                     </DialogContent>

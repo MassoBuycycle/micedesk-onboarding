@@ -40,12 +40,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTranslation } from 'react-i18next';
 
 // Helper functions
 const mbToBytes = (mb: number) => mb * 1024 * 1024;
 const bytesToMB = (bytes: number) => bytes / (1024 * 1024);
 
 export default function FileTypeManager() {
+  const { t } = useTranslation();
   const { data: fileTypes = [], isLoading: loading, error, refetch } = useFileTypes();
   const [categories, setCategories] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<string>("all");
@@ -104,25 +106,25 @@ export default function FileTypeManager() {
     };
     
     if (!formData.name.trim()) {
-      errors.name = 'Name is required';
+      errors.name = t('forms.validation.nameRequired');
       isValid = false;
     }
     
     if (!formData.code.trim()) {
-      errors.code = 'Code is required';
+      errors.code = t('forms.validation.required');
       isValid = false;
     } else if (!/^[a-z0-9_]+$/.test(formData.code)) {
-      errors.code = 'Code must contain only lowercase letters, numbers, and underscores';
+      errors.code = t('admin.files.manager.validation.codeFormat');
       isValid = false;
     }
     
     if (!formData.category.trim()) {
-      errors.category = 'Category is required';
+      errors.category = t('forms.validation.requiredField');
       isValid = false;
     }
     
     if (!formData.allowed_extensions.trim()) {
-      errors.allowed_extensions = 'At least one extension is required';
+      errors.allowed_extensions = t('admin.files.manager.validation.extensionsRequired');
       isValid = false;
     }
     
@@ -148,7 +150,7 @@ export default function FileTypeManager() {
         max_size: mbToBytes(formData.max_size),
       });
       
-      toast.success('File type created successfully');
+      toast.success(t('admin.files.manager.messages.created'));
       setIsModalOpen(false);
       
       // Reset form
@@ -163,7 +165,7 @@ export default function FileTypeManager() {
       // Refresh data
       refetch();
     } catch (error: any) {
-      toast.error(error.message || 'Failed to create file type');
+      toast.error(error.message || t('admin.files.manager.messages.createFailed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -176,7 +178,7 @@ export default function FileTypeManager() {
     try {
       await deleteFileType(fileTypeToDelete.id);
       
-      toast.success('File type deleted successfully');
+      toast.success(t('admin.files.manager.messages.deleted'));
       setFileTypeToDelete(null);
       
       // Refresh data
@@ -184,9 +186,9 @@ export default function FileTypeManager() {
     } catch (error: any) {
       
       if (error.message && error.message.includes('409')) {
-        toast.error('Cannot delete file type that is being used by files');
+        toast.error(t('admin.files.manager.messages.deleteInUse'));
       } else {
-        toast.error(error.message || 'Failed to delete file type');
+        toast.error(error.message || t('admin.files.manager.messages.deleteFailed'));
       }
     } finally {
       setIsDeleting(false);
@@ -205,10 +207,10 @@ export default function FileTypeManager() {
     <div className="space-y-6">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>File Type Management</CardTitle>
+          <CardTitle>{t('admin.files.manager.header')}</CardTitle>
           <Button onClick={() => setIsModalOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
-            Add File Type
+            {t('admin.files.manager.addFileType')}
           </Button>
         </CardHeader>
         <CardContent>
@@ -220,7 +222,7 @@ export default function FileTypeManager() {
                 </TabsTrigger>
               ))}
               {categories.length > 1 && (
-                <TabsTrigger value="all">All</TabsTrigger>
+                <TabsTrigger value="all">{t('common.all')}</TabsTrigger>
               )}
             </TabsList>
             
@@ -230,23 +232,23 @@ export default function FileTypeManager() {
               </div>
             ) : error ? (
               <div className="flex h-32 items-center justify-center">
-                <p className="text-destructive">{error}</p>
+                <p className="text-destructive">{String(error)}</p>
               </div>
             ) : filteredFileTypes.length === 0 ? (
               <div className="flex h-32 items-center justify-center flex-col">
                 <FolderOpen className="h-8 w-8 text-muted-foreground mb-2" />
-                <p className="text-muted-foreground">No file types found</p>
+                <p className="text-muted-foreground">{t('admin.files.manager.empty')}</p>
               </div>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Code</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Extensions</TableHead>
-                    <TableHead>Max Size</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>{t('common.name')}</TableHead>
+                    <TableHead>{t('admin.files.manager.code')}</TableHead>
+                    <TableHead>{t('admin.files.manager.category')}</TableHead>
+                    <TableHead>{t('admin.files.manager.extensions')}</TableHead>
+                    <TableHead>{t('admin.files.manager.maxSize')}</TableHead>
+                    <TableHead className="text-right">{t('common.actions')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -274,9 +276,9 @@ export default function FileTypeManager() {
                           </DialogTrigger>
                           <DialogContent>
                             <DialogHeader>
-                              <DialogTitle>Delete File Type</DialogTitle>
+                              <DialogTitle>{t('admin.files.manager.deleteTitle')}</DialogTitle>
                               <DialogDescription>
-                                Are you sure you want to delete the file type "{fileTypeToDelete?.name}"? This action cannot be undone.
+                                {t('admin.files.manager.deleteDescription', { name: fileTypeToDelete?.name ?? '' })}
                               </DialogDescription>
                             </DialogHeader>
                             <DialogFooter>
@@ -284,7 +286,7 @@ export default function FileTypeManager() {
                                 variant="outline"
                                 onClick={() => setFileTypeToDelete(null)}
                               >
-                                Cancel
+                                {t('common.cancel')}
                               </Button>
                               <Button
                                 variant="destructive"
@@ -294,10 +296,10 @@ export default function FileTypeManager() {
                                 {isDeleting ? (
                                   <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Deleting...
+                                    {t('common.deleting', 'Deleting...')}
                                   </>
                                 ) : (
-                                  'Delete'
+                                  t('common.delete')
                                 )}
                               </Button>
                             </DialogFooter>
@@ -317,21 +319,21 @@ export default function FileTypeManager() {
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Add File Type</DialogTitle>
+            <DialogTitle>{t('admin.files.manager.addFileType')}</DialogTitle>
             <DialogDescription>
-              Create a new file type for document management.
+              {t('admin.files.manager.addDescription')}
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">{t('common.name')}</Label>
                 <Input
                   id="name"
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  placeholder="e.g., Images, Documents"
+                  placeholder={t('admin.files.manager.placeholders.names') as string}
                 />
                 {formErrors.name && (
                   <p className="text-xs text-destructive">{formErrors.name}</p>
@@ -339,16 +341,16 @@ export default function FileTypeManager() {
               </div>
               
               <div className="grid gap-2">
-                <Label htmlFor="code">Code</Label>
+                <Label htmlFor="code">{t('admin.files.manager.code')}</Label>
                 <Input
                   id="code"
                   name="code"
                   value={formData.code}
                   onChange={handleInputChange}
-                  placeholder="e.g., images, documents"
+                  placeholder={t('admin.files.manager.placeholders.code') as string}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Use lowercase letters, numbers, and underscores only
+                  {t('admin.files.manager.codeHelper')}
                 </p>
                 {formErrors.code && (
                   <p className="text-xs text-destructive">{formErrors.code}</p>
@@ -356,22 +358,22 @@ export default function FileTypeManager() {
               </div>
               
               <div className="grid gap-2">
-                <Label htmlFor="category">Category</Label>
+                <Label htmlFor="category">{t('admin.files.manager.category')}</Label>
                 <Select
                   value={formData.category}
                   onValueChange={(val)=>setFormData(prev=>({...prev,category:val}))}
                 >
                   <SelectTrigger id="category" className="w-full">
-                    <SelectValue placeholder="Select category" />
+                    <SelectValue placeholder={t('admin.files.manager.placeholders.category') as string} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="hotel">Hotel</SelectItem>
-                    <SelectItem value="room">Room</SelectItem>
-                    <SelectItem value="room-category-images">Room Category Images</SelectItem>
-                    <SelectItem value="event">Event</SelectItem>
-                    <SelectItem value="fb">Food & Beverage</SelectItem>
-                    <SelectItem value="policy">Policy</SelectItem>
-                    <SelectItem value="contract">Contract</SelectItem>
+                    <SelectItem value="hotel">{t('hotels.title')}</SelectItem>
+                    <SelectItem value="room">{t('rooms.title')}</SelectItem>
+                    <SelectItem value="room-category-images">{t('forms.roomCategories') ?? 'Room Category Images'}</SelectItem>
+                    <SelectItem value="event">{t('events.title')}</SelectItem>
+                    <SelectItem value="fb">{t('foodBeverage.title', 'Food & Beverage')}</SelectItem>
+                    <SelectItem value="policy">{t('policies.title')}</SelectItem>
+                    <SelectItem value="contract">{t('contract.title')}</SelectItem>
                   </SelectContent>
                 </Select>
                 {formErrors.category && (
@@ -380,16 +382,16 @@ export default function FileTypeManager() {
               </div>
               
               <div className="grid gap-2">
-                <Label htmlFor="allowed_extensions">Allowed Extensions</Label>
+                <Label htmlFor="allowed_extensions">{t('admin.files.manager.allowedExtensions')}</Label>
                 <Input
                   id="allowed_extensions"
                   name="allowed_extensions"
                   value={formData.allowed_extensions}
                   onChange={handleInputChange}
-                  placeholder="e.g., jpg, jpeg, png"
+                  placeholder={t('admin.files.manager.placeholders.extensions') as string}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Comma-separated list of extensions without dots
+                  {t('admin.files.manager.extensionsHelper')}
                 </p>
                 {formErrors.allowed_extensions && (
                   <p className="text-xs text-destructive">{formErrors.allowed_extensions}</p>
@@ -397,7 +399,7 @@ export default function FileTypeManager() {
               </div>
               
               <div className="grid gap-2">
-                <Label htmlFor="max_size">Max Size (MB)</Label>
+                <Label htmlFor="max_size">{t('admin.files.manager.maxSize')} (MB)</Label>
                 <Input
                   id="max_size"
                   name="max_size"
@@ -411,16 +413,16 @@ export default function FileTypeManager() {
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
+                    {t('common.saving', 'Saving...')}
                   </>
                 ) : (
-                  'Save'
+                  t('common.save')
                 )}
               </Button>
             </DialogFooter>
