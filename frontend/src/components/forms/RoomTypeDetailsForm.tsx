@@ -9,6 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDes
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { RoomTypeInput } from '@/apiClient/roomsApi'; // Ensure correct path
 import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 // Schema for RoomTypeInput - ensure it matches the API expected structure
 const roomTypeDetailsSchema = z.object({
@@ -36,6 +37,7 @@ const RoomTypeDetailsForm: React.FC<RoomTypeDetailsFormProps> = ({
   onPrevious, 
   onChange 
 }) => {
+  const { t } = useTranslation();
   const form = useForm<RoomTypeDetailsFormValues>({
     resolver: zodResolver(roomTypeDetailsSchema.omit({ hotel_id: true })), // Omit hotel_id from form validation directly
     defaultValues: {
@@ -65,8 +67,8 @@ const RoomTypeDetailsForm: React.FC<RoomTypeDetailsFormProps> = ({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Room Type Details</CardTitle>
-            <CardDescription>Define the basic details for this room type.</CardDescription>
+            <CardTitle>{t('rooms.roomTypeDetails.title', { defaultValue: 'Room Type Details' })}</CardTitle>
+            <CardDescription>{t('rooms.roomTypeDetails.subtitle', { defaultValue: 'Define the basic details for this room type.' })}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <FormField
@@ -74,9 +76,9 @@ const RoomTypeDetailsForm: React.FC<RoomTypeDetailsFormProps> = ({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Room Type Name*</FormLabel>
+                  <FormLabel>{t('rooms.roomTypeDetails.nameLabel', { defaultValue: 'Room Type Name*' })}</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Standard Double, Deluxe Suite" {...field} />
+                    <Input placeholder={t('rooms.roomTypeDetails.namePlaceholder', { defaultValue: 'e.g., Standard Double, Deluxe Suite' })} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -88,9 +90,9 @@ const RoomTypeDetailsForm: React.FC<RoomTypeDetailsFormProps> = ({
               name="max_occupancy"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Maximum Occupancy*</FormLabel>
+                  <FormLabel>{t('rooms.roomTypeDetails.maxOccupancyLabel', { defaultValue: 'Maximum Occupancy*' })}</FormLabel>
                   <FormControl>
-                    <Input type="number" min="1" placeholder="e.g., 2" {...field} />
+                    <Input type="number" min="1" placeholder={t('rooms.roomTypeDetails.maxOccupancyPlaceholder', { defaultValue: 'e.g., 2' })} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -102,9 +104,9 @@ const RoomTypeDetailsForm: React.FC<RoomTypeDetailsFormProps> = ({
               name="base_price"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Base Price (per night)*</FormLabel>
+                  <FormLabel>{t('rooms.roomTypeDetails.basePriceLabel', { defaultValue: 'Base Price (per night)*' })}</FormLabel>
                   <FormControl>
-                    <Input type="number" min="0" step="0.01" placeholder="e.g., 99.90" {...field} />
+                    <Input type="number" min="0" step="0.01" placeholder={t('rooms.roomTypeDetails.basePricePlaceholder', { defaultValue: 'e.g., 99.90' })} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -116,9 +118,9 @@ const RoomTypeDetailsForm: React.FC<RoomTypeDetailsFormProps> = ({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>{t('common.description')}</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Describe this room type..." {...field} />
+                    <Textarea placeholder={t('rooms.roomTypeDetails.descriptionPlaceholder', { defaultValue: 'Describe this room type...' })} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

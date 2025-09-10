@@ -11,35 +11,54 @@ export const getInformationPoliciesByHotel = async (req, res, next) => {
   try {
     const { systemHotelId } = req.params;
     
-    const [policies] = await connection.query(`
+    const [rows] = await connection.query(`
       SELECT 
         ip.*,
-        JSON_ARRAYAGG(
-          JSON_OBJECT(
-            'id', ipi.id,
-            'title', ipi.title,
-            'is_condition', ipi.is_condition,
-            'details', (
-              SELECT JSON_ARRAYAGG(
-                JSON_OBJECT(
-                  'id', ipid.id,
-                  'name', ipid.name,
-                  'description', ipid.description,
-                  'default', ipid.default
-                )
+        COALESCE(
+          JSON_ARRAYAGG(
+            CASE WHEN ipi.id IS NOT NULL THEN JSON_OBJECT(
+              'id', ipi.id,
+              'title', ipi.title,
+              'is_condition', ipi.is_condition,
+              'details', (
+                SELECT COALESCE(
+                  JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                      'id', ipid.id,
+                      'name', ipid.name,
+                      'description', ipid.description,
+                      'default', ipid.\`default\`
+                    )
+                  ), JSON_ARRAY())
+                FROM information_policy_item_details ipid
+                WHERE ipid.information_policy_item_id = ipi.id
               )
-              FROM information_policy_item_details ipid
-              WHERE ipid.information_policy_item_id = ipi.id
-            )
-          )
-        ) as items
+            ) END
+          ), JSON_ARRAY()) as items
       FROM information_policies ip
       LEFT JOIN information_policy_items ipi ON ip.id = ipi.information_policy_id
       WHERE ip.system_hotel_id = ?
       GROUP BY ip.id
       ORDER BY ip.type, ip.created_at
     `, [systemHotelId]);
-    
+
+    const policies = rows.map((row) => {
+      let items = row.items;
+      if (typeof items === 'string') {
+        try { items = JSON.parse(items); } catch { items = []; }
+      }
+      if (!Array.isArray(items)) items = [];
+      items = items.filter(Boolean).map((item) => {
+        let details = item.details;
+        if (typeof details === 'string') {
+          try { details = JSON.parse(details); } catch { details = []; }
+        }
+        if (!Array.isArray(details)) details = [];
+        return { ...item, details };
+      });
+      return { ...row, items };
+    });
+
     res.status(200).json(policies);
   } catch (error) {
     next(error);
@@ -59,35 +78,54 @@ export const getInformationPoliciesByType = async (req, res, next) => {
   try {
     const { systemHotelId, type } = req.params;
     
-    const [policies] = await connection.query(`
+    const [rows] = await connection.query(`
       SELECT 
         ip.*,
-        JSON_ARRAYAGG(
-          JSON_OBJECT(
-            'id', ipi.id,
-            'title', ipi.title,
-            'is_condition', ipi.is_condition,
-            'details', (
-              SELECT JSON_ARRAYAGG(
-                JSON_OBJECT(
-                  'id', ipid.id,
-                  'name', ipid.name,
-                  'description', ipid.description,
-                  'default', ipid.default
-                )
+        COALESCE(
+          JSON_ARRAYAGG(
+            CASE WHEN ipi.id IS NOT NULL THEN JSON_OBJECT(
+              'id', ipi.id,
+              'title', ipi.title,
+              'is_condition', ipi.is_condition,
+              'details', (
+                SELECT COALESCE(
+                  JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                      'id', ipid.id,
+                      'name', ipid.name,
+                      'description', ipid.description,
+                      'default', ipid.\`default\`
+                    )
+                  ), JSON_ARRAY())
+                FROM information_policy_item_details ipid
+                WHERE ipid.information_policy_item_id = ipi.id
               )
-              FROM information_policy_item_details ipid
-              WHERE ipid.information_policy_item_id = ipi.id
-            )
-          )
-        ) as items
+            ) END
+          ), JSON_ARRAY()) as items
       FROM information_policies ip
       LEFT JOIN information_policy_items ipi ON ip.id = ipi.information_policy_id
       WHERE ip.system_hotel_id = ? AND ip.type = ?
       GROUP BY ip.id
       ORDER BY ip.created_at
     `, [systemHotelId, type]);
-    
+
+    const policies = rows.map((row) => {
+      let items = row.items;
+      if (typeof items === 'string') {
+        try { items = JSON.parse(items); } catch { items = []; }
+      }
+      if (!Array.isArray(items)) items = [];
+      items = items.filter(Boolean).map((item) => {
+        let details = item.details;
+        if (typeof details === 'string') {
+          try { details = JSON.parse(details); } catch { details = []; }
+        }
+        if (!Array.isArray(details)) details = [];
+        return { ...item, details };
+      });
+      return { ...row, items };
+    });
+
     res.status(200).json(policies);
   } catch (error) {
     next(error);

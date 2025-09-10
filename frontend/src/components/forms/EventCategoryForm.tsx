@@ -8,6 +8,7 @@ import { Calendar, Plus, Save, Trash, ArrowLeft, ArrowRight } from "lucide-react
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { useTranslation } from 'react-i18next';
 
 // Define the event space type
 interface EventSpace {
@@ -32,6 +33,7 @@ interface EventCategoryFormProps {
 }
 
 const EventCategoryForm = ({ initialData = [], selectedHotel, onNext, onPrevious, onChange }: EventCategoryFormProps) => {
+  const { t } = useTranslation();
   // Use initialData if provided, otherwise start with one empty category
   const [eventSpaces, setEventSpaces] = useState<EventSpace[]>(
     initialData.length > 0 
@@ -48,6 +50,52 @@ const EventCategoryForm = ({ initialData = [], selectedHotel, onNext, onPrevious
           features: []
         }]
   );
+
+  const FEATURE_OPTIONS = [
+    "Natural Light",
+    "Blackout Capability",
+    "Built-in AV",
+    "Stage",
+    "Dance Floor",
+    "Podium",
+    "WiFi",
+    "Teleconferencing",
+    "Breakout Rooms",
+    "Private Entrance",
+    "Outdoor Access",
+    "Wheelchair Accessible"
+  ];
+
+  const getFeatureLabel = (feature: string) => {
+    switch (feature) {
+      case "Natural Light":
+        return t('eventFeatures.naturalLight');
+      case "Blackout Capability":
+        return t('eventFeatures.blackoutCapability');
+      case "Built-in AV":
+        return t('eventFeatures.builtInAv');
+      case "Stage":
+        return t('eventFeatures.stage');
+      case "Dance Floor":
+        return t('eventFeatures.danceFloor');
+      case "Podium":
+        return t('eventFeatures.podium');
+      case "WiFi":
+        return t('eventFeatures.wifi');
+      case "Teleconferencing":
+        return t('eventFeatures.teleconferencing');
+      case "Breakout Rooms":
+        return t('eventFeatures.breakoutRooms');
+      case "Private Entrance":
+        return t('eventFeatures.privateEntrance');
+      case "Outdoor Access":
+        return t('eventFeatures.outdoorAccess');
+      case "Wheelchair Accessible":
+        return t('eventFeatures.wheelchairAccessible');
+      default:
+        return feature;
+    }
+  };
 
   // Function to add a new event space
   const addEventSpace = () => {
@@ -77,7 +125,7 @@ const EventCategoryForm = ({ initialData = [], selectedHotel, onNext, onPrevious
   // Function to remove an event space
   const removeEventSpace = (id: string) => {
     if (eventSpaces.length === 1) {
-      toast.error("You must have at least one event space");
+      toast.error(t('events.eventForm.spaces.mustHaveOne'));
       return;
     }
     
@@ -112,7 +160,7 @@ const EventCategoryForm = ({ initialData = [], selectedHotel, onNext, onPrevious
     );
 
     if (!isValid) {
-      toast.error("Please fill in all required fields for all event spaces");
+      toast.error(t('events.eventForm.spaces.validationRequired'));
       return;
     }
 
@@ -157,13 +205,13 @@ const EventCategoryForm = ({ initialData = [], selectedHotel, onNext, onPrevious
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Event Spaces</h2>
+          <h2 className="text-2xl font-bold">{t('events.eventForm.spaces.title')}</h2>
           <p className="text-muted-foreground">
-            Define event spaces and their characteristics for {selectedHotel.name || "this hotel"}
+            {t('events.eventForm.spaces.subtitle')} {selectedHotel.name || t('common.thisHotel')}
           </p>
         </div>
         <Button onClick={addEventSpace} variant="outline" className="flex items-center gap-1">
-          <Plus className="h-4 w-4" /> Add Event Space
+          <Plus className="h-4 w-4" /> {t('events.eventForm.spaces.addSpace')}
         </Button>
       </div>
 
@@ -173,7 +221,7 @@ const EventCategoryForm = ({ initialData = [], selectedHotel, onNext, onPrevious
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <Calendar className="h-5 w-5 text-primary" />
-                <CardTitle className="text-xl">Event Space {index + 1}</CardTitle>
+                <CardTitle className="text-xl">{t('events.eventForm.spaces.spaceNumber')} {index + 1}</CardTitle>
               </div>
               {eventSpaces.length > 1 && (
                 <Button 
@@ -187,89 +235,89 @@ const EventCategoryForm = ({ initialData = [], selectedHotel, onNext, onPrevious
               )}
             </div>
             <CardDescription>
-              Enter the details for this event space
+              {t('events.eventForm.spaces.enterDetails')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor={`name-${space.id}`}>Space Name*</Label>
+                <Label htmlFor={`name-${space.id}`}>{t('events.eventForm.spaces.spaceName')}*</Label>
                 <Input 
                   id={`name-${space.id}`} 
-                  placeholder="e.g., Grand Ballroom, Conference Room A" 
+                  placeholder={t('events.eventForm.spaces.spaceNamePlaceholder')} 
                   value={space.name}
                   onChange={(e) => updateEventSpace(space.id, "name", e.target.value)}
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor={`capacity-${space.id}`}>Maximum Capacity*</Label>
+                <Label htmlFor={`capacity-${space.id}`}>{t('events.eventForm.spaces.maximumCapacity')}*</Label>
                 <Input 
                   id={`capacity-${space.id}`} 
                   type="number" 
-                  placeholder="Maximum number of attendees" 
+                  placeholder={t('events.eventForm.spaces.maximumCapacityPlaceholder')} 
                   value={space.capacity}
                   onChange={(e) => updateEventSpace(space.id, "capacity", e.target.value)}
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor={`size-${space.id}`}>Size (sqm)</Label>
+                <Label htmlFor={`size-${space.id}`}>{t('events.eventForm.spaces.sizeSquareMeters')}</Label>
                 <Input 
                   id={`size-${space.id}`} 
-                  placeholder="Space size in square meters" 
+                  placeholder={t('events.eventForm.spaces.sizePlaceholder')} 
                   value={space.size}
                   onChange={(e) => updateEventSpace(space.id, "size", e.target.value)}
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor={`ceiling-${space.id}`}>Ceiling Height (m)</Label>
+                <Label htmlFor={`ceiling-${space.id}`}>{t('events.eventForm.spaces.ceilingHeight')} (m)</Label>
                 <Input 
                   id={`ceiling-${space.id}`} 
-                  placeholder="Ceiling height in meters" 
+                  placeholder={t('events.eventForm.spaces.ceilingHeightPlaceholder')} 
                   value={space.ceiling}
                   onChange={(e) => updateEventSpace(space.id, "ceiling", e.target.value)}
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor={`layout-${space.id}`}>Available Layouts</Label>
+                <Label htmlFor={`layout-${space.id}`}>{t('events.eventForm.spaces.availableLayouts')}</Label>
                 <Select 
                   value={space.layout} 
                   onValueChange={(value) => updateEventSpace(space.id, "layout", value)}
                 >
                   <SelectTrigger id={`layout-${space.id}`}>
-                    <SelectValue placeholder="Select primary layout" />
+                    <SelectValue placeholder={t('events.eventForm.spaces.selectPrimaryLayout')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="theater">Theater</SelectItem>
-                    <SelectItem value="classroom">Classroom</SelectItem>
-                    <SelectItem value="boardroom">Boardroom</SelectItem>
-                    <SelectItem value="u-shape">U-Shape</SelectItem>
-                    <SelectItem value="banquet">Banquet</SelectItem>
-                    <SelectItem value="reception">Reception</SelectItem>
-                    <SelectItem value="hollow-square">Hollow Square</SelectItem>
+                    <SelectItem value="theater">{t('events.eventForm.spaces.theatre')}</SelectItem>
+                    <SelectItem value="classroom">{t('events.eventForm.spaces.classroom')}</SelectItem>
+                    <SelectItem value="boardroom">{t('events.eventForm.spaces.boardroom')}</SelectItem>
+                    <SelectItem value="u-shape">{t('events.eventForm.spaces.uShape')}</SelectItem>
+                    <SelectItem value="banquet">{t('events.eventForm.spaces.banquet')}</SelectItem>
+                    <SelectItem value="reception">{t('events.eventForm.spaces.reception')}</SelectItem>
+                    <SelectItem value="hollow-square">{t('events.eventForm.spaces.hollowSquare')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor={`price-${space.id}`}>Base Price (€)</Label>
+                <Label htmlFor={`price-${space.id}`}>{t('events.eventForm.spaces.basePrice')}</Label>
                 <Input 
                   id={`price-${space.id}`} 
                   type="number" 
-                  placeholder="Base rate per day" 
+                  placeholder={t('events.eventForm.spaces.basePricePlaceholder')} 
                   value={space.price}
                   onChange={(e) => updateEventSpace(space.id, "price", e.target.value)}
                 />
               </div>
               
               <div className="space-y-2 col-span-2">
-                <Label htmlFor={`description-${space.id}`}>Description</Label>
+                <Label htmlFor={`description-${space.id}`}>{t('events.eventForm.spaces.description')}</Label>
                 <Textarea 
                   id={`description-${space.id}`} 
-                  placeholder="Detailed description of this event space" 
+                  placeholder={t('events.eventForm.spaces.descriptionPlaceholder')} 
                   value={space.description}
                   onChange={(e) => updateEventSpace(space.id, "description", e.target.value)}
                   className="min-h-[100px]"
@@ -278,10 +326,9 @@ const EventCategoryForm = ({ initialData = [], selectedHotel, onNext, onPrevious
             </div>
 
             <div className="space-y-2">
-              <Label>Available Features</Label>
+              <Label>{t('events.eventForm.spaces.availableFeatures')}</Label>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                {["Natural Light", "Blackout Capability", "Built-in AV", "Stage", "Dance Floor", "Podium", "WiFi", "Teleconferencing", 
-                  "Breakout Rooms", "Private Entrance", "Outdoor Access", "Wheelchair Accessible"].map(feature => (
+                {FEATURE_OPTIONS.map(feature => (
                   <div key={`${space.id}-${feature}`} className="flex items-center space-x-2">
                     <input 
                       type="checkbox"
@@ -291,7 +338,7 @@ const EventCategoryForm = ({ initialData = [], selectedHotel, onNext, onPrevious
                       className="rounded border-gray-300 text-primary focus:ring-primary"
                     />
                     <Label htmlFor={`${space.id}-${feature}`} className="text-sm font-normal">
-                      {feature}
+                      {getFeatureLabel(feature)}
                     </Label>
                   </div>
                 ))}

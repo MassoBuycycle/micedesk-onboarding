@@ -58,7 +58,8 @@
     "download": "Herunterladen",
     "createdAt": "Erstellt am",
     "saved": "Gespeichert",
-    "saveFailed": "Speichern fehlgeschlagen"
+    "saveFailed": "Speichern fehlgeschlagen",
+    "thisHotel": "dieses Hotel"
   },
   "pages": {
     "index": {
@@ -688,14 +689,32 @@
     "coordinatorContact": "Kontakt des Koordinators",
     "eventCoordinator": "Veranstaltungskoordinator verfügbar",
     "audioVisual": "Audio/Visuelle Ausstattung",
+    "availableEquipment": "Verfügbare Ausstattung",
     "catering": "Catering-Services",
     "outdoorSpace": "Außenbereich für Veranstaltungen",
+    "outdoorSpaceDescription": "Details zum Außenbereich",
     "restrictions": "Einschränkungen",
     "packages": "Veranstaltungspakete",
     "uniqueSellingPoints": "Alleinstellungsmerkmale",
     "available": "Verfügbar",
     "notAvailable": "Nicht verfügbar",
+    "persons": "Personen",
     "overview": "Veranstaltungen-Übersicht",
+    "overviewDescription": "Grundlegende Informationen zu den Veranstaltungs­möglichkeiten des Hotels",
+    "generalInfoSubtitle": "Geben Sie allgemeine Veranstaltungsinformationen für {{hotelName}} ein",
+    "placeholders": {
+      "totalSpaces": "Anzahl der Veranstaltungsräume",
+      "largestSpace": "Größe des größten Veranstaltungsraums",
+      "maxCapacity": "Max. Anzahl der Teilnehmer",
+      "coordinatorName": "Name des Veranstaltungskoordinators",
+      "coordinatorContact": "E-Mail oder Telefonnummer",
+      "audioVisualEquipment": "Verfügbare A/V-Ausstattung auflisten",
+      "cateringOptions": "Verfügbare Catering-Optionen beschreiben",
+      "outdoorSpaceDescription": "Außenbereiche für Veranstaltungen beschreiben",
+      "eventRestrictions": "Beschränkungen (z.B. Lärm, Zeiten, Arten)",
+      "eventPackages": "Verfügbare Veranstaltungspakete beschreiben",
+      "uniqueSellingPoints": "Was macht Ihre Veranstaltungsräume besonders?"
+    },
     "eventForm": {
       "contact": {
         "sectionTitle": "Ansprechpartner Veranstaltung",
@@ -794,12 +813,21 @@
         "maximumCapacityPlaceholder": "Maximale Anzahl der Teilnehmer",
         "sizeSquareMeters": "Größe (qm)",
         "sizePlaceholder": "Raumgröße in Quadratmetern",
+        "ceilingHeight": "Deckenhöhe",
+        "ceilingHeightPlaceholder": "Deckenhöhe in Metern",
         "dimensions": "Abmessungen",
         "dimensionsPlaceholder": "Abmessungen (z.B. 10m x 15m)",
         "dailyRate": "Tagesrate (€)",
         "dailyRatePlaceholder": "Grundpreis pro Tag",
         "halfDayRate": "Halbtagesrate (€)",
         "halfDayRatePlaceholder": "Grundpreis für halben Tag",
+        "availableLayouts": "Verfügbare Bestuhlungen",
+        "selectPrimaryLayout": "Primäre Bestuhlung auswählen",
+        "banquet": "Bankett",
+        "reception": "Empfang",
+        "hollowSquare": "Hollow Square",
+        "basePrice": "Basispreis (€)",
+        "basePricePlaceholder": "Grundrate pro Tag",
         "description": "Beschreibung",
         "descriptionPlaceholder": "Detaillierte Beschreibung dieses Veranstaltungsraums",
         "seatingCapacities": "Bestuhlung",
@@ -814,7 +842,18 @@
         "cabaret": "Cabaret",
         "cocktail": "Empfang",
         "validationRequired": "Bitte geben Sie einen Namen für alle Veranstaltungsräume an",
-        "mustHaveOne": "Sie müssen mindestens einen Veranstaltungsraum haben"
+        "mustHaveOne": "Sie müssen mindestens einen Veranstaltungsraum haben",
+        "availableFeatures": "Verfügbare Ausstattung"
+      },
+      "preview": {
+        "noEventSpaces": "Noch keine Veranstaltungsräume hinzugefügt",
+        "dimensions": "Abmessungen",
+        "seatingCapacities": "Bestuhlungs­kapazitäten",
+        "technicalInfo": "Technische Infos",
+        "wifi": "WLAN",
+        "beamer": "Beamer",
+        "lumens": "Lumen",
+        "software": "Software"
       }
     }
   },
@@ -824,6 +863,20 @@
   "files": {
     "noImagesFound": "Keine Bilder gefunden",
     "noDocumentsFound": "Keine Dokumente gefunden"
+  },
+  "eventFeatures": {
+    "naturalLight": "Tageslicht",
+    "blackoutCapability": "Verdunkelungsmöglichkeit",
+    "builtInAv": "Eingebautes AV",
+    "stage": "Bühne",
+    "danceFloor": "Tanzfläche",
+    "podium": "Podium",
+    "wifi": "WLAN",
+    "teleconferencing": "Telekonferenz",
+    "breakoutRooms": "Breakout-Räume",
+    "privateEntrance": "Privater Eingang",
+    "outdoorAccess": "Zugang nach draußen",
+    "wheelchairAccessible": "Rollstuhlgerecht"
   },
   "announcements": {
     "title": "Ankündigungen",

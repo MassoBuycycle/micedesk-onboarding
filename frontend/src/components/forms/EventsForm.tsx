@@ -8,6 +8,7 @@ import { Calendar, ArrowLeft, ArrowRight } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { useTranslation } from 'react-i18next';
 
 // Define events info type
 interface EventsInfo {
@@ -38,6 +39,7 @@ interface EventsFormProps {
 }
 
 const EventsForm = ({ initialData = {}, selectedHotel, onNext, onPrevious, onChange }: EventsFormProps) => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState<EventsInfo>({
     totalEventSpaces: "",
     largestSpace: "",
@@ -74,7 +76,7 @@ const EventsForm = ({ initialData = {}, selectedHotel, onNext, onPrevious, onCha
   const handleNext = () => {
     // Basic validation
     if (!formData.totalEventSpaces) {
-      toast.error("Total event spaces is required");
+      toast.error(t('forms.validation.requiredField'));
       return;
     }
 
@@ -105,9 +107,9 @@ const EventsForm = ({ initialData = {}, selectedHotel, onNext, onPrevious, onCha
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold">Events Information</h2>
+        <h2 className="text-2xl font-bold">{t('events.generalInfo')}</h2>
         <p className="text-muted-foreground">
-          Enter general event information for {selectedHotel.name || "this hotel"}
+          {t('events.generalInfoSubtitle', { hotelName: selectedHotel?.name || t('common.thisHotel') })}
         </p>
       </div>
 
@@ -116,8 +118,8 @@ const EventsForm = ({ initialData = {}, selectedHotel, onNext, onPrevious, onCha
           <div className="flex items-center space-x-3">
             <Calendar className="h-5 w-5 text-primary" />
             <div>
-              <CardTitle>Event Spaces Overview</CardTitle>
-              <CardDescription>Basic information about the hotel's event capabilities</CardDescription>
+              <CardTitle>{t('events.overview')}</CardTitle>
+              <CardDescription>{t('events.overviewDescription')}</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -125,32 +127,32 @@ const EventsForm = ({ initialData = {}, selectedHotel, onNext, onPrevious, onCha
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="totalEventSpaces">Total Event Spaces*</Label>
+              <Label htmlFor="totalEventSpaces">{t('events.totalSpaces')}*</Label>
               <Input 
                 id="totalEventSpaces" 
                 type="number" 
                 min="0" 
-                placeholder="Number of event spaces" 
+                placeholder={t('events.placeholders.totalSpaces')}
                 value={formData.totalEventSpaces}
                 onChange={(e) => updateField("totalEventSpaces", e.target.value)}
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="largestSpace">Largest Space (sqm)</Label>
+              <Label htmlFor="largestSpace">{t('events.largestSpace')} (qm)</Label>
               <Input 
                 id="largestSpace" 
-                placeholder="Size of largest event space" 
+                placeholder={t('events.placeholders.largestSpace')}
                 value={formData.largestSpace}
                 onChange={(e) => updateField("largestSpace", e.target.value)}
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="maxCapacity">Maximum Capacity</Label>
+              <Label htmlFor="maxCapacity">{t('events.maxCapacity')}</Label>
               <Input 
                 id="maxCapacity" 
-                placeholder="Max. number of attendees" 
+                placeholder={t('events.placeholders.maxCapacity')}
                 value={formData.maxCapacity}
                 onChange={(e) => updateField("maxCapacity", e.target.value)}
               />
@@ -160,7 +162,7 @@ const EventsForm = ({ initialData = {}, selectedHotel, onNext, onPrevious, onCha
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label htmlFor="eventCoordinator">Dedicated Event Coordinator</Label>
+                <Label htmlFor="eventCoordinator">{t('events.eventCoordinator')}</Label>
                 <Switch 
                   id="eventCoordinator" 
                   checked={formData.eventCoordinator}
@@ -171,20 +173,20 @@ const EventsForm = ({ initialData = {}, selectedHotel, onNext, onPrevious, onCha
               {formData.eventCoordinator && (
                 <div className="space-y-4 pl-6 border-l-2 border-primary/20">
                   <div className="space-y-2">
-                    <Label htmlFor="coordinatorName">Coordinator Name</Label>
+                    <Label htmlFor="coordinatorName">{t('events.coordinatorName')}</Label>
                     <Input 
                       id="coordinatorName" 
-                      placeholder="Name of event coordinator" 
+                      placeholder={t('events.placeholders.coordinatorName')}
                       value={formData.coordinatorName}
                       onChange={(e) => updateField("coordinatorName", e.target.value)}
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="coordinatorContact">Coordinator Contact</Label>
+                    <Label htmlFor="coordinatorContact">{t('events.coordinatorContact')}</Label>
                     <Input 
                       id="coordinatorContact" 
-                      placeholder="Email or phone number" 
+                      placeholder={t('events.placeholders.coordinatorContact')}
                       value={formData.coordinatorContact}
                       onChange={(e) => updateField("coordinatorContact", e.target.value)}
                     />
@@ -195,7 +197,7 @@ const EventsForm = ({ initialData = {}, selectedHotel, onNext, onPrevious, onCha
             
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label htmlFor="hasAudioVisual">Audio/Visual Equipment</Label>
+                <Label htmlFor="hasAudioVisual">{t('events.audioVisual')}</Label>
                 <Switch 
                   id="hasAudioVisual" 
                   checked={formData.hasAudioVisual}
@@ -205,10 +207,10 @@ const EventsForm = ({ initialData = {}, selectedHotel, onNext, onPrevious, onCha
               
               {formData.hasAudioVisual && (
                 <div className="space-y-2 pl-6 border-l-2 border-primary/20">
-                  <Label htmlFor="audioVisualEquipment">Available Equipment</Label>
+                  <Label htmlFor="audioVisualEquipment">{t('events.availableEquipment')}</Label>
                   <Textarea 
                     id="audioVisualEquipment" 
-                    placeholder="List available A/V equipment" 
+                    placeholder={t('events.placeholders.audioVisualEquipment')}
                     value={formData.audioVisualEquipment}
                     onChange={(e) => updateField("audioVisualEquipment", e.target.value)}
                   />
@@ -218,7 +220,7 @@ const EventsForm = ({ initialData = {}, selectedHotel, onNext, onPrevious, onCha
             
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label htmlFor="cateringAvailable">Catering Services</Label>
+                <Label htmlFor="cateringAvailable">{t('events.catering')}</Label>
                 <Switch 
                   id="cateringAvailable" 
                   checked={formData.cateringAvailable}
@@ -228,10 +230,10 @@ const EventsForm = ({ initialData = {}, selectedHotel, onNext, onPrevious, onCha
               
               {formData.cateringAvailable && (
                 <div className="space-y-2 pl-6 border-l-2 border-primary/20">
-                  <Label htmlFor="cateringOptions">Catering Options</Label>
+                  <Label htmlFor="cateringOptions">{t('events.cateringOptions')}</Label>
                   <Textarea 
                     id="cateringOptions" 
-                    placeholder="Describe available catering options" 
+                    placeholder={t('events.placeholders.cateringOptions')}
                     value={formData.cateringOptions}
                     onChange={(e) => updateField("cateringOptions", e.target.value)}
                   />
@@ -241,7 +243,7 @@ const EventsForm = ({ initialData = {}, selectedHotel, onNext, onPrevious, onCha
             
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label htmlFor="outdoorSpaceAvailable">Outdoor Event Space</Label>
+                <Label htmlFor="outdoorSpaceAvailable">{t('events.outdoorSpace')}</Label>
                 <Switch 
                   id="outdoorSpaceAvailable" 
                   checked={formData.outdoorSpaceAvailable}
@@ -251,10 +253,10 @@ const EventsForm = ({ initialData = {}, selectedHotel, onNext, onPrevious, onCha
               
               {formData.outdoorSpaceAvailable && (
                 <div className="space-y-2 pl-6 border-l-2 border-primary/20">
-                  <Label htmlFor="outdoorSpaceDescription">Outdoor Space Details</Label>
+                  <Label htmlFor="outdoorSpaceDescription">{t('events.outdoorSpaceDescription')}</Label>
                   <Textarea 
                     id="outdoorSpaceDescription" 
-                    placeholder="Describe outdoor event spaces" 
+                    placeholder={t('events.placeholders.outdoorSpaceDescription')}
                     value={formData.outdoorSpaceDescription}
                     onChange={(e) => updateField("outdoorSpaceDescription", e.target.value)}
                   />
@@ -263,20 +265,20 @@ const EventsForm = ({ initialData = {}, selectedHotel, onNext, onPrevious, onCha
             </div>
             
             <div className="space-y-2 col-span-2">
-              <Label htmlFor="eventRestrictions">Event Restrictions</Label>
+              <Label htmlFor="eventRestrictions">{t('events.restrictions')}</Label>
               <Textarea 
                 id="eventRestrictions" 
-                placeholder="List any restrictions for events (e.g., noise, hours, types)" 
+                placeholder={t('events.placeholders.eventRestrictions')}
                 value={formData.eventRestrictions}
                 onChange={(e) => updateField("eventRestrictions", e.target.value)}
               />
             </div>
             
             <div className="space-y-2 col-span-2">
-              <Label htmlFor="eventPackages">Event Packages</Label>
+              <Label htmlFor="eventPackages">{t('events.packages')}</Label>
               <Textarea 
                 id="eventPackages" 
-                placeholder="Describe available event packages" 
+                placeholder={t('events.placeholders.eventPackages')}
                 value={formData.eventPackages}
                 onChange={(e) => updateField("eventPackages", e.target.value)}
                 className="min-h-[100px]"
@@ -284,10 +286,10 @@ const EventsForm = ({ initialData = {}, selectedHotel, onNext, onPrevious, onCha
             </div>
             
             <div className="space-y-2 col-span-2">
-              <Label htmlFor="uniqueSellingPoints">Unique Selling Points</Label>
+              <Label htmlFor="uniqueSellingPoints">{t('events.uniqueSellingPoints')}</Label>
               <Textarea 
                 id="uniqueSellingPoints" 
-                placeholder="What makes your event spaces special?" 
+                placeholder={t('events.placeholders.uniqueSellingPoints')}
                 value={formData.uniqueSellingPoints}
                 onChange={(e) => updateField("uniqueSellingPoints", e.target.value)}
                 className="min-h-[100px]"
