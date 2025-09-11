@@ -245,19 +245,23 @@ export const getHotelsOverview = async (req, res, next) => {
     let mainImageMap = new Map();
     try {
       const [imageRows] = await connection.query(
-        `SELECT f.entity_id AS hotel_id, f.storage_path
+        `SELECT f.entity_id AS hotel_id, f.storage_path, f.mime_type,
+                ft.code AS file_type_code, ft.category AS file_type_category
          FROM files f
-         JOIN file_types ft ON ft.id = f.file_type_id
+         LEFT JOIN file_types ft ON ft.id = f.file_type_id
          WHERE f.entity_type = 'hotels'
            AND f.entity_id IN (?)
-           AND f.mime_type LIKE 'image/%'
          ORDER BY f.created_at DESC`,
         [hotelIds]
       );
 
-      // Keep latest per hotel
+      // Choose latest suitable image per hotel
+      const preferCodes = new Set(['main_image','images','photo','photos']);
       for (const row of imageRows) {
-        if (!mainImageMap.has(row.hotel_id)) {
+        if (mainImageMap.has(row.hotel_id)) continue;
+        const isImageMime = row.mime_type && row.mime_type.startsWith('image/');
+        const isPreferredType = row.file_type_code && preferCodes.has(row.file_type_code);
+        if (isImageMime || isPreferredType) {
           mainImageMap.set(row.hotel_id, row.storage_path);
         }
       }
