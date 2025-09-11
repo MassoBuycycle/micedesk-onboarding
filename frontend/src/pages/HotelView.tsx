@@ -457,57 +457,41 @@ const HotelView = () => {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="grid grid-cols-2 gap-4">
-                      {hotelData.parking.no_of_parking_spaces && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">{t('hotels.totalSpaces')}</p>
-                          <p className="font-medium">{hotelData.parking.no_of_parking_spaces}</p>
-                        </div>
-                      )}
-                      {hotelData.parking.no_of_parking_spaces_garage && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">{t('hotels.garageSpaces')}</p>
-                          <p className="font-medium">{hotelData.parking.no_of_parking_spaces_garage}</p>
-                        </div>
-                      )}
-                      {hotelData.parking.no_of_parking_spaces_electric && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">{t('hotels.electricSpaces')}</p>
-                          <p className="font-medium">{hotelData.parking.no_of_parking_spaces_electric}</p>
-                        </div>
-                      )}
-                      {hotelData.parking.no_of_parking_spaces_disabled && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">{t('hotels.disabledSpaces')}</p>
-                          <p className="font-medium">{hotelData.parking.no_of_parking_spaces_disabled}</p>
-                        </div>
-                      )}
-                      {hotelData.parking.no_of_parking_spaces_bus && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">{t('hotels.busSpaces')}</p>
-                          <p className="font-medium">{hotelData.parking.no_of_parking_spaces_bus}</p>
-                        </div>
-                      )}
-                      {hotelData.parking.no_of_parking_spaces_outside && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">{t('hotels.outsideSpaces')}</p>
-                          <p className="font-medium">{hotelData.parking.no_of_parking_spaces_outside}</p>
-                        </div>
-                      )}
+                      <div>
+                        <p className="text-sm text-muted-foreground">{t('hotels.totalSpaces')}</p>
+                        <p className="font-medium">{hotelData.parking.no_of_parking_spaces ?? t('common.notSet','Nicht gesetzt')}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">{t('hotels.garageSpaces')}</p>
+                        <p className="font-medium">{hotelData.parking.no_of_parking_spaces_garage ?? t('common.notSet','Nicht gesetzt')}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">{t('hotels.electricSpaces')}</p>
+                        <p className="font-medium">{hotelData.parking.no_of_parking_spaces_electric ?? t('common.notSet','Nicht gesetzt')}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">{t('hotels.disabledSpaces')}</p>
+                        <p className="font-medium">{hotelData.parking.no_of_parking_spaces_disabled ?? t('common.notSet','Nicht gesetzt')}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">{t('hotels.busSpaces')}</p>
+                        <p className="font-medium">{hotelData.parking.no_of_parking_spaces_bus ?? t('common.notSet','Nicht gesetzt')}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">{t('hotels.outsideSpaces')}</p>
+                        <p className="font-medium">{hotelData.parking.no_of_parking_spaces_outside ?? t('common.notSet','Nicht gesetzt')}</p>
+                      </div>
                     </div>
                     <Separator />
                     <div className="grid grid-cols-2 gap-4">
-                      {hotelData.parking.parking_cost_per_hour && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">{t('hotels.costPerHour')}</p>
-                          <p className="font-medium">€{hotelData.parking.parking_cost_per_hour}</p>
-                        </div>
-                      )}
-                      {hotelData.parking.parking_cost_per_day && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">{t('hotels.costPerDay')}</p>
-                          <p className="font-medium">€{hotelData.parking.parking_cost_per_day}</p>
-                        </div>
-                      )}
+                      <div>
+                        <p className="text-sm text-muted-foreground">{t('hotels.costPerHour')}</p>
+                        <p className="font-medium">{hotelData.parking.parking_cost_per_hour !== undefined && hotelData.parking.parking_cost_per_hour !== null ? `€${hotelData.parking.parking_cost_per_hour}` : t('common.notSet','Nicht gesetzt')}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">{t('hotels.costPerDay')}</p>
+                        <p className="font-medium">{hotelData.parking.parking_cost_per_day !== undefined && hotelData.parking.parking_cost_per_day !== null ? `€${hotelData.parking.parking_cost_per_day}` : t('common.notSet','Nicht gesetzt')}</p>
+                      </div>
                     </div>
                     {hotelData.parking.parking_remarks && (
                       <div className="mt-4">
@@ -529,51 +513,41 @@ const HotelView = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    {hotelData.distances.distance_to_airport_km && (
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Plane className="h-4 w-4 text-muted-foreground"/>
-                          <span className="text-sm">{t('hotels.airport')}</span>
-                        </div>
-                        <span className="font-medium">{hotelData.distances.distance_to_airport_km} km</span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Plane className="h-4 w-4 text-muted-foreground"/>
+                        <span className="text-sm">{t('hotels.airport')}</span>
                       </div>
-                    )}
-                    {hotelData.distances.distance_to_highway_km && (
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Car className="h-4 w-4 text-muted-foreground"/>
-                          <span className="text-sm">{t('hotels.highway')}</span>
-                        </div>
-                        <span className="font-medium">{hotelData.distances.distance_to_highway_km} km</span>
+                      <span className="font-medium">{hotelData.distances.distance_to_airport_km ?? t('common.notSet','Nicht gesetzt')} {hotelData.distances.distance_to_airport_km ? 'km' : ''}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Car className="h-4 w-4 text-muted-foreground"/>
+                        <span className="text-sm">{t('hotels.highway')}</span>
                       </div>
-                    )}
-                    {hotelData.distances.distance_to_train_station && (
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Train className="h-4 w-4 text-muted-foreground"/>
-                          <span className="text-sm">{t('hotels.trainStation')}</span>
-                        </div>
-                        <span className="font-medium">{hotelData.distances.distance_to_train_station} km</span>
+                      <span className="font-medium">{hotelData.distances.distance_to_highway_km ?? t('common.notSet','Nicht gesetzt')} {hotelData.distances.distance_to_highway_km ? 'km' : ''}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Train className="h-4 w-4 text-muted-foreground"/>
+                        <span className="text-sm">{t('hotels.trainStation')}</span>
                       </div>
-                    )}
-                    {hotelData.distances.distance_to_public_transport && (
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Train className="h-4 w-4 text-muted-foreground"/>
-                          <span className="text-sm">{t('hotels.publicTransport')}</span>
-                        </div>
-                        <span className="font-medium">{hotelData.distances.distance_to_public_transport} km</span>
+                      <span className="font-medium">{hotelData.distances.distance_to_train_station ?? t('common.notSet','Nicht gesetzt')} {hotelData.distances.distance_to_train_station ? 'km' : ''}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Train className="h-4 w-4 text-muted-foreground"/>
+                        <span className="text-sm">{t('hotels.publicTransport')}</span>
                       </div>
-                    )}
-                    {hotelData.distances.distance_to_fair_km && (
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Building2 className="h-4 w-4 text-muted-foreground"/>
-                          <span className="text-sm">{t('hotels.fair')}</span>
-                        </div>
-                        <span className="font-medium">{hotelData.distances.distance_to_fair_km} km</span>
+                      <span className="font-medium">{hotelData.distances.distance_to_public_transport ?? t('common.notSet','Nicht gesetzt')} {hotelData.distances.distance_to_public_transport ? 'km' : ''}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Building2 className="h-4 w-4 text-muted-foreground"/>
+                        <span className="text-sm">{t('hotels.fair')}</span>
                       </div>
-                    )}
+                      <span className="font-medium">{hotelData.distances.distance_to_fair_km ?? t('common.notSet','Nicht gesetzt')} {hotelData.distances.distance_to_fair_km ? 'km' : ''}</span>
+                    </div>
                   </CardContent>
                 </Card>
               )}
@@ -603,30 +577,24 @@ const HotelView = () => {
               </Card>
 
               {/* Attractions & Changes */}
-              {(hotel.attraction_in_the_area || hotel.planned_changes) && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Info className="h-5 w-5" />
-                      {t('hotels.additionalInfo')}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {hotel.attraction_in_the_area && (
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-1">{t('hotels.attractions')}</p>
-                        <p className="text-sm">{hotel.attraction_in_the_area}</p>
-                      </div>
-                    )}
-                    {hotel.planned_changes && (
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-1">{t('hotels.plannedChanges')}</p>
-                        <p className="text-sm">{hotel.planned_changes}</p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              )}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Info className="h-5 w-5" />
+                    {t('hotels.additionalInfo')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">{t('hotels.attractions')}</p>
+                    <p className="text-sm">{hotel.attraction_in_the_area || t('common.notSet','Nicht gesetzt')}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">{t('hotels.plannedChanges')}</p>
+                    <p className="text-sm">{hotel.planned_changes || t('common.notSet','Nicht gesetzt')}</p>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
 
