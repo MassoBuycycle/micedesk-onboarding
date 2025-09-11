@@ -241,10 +241,53 @@ export const getHotelsOverview = async (req, res, next) => {
     }
 
     // Compose final payload
+    // 4) Main images for each hotel (if present)
+    let mainImageMap = new Map();
+    try {
+      const [imageRows] = await connection.query(
+        `SELECT f.entity_id AS hotel_id, f.storage_path
+         FROM files f
+         JOIN file_types ft ON ft.id = f.file_type_id
+         WHERE f.entity_type = 'hotels' 
+           AND ft.category = 'hotel' 
+           AND ft.code = 'main_image'
+           AND f.entity_id IN (?)
+         ORDER BY f.created_at DESC`,
+        [hotelIds]
+      );
+
+      // Keep latest per hotel
+      for (const row of imageRows) {
+        if (!mainImageMap.has(row.hotel_id)) {
+          mainImageMap.set(row.hotel_id, row.storage_path);
+        }
+      }
+
+      // Convert storage paths to signed URLs
+      if (mainImageMap.size > 0) {
+        const { getSignedUrl } = await import('../services/s3Service.js');
+        const publicBase = process.env.FILE_PUBLIC_BASE_URL || 'https://micedesk-hotel-cms.s3.eu-central-1.amazonaws.com/';
+        const entries = Array.from(mainImageMap.entries());
+        const signed = await Promise.all(entries.map(async ([hid, key]) => {
+          try {
+            const url = await getSignedUrl(key);
+            return [hid, url];
+          } catch {
+            return [hid, `${publicBase}${key}`];
+          }
+        }));
+        mainImageMap = new Map(signed);
+      }
+    } catch (e) {
+      // If images fail, continue without blocking overview
+      mainImageMap = new Map();
+    }
+
     const payload = hotels.map(h => ({
       ...h,
       assigned_users: hotelIdToUsers.get(h.id) || [],
       users_count: (hotelIdToUsers.get(h.id) || []).length,
+      main_image_url: mainImageMap.get(h.id) || null,
     }));
 
     res.json({ success: true, data: payload });

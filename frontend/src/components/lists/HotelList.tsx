@@ -204,9 +204,18 @@ const HotelList = ({ searchQuery = "" }: HotelListProps) => {
   const HotelNameWithImage: React.FC<{ hotel: Hotel }> = ({ hotel }) => {
     return (
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 flex items-center justify-center rounded bg-secondary text-secondary-foreground shrink-0">
-          <Building2 className="h-4 w-4" aria-hidden="true" />
-        </div>
+        {hotel.main_image_url ? (
+          <img
+            src={hotel.main_image_url}
+            alt="hotel"
+            className="w-8 h-8 rounded object-cover shrink-0"
+            loading="lazy"
+          />
+        ) : (
+          <div className="w-8 h-8 flex items-center justify-center rounded bg-secondary text-secondary-foreground shrink-0">
+            <Building2 className="h-4 w-4" aria-hidden="true" />
+          </div>
+        )}
         <span>{hotel.name || t("common.unnamedHotel")}</span>
       </div>
     );

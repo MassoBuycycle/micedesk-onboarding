@@ -52,6 +52,8 @@ export interface Hotel {
   additional_links?: Array<{ name?: string; link?: string }>;
   created_at?: string; // date-time
   updated_at?: string; // date-time
+  // Added for overview convenience
+  main_image_url?: string | null;
 }
 
 export interface HotelInput {
@@ -142,7 +144,8 @@ export const getAllHotels = async (): Promise<Hotel[]> => {
   try {
     const response = await apiGet('/hotels/overview', 'Failed to fetch hotels');
     // Safely return array, handle both direct array response and wrapped response
-    return Array.isArray(response) ? response : (Array.isArray(response?.data) ? response.data : []);
+    const data = Array.isArray(response) ? response : (Array.isArray(response?.data) ? response.data : []);
+    return data as Hotel[];
   } catch (error) {
     // Return empty array on error to prevent undefined issues
     return [];
