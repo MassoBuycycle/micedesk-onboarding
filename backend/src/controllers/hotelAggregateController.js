@@ -179,7 +179,7 @@ export const getHotelsOverview = async (req, res, next) => {
 
     // 1) Fetch basic hotel info (only columns needed by list view)
     const [hotels] = await connection.query(
-      `SELECT id, name, city, postal_code, star_rating, category FROM hotels ORDER BY created_at DESC`
+      `SELECT id, system_hotel_id, name, city, postal_code, star_rating, category FROM hotels ORDER BY created_at DESC`
     );
 
     if (!hotels || hotels.length === 0) {
