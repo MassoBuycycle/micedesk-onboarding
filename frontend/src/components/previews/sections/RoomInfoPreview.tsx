@@ -23,7 +23,7 @@ const RoomInfoPreview = ({ roomInfo }: RoomInfoPreviewProps) => {
   if (!roomInfo || Object.keys(roomInfo).length === 0) {
     return (
         <div className="text-sm italic text-muted-foreground">
-            Loading room details or none available...
+            {t('rooms.preview.noRoomInfo')}
         </div>
     );
   }

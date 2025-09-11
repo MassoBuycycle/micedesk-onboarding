@@ -124,6 +124,9 @@ export function useHotelFormState() {
       let roomData = null;
       let roomCategories = [] as any[];
       let roomHandling = null;
+      let roomsFromFull: any[] = [];
+      let eventSpacesFromFull: any[] = [];
+      let fnbFromFull: any = null;
       
       // Fetch full hotel details to get rooms with IDs
       let fullHotelData = null;
@@ -134,6 +137,24 @@ export function useHotelFormState() {
         if (fullHotelData.data.rooms && fullHotelData.data.rooms.length > 0) {
           const firstRoomId = fullHotelData.data.rooms[0].id;
           setCreatedRoomTypeId(firstRoomId);
+          roomsFromFull = fullHotelData.data.rooms;
+          roomData = roomsFromFull[0];
+        }
+
+        // Populate categories and room handling from full response (edit mode)
+        if (Array.isArray(fullHotelData.data.roomCategories)) {
+          roomCategories = fullHotelData.data.roomCategories;
+        }
+        if (Array.isArray(fullHotelData.data.roomOperational) && fullHotelData.data.roomOperational.length > 0) {
+          roomHandling = fullHotelData.data.roomOperational[0];
+        }
+
+        // Event spaces and F&B from full response for previews
+        if (Array.isArray(fullHotelData.data.eventSpaces)) {
+          eventSpacesFromFull = fullHotelData.data.eventSpaces;
+        }
+        if (fullHotelData.data.fnb) {
+          fnbFromFull = fullHotelData.data.fnb;
         }
       } catch (err) {
       }
@@ -214,11 +235,20 @@ export function useHotelFormState() {
       if (roomData) {
         apiData.roomInfo = roomData;
       }
+      if (roomsFromFull && roomsFromFull.length > 0) {
+        apiData.rooms = roomsFromFull;
+      }
       if (roomCategories && roomCategories.length > 0) {
         apiData.roomCategories = roomCategories;
       }
       if (roomHandling) {
         apiData.roomHandling = roomHandling;
+      }
+      if (eventSpacesFromFull && eventSpacesFromFull.length > 0) {
+        apiData.eventSpaces = eventSpacesFromFull;
+      }
+      if (fnbFromFull) {
+        apiData.fnb = fnbFromFull;
       }
       
       // Attach events array and detailed event data
