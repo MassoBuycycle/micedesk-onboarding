@@ -322,8 +322,21 @@ async function applyHotelChanges(connection, hotelId, changeData) {
   if (fields.length === 0) return;
 
   // Quote column names to avoid issues with reserved words and ensure safety
+  const jsonColumns = new Set(['additional_links']);
   const setClauses = fields.map((field) => `\`${field}\` = ?`).join(', ');
-  const values = fields.map((field) => changeData[field] === undefined ? null : changeData[field]);
+  const values = fields.map((field) => {
+    const val = changeData[field];
+    if (val === undefined) return null;
+    // Ensure JSON columns receive valid JSON strings
+    if (jsonColumns.has(field)) {
+      try {
+        return typeof val === 'string' ? val : JSON.stringify(val ?? []);
+      } catch {
+        return '[]';
+      }
+    }
+    return val;
+  });
 
   // Add hotelId to values array
   values.push(hotelId);

@@ -56,6 +56,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { getAllUsers, createUser, updateUser, deleteUser, getUserRole, getUserById, ApiUser, UserInput, UserUpdateInput } from "@/apiClient/usersApi";
 import { getAllRoles, Role } from "@/apiClient/roleApi";
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { useTranslation } from 'react-i18next';
 
 // Define user roles
 export type UserRole = "admin" | "manager" | "editor" | "viewer";
@@ -130,6 +131,7 @@ interface UserManagementProps {
 const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [users, setUsers] = useState<User[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
@@ -159,7 +161,7 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
       setUsers(formattedUsers);
       setError(null);
     } catch (err) {
-      setError("Failed to load users. Please try again later.");
+      setError(t('users.loadFailed', 'Failed to load users. Please try again later.'));
     } finally {
       setLoading(false);
     }
@@ -171,7 +173,7 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
       const roles = await getAllRoles();
       setRoles(roles);
     } catch (err) {
-      toast.error("Failed to load roles. Default roles may not be available.");
+      toast.error(t('users.rolesLoadFailed', 'Failed to load roles. Default roles may not be available.'));
     }
   };
 
@@ -200,7 +202,7 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
       
       setLoading(false);
     } catch (err) {
-      toast.error("Failed to load user information. Redirecting to users list.");
+      toast.error(t('users.loadUserFailed', 'Failed to load user information. Redirecting to users list.'));
       navigate("/users");
     }
   };
@@ -250,7 +252,6 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
           roleId: data.roleId ? parseInt(data.roleId) : undefined
         };
         
-        // Only include password if it was changed
         if (data.password) {
           updateData.password = data.password;
         }
@@ -258,7 +259,7 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
         const result = await updateUser(id, updateData);
         
         if (result.success) {
-          toast.success("User updated successfully");
+          toast.success(t('users.updated', 'User updated successfully'));
           navigate("/users");
         }
       } else {
@@ -267,7 +268,7 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
           first_name: data.first_name,
           last_name: data.last_name,
           email: data.email,
-          password: data.password || 'default123', // Provide a default password if none is given
+          password: data.password || 'default123',
           status: data.status,
           roleId: data.roleId ? parseInt(data.roleId) : undefined
         };
@@ -275,12 +276,12 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
         const result = await createUser(userData);
         
         if (result.success) {
-          toast.success("User added successfully");
+          toast.success(t('users.added', 'User added successfully'));
           navigate("/users");
         }
       }
     } catch (err: any) {
-      toast.error(err.message || "Failed to save user");
+      toast.error(err.message || t('users.saveFailed', 'Failed to save user'));
     }
   };
 
@@ -289,17 +290,17 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
     try {
       await deleteUser(id);
       setUsers(users.filter(user => user.id !== id));
-      toast.success("User removed successfully");
+      toast.success(t('users.removed', 'User removed successfully'));
     } catch (err: any) {
-      toast.error(err.message || "Failed to delete user");
+      toast.error(err.message || t('users.deleteFailed', 'Failed to delete user'));
     }
   };
 
   // Format assigned hotels for display
   const formatAssignedHotels = (hotels: string[]) => {
-    if (hotels.includes("All Hotels")) return "All Hotels";
+    if (hotels.includes("All Hotels")) return t('users.allHotels', 'All Hotels');
     if (hotels.length <= 2) return hotels.join(", ");
-    return `${hotels.length} hotels`;
+    return t('users.hotelsCount', { count: hotels.length, defaultValue: `${hotels.length} hotels` });
   };
 
   // Loading state
@@ -307,7 +308,7 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
     return (
       <div className="flex justify-center items-center h-40">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2">Loading...</span>
+        <span className="ml-2">{t('common.loading')}</span>
       </div>
     );
   }
@@ -328,22 +329,22 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
       <div className="space-y-6">
         <header className="mb-4">
           <h1 className="text-3xl font-bold tracking-tight mb-1">
-            {mode === 'edit' ? 'Edit User' : 'Add New User'}
+            {mode === 'edit' ? t('users.editUser') : t('users.addNewUser')}
           </h1>
           <p className="text-muted-foreground">
             {mode === 'edit' 
-              ? 'Update user details, role, and permissions' 
-              : 'Create a new user and assign their role and permissions'}
+              ? t('users.editSubtitle', 'Update user details, role, and permissions')
+              : t('users.addSubtitle', 'Create a new user and assign their role and permissions')}
           </p>
         </header>
 
         <Card>
           <CardHeader>
-            <CardTitle>{mode === 'edit' ? 'Edit User' : 'Add User'}</CardTitle>
+            <CardTitle>{mode === 'edit' ? t('users.editUser') : t('users.addUser')}</CardTitle>
             <CardDescription>
               {mode === 'edit' 
-                ? 'Update user details, role, and hotel assignments' 
-                : 'Fill in the details to create a new user'}
+                ? t('users.editDescription', 'Update user details, role, and hotel assignments')
+                : t('users.addDescription', 'Fill in the details to create a new user')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -355,7 +356,7 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
                     name="first_name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>First Name</FormLabel>
+                        <FormLabel>{t('users.firstName', 'First Name')}</FormLabel>
                         <FormControl>
                           <Input placeholder="John" {...field} />
                         </FormControl>
@@ -369,7 +370,7 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
                     name="last_name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Last Name</FormLabel>
+                        <FormLabel>{t('users.lastName', 'Last Name')}</FormLabel>
                         <FormControl>
                           <Input placeholder="Doe" {...field} />
                         </FormControl>
@@ -384,7 +385,7 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>{t('auth.email')}</FormLabel>
                       <FormControl>
                         <Input placeholder="email@example.com" {...field} />
                       </FormControl>
@@ -398,11 +399,11 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{mode === 'edit' ? "New Password (leave blank to keep current)" : "Password"}</FormLabel>
+                      <FormLabel>{mode === 'edit' ? t('users.newPasswordHint', 'New Password (leave blank to keep current)') : t('auth.password')}</FormLabel>
                       <FormControl>
                         <Input 
                           type="password" 
-                          placeholder={mode === 'edit' ? "••••••••" : "Enter password"} 
+                          placeholder={mode === 'edit' ? "••••••••" : t('users.enterPassword', 'Enter password')} 
                           {...field} 
                         />
                       </FormControl>
@@ -416,7 +417,7 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
                   name="roleId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Role</FormLabel>
+                      <FormLabel>{t('users.role', 'Role')}</FormLabel>
                       <Select 
                         onValueChange={field.onChange} 
                         defaultValue={field.value}
@@ -424,7 +425,7 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select a role" />
+                            <SelectValue placeholder={t('users.selectRole', 'Select a role')} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -442,7 +443,7 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
                         </SelectContent>
                       </Select>
                       <FormDescription>
-                        Determines what actions the user can perform in the system
+                        {t('users.roleHelp', 'Determines what actions the user can perform in the system')}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -454,7 +455,7 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
                   name="status"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Status</FormLabel>
+                      <FormLabel>{t('common.status')}</FormLabel>
                       <div className="flex flex-col space-y-2">
                         <div className="flex items-center space-x-2">
                           <input
@@ -465,7 +466,7 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
                             onChange={() => field.onChange("active")}
                             className="form-radio h-4 w-4 text-primary"
                           />
-                          <Label htmlFor="status-active" className="cursor-pointer">Active</Label>
+                          <Label htmlFor="status-active" className="cursor-pointer">{t('common.active')}</Label>
                         </div>
                         
                         <div className="flex items-center space-x-2">
@@ -477,7 +478,7 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
                             onChange={() => field.onChange("pending")}
                             className="form-radio h-4 w-4 text-primary"
                           />
-                          <Label htmlFor="status-pending" className="cursor-pointer">Pending</Label>
+                          <Label htmlFor="status-pending" className="cursor-pointer">{t('common.pending')}</Label>
                         </div>
                         
                         <div className="flex items-center space-x-2">
@@ -489,7 +490,7 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
                             onChange={() => field.onChange("inactive")}
                             className="form-radio h-4 w-4 text-primary"
                           />
-                          <Label htmlFor="status-inactive" className="cursor-pointer">Inactive</Label>
+                          <Label htmlFor="status-inactive" className="cursor-pointer">{t('common.inactive')}</Label>
                         </div>
                       </div>
                       <FormMessage />
@@ -498,11 +499,11 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
                 />
                 
                 <div className="flex justify-end space-x-2 pt-4">
-                  <Button type="button" variant="outline" onClick={() => navigate("/users")}>
-                    Cancel
+                  <Button type="button" variant="outline" onClick={() => navigate("/users")}> 
+                    {t('common.cancel')}
                   </Button>
                   <Button type="submit">
-                    {mode === 'edit' ? "Update User" : "Add User"}
+                    {mode === 'edit' ? t('users.updateUser') : t('users.addUser')}
                   </Button>
                 </div>
               </form>
@@ -517,21 +518,21 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
   return (
     <div className="space-y-6">
       <header className="mb-4">
-        <h1 className="text-3xl font-bold tracking-tight mb-1">User Management</h1>
+        <h1 className="text-3xl font-bold tracking-tight mb-1">{t('users.title', 'User Management')}</h1>
         <p className="text-muted-foreground">
-          Manage user accounts, roles, and hotel assignments
+          {t('users.subtitle', 'Manage user accounts, roles, and hotel assignments')}
         </p>
       </header>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <div>
-            <CardTitle className="text-xl">Users</CardTitle>
-            <CardDescription>Manage system users and their permissions</CardDescription>
+            <CardTitle className="text-xl">{t('users.users', 'Users')}</CardTitle>
+            <CardDescription>{t('users.manageUsers', 'Manage system users and their permissions')}</CardDescription>
           </div>
           <Button onClick={() => navigate("/users/add")}>
             <UserPlus className="mr-2 h-4 w-4" />
-            Add User
+            {t('users.addUser')}
           </Button>
         </CardHeader>
         <CardContent>
@@ -539,20 +540,20 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
             <TableHeader>
               <TableRow>
                 <TableHead></TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Assigned Hotels</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date Added</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t('common.name')}</TableHead>
+                <TableHead>{t('auth.email')}</TableHead>
+                <TableHead>{t('users.role', 'Role')}</TableHead>
+                <TableHead>{t('users.assignedHotels', 'Assigned Hotels')}</TableHead>
+                <TableHead>{t('common.status')}</TableHead>
+                <TableHead>{t('users.dateAdded', 'Date Added')}</TableHead>
+                <TableHead className="text-right">{t('common.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {users.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="h-24 text-center">
-                    No users found. Click "Add User" to create one.
+                    {t('users.noUsers', 'No users found. Click "Add User" to create one.')}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -579,20 +580,20 @@ const UserManagement = ({ mode = 'list' }: UserManagementProps) => {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
+                            <span className="sr-only">{t('users.openMenu', 'Open menu')}</span>
                             <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuLabel>{t('common.actions')}</DropdownMenuLabel>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem onClick={() => handleEditUser(user)}>
                             <Pencil className="mr-2 h-4 w-4" />
-                            Edit
+                            {t('common.edit')}
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleDeleteUser(user.id)}>
                             <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
+                            {t('common.delete')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
