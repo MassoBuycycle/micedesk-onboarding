@@ -19,7 +19,9 @@ const EventsInfoPreview = ({ eventsInfo }: EventsInfoPreviewProps) => {
     return String(value);
   };
   
-  if (!eventsInfo || Object.keys(eventsInfo).length === 0) return null;
+  // Always render with fallbacks so the section is visible during editing
+  const notSet = t('common.notSet', 'Nicht gesetzt');
+  const show = (v:any) => (v===undefined || v===null || v==='' ? notSet : v);
 
   return (
     <div>
@@ -27,21 +29,13 @@ const EventsInfoPreview = ({ eventsInfo }: EventsInfoPreviewProps) => {
         <CalendarCheck className="h-4 w-4" /> Veranstaltungsbereiche
       </h3>
       <div className="text-sm text-muted-foreground space-y-1.5">
-        {eventsInfo?.totalEventSpaces && <p><span className="text-foreground font-medium">Veranstaltungsräume gesamt:</span> {eventsInfo.totalEventSpaces}</p>}
-        {eventsInfo?.largestSpace && <p><span className="text-foreground font-medium">Größter Raum:</span> {eventsInfo.largestSpace} m²</p>}
-        {eventsInfo?.maxCapacity && <p><span className="text-foreground font-medium">Maximale Kapazität:</span> {eventsInfo.maxCapacity} Personen</p>}
-        {eventsInfo?.eventCoordinator !== undefined && (
-          <p><span className="text-foreground font-medium">Veranstaltungskoordinator:</span> {formatBooleanValue(eventsInfo.eventCoordinator)}</p>
-        )}
-        {eventsInfo?.hasAudioVisual !== undefined && (
-          <p><span className="text-foreground font-medium">A/V-Equipment:</span> {formatBooleanValue(eventsInfo.hasAudioVisual)}</p>
-        )}
-        {eventsInfo?.cateringAvailable !== undefined && (
-          <p><span className="text-foreground font-medium">Catering:</span> {formatBooleanValue(eventsInfo.cateringAvailable)}</p>
-        )}
-        {eventsInfo?.outdoorSpaceAvailable !== undefined && (
-          <p><span className="text-foreground font-medium">Außenfläche:</span> {formatBooleanValue(eventsInfo.outdoorSpaceAvailable)}</p>
-        )}
+        <p><span className="text-foreground font-medium">{t('events.totalSpaces', { defaultValue: 'Veranstaltungsräume gesamt' })}:</span> {show(eventsInfo?.totalEventSpaces)}</p>
+        <p><span className="text-foreground font-medium">{t('events.largestSpace', { defaultValue: 'Größter Raum' })}:</span> {eventsInfo?.largestSpace ? `${eventsInfo.largestSpace} m²` : notSet}</p>
+        <p><span className="text-foreground font-medium">{t('events.maxCapacity', { defaultValue: 'Maximale Kapazität' })}:</span> {eventsInfo?.maxCapacity ? `${eventsInfo.maxCapacity} ${t('events.persons', { defaultValue: 'Personen' })}` : notSet}</p>
+        <p><span className="text-foreground font-medium">{t('events.eventCoordinator', { defaultValue: 'Veranstaltungskoordinator' })}:</span> {eventsInfo?.eventCoordinator === undefined ? notSet : formatBooleanValue(eventsInfo.eventCoordinator)}</p>
+        <p><span className="text-foreground font-medium">{t('events.audioVisual', { defaultValue: 'A/V-Equipment' })}:</span> {eventsInfo?.hasAudioVisual === undefined ? notSet : formatBooleanValue(eventsInfo.hasAudioVisual)}</p>
+        <p><span className="text-foreground font-medium">{t('events.catering', { defaultValue: 'Catering' })}:</span> {eventsInfo?.cateringAvailable === undefined ? notSet : formatBooleanValue(eventsInfo.cateringAvailable)}</p>
+        <p><span className="text-foreground font-medium">{t('events.outdoorSpace', { defaultValue: 'Außenfläche' })}:</span> {eventsInfo?.outdoorSpaceAvailable === undefined ? notSet : formatBooleanValue(eventsInfo.outdoorSpaceAvailable)}</p>
       </div>
     </div>
   );
