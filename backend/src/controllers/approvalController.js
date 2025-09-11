@@ -316,17 +316,18 @@ export const reviewChange = async (req, res, next) => {
  * @param {object} changeData - The data to update
  */
 async function applyHotelChanges(connection, hotelId, changeData) {
-  // Create query dynamically based on the fields in changeData
-  const fields = Object.keys(changeData);
-  
+  // Build dynamic SET clause; exclude undefined to avoid invalid SQL
+  const fields = Object.keys(changeData).filter((field) => changeData[field] !== undefined);
+
   if (fields.length === 0) return;
-  
-  const setClauses = fields.map(field => `${field} = ?`).join(', ');
-  const values = fields.map(field => changeData[field]);
-  
+
+  // Quote column names to avoid issues with reserved words and ensure safety
+  const setClauses = fields.map((field) => `\`${field}\` = ?`).join(', ');
+  const values = fields.map((field) => changeData[field] === undefined ? null : changeData[field]);
+
   // Add hotelId to values array
   values.push(hotelId);
-  
+
   await connection.query(
     `UPDATE onboarding_hotels SET ${setClauses} WHERE id = ?`,
     values
