@@ -245,12 +245,12 @@ export const getHotelsOverview = async (req, res, next) => {
     let mainImageMap = new Map();
     try {
       const [imageRows] = await connection.query(
-        `SELECT f.entity_id AS hotel_id, f.storage_path
+        `SELECT f.entity_id AS hotel_id, f.storage_path, ft.code AS file_type_code
          FROM files f
          JOIN file_types ft ON ft.id = f.file_type_id
          WHERE f.entity_type = 'hotels' 
            AND ft.category = 'hotel' 
-           AND ft.code = 'main_image'
+           AND ft.code IN ('main_image','images')
            AND f.entity_id IN (?)
          ORDER BY f.created_at DESC`,
         [hotelIds]

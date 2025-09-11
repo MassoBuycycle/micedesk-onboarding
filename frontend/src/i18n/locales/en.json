@@ -788,6 +788,15 @@
     "available": "Available",
     "notAvailable": "Not Available",
     "overview": "Events Overview",
+    "preview": {
+      "dimensions": "Dimensions",
+      "seatingCapacities": "Seating Capacities",
+      "technicalInfo": "Technical Info",
+      "wifi": "WiFi",
+      "beamer": "Projector",
+      "lumens": "Lumens",
+      "software": "Software"
+    },
     "eventForm": {
       "contact": {
         "sectionTitle": "Event Contact",
@@ -911,7 +920,13 @@
   },
   "files": {
     "noImagesFound": "No images found",
-    "noDocumentsFound": "No documents found"
+    "noDocumentsFound": "No documents found",
+    "dropHere": "Drop the files here",
+    "dragHere": "Drag and drop your files here",
+    "orClickToBrowse": "or click to browse files",
+    "multipleSupported": "✓ Multiple files supported (up to {{count}})",
+    "defaultType": "Default type",
+    "tipBestPerformance": "💡 Tip: For best performance, upload 10–15 files at a time"
   },
   "announcements": {
     "title": "Announcements",

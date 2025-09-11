@@ -229,7 +229,7 @@ const HotelView = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-9">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-9">
             <TabsTrigger value="overview">{t('hotels.overview')}</TabsTrigger>
             <TabsTrigger value="details">{t('hotels.details')}</TabsTrigger>
             <TabsTrigger value="rooms">{t('rooms.title')}</TabsTrigger>

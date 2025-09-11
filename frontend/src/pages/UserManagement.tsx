@@ -116,9 +116,9 @@ const apiToAppUser = (apiUser: ApiUser): User => ({
   id: apiUser.id.toString(),
   name: `${apiUser.first_name} ${apiUser.last_name}`,
   email: apiUser.email,
-  role: apiUser.role?.name as UserRole || "viewer", // Use role if available
-  roleId: apiUser.role?.id, // Store role ID
-  assignedHotels: [], // Would need to be fetched from user-hotel assignments
+  role: (apiUser as any).role?.name?.toLowerCase?.() as UserRole || (apiUser.role?.name?.toLowerCase?.() as UserRole) || "viewer",
+  roleId: (apiUser as any).role?.id || apiUser.role?.id,
+  assignedHotels: (apiUser as any).has_all_access ? ["All Hotels"] : ((apiUser as any).assigned_hotels || []),
   status: apiUser.status || "pending",
   dateAdded: new Date(apiUser.created_at).toISOString().split('T')[0]
 });

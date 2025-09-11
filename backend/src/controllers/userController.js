@@ -12,8 +12,60 @@ const SALT_ROUNDS = 10;
 export const getAllUsers = async (req, res, next) => {
   const connection = await pool.getConnection();
   try {
-    const [users] = await connection.query('SELECT id, first_name, last_name, email, status, created_at, updated_at FROM users');
-    res.status(200).json(users);
+    // Base users
+    const [users] = await connection.query(
+      'SELECT id, first_name, last_name, email, status, created_at, updated_at FROM users'
+    );
+
+    if (!users || users.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    const userIds = users.map(u => u.id);
+
+    // Roles map
+    const [rolesRows] = await connection.query(
+      `SELECT ur.user_id, r.id as role_id, r.name as role_name
+       FROM user_roles ur
+       JOIN roles r ON r.id = ur.role_id
+       WHERE ur.user_id IN (?)`,
+      [userIds]
+    );
+    const userIdToRole = new Map();
+    for (const row of rolesRows) {
+      userIdToRole.set(row.user_id, { id: row.role_id, name: row.role_name });
+    }
+
+    // All hotels access
+    const [allAccessRows] = await connection.query(
+      `SELECT user_id FROM user_all_hotels_access WHERE user_id IN (?)`,
+      [userIds]
+    );
+    const allAccessSet = new Set(allAccessRows.map(r => r.user_id));
+
+    // Specific hotel assignments with names
+    const [assignRows] = await connection.query(
+      `SELECT uha.user_id, h.name as hotel_name
+       FROM user_hotel_assignments uha
+       JOIN hotels h ON h.id = uha.hotel_id
+       WHERE uha.user_id IN (?)`,
+      [userIds]
+    );
+    const userIdToHotels = new Map();
+    for (const row of assignRows) {
+      const list = userIdToHotels.get(row.user_id) || [];
+      list.push(row.hotel_name);
+      userIdToHotels.set(row.user_id, list);
+    }
+
+    const enriched = users.map(u => ({
+      ...u,
+      role: userIdToRole.get(u.id) || null,
+      has_all_access: allAccessSet.has(u.id),
+      assigned_hotels: allAccessSet.has(u.id) ? [] : (userIdToHotels.get(u.id) || [])
+    }));
+
+    res.status(200).json(enriched);
   } catch (error) {
     next(error);
   } finally {

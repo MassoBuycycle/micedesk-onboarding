@@ -990,8 +990,8 @@
       "preview": {
         "noEventSpaces": "Noch keine Veranstaltungsräume hinzugefügt",
         "dimensions": "Abmessungen",
-        "seatingCapacities": "Bestuhlungs­kapazitäten",
-        "technicalInfo": "Technische Infos",
+        "seatingCapacities": "Bestuhlungskapazitäten",
+        "technicalInfo": "Technische Informationen",
         "wifi": "WLAN",
         "beamer": "Beamer",
         "lumens": "Lumen",
@@ -1004,7 +1004,13 @@
   },
   "files": {
     "noImagesFound": "Keine Bilder gefunden",
-    "noDocumentsFound": "Keine Dokumente gefunden"
+    "noDocumentsFound": "Keine Dokumente gefunden",
+    "dropHere": "Dateien hier ablegen",
+    "dragHere": "Dateien hierher ziehen und ablegen",
+    "orClickToBrowse": "oder klicken, um Dateien auszuwählen",
+    "multipleSupported": "✓ Mehrere Dateien unterstützt (bis zu {{count}})",
+    "defaultType": "Standardtyp",
+    "tipBestPerformance": "💡 Tipp: Für beste Leistung 10–15 Dateien gleichzeitig hochladen"
   },
   "eventFeatures": {
     "naturalLight": "Tageslicht",

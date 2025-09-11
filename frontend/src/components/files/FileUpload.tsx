@@ -11,6 +11,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Badge } from "@/components/ui/badge";
 import { useFileTypes, useDefaultFileTypeCode } from '@/hooks/useFileTypes';
+import { useTranslation } from 'react-i18next';
 
 interface FileUploadProps {
   entityType: string;
@@ -50,6 +51,7 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
   onSuccess,
   onFileChange,
 }, ref) => {
+  const { t } = useTranslation();
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const { data: fileTypes = [], isLoading: isLoadingFileTypes } = useFileTypes(category);
   const [filesToUpload, setFilesToUpload] = useState<FileToUpload[]>([]);
@@ -467,21 +469,21 @@ const FileUpload = forwardRef<FileUploadRef, FileUploadProps>(({
               </div>
               <div className="max-w-xs text-center">
                 <p className="text-sm font-medium">
-                  {isDragActive ? 'Drop the files here' : 'Drag and drop your files here'}
+                  {isDragActive ? t('files.dropHere', 'Dateien hier ablegen') : t('files.dragHere', 'Dateien hierher ziehen und ablegen')}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  or click to browse files
+                  {t('files.orClickToBrowse', 'oder klicken, um Dateien auszuwählen')}
                 </p>
                 <p className="text-xs text-primary mt-1">
-                  ✓ Multiple files supported (up to {maxFiles})
+                  {t('files.multipleSupported', '✓ Mehrere Dateien unterstützt (bis zu {{count}})', { count: maxFiles })}
                 </p>
                 {fileTypes.length > 0 && (
                   <p className="text-xs text-muted-foreground mt-1">
-                    Default type: {fileTypes[0]?.name || 'Loading...'}
+                    {t('files.defaultType', 'Standardtyp')}: {fileTypes[0]?.name || t('common.loading')}
                   </p>
                 )}
                 <p className="text-xs text-muted-foreground mt-1">
-                  💡 Tip: For best performance, upload 10-15 files at a time
+                  {t('files.tipBestPerformance', '💡 Tipp: Für beste Leistung 10–15 Dateien gleichzeitig hochladen')}
                 </p>
               </div>
             </div>
