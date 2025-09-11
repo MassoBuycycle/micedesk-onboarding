@@ -245,13 +245,12 @@ export const getHotelsOverview = async (req, res, next) => {
     let mainImageMap = new Map();
     try {
       const [imageRows] = await connection.query(
-        `SELECT f.entity_id AS hotel_id, f.storage_path, ft.code AS file_type_code
+        `SELECT f.entity_id AS hotel_id, f.storage_path
          FROM files f
          JOIN file_types ft ON ft.id = f.file_type_id
-         WHERE f.entity_type = 'hotels' 
-           AND ft.category = 'hotel' 
-           AND ft.code IN ('main_image','images')
+         WHERE f.entity_type = 'hotels'
            AND f.entity_id IN (?)
+           AND f.mime_type LIKE 'image/%'
          ORDER BY f.created_at DESC`,
         [hotelIds]
       );
@@ -283,11 +282,24 @@ export const getHotelsOverview = async (req, res, next) => {
       mainImageMap = new Map();
     }
 
-    const payload = hotels.map(h => ({
-      ...h,
-      assigned_users: hotelIdToUsers.get(h.id) || [],
-      users_count: (hotelIdToUsers.get(h.id) || []).length,
-      main_image_url: mainImageMap.get(h.id) || null,
+    const payload = await Promise.all(hotels.map(async h => {
+      const storageKey = mainImageMap.get(h.id) || null;
+      let mainImageUrl = null;
+      if (storageKey) {
+        try {
+          const { getSignedUrl } = await import('../services/s3Service.js');
+          mainImageUrl = await getSignedUrl(storageKey);
+        } catch {
+          const publicBase = process.env.FILE_PUBLIC_BASE_URL || 'https://micedesk-hotel-cms.s3.eu-central-1.amazonaws.com/';
+          mainImageUrl = `${publicBase}${storageKey}`;
+        }
+      }
+      return {
+        ...h,
+        assigned_users: hotelIdToUsers.get(h.id) || [],
+        users_count: (hotelIdToUsers.get(h.id) || []).length,
+        main_image_url: mainImageUrl,
+      };
     }));
 
     res.json({ success: true, data: payload });
