@@ -15,12 +15,12 @@ const HOTEL_FIELDS = [
   'total_rooms', 'conference_rooms', 'pms_system',
   'opening_time_pool', 'opening_time_fitness_center', 'equipment_fitness_center',
   'opening_time_spa_area', 'equipment_spa_area',
-  'planned_changes', 'attraction_in_the_area', 'additional_links',
+  'planned_changes', 'attraction_in_the_area', 'additional_links', 'external_billing_id',
   // Billing
   'billing_address_name', 'billing_address_street', 'billing_address_zip',
   'billing_address_city', 'billing_address_vat',
   // Contacts
-  'phone', 'general_manager_name', 'general_manager_phone', 'general_manager_email', 'email', 'website',
+  'phone', 'fax', 'general_manager_name', 'general_manager_phone', 'general_manager_email', 'email', 'website',
   // Distances
   'distance_to_airport_km', 'airport_note', 'distance_to_highway_km', 'distance_to_fair_km',
   'distance_to_train_station', 'distance_to_public_transport',
