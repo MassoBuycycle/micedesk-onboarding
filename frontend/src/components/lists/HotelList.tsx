@@ -15,7 +15,8 @@ import UserAssignmentDialog from "@/components/dialogs/UserAssignmentDialog";
 import UserAvatarGroup from "@/components/user/UserAvatarGroup";
 import { mockUsers } from "@/components/user/UserAssignmentSelect";
 import { User, UserRole } from "@/pages/UserManagement";
-import { getAllHotels, Hotel, deleteHotel } from "@/apiClient/hotelsApi";
+import { Hotel, deleteHotel } from "@/apiClient/hotelsApi";
+import { useHotelsOverview } from "@/hooks/useHotelsOverview";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { UserWithAssignmentInfo, getUsersByHotelId } from "@/apiClient/userHotelsApi";
@@ -44,47 +45,35 @@ const HotelList = ({ searchQuery = "" }: HotelListProps) => {
     setRefreshTrigger(prev => prev + 1);
   }, []);
 
-  useEffect(() => {
-    const fetchHotels = async () => {
-      try {
-        setLoading(true);
-        const data = await getAllHotels();
-        // If overview endpoint returns assigned users inline, capture them
-        const list = Array.isArray(data) ? data : [];
-        setHotels(list as Hotel[]);
-        // Preload users per hotel from payload if present
-        const usersMap: Record<string, User[]> = {};
-        let bootstrapped = false;
-        list.forEach((h: any) => {
-          if (h.id && Array.isArray(h.assigned_users)) {
-            bootstrapped = true;
-            usersMap[String(h.id)] = h.assigned_users.map((u: any) => ({
-              id: String(u.id),
-              name: `${u.first_name} ${u.last_name}`,
-              email: u.email,
-              role: "viewer" as UserRole,
-              assignedHotels: u.has_all_access ? ["All Hotels"] : [h.name || ""],
-              status: "active",
-              dateAdded: new Date(u.created_at).toISOString().split('T')[0]
-            }));
-          }
-        });
-        if (bootstrapped) {
-          usersBootstrappedRef.current = true;
-          setHotelUsers(usersMap);
-        }
-        setError(null);
-      } catch (err) {
-        setError(t("pages.view.failedToLoadHotels"));
-      } finally {
-        setLoading(false);
-      }
-    };
+  const { data: overview = [], isLoading, isError } = useHotelsOverview();
 
-    fetchHotels();
-    // Run once on mount; hotel list is refreshed explicitly on actions
-    // Avoid depending on t() to prevent refetch loops on i18n re-renders
-  }, []);
+  useEffect(() => {
+    // Normalize and store
+    const list = Array.isArray(overview) ? overview : [];
+    setHotels(list as Hotel[]);
+    const usersMap: Record<string, User[]> = {};
+    let bootstrapped = false;
+    list.forEach((h: any) => {
+      if (h.id && Array.isArray(h.assigned_users)) {
+        bootstrapped = true;
+        usersMap[String(h.id)] = h.assigned_users.map((u: any) => ({
+          id: String(u.id),
+          name: `${u.first_name} ${u.last_name}`,
+          email: u.email,
+          role: "viewer" as UserRole,
+          assignedHotels: u.has_all_access ? ["All Hotels"] : [h.name || ""],
+          status: "active",
+          dateAdded: new Date(u.created_at).toISOString().split('T')[0]
+        }));
+      }
+    });
+    if (bootstrapped) {
+      usersBootstrappedRef.current = true;
+      setHotelUsers(usersMap);
+    }
+    setError(null);
+    setLoading(false);
+  }, [overview]);
 
   // Fetch users for a specific hotel (used only on-demand, e.g., after reassignment)
   const fetchUsersForHotel = useCallback(async (hotelId: string, hotelName?: string): Promise<User[]> => {
@@ -192,9 +181,8 @@ const HotelList = ({ searchQuery = "" }: HotelListProps) => {
       await deleteHotel(hotel.id);
       toast.success(t("hotels.deleted"));
       
-      // Refresh the hotel list
-      const data = await getAllHotels();
-      setHotels(data);
+      // Refresh the hotel list (invalidate cache handled elsewhere); local fallback:
+      setRefreshTrigger(prev => prev + 1);
     } catch (error: any) {
       toast.error(error.message || t("hotels.deleteFailed"));
     }
@@ -221,7 +209,7 @@ const HotelList = ({ searchQuery = "" }: HotelListProps) => {
     );
   };
 
-  if (loading) {
+  if (loading || isLoading) {
     return (
       <div className="flex justify-center items-center h-40">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -230,7 +218,7 @@ const HotelList = ({ searchQuery = "" }: HotelListProps) => {
     );
   }
 
-  if (error) {
+  if (error || isError) {
     return (
       <Alert variant="destructive" className="mb-6">
         <AlertCircle className="h-4 w-4" />

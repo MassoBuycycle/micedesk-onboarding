@@ -37,6 +37,34 @@ Dieses Dokument fasst Verbesserungen und Korrekturen in klarer, nicht‑technisc
   - Die Vorlaufzeit für ankommendes Material kann nun frei (z. B. „7–10 Tage“) eingetragen werden – nicht mehr nur als Zahl.
   - Neue Frage: „Ist die Einlagerung kostenfrei?“ Wenn „Nein“, erscheint ein Feld für Preis‑/Kostenhinweise.
 
+### 11.09.2025
+
+- Hotel‑Übersicht zeigt jetzt Bilder und lädt nur einmal
+  - In der Hotelübersicht wird – sofern vorhanden – pro Hotel das aktuellste Bild angezeigt.
+  - Die Daten werden zwischengespeichert; so wird die Übersicht nicht mehr doppelt geladen.
+
+- Vorschau (Preview) zuverlässiger
+  - Alle Überschriften und Felder bleiben sichtbar; wenn Werte fehlen, wird „Nicht gesetzt“ angezeigt.
+  - Die Vorschau für Veranstaltungen (Events) wurde korrigiert (Übersetzungen und Inhalte erscheinen konsistent).
+
+- Drag‑&‑Drop Upload auf Deutsch
+  - Der Upload‑Bereich (Dateien ziehen/ablegen, „oder klicken zum Auswählen“, Tipp) ist vollständig übersetzt.
+
+- Hotel‑Details mit klaren Labels
+  - Bereiche Parkplätze, Entfernungen, Systeminformationen und Zusätzliche Informationen zeigen die Bezeichnungen immer an – auch bei 0/fehlenden Werten.
+
+- Responsives Tab‑Layout
+  - Die Register (Info/Zimmer/Events/…) passen sich auf kleineren Bildschirmen besser an (mehrere Breakpoints).
+
+- Benutzerübersicht zeigt korrekte Rollen & Zuweisungen
+  - Backend liefert Rolle und Hotel‑Zuweisungen je Nutzer, Frontend zeigt diese korrekt an (statt „viewer“ als Standard).
+
+- Robustere Bildlogik im Überblick
+  - Falls kein explizites „main_image“ existiert, wird automatisch ein anderes vorhandenes Bild verwendet; Links werden signiert.
+
+- Einheitliche Event‑Vorschau
+  - Sitzplatz‑Kapazitäten, Tarife (Tagesrate/Halbtagesrate) und technische Infos (WLAN/Beamer/Software) werden konsistent dargestellt.
+
 — Ende der heutigen Updates —
 
 Künftige Einträge werden unterhalb dieser Linie mit Datum und kurzer, alltagsnaher Beschreibung ergänzt.
