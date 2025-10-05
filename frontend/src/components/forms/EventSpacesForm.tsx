@@ -160,17 +160,12 @@ const EventSpacesForm = ({ initialData = [], selectedHotel, createdEventId, onNe
 
   return (
     <div className="space-y-8">
-      {/* Header with Add Button */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">{t('events.eventForm.spaces.title')}</h2>
-          <p className="text-muted-foreground">
-            {t('events.eventForm.spaces.subtitle')} {selectedHotel?.name || "this hotel"}
-          </p>
-        </div>
-        <Button onClick={addEventSpace} variant="outline" className="flex items-center gap-1">
-          <Plus className="h-4 w-4" /> {t('events.eventForm.spaces.addSpace')}
-        </Button>
+      {/* Header */}
+      <div>
+        <h2 className="text-2xl font-bold">{t('events.eventForm.spaces.title')}</h2>
+        <p className="text-muted-foreground">
+          {t('events.eventForm.spaces.subtitle')} {selectedHotel?.name || "this hotel"}
+        </p>
       </div>
 
       {/* List of Event Spaces */}
@@ -377,6 +372,13 @@ const EventSpacesForm = ({ initialData = [], selectedHotel, createdEventId, onNe
           </CardContent>
         </Card>
       ))}
+
+      {/* Add Event Space Button */}
+      <div className="flex justify-center">
+        <Button onClick={addEventSpace} variant="outline" className="flex items-center gap-1">
+          <Plus className="h-4 w-4" /> {t('events.eventForm.spaces.addSpace')}
+        </Button>
+      </div>
 
       <div className="flex justify-between mt-8">
         <Button type="button" variant="outline" onClick={handlePrevious} className="gap-1">
