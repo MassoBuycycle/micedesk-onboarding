@@ -709,6 +709,23 @@ const HotelView = () => {
                           <div>
                             <p className="text-sm text-muted-foreground">{t('rooms.mainContact')}</p>
                             <p className="font-medium">{room.main_contact_name}</p>
+                            {room.main_contact_position && (
+                              <p className="text-sm text-muted-foreground">{room.main_contact_position}</p>
+                            )}
+                          </div>
+                        )}
+                        {room.phone && (
+                          <div className="flex items-center gap-3">
+                            <Phone className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm">{room.phone}</span>
+                          </div>
+                        )}
+                        {room.email && (
+                          <div className="flex items-center gap-3">
+                            <Mail className="h-4 w-4 text-muted-foreground" />
+                            <a href={`mailto:${room.email}`} className="text-sm text-primary hover:underline">
+                              {room.email}
+                            </a>
                           </div>
                         )}
                         {room.reception_hours && (

@@ -224,6 +224,74 @@ export const CheckboxField: React.FC<CheckboxFieldProps> = ({
 );
 
 /**
+ * Payment methods options
+ */
+export const paymentMethodOptions = [
+  { id: 'cash', label_key: 'rooms.paymentMethodsList.cash' },
+  { id: 'credit_card', label_key: 'rooms.paymentMethodsList.creditCard' },
+  { id: 'debit_card', label_key: 'rooms.paymentMethodsList.debitCard' },
+  { id: 'bank_transfer', label_key: 'rooms.paymentMethodsList.bankTransfer' },
+  { id: 'paypal', label_key: 'rooms.paymentMethodsList.paypal' },
+  { id: 'apple_pay', label_key: 'rooms.paymentMethodsList.applePay' },
+  { id: 'google_pay', label_key: 'rooms.paymentMethodsList.googlePay' },
+];
+
+interface PaymentMethodsFieldProps extends BaseFieldProps {
+  t: (key: string) => string; // Translation function
+}
+
+/**
+ * Payment methods checkbox field - reusable across hotel, rooms, and events
+ */
+export const PaymentMethodsField: React.FC<PaymentMethodsFieldProps> = ({
+  form,
+  name,
+  label,
+  description,
+  t,
+  className,
+}) => (
+  <FormField
+    control={form.control}
+    name={name}
+    render={() => (
+      <FormItem className={className}>
+        <FormLabel>{label}</FormLabel>
+        {description && <FormDescription>{description}</FormDescription>}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-2">
+          {paymentMethodOptions.map((method) => (
+            <FormField
+              key={method.id}
+              control={form.control}
+              name={name}
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value?.includes(method.id)}
+                      onCheckedChange={(checked) => {
+                        const currentValue = Array.isArray(field.value) ? field.value : [];
+                        if (checked) {
+                          field.onChange([...currentValue, method.id]);
+                        } else {
+                          field.onChange(currentValue.filter((v) => v !== method.id));
+                        }
+                      }}
+                    />
+                  </FormControl>
+                  <FormLabel className="font-normal">{t(method.label_key)}</FormLabel>
+                </FormItem>
+              )}
+            />
+          ))}
+        </div>
+        <FormMessage />
+      </FormItem>
+    )}
+  />
+);
+
+/**
  * Two-column grid container for form fields
  */
 export const TwoColumnGrid: React.FC<{ children: React.ReactNode; className?: string }> = ({ 

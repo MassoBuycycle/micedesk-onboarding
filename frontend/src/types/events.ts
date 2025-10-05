@@ -124,7 +124,7 @@ export interface EventContractingInput {
   option_hold_duration?: string;
   overbooking_policy?: boolean;
   deposit_required?: boolean;
-  accepted_payment_methods?: string;
+  accepted_payment_methods?: string[];
   commission_rules?: string;
   second_signature_required?: boolean;
 } 

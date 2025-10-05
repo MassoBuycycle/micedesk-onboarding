@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS event_contracting (
   option_hold_duration VARCHAR(100),
   overbooking_policy BOOLEAN DEFAULT FALSE,
   deposit_required BOOLEAN DEFAULT FALSE,
-  accepted_payment_methods TEXT,
+  accepted_payment_methods JSON,
   commission_rules TEXT,
   second_signature_required BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

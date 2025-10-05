@@ -21,16 +21,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { RoomOperationalHandlingInput } from '@/types/roomOperational';
-
-const paymentMethodOptions = [
-  { id: 'cash', label: 'Barzahlung' },
-  { id: 'credit_card', label: 'Kreditkarte' },
-  { id: 'debit_card', label: 'Debitkarte' },
-  { id: 'bank_transfer', label: 'Banküberweisung' },
-  { id: 'paypal', label: 'PayPal' },
-  { id: 'apple_pay', label: 'Apple Pay' },
-  { id: 'google_pay', label: 'Google Pay' },
-];
+import { PaymentMethodsField } from '@/components/shared/FormFields';
 
 // Zod schema for validation
 const operationalSchema = z.object({
@@ -557,40 +548,11 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
                 )}
               />
             )}
-            <FormField
-              control={form.control}
+            <PaymentMethodsField
+              form={form}
               name="payment_methods_room_handling"
-              render={() => (
-                <FormItem>
-                  <FormLabel>Akzeptierte Zahlungsmethoden</FormLabel>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-2">
-                    {paymentMethodOptions.map((method) => (
-                      <FormField
-                        key={method.id}
-                        control={form.control}
-                        name="payment_methods_room_handling"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value?.includes(method.id)}
-                                onCheckedChange={(checked) => {
-                                  if (checked) {
-                                    field.onChange([...(field.value ?? []), method.id]);
-                                  } else {
-                                    field.onChange(field.value?.filter((v) => v !== method.id));
-                                  }
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel className="font-normal">{method.label}</FormLabel>
-                          </FormItem>
-                        )}
-                      />
-                    ))}
-                  </div>
-                </FormItem>
-              )}
+              label="Akzeptierte Zahlungsmethoden"
+              t={t}
             />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField

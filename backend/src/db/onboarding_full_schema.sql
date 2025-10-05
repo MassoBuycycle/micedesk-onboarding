@@ -665,7 +665,7 @@ CREATE TABLE IF NOT EXISTS onboarding_event_details (
   option_hold_duration VARCHAR(100),
   overbooking_policy TINYINT(1) DEFAULT 0,
   deposit_required TINYINT(1) DEFAULT 0,
-  accepted_payment_methods TEXT,
+  accepted_payment_methods JSON,
   second_signature_required TINYINT(1) DEFAULT 0,
   has_overtime_material TINYINT(1) DEFAULT 0,
   min_participants INT DEFAULT 0,

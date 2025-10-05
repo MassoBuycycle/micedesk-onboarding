@@ -209,7 +209,7 @@ create table rocket_production.onboarding_event_operations
     option_hold_duration          varchar(100)                             null,
     overbooking_policy            tinyint(1)     default 0                 null,
     deposit_required              tinyint(1)     default 0                 null,
-    accepted_payment_methods      text                                     null,
+    accepted_payment_methods      json                                     null,
     commission_rules              text                                     null,
     second_signature_required     tinyint(1)     default 0                 null,
     has_overtime_material         tinyint(1)     default 0                 null,

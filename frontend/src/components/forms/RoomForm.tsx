@@ -25,7 +25,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useTranslation } from 'react-i18next';
-import { PhoneField } from '@/components/shared/FormFields';
+import { PhoneField, PaymentMethodsField } from '@/components/shared/FormFields';
 
 // Schema for form validation
 const roomFormSchema = z.object({
@@ -142,15 +142,6 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
     { id: 'allergy_friendly_bedding', label: t('rooms.features.allergyFriendlyBedLinen') },
   ];
 
-  const paymentMethodOptions = [
-    { id: 'cash', label: t('rooms.paymentMethodsList.cash') },
-    { id: 'credit_card', label: t('rooms.paymentMethodsList.creditCard') },
-    { id: 'debit_card', label: t('rooms.paymentMethodsList.debitCard') },
-    { id: 'bank_transfer', label: t('rooms.paymentMethodsList.bankTransfer') },
-    { id: 'paypal', label: t('rooms.paymentMethodsList.paypal') },
-    { id: 'apple_pay', label: t('rooms.paymentMethodsList.applePay') },
-    { id: 'google_pay', label: t('rooms.paymentMethodsList.googlePay') },
-  ];
 
   return (
     <Form {...form}>
@@ -482,38 +473,11 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
             <CardDescription>{t('rooms.paymentMethodsDescription')}</CardDescription>
           </CardHeader>
           <CardContent>
-            <FormField
-              control={form.control}
+            <PaymentMethodsField
+              form={form}
               name="payment_methods"
-              render={() => (
-                <FormItem>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    {paymentMethodOptions.map(method => (
-                      <FormField
-                        key={method.id}
-                        control={form.control}
-                        name="payment_methods"
-                        render={({ field }) => (
-                          <FormItem key={method.id} className="flex flex-row items-start space-x-3 space-y-0">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value?.includes(method.id)}
-                                onCheckedChange={checked => {
-                                  const currentValue = field.value || [];
-                                  return checked
-                                    ? field.onChange([...currentValue, method.id])
-                                    : field.onChange(currentValue.filter(value => value !== method.id));
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel className="font-normal">{method.label}</FormLabel>
-                          </FormItem>
-                        )}
-                      />
-                    ))}
-                  </div>
-                </FormItem>
-              )}
+              label=""
+              t={t}
             />
           </CardContent>
         </Card>

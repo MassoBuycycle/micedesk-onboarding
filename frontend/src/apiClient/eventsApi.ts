@@ -76,7 +76,7 @@ export interface EventContracting {
   option_hold_duration?: string | null;
   overbooking_policy?: boolean;
   deposit_required?: boolean;
-  accepted_payment_methods?: string | null;
+  accepted_payment_methods?: string[] | null;
   commission_rules?: string | null;
   second_signature_required?: boolean;
   created_at?: string; // date-time
@@ -92,7 +92,7 @@ export interface EventContractingInput {
   option_hold_duration?: string | null;
   overbooking_policy?: boolean;
   deposit_required?: boolean;
-  accepted_payment_methods?: string | null;
+  accepted_payment_methods?: string[] | null;
   commission_rules?: string | null;
   second_signature_required?: boolean;
 }

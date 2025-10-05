@@ -34,7 +34,8 @@ import {
   TextareaField, 
   SwitchField, 
   TwoColumnGrid,
-  PhoneField
+  PhoneField,
+  PaymentMethodsField
 } from '@/components/shared/FormFields';
 import { API_BASE_URL } from '@/apiClient/config';
 import { createEvent as apiCreateEvent, upsertEquipment } from '@/apiClient/eventsApi';
@@ -164,7 +165,7 @@ const contractingSchema = z.object({
   option_hold_duration: z.string().nullable().optional().or(z.literal('')),
   overbooking_policy: z.boolean().default(false),
   deposit_required: z.boolean().default(false),
-  accepted_payment_methods: z.string().nullable().optional().or(z.literal('')),
+  accepted_payment_methods: z.array(z.string()).default([]),
   commission_rules: z.string().nullable().optional().or(z.literal('')),
   second_signature_required: z.boolean().default(false),
 });
@@ -295,10 +296,15 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
       option_hold_duration: '',
       overbooking_policy: false,
       deposit_required: false,
-      accepted_payment_methods: '',
       commission_rules: '',
       second_signature_required: false,
-      ...(data?.contracting || {})
+      ...(data?.contracting || {}),
+      // Convert string to array if needed (backward compatibility)
+      accepted_payment_methods: data?.contracting?.accepted_payment_methods 
+        ? (Array.isArray(data.contracting.accepted_payment_methods) 
+            ? data.contracting.accepted_payment_methods 
+            : [])
+        : []
     }
   });
 
@@ -913,11 +919,11 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
             />
             
             {/* Akzeptierte Zahlungsmethoden */}
-            <TextareaField
+            <PaymentMethodsField
               form={form}
               name="contracting.accepted_payment_methods"
               label={t('events.eventForm.contracting.acceptedPaymentMethods')}
-              rows={2}
+              t={t}
             />
             
             {/* Wird eine Info-Rechnung an den Kunden versandt */}
