@@ -19,26 +19,8 @@ const EventsInfoPreview = ({ eventsInfo }: EventsInfoPreviewProps) => {
     return String(value);
   };
   
-  // Always render with fallbacks so the section is visible during editing
-  const notSet = t('common.notSet', 'Nicht gesetzt');
-  const show = (v:any) => (v===undefined || v===null || v==='' ? notSet : v);
-
-  return (
-    <div>
-      <h3 className="text-sm font-medium mb-2 flex items-center gap-1.5 pb-1 border-b">
-        <CalendarCheck className="h-4 w-4" /> Veranstaltungsbereiche
-      </h3>
-      <div className="text-sm text-muted-foreground space-y-1.5">
-        <p><span className="text-foreground font-medium">{t('events.totalSpaces', { defaultValue: 'Veranstaltungsräume gesamt' })}:</span> {show(eventsInfo?.totalEventSpaces)}</p>
-        <p><span className="text-foreground font-medium">{t('events.largestSpace', { defaultValue: 'Größter Raum' })}:</span> {eventsInfo?.largestSpace ? `${eventsInfo.largestSpace} m²` : notSet}</p>
-        <p><span className="text-foreground font-medium">{t('events.maxCapacity', { defaultValue: 'Maximale Kapazität' })}:</span> {eventsInfo?.maxCapacity ? `${eventsInfo.maxCapacity} ${t('events.persons', { defaultValue: 'Personen' })}` : notSet}</p>
-        <p><span className="text-foreground font-medium">{t('events.eventCoordinator', { defaultValue: 'Veranstaltungskoordinator' })}:</span> {eventsInfo?.eventCoordinator === undefined ? notSet : formatBooleanValue(eventsInfo.eventCoordinator)}</p>
-        <p><span className="text-foreground font-medium">{t('events.audioVisual', { defaultValue: 'A/V-Equipment' })}:</span> {eventsInfo?.hasAudioVisual === undefined ? notSet : formatBooleanValue(eventsInfo.hasAudioVisual)}</p>
-        <p><span className="text-foreground font-medium">{t('events.catering', { defaultValue: 'Catering' })}:</span> {eventsInfo?.cateringAvailable === undefined ? notSet : formatBooleanValue(eventsInfo.cateringAvailable)}</p>
-        <p><span className="text-foreground font-medium">{t('events.outdoorSpace', { defaultValue: 'Außenfläche' })}:</span> {eventsInfo?.outdoorSpaceAvailable === undefined ? notSet : formatBooleanValue(eventsInfo.outdoorSpaceAvailable)}</p>
-      </div>
-    </div>
-  );
+  // Return null to hide this section completely
+  return null;
 };
 
 export default EventsInfoPreview;

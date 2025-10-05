@@ -76,22 +76,22 @@ interface EventInfoFormProps {
 
 // Zod schema for validation (basic, mostly optional)
 const contactSchema = z.object({
-  contact_name: z.string().optional(),
-  contact_phone: z.string().optional(),
-  contact_email: z.string().optional(),
-  contact_position: z.string().optional(),
+  contact_name: z.string().nullable().optional().or(z.literal('')),
+  contact_phone: z.string().nullable().optional().or(z.literal('')),
+  contact_email: z.string().nullable().optional().or(z.literal('')),
+  contact_position: z.string().nullable().optional().or(z.literal('')),
 });
 
 const bookingSchema = z.object({
   has_options: z.boolean().default(false),
   allows_split_options: z.boolean().default(false),
-  option_duration: z.string().optional(),
+  option_duration: z.string().nullable().optional().or(z.literal('')),
   allows_overbooking: z.boolean().default(false),
   rooms_only: z.boolean().default(false),
-  last_minute_leadtime: z.string().optional(),
-  contracted_companies: z.string().optional(),
-  refused_requests: z.string().optional(),
-  unwanted_marketing: z.string().optional(),
+  last_minute_leadtime: z.string().nullable().optional().or(z.literal('')),
+  contracted_companies: z.string().nullable().optional().or(z.literal('')),
+  refused_requests: z.string().nullable().optional().or(z.literal('')),
+  unwanted_marketing: z.string().nullable().optional().or(z.literal('')),
   requires_second_signature: z.boolean().default(false),
   exclusive_clients: z.boolean().default(false),
 });
@@ -102,70 +102,70 @@ const operationsSchema = z.object({
   has_storage: z.boolean().default(false),
   sold_with_rooms_only: z.boolean().default(false),
   hotel_exclusive_clients: z.boolean().default(false),
-  exclusive_clients_info: z.string().optional(),
+  exclusive_clients_info: z.string().nullable().optional().or(z.literal('')),
   has_minimum_spent: z.boolean().default(false),
-  minimum_spent_info: z.string().optional(),
+  minimum_spent_info: z.string().nullable().optional().or(z.literal('')),
   deposit_needed_event: z.boolean().default(false),
   informational_invoice_created: z.boolean().default(false),
-  lunch_location: z.string().optional(),
-  coffee_break_location: z.string().optional(),
-  last_minute_lead_time: z.string().optional(),
-  deposit_invoice_creator: z.string().optional(),
-  min_participants_package: z.coerce.number().optional(),
-  advance_days_for_material: z.coerce.number().optional(),
-  room_drop_cost: z.coerce.number().optional(),
-  deposit_rules_event: z.string().optional(),
+  lunch_location: z.string().nullable().optional().or(z.literal('')),
+  coffee_break_location: z.string().nullable().optional().or(z.literal('')),
+  last_minute_lead_time: z.string().nullable().optional().or(z.literal('')),
+  deposit_invoice_creator: z.string().nullable().optional().or(z.literal('')),
+  min_participants_package: z.coerce.number().nullable().optional(),
+  advance_days_for_material: z.coerce.number().nullable().optional(),
+  room_drop_cost: z.coerce.number().nullable().optional(),
+  deposit_rules_event: z.string().nullable().optional().or(z.literal('')),
   payment_methods_events: z.array(z.string()).default([]),
-  final_invoice_handling_event: z.string().optional(),
+  final_invoice_handling_event: z.string().nullable().optional().or(z.literal('')),
   // Storage handling
   storage_free_of_charge: z.boolean().default(false),
-  storage_pricing_info: z.string().optional(),
+  storage_pricing_info: z.string().nullable().optional().or(z.literal('')),
 });
 
 const financialsSchema = z.object({
   requires_deposit: z.boolean().default(false),
-  deposit_rules: z.string().optional(),
-  deposit_invoicer: z.string().optional(),
+  deposit_rules: z.string().nullable().optional().or(z.literal('')),
+  deposit_invoicer: z.string().nullable().optional().or(z.literal('')),
   has_info_invoice: z.boolean().default(false),
   payment_methods: z.array(z.string()).default([]),
-  invoice_handling: z.string().optional(),
-  commission_rules: z.string().optional(),
+  invoice_handling: z.string().nullable().optional().or(z.literal('')),
+  commission_rules: z.string().nullable().optional().or(z.literal('')),
   has_minimum_spent: z.boolean().default(false),
 });
 
 const equipmentSchema = z.array(
   z.object({
-    name: z.string(),
-    quantity: z.coerce.number().default(0),
-    price: z.coerce.number().default(0),
+    name: z.string().nullable().optional().or(z.literal('')),
+    quantity: z.coerce.number().nullable().default(0),
+    price: z.coerce.number().nullable().default(0),
   })
 );
 
 const technicalSchema = z.object({
-  beamer_lumens: z.string().optional(),
-  copy_cost: z.coerce.number().optional(),
-  wifi_data_rate: z.string().optional(),
-  software_presentation: z.string().optional(),
+  beamer_lumens: z.string().nullable().optional().or(z.literal('')),
+  copy_cost: z.coerce.number().nullable().optional(),
+  wifi_data_rate: z.string().nullable().optional().or(z.literal('')),
+  software_presentation: z.string().nullable().optional().or(z.literal('')),
   has_ac_or_ventilation: z.boolean().default(false),
   has_blackout_curtains: z.boolean().default(false),
   is_soundproof: z.boolean().default(false),
   has_daylight: z.boolean().default(false),
   is_hybrid_meeting_possible: z.boolean().default(false),
   technical_support_available: z.boolean().default(false),
-  technical_notes: z.string().optional(),
+  technical_notes: z.string().nullable().optional().or(z.literal('')),
 });
 
 const contractingSchema = z.object({
-  contracted_companies: z.string().optional(),
-  refused_requests: z.string().optional(),
-  unwanted_marketing_tools: z.string().optional(),
+  contracted_companies: z.string().nullable().optional().or(z.literal('')),
+  refused_requests: z.string().nullable().optional().or(z.literal('')),
+  unwanted_marketing_tools: z.string().nullable().optional().or(z.literal('')),
   first_second_option: z.boolean().default(false),
   split_options: z.boolean().default(false),
-  option_hold_duration: z.string().optional(),
+  option_hold_duration: z.string().nullable().optional().or(z.literal('')),
   overbooking_policy: z.boolean().default(false),
   deposit_required: z.boolean().default(false),
-  accepted_payment_methods: z.string().optional(),
-  commission_rules: z.string().optional(),
+  accepted_payment_methods: z.string().nullable().optional().or(z.literal('')),
+  commission_rules: z.string().nullable().optional().or(z.literal('')),
   second_signature_required: z.boolean().default(false),
 });
 

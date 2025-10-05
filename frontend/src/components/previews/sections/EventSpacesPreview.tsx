@@ -28,7 +28,7 @@ const EventSpacesPreview = ({ eventSpaces }: EventSpacesPreviewProps) => {
           <div key={space.id || index} className="border-l-2 border-primary/30 pl-3 py-1">
             <p className="font-medium text-foreground">{space.name || `${t('events.eventSpaces')} ${index + 1}`}</p>
             <div className="space-y-1 mt-1">
-              {space.cap_cocktail && <p><span className="text-foreground font-medium">{t('events.capacity')}:</span> {space.cap_cocktail} {t('events.persons', { defaultValue: 'Personen' })}</p>}
+              {space.cap_cocktail && <p><span className="text-foreground font-medium">{t('events.capacity')}:</span> {space.cap_cocktail} {t('events.persons')}</p>}
               {space.size && <p><span className="text-foreground font-medium">{t('events.size')}:</span> {space.size} m²</p>}
               {space.dimensions && <p><span className="text-foreground font-medium">{t('events.preview.dimensions')}:</span> {space.dimensions}</p>}
               

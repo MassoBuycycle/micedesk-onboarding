@@ -69,7 +69,13 @@
     "missing": "Missing",
     "empty": "(empty)",
     "complexData": "(complex data)",
-    "back": "Back"
+    "back": "Back",
+    "hotel": "Hotel",
+    "notSet": "Not set",
+    "preview": "Preview",
+    "fax": "Fax",
+    "room": "Room",
+    "event": "Event"
   },
   "pages": {
     "index": {
@@ -644,7 +650,8 @@
     "busSpaces": "Bus Spaces",
     "outsideSpaces": "Outside Spaces",
     "description": "Description",
-    "externalBillingId": "External Billing ID"
+    "externalBillingId": "External Billing ID",
+    "address": "Address"
   },
   "rooms": {
     "title": "Rooms",
@@ -801,6 +808,7 @@
     "uniqueSellingPoints": "Unique Selling Points",
     "available": "Available",
     "notAvailable": "Not Available",
+    "persons": "persons",
     "overview": "Events Overview",
     "preview": {
       "dimensions": "Dimensions",
@@ -935,18 +943,25 @@
   "files": {
     "noImagesFound": "No images found",
     "noDocumentsFound": "No documents found",
+    "noMediaFound": "No media files found",
     "dropHere": "Drop the files here",
     "dragHere": "Drag and drop your files here",
     "orClickToBrowse": "or click to browse files",
     "multipleSupported": "✓ Multiple files supported (up to {{count}})",
     "defaultType": "Default type",
-    "tipBestPerformance": "💡 Tip: For best performance, upload 10–15 files at a time"
+    "tipBestPerformance": "💡 Tip: For best performance, upload 10–15 files at a time",
+    "deleted": "File deleted successfully",
+    "deleteFailed": "Failed to delete file"
   },
   "announcements": {
     "title": "Announcements",
     "setSpecialAnnouncement": "Set Special Announcement",
     "description": "Message will appear on homepage and hotel pages.",
-    "messagePlaceholder": "Announcement message..."
+    "messagePlaceholder": "Announcement message...",
+    "deleted": "Announcement deleted successfully",
+    "deleteFailed": "Failed to delete announcement",
+    "currentAnnouncement": "Update or delete the current announcement.",
+    "current": "Current announcement:"
   },
   "users": {
     "title": "User Management",
@@ -954,6 +969,7 @@
     "users": "Users",
     "manageUsers": "Manage system users and their permissions",
     "addUser": "Add User",
+    "assignUser": "Assign Users",
     "addNewUser": "Add New User",
     "addSubtitle": "Create a new user and assign their role and permissions",
     "addDescription": "Fill in the details to create a new user",
@@ -1064,5 +1080,21 @@
     "createRole": "Create Role",
     "editRole": "Edit Role",
     "deleteRole": "Delete Role"
+  },
+  "restaurants": {
+    "title": "Restaurants",
+    "restaurant": "Restaurant",
+    "cuisine": "Cuisine",
+    "seatsIndoor": "Seats Indoor",
+    "seatsOutdoor": "Seats Outdoor",
+    "openingHours": "Opening Hours"
+  },
+  "bars": {
+    "title": "Bars",
+    "bar": "Bar",
+    "seatsIndoor": "Seats Indoor",
+    "seatsOutdoor": "Seats Outdoor",
+    "openingHours": "Opening Hours",
+    "snacks": "Snacks Available"
   }
 } 

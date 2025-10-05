@@ -70,7 +70,13 @@
     "missing": "Fehlt",
     "empty": "(leer)",
     "complexData": "(komplexe Daten)",
-    "back": "Zurück"
+    "back": "Zurück",
+    "hotel": "Hotel",
+    "notSet": "Nicht gesetzt",
+    "preview": "Vorschau",
+    "fax": "Fax",
+    "room": "Zimmer",
+    "event": "Veranstaltung"
   },
   "pages": {
     "index": {
@@ -649,7 +655,8 @@
     "busSpaces": "Busplätze",
     "outsideSpaces": "Außenplätze",
     "description": "Beschreibung",
-    "externalBillingId": "Externe Rechnungs-ID"
+    "externalBillingId": "Externe Rechnungs-ID",
+    "address": "Adresse"
   },
   "rooms": {
     "title": "Zimmer",
@@ -1019,12 +1026,15 @@
   "files": {
     "noImagesFound": "Keine Bilder gefunden",
     "noDocumentsFound": "Keine Dokumente gefunden",
+    "noMediaFound": "Keine Mediendateien gefunden",
     "dropHere": "Dateien hier ablegen",
     "dragHere": "Dateien hierher ziehen und ablegen",
     "orClickToBrowse": "oder klicken, um Dateien auszuwählen",
     "multipleSupported": "✓ Mehrere Dateien unterstützt (bis zu {{count}})",
     "defaultType": "Standardtyp",
-    "tipBestPerformance": "💡 Tipp: Für beste Leistung 10–15 Dateien gleichzeitig hochladen"
+    "tipBestPerformance": "💡 Tipp: Für beste Leistung 10–15 Dateien gleichzeitig hochladen",
+    "deleted": "Datei erfolgreich gelöscht",
+    "deleteFailed": "Fehler beim Löschen der Datei"
   },
   "eventFeatures": {
     "naturalLight": "Tageslicht",
@@ -1044,7 +1054,11 @@
     "title": "Ankündigungen",
     "setSpecialAnnouncement": "Sonderankündigung festlegen",
     "description": "Die Nachricht wird auf der Startseite und den Hotelseiten angezeigt.",
-    "messagePlaceholder": "Ankündigungsnachricht..."
+    "messagePlaceholder": "Ankündigungsnachricht...",
+    "deleted": "Ankündigung erfolgreich gelöscht",
+    "deleteFailed": "Fehler beim Löschen der Ankündigung",
+    "currentAnnouncement": "Aktuelle Ankündigung aktualisieren oder löschen.",
+    "current": "Aktuelle Ankündigung:"
   },
   "users": {
     "title": "Benutzerverwaltung",
@@ -1052,6 +1066,7 @@
     "users": "Benutzer",
     "manageUsers": "Systembenutzer und deren Berechtigungen verwalten",
     "addUser": "Benutzer hinzufügen",
+    "assignUser": "Benutzer zuweisen",
     "addNewUser": "Neuen Benutzer hinzufügen",
     "addSubtitle": "Erstellen Sie einen neuen Benutzer und weisen Sie seine Rolle und Berechtigungen zu",
     "addDescription": "Geben Sie die Details ein, um einen neuen Benutzer zu erstellen",
@@ -1160,5 +1175,21 @@
     "createRole": "Rolle erstellen",
     "editRole": "Rolle bearbeiten",
     "deleteRole": "Rolle löschen"
+  },
+  "restaurants": {
+    "title": "Restaurants",
+    "restaurant": "Restaurant",
+    "cuisine": "Küche",
+    "seatsIndoor": "Sitzplätze Innen",
+    "seatsOutdoor": "Sitzplätze Außen",
+    "openingHours": "Öffnungszeiten"
+  },
+  "bars": {
+    "title": "Bars",
+    "bar": "Bar",
+    "seatsIndoor": "Sitzplätze Innen",
+    "seatsOutdoor": "Sitzplätze Außen",
+    "openingHours": "Öffnungszeiten",
+    "snacks": "Snacks verfügbar"
   }
 } 

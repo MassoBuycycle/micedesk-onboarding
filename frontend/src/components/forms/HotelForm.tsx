@@ -37,10 +37,10 @@ const createHotelFormSchema = (t: any) => z.object({
   postalCode: z.string().min(1, { message: t("forms.validation.postalCodeRequired") }),
   city: z.string().min(1, { message: t("forms.validation.cityRequired") }),
   country: z.string().min(1, { message: t("forms.validation.countryRequired") }),
-  phone: z.string().optional().or(z.literal('')),
-  generalManagerName: z.string().optional().or(z.literal('')),
-  generalManagerPhone: z.string().optional().or(z.literal('')),
-  generalManagerEmail: z.string().optional().or(z.literal('')),
+  phone: z.string().nullable().optional().or(z.literal('')),
+  generalManagerName: z.string().nullable().optional().or(z.literal('')),
+  generalManagerPhone: z.string().nullable().optional().or(z.literal('')),
+  generalManagerEmail: z.string().nullable().optional().or(z.literal('')),
   email: z.string().email({ message: t("forms.validation.emailRequired") }),
   website: z.preprocess(
     (val) => {
@@ -51,64 +51,64 @@ const createHotelFormSchema = (t: any) => z.object({
     },
     z.string().url({ message: t("forms.validation.websiteRequired") }).optional().or(z.literal(''))
   ),
-  description: z.string().optional(),
+  description: z.string().nullable().optional().or(z.literal('')),
   
   // Billing Address
   billingAddressName: z.string().min(2, { message: t("forms.validation.billingNameRequired") }),
   billingAddressStreet: z.string().min(3, { message: t("forms.validation.billingStreetRequired") }),
   billingAddressZip: z.string().min(1, { message: t("forms.validation.billingZipRequired") }),
   billingAddressCity: z.string().min(1, { message: t("forms.validation.billingCityRequired") }),
-  billingAddressVat: z.string().optional().or(z.literal('')),
+  billingAddressVat: z.string().nullable().optional().or(z.literal('')),
   billingEmail: z.string().email({ message: t("forms.validation.emailRequired") }).optional().or(z.literal('')),
   
   // General Information
-  starRating: z.coerce.number().optional(),
+  starRating: z.coerce.number().nullable().optional(),
   category: z.string(),
-  openingDate: z.coerce.number().optional(),
-  latestRenovationDate: z.coerce.number().optional(),
-  totalRooms: z.coerce.number().optional(),
-  conferenceRooms: z.coerce.number().optional(),
-  pmsSystem: z.string().optional(),
+  openingDate: z.coerce.number().nullable().optional(),
+  latestRenovationDate: z.coerce.number().nullable().optional(),
+  totalRooms: z.coerce.number().nullable().optional(),
+  conferenceRooms: z.coerce.number().nullable().optional(),
+  pmsSystem: z.string().nullable().optional().or(z.literal('')),
   
   // Location & Distances
-  distanceToAirportKm: z.coerce.number().optional(),
-  airportNote: z.string().optional().or(z.literal('')),
-  distanceToHighwayKm: z.coerce.number().optional(),
-  highwayNote: z.string().optional().or(z.literal('')),
-  distanceToFairKm: z.coerce.number().optional(),
-  fairNote: z.string().optional().or(z.literal('')),
-  distanceToTrainStation: z.coerce.number().optional(),
-  trainStationNote: z.string().optional().or(z.literal('')),
-  distanceToPublicTransport: z.coerce.number().optional(),
-  publicTransportNote: z.string().optional().or(z.literal('')),
+  distanceToAirportKm: z.coerce.number().nullable().optional(),
+  airportNote: z.string().nullable().optional().or(z.literal('')),
+  distanceToHighwayKm: z.coerce.number().nullable().optional(),
+  highwayNote: z.string().nullable().optional().or(z.literal('')),
+  distanceToFairKm: z.coerce.number().nullable().optional(),
+  fairNote: z.string().nullable().optional().or(z.literal('')),
+  distanceToTrainStation: z.coerce.number().nullable().optional(),
+  trainStationNote: z.string().nullable().optional().or(z.literal('')),
+  distanceToPublicTransport: z.coerce.number().nullable().optional(),
+  publicTransportNote: z.string().nullable().optional().or(z.literal('')),
   
   // Additional Information
-  plannedChanges: z.string().optional(),
-  attractionInTheArea: z.string().optional(),
-  externalBillingId: z.string().optional().or(z.literal('')),
+  plannedChanges: z.string().nullable().optional().or(z.literal('')),
+  attractionInTheArea: z.string().nullable().optional().or(z.literal('')),
+  externalBillingId: z.string().nullable().optional().or(z.literal('')),
   
   // Parking Information
-  noOfParkingSpaces: z.coerce.number().optional(),
-  noOfParkingSpacesGarage: z.coerce.number().optional(),
-  noOfParkingSpacesElectric: z.coerce.number().optional(),
-  noOfParkingSpacesBus: z.coerce.number().optional(),
-  noOfParkingSpacesOutside: z.coerce.number().optional(),
-  noOfParkingSpacesDisabled: z.coerce.number().optional(),
-  parkingCostPerHour: z.coerce.number().optional(),
-  parkingCostPerDay: z.coerce.number().optional(),
-  parkingRemarks: z.string().optional().or(z.literal('')),
+  noOfParkingSpaces: z.coerce.number().nullable().optional(),
+  noOfParkingSpacesGarage: z.coerce.number().nullable().optional(),
+  noOfParkingSpacesElectric: z.coerce.number().nullable().optional(),
+  noOfParkingSpacesBus: z.coerce.number().nullable().optional(),
+  noOfParkingSpacesOutside: z.coerce.number().nullable().optional(),
+  noOfParkingSpacesDisabled: z.coerce.number().nullable().optional(),
+  parkingCostPerHour: z.coerce.number().nullable().optional(),
+  parkingCostPerDay: z.coerce.number().nullable().optional(),
+  parkingRemarks: z.string().nullable().optional().or(z.literal('')),
 
   // Specific Facilities
-  openingTimePool: z.string().optional().or(z.literal('')),
-  openingTimeFitnessCenter: z.string().optional().or(z.literal('')),
-  equipmentFitnessCenter: z.string().optional().or(z.literal('')),
-  openingTimeSpaArea: z.string().optional().or(z.literal('')),
-  equipmentSpaArea: z.string().optional().or(z.literal('')),
+  openingTimePool: z.string().nullable().optional().or(z.literal('')),
+  openingTimeFitnessCenter: z.string().nullable().optional().or(z.literal('')),
+  equipmentFitnessCenter: z.string().nullable().optional().or(z.literal('')),
+  openingTimeSpaArea: z.string().nullable().optional().or(z.literal('')),
+  equipmentSpaArea: z.string().nullable().optional().or(z.literal('')),
   
   // Additional Links
   additionalLinks: z.array(z.object({
-    name: z.string().optional(),
-    link: z.string().optional()
+    name: z.string().nullable().optional().or(z.literal('')),
+    link: z.string().nullable().optional().or(z.literal(''))
   })).optional(),
 });
 
