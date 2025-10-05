@@ -72,6 +72,7 @@ export interface MainRoomConfigInput {
   check_in?: string; // Note: RoomForm.tsx might use check_in_time
   check_out?: string; // Note: RoomForm.tsx might use check_out_time
   early_check_in_cost?: number;
+  early_check_in_fee_type?: 'fixed' | 'per_hour';
   late_check_out_cost?: number;
   early_check_in_time_frame?: string;
   late_check_out_time?: string; // Note: RoomForm.tsx might use late_check_out_tme
@@ -84,6 +85,7 @@ export interface MainRoomConfigInput {
   // Fields from ROOM_PET_POLICIES_FIELDS (backend)
   is_dogs_allowed?: boolean;
   dog_fee?: number;
+  dog_fee_type?: 'fixed' | 'per_hour';
   dog_fee_inclusions?: string;
   // Standard room features (missing from backend - needs to be added)
   standard_features?: string[];
@@ -231,7 +233,7 @@ export interface RoomOperationalHandlingInput {
   group_rates_check?: boolean;
   group_rates?: string;
   group_handling_notes?: string;
-  breakfast_share?: boolean;
+  breakfast_share?: number;
   first_second_option?: boolean;
   shared_options?: boolean;
   first_option_hold_duration?: string;

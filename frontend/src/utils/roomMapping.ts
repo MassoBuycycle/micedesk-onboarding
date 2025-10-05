@@ -15,6 +15,7 @@ export function mapRoomFormToApi(hotelId: number, form: RoomFormValues): MainRoo
     check_in: form.check_in_time,
     check_out: form.check_out_time,
     early_check_in_cost: form.early_checkin_fee,
+    early_check_in_fee_type: form.early_checkin_fee_type,
     late_check_out_cost: form.late_checkout_fee,
     early_check_in_time_frame: form.early_check_in_time_frame || undefined,
     late_check_out_time: form.late_check_out_tme || undefined,
@@ -26,6 +27,7 @@ export function mapRoomFormToApi(hotelId: number, form: RoomFormValues): MainRoo
     amt_handicapped_accessible_rooms: form.accessible_rooms,
     is_dogs_allowed: form.dogs_allowed,
     dog_fee: form.dog_fee,
+    dog_fee_type: form.dog_fee_type,
     dog_fee_inclusions: form.dog_fee_inclusions || undefined,
   };
 } 

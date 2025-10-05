@@ -9,6 +9,7 @@ export interface Room {
   check_in?: string;
   check_out?: string;
   early_check_in_cost?: number;
+  early_check_in_fee_type?: 'fixed' | 'per_hour';
   late_check_out_cost?: number;
   early_check_in_time_frame?: string;
   late_check_out_time?: string;
@@ -19,6 +20,7 @@ export interface Room {
   amt_handicapped_accessible_rooms?: number;
   is_dogs_allowed?: boolean;
   dog_fee?: number;
+  dog_fee_type?: 'fixed' | 'per_hour';
   dog_fee_inclusions?: string;
   created_at?: Date;
   updated_at?: Date;

@@ -45,7 +45,7 @@ const operationalSchema = z.object({
   group_rates_check: z.boolean().default(false),
   group_rates: z.string().optional(),
   group_handling_notes: z.string().optional(),
-  breakfast_share: z.boolean().default(false),
+  breakfast_share: z.coerce.number().optional(),
   first_second_option: z.boolean().default(false),
   shared_options: z.boolean().default(false),
   first_option_hold_duration: z.string().optional(),
@@ -99,7 +99,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
       group_rates_check: false,
       group_rates: '',
       group_handling_notes: '',
-      breakfast_share: false,
+      breakfast_share: undefined,
       first_second_option: false,
       shared_options: false,
       first_option_hold_duration: '',
@@ -247,20 +247,6 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
                 )}
               />
             )}
-            {/* Additional note for call-off quotas */}
-            <FormField
-              control={form.control}
-              name="call_off_notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Notiz zu Abrufkontingenten</FormLabel>
-                  <FormDescription>Weitere Details zum Handling von Abrufkontingenten (optional)</FormDescription>
-                  <FormControl>
-                    <Textarea {...field} className="min-h-[100px]" />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
           </CardContent>
         </Card>
 
@@ -289,7 +275,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
                 name="group_reservation_category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Standard kategorie Gruppen</FormLabel>
+                    <FormLabel>Standardkategorie Gruppenbuchung</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -303,7 +289,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
               name="group_rates_check"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <FormLabel>Gruppenraten genehmigungspflichtig?</FormLabel>
+                  <FormLabel>Gibt es vordefinierte Gruppenraten?</FormLabel>
                   <FormControl>
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
@@ -338,19 +324,20 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="breakfast_share"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Wie hoch ist der Frühstücksanteil in der Rate?</FormLabel>
+                  <FormControl>
+                    <Input type="number" min="0" step="0.01" placeholder="z.B. 15" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="breakfast_share"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <FormLabel>Frühstücksanteil anwendbar?</FormLabel>
-                    <FormControl>
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
               <FormField
                 control={form.control}
                 name="first_second_option"
@@ -363,14 +350,14 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
                   </FormItem>
                 )}
               />
-      </div>
+            </div>
 
             <FormField
               control={form.control}
               name="shared_options"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <FormLabel>Geteilte Optionen erlaubt?</FormLabel>
+                  <FormLabel>Werden geteilte Optionen angeboten?</FormLabel>
                   <FormControl>
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
@@ -382,7 +369,7 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
               name="first_option_hold_duration"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Haltefrist 1. Option</FormLabel>
+                  <FormLabel>1. Optionsfrist</FormLabel>
                   <FormControl>
                     <Input placeholder="z.B. 7 Tage" {...field} />
                   </FormControl>
@@ -515,6 +502,20 @@ const RoomHandlingForm = ({ selectedHotel, initialData = {}, onNext, onPrevious,
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Freiplatzregelung (Leisure Groups)</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} className="min-h-[100px]" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            {/* Additional note for call-off quotas */}
+            <FormField
+              control={form.control}
+              name="call_off_notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Notiz zu Abrufkontingenten</FormLabel>
+                  <FormDescription>Weitere Details zum Handling von Abrufkontingenten (optional)</FormDescription>
                   <FormControl>
                     <Textarea {...field} className="min-h-[100px]" />
                   </FormControl>

@@ -198,6 +198,10 @@ const DEFAULT_EQUIPMENT = [
 const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialData = {}, createdEventId, onNext, onPrevious, onChange, mode }) => {
   // i18n translation hook
   const { t } = useTranslation();
+  
+  // Loading state to prevent double submissions
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   // Debug log to see what data we're receiving
   
   // Helper to build defaults merged with incoming initialData
@@ -402,11 +406,20 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
     // Prevent default form behavior
     e?.preventDefault();
     
+    // Prevent double submissions
+    if (isSubmitting) {
+      toast.warning("Please wait, your request is being processed...");
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
     try {
       const hotelId = selectedHotel?.id;
       
       if (!hotelId) {
         toast.error("Hotel ID is required but not available. Please ensure a hotel is selected.");
+        setIsSubmitting(false);
         return;
       }
       
@@ -481,7 +494,14 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
       toast.success("Event created successfully!");
       onNext(fullPayload);
     } catch (error) {
-      toast.error(`Failed to create event: ${error.message}`);
+      // Handle duplicate event error specifically
+      if (error.response?.data?.code === 'DUPLICATE_EVENT_DETECTED') {
+        toast.error("This event was just created. Please wait a moment before creating another event for this hotel.");
+      } else {
+        toast.error(`Failed to create event: ${error.message}`);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -997,11 +1017,28 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
 
         {/* NAV BUTTONS */}
         <div className="flex justify-between mt-6">
-          <Button type="button" variant="outline" onClick={() => onPrevious(form.getValues() as unknown as EventInfoData)}><ArrowLeft className="h-4 w-4"/> Previous</Button>
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={() => onPrevious(form.getValues() as unknown as EventInfoData)}
+            disabled={isSubmitting}
+          >
+            <ArrowLeft className="h-4 w-4"/> Previous
+          </Button>
           <Button 
             type="submit"
+            disabled={isSubmitting}
           >
-            <ArrowRight className="h-4 w-4"/> Next
+            {isSubmitting ? (
+              <>
+                <span className="animate-spin mr-2">⏳</span>
+                Creating...
+              </>
+            ) : (
+              <>
+                <ArrowRight className="h-4 w-4"/> Next
+              </>
+            )}
           </Button>
         </div>
       </form>

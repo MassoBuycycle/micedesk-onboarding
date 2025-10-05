@@ -293,6 +293,7 @@ export function useHotelFormState() {
         billingAddressZip: hotelData.billing_address_zip,
         billingAddressCity: hotelData.billing_address_city,
         billingAddressVat: hotelData.billing_address_vat,
+        billingEmail: hotelData.billing_email,
         externalBillingId: hotelData.external_billing_id,
         generalManagerName: hotelData.general_manager_name,
         generalManagerPhone: hotelData.general_manager_phone,
@@ -305,10 +306,15 @@ export function useHotelFormState() {
         conferenceRooms: hotelData.conference_rooms,
         pmsSystem: hotelData.pms_system,
         distanceToAirportKm: hotelData.distance_to_airport_km,
+        airportNote: hotelData.airport_note || '',
         distanceToHighwayKm: hotelData.distance_to_highway_km,
+        highwayNote: hotelData.highway_note || '',
         distanceToFairKm: hotelData.distance_to_fair_km,
+        fairNote: hotelData.fair_note || '',
         distanceToTrainStation: hotelData.distance_to_train_station,
+        trainStationNote: hotelData.train_station_note || '',
         distanceToPublicTransport: hotelData.distance_to_public_transport,
+        publicTransportNote: hotelData.public_transport_note || '',
         noOfParkingSpaces: hotelData.no_of_parking_spaces,
         noOfParkingSpacesGarage: hotelData.no_of_parking_spaces_garage,
         noOfParkingSpacesElectric: hotelData.no_of_parking_spaces_electric,
@@ -574,10 +580,15 @@ export function useHotelFormState() {
             conference_rooms: formHotelData.conferenceRooms || undefined,
             pms_system: formHotelData.pmsSystem || undefined,
             distance_to_airport_km: formHotelData.distanceToAirportKm || undefined,
+            airport_note: formHotelData.airportNote || undefined,
             distance_to_highway_km: formHotelData.distanceToHighwayKm || undefined,
+            highway_note: formHotelData.highwayNote || undefined,
             distance_to_fair_km: formHotelData.distanceToFairKm || undefined,
+            fair_note: formHotelData.fairNote || undefined,
             distance_to_train_station: formHotelData.distanceToTrainStation || undefined,
+            train_station_note: formHotelData.trainStationNote || undefined,
             distance_to_public_transport: formHotelData.distanceToPublicTransport || undefined,
+            public_transport_note: formHotelData.publicTransportNote || undefined,
             no_of_parking_spaces: formHotelData.noOfParkingSpaces || undefined,
             no_of_parking_spaces_garage: formHotelData.noOfParkingSpacesGarage || undefined,
             no_of_parking_spaces_electric: formHotelData.noOfParkingSpacesElectric || undefined,
@@ -940,10 +951,27 @@ export function useHotelFormState() {
               
               // Check if we need to create or update
               if (!eventId) {
-                const createRes = await createEvent(contactData);
-                eventId = createRes.eventId;
-                setCreatedEventId(eventId);
-                toast.success(`Event created (ID: ${eventId}).`);
+                try {
+                  const createRes = await createEvent(contactData);
+                  eventId = createRes.eventId;
+                  setCreatedEventId(eventId);
+                  toast.success(`Event created (ID: ${eventId}).`);
+                } catch (createError: any) {
+                  // Handle duplicate event error
+                  if (createError.response?.data?.code === 'DUPLICATE_EVENT_DETECTED') {
+                    // Use the existing event ID if duplicate detected
+                    const existingEventId = createError.response.data.existingEventId;
+                    if (existingEventId) {
+                      eventId = existingEventId;
+                      setCreatedEventId(existingEventId);
+                      toast.warning(`Using existing event (ID: ${existingEventId}) created just now.`);
+                    } else {
+                      throw createError;
+                    }
+                  } else {
+                    throw createError;
+                  }
+                }
               } else {
                 await updateEvent(eventId, contactData);
                 toast.success(`Event updated (ID: ${eventId}).`);

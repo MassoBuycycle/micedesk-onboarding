@@ -83,8 +83,8 @@ const HotelView = () => {
   const roomHandling: any = (hotelData as any)?.roomHandling || null;
   const contractDetails: any = (hotelData as any)?.contractDetails || {};
   const files = (hotelData?.files && hotelData.files.length > 0) ? hotelData.files : fallbackFiles;
-  const imageFiles = files.filter(f => f.mime_type.startsWith("image"));
-  const documentFiles = files.filter(f => !f.mime_type.startsWith("image"));
+  const imageFiles = files.filter(f => f.mime_type.startsWith("image") || f.mime_type.startsWith("video"));
+  const documentFiles = files.filter(f => !f.mime_type.startsWith("image") && !f.mime_type.startsWith("video"));
   const mainImage = files.find(f => f.file_type_code === "main_image");
 
   const queryClient = useQueryClient();
@@ -167,6 +167,22 @@ const HotelView = () => {
   const openPreview = (file: FileData) => {
     setPreviewFile(file);
     setPreviewOpen(true);
+  };
+
+  // Helper function to get the entity source label for a file
+  const getEntitySourceLabel = (file: any): { label: string; type: string } => {
+    if (file.entity_type === 'hotels') {
+      return { label: t('common.hotel', { defaultValue: 'Hotel' }), type: 'hotel' };
+    } else if (file.entity_type === 'rooms') {
+      const room = hotelData?.rooms?.find((r: any) => r.id === file.entity_id);
+      const roomName = room ? room.room_category_name || room.name || `Room ${file.entity_id}` : `Room ${file.entity_id}`;
+      return { label: roomName, type: 'room' };
+    } else if (file.entity_type === 'events') {
+      const event = (hotelData as any)?.events?.find((e: any) => e.id === file.entity_id);
+      const eventName = event ? event.name || `Event ${file.entity_id}` : `Event ${file.entity_id}`;
+      return { label: eventName, type: 'event' };
+    }
+    return { label: file.entity_type, type: 'unknown' };
   };
 
   if (!hotel) {
@@ -1089,15 +1105,33 @@ const HotelView = () => {
           <TabsContent value="media" className="space-y-6 mt-6">
             {imageFiles.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {imageFiles.map(img => (
+                {imageFiles.map(img => {
+                  const entitySource = getEntitySourceLabel(img);
+                  return (
                   <Card key={img.id} className="overflow-hidden flex flex-col">
-                    <AspectRatio ratio={16/9} className="bg-muted">
-                      <img 
-                        src={img.url} 
-                        alt={img.original_name} 
-                        className="object-cover w-full h-full hover:scale-105 transition-transform duration-300" 
-                      />
-                    </AspectRatio>
+                    <div className="relative">
+                      <AspectRatio ratio={16/9} className="bg-muted">
+                        {img.mime_type.startsWith("video") ? (
+                          <video 
+                            src={img.url}
+                            controls
+                            className="object-cover w-full h-full"
+                          />
+                        ) : (
+                          <img 
+                            src={img.url} 
+                            alt={img.original_name} 
+                            className="object-cover w-full h-full hover:scale-105 transition-transform duration-300" 
+                          />
+                        )}
+                      </AspectRatio>
+                      <Badge 
+                        variant={entitySource.type === 'hotel' ? 'default' : entitySource.type === 'room' ? 'secondary' : 'outline'}
+                        className="absolute top-2 right-2 text-xs"
+                      >
+                        {entitySource.label}
+                      </Badge>
+                    </div>
                     <CardContent className="p-3 flex items-center justify-between gap-2">
                       <div className="min-w-0">
                         <p className="text-sm truncate" title={img.original_name}>
@@ -1128,13 +1162,14 @@ const HotelView = () => {
                       </div>
                     </CardContent>
                   </Card>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <Card>
                 <CardContent className="text-center py-12">
                   <Image className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">{t('files.noImagesFound')}</p>
+                  <p className="text-muted-foreground">{t('files.noMediaFound', { defaultValue: 'No media files found' })}</p>
                 </CardContent>
               </Card>
             )}
@@ -1144,13 +1179,23 @@ const HotelView = () => {
           <TabsContent value="documents" className="space-y-6 mt-6">
             {documentFiles.length > 0 ? (
               <div className="grid gap-3">
-                {documentFiles.map(file => (
+                {documentFiles.map(file => {
+                  const entitySource = getEntitySourceLabel(file);
+                  return (
                   <Card key={file.id}>
                     <CardContent className="flex items-center justify-between p-4">
                       <div className="flex items-center gap-3">
                         <FileText className="h-8 w-8 text-muted-foreground" />
                         <div>
-                          <p className="font-medium truncate max-w-[220px]" title={file.original_name}>{file.original_name}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium truncate max-w-[220px]" title={file.original_name}>{file.original_name}</p>
+                            <Badge 
+                              variant={entitySource.type === 'hotel' ? 'default' : entitySource.type === 'room' ? 'secondary' : 'outline'}
+                              className="text-xs"
+                            >
+                              {entitySource.label}
+                            </Badge>
+                          </div>
                           <p className="text-sm text-muted-foreground truncate">
                              {(file.file_type_name || file.file_type_code) + ` • ${file.mime_type}` + (file.size ? ` • ${(file.size/1024/1024).toFixed(1)} MB` : '')}
                           </p>
@@ -1177,7 +1222,8 @@ const HotelView = () => {
                       </div>
                     </CardContent>
                   </Card>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <Card>

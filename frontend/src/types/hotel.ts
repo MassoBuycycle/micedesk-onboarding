@@ -53,6 +53,7 @@ export interface HotelBilling {
   billing_address_zip?: string;
   billing_address_city?: string;
   billing_address_vat: string;
+  billing_email?: string;
   created_at?: Date;
   updated_at?: Date;
 }
@@ -61,10 +62,15 @@ export interface HotelDistance {
   id?: number;
   hotel_id: number;
   distance_to_airport_km?: number;
+  airport_note?: string;
   distance_to_highway_km?: number;
+  highway_note?: string;
   distance_to_fair_km?: number;
+  fair_note?: string;
   distance_to_train_station?: number;
+  train_station_note?: string;
   distance_to_public_transport?: number;
+  public_transport_note?: string;
   created_at?: Date;
   updated_at?: Date;
 }

@@ -22,6 +22,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useTranslation } from 'react-i18next';
 import { PhoneField } from '@/components/shared/FormFields';
 
@@ -34,6 +36,7 @@ const roomFormSchema = z.object({
   check_in_time: z.string().min(1, "Check-in time is required"),
   check_out_time: z.string().min(1, "Check-out time is required"),
   early_checkin_fee: z.preprocess((v) => v === '' || v === null ? undefined : v, z.coerce.number().min(0).optional()),
+  early_checkin_fee_type: z.enum(['fixed', 'per_hour']).default('fixed'),
   late_checkout_fee: z.preprocess((v) => v === '' || v === null ? undefined : v, z.coerce.number().min(0).optional()),
   early_check_in_time_frame: z.string().optional(),
   late_check_out_tme: z.string().optional(),
@@ -46,6 +49,7 @@ const roomFormSchema = z.object({
   accessible_rooms: z.preprocess((v) => v === '' || v === null ? undefined : v, z.coerce.number().min(0).optional()),
   dogs_allowed: z.boolean().default(false),
   dog_fee: z.preprocess((v) => v === '' || v === null ? undefined : v, z.coerce.number().min(0).optional()),
+  dog_fee_type: z.enum(['fixed', 'per_hour']).default('fixed'),
   dog_fee_inclusions: z.string().optional(),
 });
 
@@ -269,19 +273,52 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
                 )}
               />
               
-              <FormField
-                control={form.control}
-                name="early_checkin_fee"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('rooms.earlyCheckInFee')}</FormLabel>
-                    <FormControl>
-                      <Input type="number" min="0" step="0.01" placeholder={t('rooms.earlyCheckInFee')} {...field} value={field.value ?? ''} onWheel={(e) => e.currentTarget.blur()} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="early_checkin_fee"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('rooms.earlyCheckInFee')}</FormLabel>
+                      <FormControl>
+                        <Input type="number" min="0" step="0.01" placeholder={t('rooms.earlyCheckInFee')} {...field} value={field.value ?? ''} onWheel={(e) => e.currentTarget.blur()} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="early_checkin_fee_type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('rooms.earlyCheckInFeeType')}</FormLabel>
+                      <FormControl>
+                        <RadioGroup 
+                          onValueChange={field.onChange} 
+                          value={field.value}
+                          className="flex flex-row space-x-4 mt-2"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="fixed" id="early-fixed" />
+                            <Label htmlFor="early-fixed" className="font-normal cursor-pointer">
+                              {t('rooms.earlyCheckInFeeTypeFixed')}
+                            </Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="per_hour" id="early-per-hour" />
+                            <Label htmlFor="early-per-hour" className="font-normal cursor-pointer">
+                              {t('rooms.earlyCheckInFeeTypePerHour')}
+                            </Label>
+                          </div>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               
               <FormField
                 control={form.control}
@@ -511,20 +548,53 @@ const RoomForm = ({ selectedHotel, initialData = {}, onNext, onPrevious, onChang
 
             {form.watch('dogs_allowed') && (
               <div className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="dog_fee"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('rooms.dogFee')}</FormLabel>
-                      <FormControl>
-                        <Input type="number" min="0" step="0.01" placeholder={t('rooms.dogFee')} {...field} value={field.value ?? ''} onWheel={(e) => e.currentTarget.blur()} />
-                      </FormControl>
-                      <FormDescription>{t('rooms.dogFeeDescription')}</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="dog_fee"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('rooms.dogFee')}</FormLabel>
+                        <FormControl>
+                          <Input type="number" min="0" step="0.01" placeholder={t('rooms.dogFee')} {...field} value={field.value ?? ''} onWheel={(e) => e.currentTarget.blur()} />
+                        </FormControl>
+                        <FormDescription>{t('rooms.dogFeeDescription')}</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="dog_fee_type"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('rooms.dogFeeType')}</FormLabel>
+                        <FormControl>
+                          <RadioGroup 
+                            onValueChange={field.onChange} 
+                            value={field.value}
+                            className="flex flex-row space-x-4 mt-2"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="fixed" id="dog-fixed" />
+                              <Label htmlFor="dog-fixed" className="font-normal cursor-pointer">
+                                {t('rooms.dogFeeTypeFixed')}
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="per_hour" id="dog-per-hour" />
+                              <Label htmlFor="dog-per-hour" className="font-normal cursor-pointer">
+                                {t('rooms.dogFeeTypePerHour')}
+                              </Label>
+                            </div>
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 
                 <FormField
                   control={form.control}

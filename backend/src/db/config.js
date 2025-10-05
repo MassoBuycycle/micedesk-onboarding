@@ -39,37 +39,63 @@ const pool = mysql.createPool({
 const TABLE_PREFIX = process.env.TABLE_PREFIX || 'onboarding_';
 
 // Complete list of table names used throughout the application (without prefix)
+// This list should match exactly what exists in production with the onboarding_ prefix
 const TABLES_TO_PREFIX = [
-  // Core hotel & user tables
-  'hotels', 'hotel_info', 'users', 'roles', 'permissions', 'role_permissions',
-  'user_roles', 'resource_permissions', 'user_hotel_assignments', 'user_all_hotels_access',
+  // Core tables
+  'equipment_types',
+  'file_types',
+  'files',
   
-  // Room management tables  
-  'rooms', 'room_contacts', 'room_policies', 'room_inventory', 'room_pet_policies',
-  'room_category_infos', 'room_operational_handling', 'room_standard_features',
+  // User management tables
+  'users',
+  'roles',
+  'permissions',
+  'role_permissions',
+  'user_roles',
+  'resource_permissions',
+  'user_all_hotels_access',
+  'user_hotel_assignments',
+  
+  // Hotel tables
+  'hotels',
+  'contract_details',
+  'hotel_secure_data',
+  'hotel_announcements',
   
   // Event management tables
-  'events', 'event_details', 'event_booking', 'event_financials', 'event_operations', 'event_spaces',
-  'event_equipment', 'event_av_equipment', 'event_contracting', 'event_technical', 
-  'event_handling',
+  'events',
+  'event_av_equipment',
+  'event_details',
+  'event_equipment',
+  'event_spaces',
   
   // Food & beverage tables
+  'fb_bars',
+  'fb_restaurants',
   'food_beverage_details',
   
-  // File management tables
-  'files', 'file_types',
-  
   // Information policies tables
-  'information_policies', 'information_policy_items', 'information_policy_item_details',
+  'information_policies',
+  'information_policy_items',
+  'information_policy_item_details',
   
   // Lookup tables
-  // 'payment_methods', 'standard_features', 'equipment_types', // Removed to prevent incorrect prefixing in SET clauses. Manually prefixed in controllers.
+  'payment_methods',
+  'standard_features',
   
-  // Announcements & secure data (actively used)
-  'hotel_announcements', 'hotel_secure_data',
+  // Room management tables
+  'rooms',
+  'room_category_infos',
+  'room_contacts',
+  'room_inventory',
+  'room_operational_handling',
+  'room_pet_policies',
+  'room_policies',
+  'room_standard_features',
   
   // Approval system tables
-  'entry_assignments', 'pending_changes'
+  'entry_assignments',
+  'pending_changes'
 ];
 
 function prefixSQL(sql) {

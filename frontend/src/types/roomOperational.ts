@@ -12,7 +12,7 @@ export interface RoomOperationalHandling {
   group_rates_check: boolean;
   group_rates: string;
   group_handling_notes: string;
-  breakfast_share: boolean;
+  breakfast_share: number;
   first_second_option: boolean;
   shared_options: boolean;
   first_option_hold_duration: string;

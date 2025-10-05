@@ -77,8 +77,27 @@ export const upsertContractDetails = async (req, res, next) => {
         } else if (field === 'fte_count') {
           contractData[field] = parseFloat(data[field]) || 0;
         } else if (['onboarding_date', 'contract_start_date'].includes(field)) {
-          // Ensure dates are properly formatted
-          contractData[field] = data[field] || null;
+          // Format dates to YYYY-MM-DD for MySQL DATE columns
+          if (data[field]) {
+            const dateStr = String(data[field]);
+            // If it's an ISO string or contains 'T', extract just the date part
+            if (dateStr.includes('T')) {
+              contractData[field] = dateStr.split('T')[0];
+            } else if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+              // Already in correct format
+              contractData[field] = dateStr;
+            } else {
+              // Try to parse and format
+              const date = new Date(dateStr);
+              if (!isNaN(date.getTime())) {
+                contractData[field] = date.toISOString().split('T')[0];
+              } else {
+                contractData[field] = null;
+              }
+            }
+          } else {
+            contractData[field] = null;
+          }
         } else {
           contractData[field] = data[field];
         }

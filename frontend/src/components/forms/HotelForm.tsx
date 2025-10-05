@@ -42,7 +42,15 @@ const createHotelFormSchema = (t: any) => z.object({
   generalManagerPhone: z.string().optional().or(z.literal('')),
   generalManagerEmail: z.string().optional().or(z.literal('')),
   email: z.string().email({ message: t("forms.validation.emailRequired") }),
-  website: z.string().url({ message: t("forms.validation.websiteRequired") }).optional().or(z.literal('')),
+  website: z.preprocess(
+    (val) => {
+      if (!val || val === '') return '';
+      const str = String(val).trim();
+      // Auto-prepend https:// if no protocol is present
+      return /^https?:\/\//i.test(str) ? str : `https://${str}`;
+    },
+    z.string().url({ message: t("forms.validation.websiteRequired") }).optional().or(z.literal(''))
+  ),
   description: z.string().optional(),
   
   // Billing Address
@@ -51,6 +59,7 @@ const createHotelFormSchema = (t: any) => z.object({
   billingAddressZip: z.string().min(1, { message: t("forms.validation.billingZipRequired") }),
   billingAddressCity: z.string().min(1, { message: t("forms.validation.billingCityRequired") }),
   billingAddressVat: z.string().optional().or(z.literal('')),
+  billingEmail: z.string().email({ message: t("forms.validation.emailRequired") }).optional().or(z.literal('')),
   
   // General Information
   starRating: z.coerce.number().optional(),
@@ -65,9 +74,13 @@ const createHotelFormSchema = (t: any) => z.object({
   distanceToAirportKm: z.coerce.number().optional(),
   airportNote: z.string().optional().or(z.literal('')),
   distanceToHighwayKm: z.coerce.number().optional(),
+  highwayNote: z.string().optional().or(z.literal('')),
   distanceToFairKm: z.coerce.number().optional(),
+  fairNote: z.string().optional().or(z.literal('')),
   distanceToTrainStation: z.coerce.number().optional(),
+  trainStationNote: z.string().optional().or(z.literal('')),
   distanceToPublicTransport: z.coerce.number().optional(),
+  publicTransportNote: z.string().optional().or(z.literal('')),
   
   // Additional Information
   plannedChanges: z.string().optional(),
@@ -139,6 +152,7 @@ const HotelForm = ({ initialData = {}, onNext, onChange, mode = 'add' }: HotelFo
       billingAddressZip: "",
       billingAddressCity: "",
       billingAddressVat: "",
+      billingEmail: "",
       starRating: undefined,
       category: "",
       openingDate: undefined,
@@ -232,6 +246,7 @@ const HotelForm = ({ initialData = {}, onNext, onChange, mode = 'add' }: HotelFo
         billing_address_zip: data.billingAddressZip,
         billing_address_city: data.billingAddressCity,
         billing_address_vat: data.billingAddressVat || '',
+        billing_email: data.billingEmail || '',
         star_rating: data.starRating || 0,
         category: data.category,
         opening_date: data.openingDate || 0,

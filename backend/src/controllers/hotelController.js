@@ -18,12 +18,15 @@ const HOTEL_FIELDS = [
   'planned_changes', 'attraction_in_the_area', 'additional_links', 'external_billing_id',
   // Billing
   'billing_address_name', 'billing_address_street', 'billing_address_zip',
-  'billing_address_city', 'billing_address_vat',
+  'billing_address_city', 'billing_address_vat', 'billing_email',
   // Contacts
   'phone', 'fax', 'general_manager_name', 'general_manager_phone', 'general_manager_email', 'email', 'website',
   // Distances
-  'distance_to_airport_km', 'airport_note', 'distance_to_highway_km', 'distance_to_fair_km',
-  'distance_to_train_station', 'distance_to_public_transport',
+  'distance_to_airport_km', 'airport_note', 
+  'distance_to_highway_km', 'highway_note',
+  'distance_to_fair_km', 'fair_note',
+  'distance_to_train_station', 'train_station_note',
+  'distance_to_public_transport', 'public_transport_note',
   // Parking
   'no_of_parking_spaces', 'no_of_parking_spaces_garage', 'no_of_parking_spaces_electric',
   'no_of_parking_spaces_bus', 'no_of_parking_spaces_outside', 'no_of_parking_spaces_disabled',
@@ -37,15 +40,18 @@ const HOTEL_FIELDS = [
 ];
 
 const HOTEL_CONTACTS_FIELDS = ['phone', 'general_manager_name', 'general_manager_phone', 'general_manager_email', 'email', 'website'];
-const HOTEL_BILLING_FIELDS = ['billing_address_name', 'billing_address_street', 'billing_address_zip', 'billing_address_city', 'billing_address_vat'];
+const HOTEL_BILLING_FIELDS = ['billing_address_name', 'billing_address_street', 'billing_address_zip', 'billing_address_city', 'billing_address_vat', 'billing_email'];
 const HOTEL_PARKING_FIELDS = [
   'no_of_parking_spaces', 'no_of_parking_spaces_garage', 'no_of_parking_spaces_electric',
   'no_of_parking_spaces_bus', 'no_of_parking_spaces_outside', 'no_of_parking_spaces_disabled',
   'parking_cost_per_hour', 'parking_cost_per_day', 'parking_remarks'
 ];
 const HOTEL_DISTANCES_FIELDS = [
-  'distance_to_airport_km', 'distance_to_highway_km', 'distance_to_fair_km',
-  'distance_to_train_station', 'distance_to_public_transport'
+  'distance_to_airport_km', 'airport_note',
+  'distance_to_highway_km', 'highway_note',
+  'distance_to_fair_km', 'fair_note',
+  'distance_to_train_station', 'train_station_note',
+  'distance_to_public_transport', 'public_transport_note'
 ];
 
 /**

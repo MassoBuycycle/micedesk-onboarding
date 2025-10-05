@@ -87,14 +87,28 @@ export const getFullHotelDetails = async (req, res, next) => {
       }
     }
 
-    // Files (all)
-    let [files] = await connection.query(
-      `SELECT f.*, ft.code as file_type_code, ft.category as file_type_category, ft.name as file_type_name 
+    // Files (all) - including hotel, room, and event files
+    const eventIds = events.map(e => e.id);
+    
+    // Build dynamic query to include all entity types
+    let fileQuery = `SELECT f.*, ft.code as file_type_code, ft.category as file_type_category, ft.name as file_type_name 
        FROM files f 
        LEFT JOIN file_types ft ON ft.id = f.file_type_id 
-       WHERE f.entity_type = 'hotels' AND f.entity_id = ?`,
-      [hotelId]
-    );
+       WHERE (f.entity_type = 'hotels' AND f.entity_id = ?)`;
+    
+    const queryParams = [hotelId];
+    
+    if (roomIds.length > 0) {
+      fileQuery += ` OR (f.entity_type = 'rooms' AND f.entity_id IN (?))`;
+      queryParams.push(roomIds);
+    }
+    
+    if (eventIds.length > 0) {
+      fileQuery += ` OR (f.entity_type = 'events' AND f.entity_id IN (?))`;
+      queryParams.push(eventIds);
+    }
+    
+    let [files] = await connection.query(fileQuery, queryParams);
 
     // Add signed URLs
     const { getSignedUrl } = await import('../services/s3Service.js');

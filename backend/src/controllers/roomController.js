@@ -7,14 +7,14 @@ import { assignRoomCategoryFilesService } from './fileController.js';
 const ROOMS_BASE_FIELDS = ['hotel_id', 'main_contact_name', 'main_contact_position', 'reception_hours'];
 const ROOM_CONTACTS_FIELDS = ['phone', 'email'];
 const ROOM_POLICIES_FIELDS = [
-    'check_in', 'check_out', 'early_check_in_cost', 'late_check_out_cost',
+    'check_in', 'check_out', 'early_check_in_cost', 'early_check_in_fee_type', 'late_check_out_cost',
     'early_check_in_time_frame', 'late_check_out_time',
     'payment_methods' // JSON in table
 ];
 const ROOM_INVENTORY_FIELDS = [
     'amt_single_rooms', 'amt_double_rooms', 'amt_connecting_rooms', 'amt_handicapped_accessible_rooms'
 ];
-const ROOM_PET_POLICIES_FIELDS = ['is_dogs_allowed', 'dog_fee', 'dog_fee_inclusions'];
+const ROOM_PET_POLICIES_FIELDS = ['is_dogs_allowed', 'dog_fee', 'dog_fee_type', 'dog_fee_inclusions'];
 // Standard room features - these will be converted from array to individual boolean columns
 const ROOM_STANDARD_FEATURES_FIELDS = [
     'shower_toilet', 'bathtub_toilet', 'open_bathroom', 'balcony', 'safe',

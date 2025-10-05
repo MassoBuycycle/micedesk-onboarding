@@ -127,8 +127,7 @@ CREATE TABLE IF NOT EXISTS onboarding_resource_permissions (
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS onboarding_hotels (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  hotel_id VARCHAR(50) UNIQUE COMMENT 'External hotel ID',
-  system_hotel_id VARCHAR(50) UNIQUE,
+  system_hotel_id VARCHAR(50) UNIQUE COMMENT 'External hotel ID',
   name VARCHAR(255) NOT NULL,
   description TEXT,
   street VARCHAR(255),
@@ -141,19 +140,17 @@ CREATE TABLE IF NOT EXISTS onboarding_hotels (
   general_manager_email VARCHAR(255),
   email VARCHAR(255),
   website VARCHAR(255),
-  external_billing_id VARCHAR(100),
   additional_links JSON,
   billing_address_name VARCHAR(255),
   billing_address_street VARCHAR(255),
   billing_address_zip VARCHAR(20),
   billing_address_city VARCHAR(100),
   billing_address_vat VARCHAR(50),
+  billing_email VARCHAR(255),
   star_rating INT DEFAULT 0,
   category VARCHAR(100),
   opening_year INT,
   latest_renovation_year INT,
-  opening_date INT,
-  latest_renovation_date INT,
   total_rooms INT DEFAULT 0,
   conference_rooms INT DEFAULT 0,
   pms_system TEXT,
@@ -169,28 +166,13 @@ CREATE TABLE IF NOT EXISTS onboarding_hotels (
   distance_to_airport_km INT DEFAULT 0,
   airport_note TEXT,
   distance_to_highway_km INT DEFAULT 0,
+  highway_note TEXT,
   distance_to_fair_km INT DEFAULT 0,
+  fair_note TEXT,
   distance_to_train_station INT DEFAULT 0,
+  train_station_note TEXT,
   distance_to_public_transport INT DEFAULT 0,
-  -- Flattened fields from former hotel_info for simpler writes
-  contact_name VARCHAR(255),
-  contact_position VARCHAR(255),
-  contact_phone VARCHAR(50),
-  contact_email VARCHAR(255),
-  check_in_time TIME,
-  check_out_time TIME,
-  early_check_in_time_frame VARCHAR(50),
-  early_check_in_fee DECIMAL(10,2) DEFAULT 0,
-  late_check_out_time TIME,
-  late_check_out_fee DECIMAL(10,2) DEFAULT 0,
-  reception_hours VARCHAR(50),
-  single_rooms INT DEFAULT 0,
-  double_rooms INT DEFAULT 0,
-  connecting_rooms INT DEFAULT 0,
-  accessible_rooms INT DEFAULT 0,
-  pets_allowed BOOLEAN DEFAULT FALSE,
-  pet_fee DECIMAL(10,2) DEFAULT 0,
-  pet_inclusions TEXT,
+  public_transport_note TEXT,
   opening_time_pool VARCHAR(100),
   opening_time_fitness_center VARCHAR(100),
   opening_time_spa_area VARCHAR(100),
@@ -203,33 +185,8 @@ CREATE TABLE IF NOT EXISTS onboarding_hotels (
 );
 
 -- Quick lookup index for external id
-CREATE INDEX idx_onboarding_hotels_hotel_id ON onboarding_hotels(hotel_id);
-
--- Hotel supplemental info (flattened former hotel_info table)
-CREATE TABLE IF NOT EXISTS onboarding_hotel_info (
-  hotel_id INT PRIMARY KEY, -- 1-to-1 with onboarding_hotels.id
-  contact_name VARCHAR(255),
-  contact_position VARCHAR(255),
-  contact_phone VARCHAR(50),
-  contact_email VARCHAR(255),
-  check_in_time TIME,
-  check_out_time TIME,
-  early_check_in_time_frame VARCHAR(50),
-  early_check_in_fee DECIMAL(10,2) DEFAULT 0,
-  late_check_out_time TIME,
-  late_check_out_fee DECIMAL(10,2) DEFAULT 0,
-  reception_hours VARCHAR(50),
-  single_rooms INT DEFAULT 0,
-  double_rooms INT DEFAULT 0,
-  connecting_rooms INT DEFAULT 0,
-  accessible_rooms INT DEFAULT 0,
-  pets_allowed BOOLEAN DEFAULT FALSE,
-  pet_fee DECIMAL(10,2) DEFAULT 0,
-  pet_inclusions TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (hotel_id) REFERENCES onboarding_hotels(id) ON DELETE CASCADE
-);
+CREATE INDEX idx_onboarding_hotels_hotel_id ON onboarding_hotels(system_hotel_id);
+CREATE INDEX idx_onboarding_hotels_billing_email ON onboarding_hotels(billing_email);
 
 -- ------------------------------------------------------------
 -- (4.1) ROOM MANAGEMENT TABLES
@@ -308,6 +265,8 @@ CREATE TABLE IF NOT EXISTS onboarding_room_category_infos (
   num_rooms INT,
   size INT,
   bed_type VARCHAR(255),
+  is_accessible BOOLEAN DEFAULT FALSE,
+  has_balcony BOOLEAN DEFAULT FALSE,
   surcharges_upsell TEXT,
   room_features TEXT,
   second_person_surcharge DECIMAL(10,2),
@@ -316,6 +275,7 @@ CREATE TABLE IF NOT EXISTS onboarding_room_category_infos (
   extra_bed_available BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_room_category_name (room_id, category_name),
   FOREIGN KEY (room_id) REFERENCES onboarding_rooms(id) ON DELETE CASCADE
 );
 
@@ -334,7 +294,7 @@ CREATE TABLE IF NOT EXISTS onboarding_room_operational_handling (
   group_rates_check BOOLEAN DEFAULT FALSE,
   group_rates TEXT,
   group_handling_notes TEXT,
-  breakfast_share BOOLEAN DEFAULT FALSE,
+  breakfast_share DECIMAL(10,2) DEFAULT NULL,
   first_second_option BOOLEAN DEFAULT FALSE,
   shared_options BOOLEAN DEFAULT FALSE,
   first_option_hold_duration VARCHAR(255),
@@ -345,6 +305,7 @@ CREATE TABLE IF NOT EXISTS onboarding_room_operational_handling (
   call_off_quota BOOLEAN DEFAULT FALSE,
   call_off_method VARCHAR(255),
   call_off_deadlines TEXT,
+  call_off_notes TEXT,
   commission_rules TEXT,
   free_spot_policy_leisure_groups TEXT,
   restricted_dates TEXT,
@@ -650,10 +611,12 @@ CREATE TABLE IF NOT EXISTS onboarding_events (
   contact_position VARCHAR(100),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (hotel_id) REFERENCES onboarding_hotels(id) ON DELETE CASCADE
+  FOREIGN KEY (hotel_id) REFERENCES onboarding_hotels(id) ON DELETE CASCADE,
+  INDEX idx_hotel_created (hotel_id, created_at)  -- For duplicate detection performance
 );
 
 -- Unified event details (replaces separate booking/financials/operations/technical tables)
+-- This is the only event details table that exists in production
 CREATE TABLE IF NOT EXISTS onboarding_event_details (
   event_id INT PRIMARY KEY,
   -- Booking
@@ -728,85 +691,6 @@ CREATE TABLE IF NOT EXISTS onboarding_event_details (
   FOREIGN KEY (event_id) REFERENCES onboarding_events(id) ON DELETE CASCADE
 );
 
--- Event booking details
-CREATE TABLE IF NOT EXISTS onboarding_event_booking (
-  event_id INT PRIMARY KEY,
-  has_options BOOLEAN DEFAULT FALSE,
-  allows_split_options BOOLEAN DEFAULT FALSE,
-  option_duration VARCHAR(100),
-  allows_overbooking BOOLEAN DEFAULT FALSE,
-  rooms_only BOOLEAN DEFAULT FALSE,
-  last_minute_leadtime VARCHAR(100),
-  contracted_companies TEXT,
-  refused_requests TEXT,
-  unwanted_marketing TEXT,
-  requires_second_signature BOOLEAN DEFAULT FALSE,
-  exclusive_clients BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (event_id) REFERENCES onboarding_events(id) ON DELETE CASCADE
-);
-
--- Event financials
-CREATE TABLE IF NOT EXISTS onboarding_event_financials (
-  event_id INT PRIMARY KEY,
-  requires_deposit BOOLEAN DEFAULT FALSE,
-  deposit_rules TEXT,
-  deposit_invoicer VARCHAR(255),
-  has_info_invoice BOOLEAN DEFAULT FALSE,
-  payment_methods JSON,
-  invoice_handling TEXT,
-  commission_rules TEXT,
-  has_minimum_spent BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (event_id) REFERENCES onboarding_events(id) ON DELETE CASCADE
-);
-
--- Event operations (merged old event_handling & event_contracting)
-CREATE TABLE IF NOT EXISTS onboarding_event_operations (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  event_id INT NOT NULL,
-  sold_with_rooms_only BOOLEAN DEFAULT FALSE,
-  last_minute_lead_time VARCHAR(100),
-  sent_over_time_material BOOLEAN DEFAULT FALSE,
-  lunch_location TEXT,
-  min_participants_package INT DEFAULT 0,
-  coffee_break_location TEXT,
-  advance_days_for_material INT DEFAULT 0,
-  room_drop_cost DECIMAL(10,2) DEFAULT 0,
-  hotel_exclusive_clients BOOLEAN DEFAULT FALSE,
-  exclusive_clients_info TEXT,
-  deposit_needed_event BOOLEAN DEFAULT FALSE,
-  deposit_rules_event TEXT,
-  deposit_invoice_creator VARCHAR(255),
-  informational_invoice_created BOOLEAN DEFAULT FALSE,
-  payment_methods_events JSON,
-  final_invoice_handling_event TEXT,
-  contracted_companies TEXT,
-  refused_requests TEXT,
-  unwanted_marketing_tools TEXT,
-  first_second_option BOOLEAN DEFAULT FALSE,
-  split_options BOOLEAN DEFAULT FALSE,
-  option_hold_duration VARCHAR(100),
-  overbooking_policy BOOLEAN DEFAULT FALSE,
-  deposit_required BOOLEAN DEFAULT FALSE,
-  accepted_payment_methods TEXT,
-  commission_rules TEXT,
-  second_signature_required BOOLEAN DEFAULT FALSE,
-  has_overtime_material BOOLEAN DEFAULT FALSE,
-  min_participants INT DEFAULT 0,
-  coffee_location TEXT,
-  material_advance_days INT DEFAULT 0,
-  room_drop_fee DECIMAL(10,2) DEFAULT 0,
-  has_storage BOOLEAN DEFAULT FALSE,
-  has_minimum_spent BOOLEAN DEFAULT FALSE,
-  minimum_spent_info TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (event_id) REFERENCES onboarding_events(id) ON DELETE CASCADE
-);
-
 -- Event spaces (rooms / halls)
 CREATE TABLE IF NOT EXISTS onboarding_event_spaces (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -840,42 +724,22 @@ CREATE TABLE IF NOT EXISTS onboarding_event_spaces (
 );
 
 -- Event equipment mapping
+-- Production uses equipment_type VARCHAR instead of equipment_id FK
 CREATE TABLE IF NOT EXISTS onboarding_event_equipment (
   event_id INT NOT NULL,
-  equipment_id INT NOT NULL,
+  equipment_type VARCHAR(100) NOT NULL,
   quantity INT DEFAULT 0,
-  PRIMARY KEY(event_id, equipment_id),
-  FOREIGN KEY (event_id) REFERENCES onboarding_events(id) ON DELETE CASCADE,
-  FOREIGN KEY (equipment_id) REFERENCES onboarding_equipment_types(id) ON DELETE CASCADE
+  PRIMARY KEY(event_id, equipment_type),
+  FOREIGN KEY (event_id) REFERENCES onboarding_events(id) ON DELETE CASCADE
 );
 
--- AV equipment (stand-alone table if required)
+-- AV equipment (stand-alone table for equipment with pricing)
 CREATE TABLE IF NOT EXISTS onboarding_event_av_equipment (
   id INT AUTO_INCREMENT PRIMARY KEY,
   event_id INT NOT NULL,
   equipment_name VARCHAR(100) NOT NULL,
   quantity INT DEFAULT 0,
   price_per_unit DECIMAL(10,2) DEFAULT 0,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (event_id) REFERENCES onboarding_events(id) ON DELETE CASCADE
-);
-
--- Technical requirements per event
-CREATE TABLE IF NOT EXISTS onboarding_event_technical (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  event_id INT NOT NULL,
-  beamer_lumens VARCHAR(100),
-  copy_cost DECIMAL(10,2) DEFAULT 0,
-  software_presentation TEXT,
-  wifi_data_rate VARCHAR(100),
-  has_ac_or_ventilation BOOLEAN DEFAULT FALSE,
-  has_blackout_curtains BOOLEAN DEFAULT FALSE,
-  is_soundproof BOOLEAN DEFAULT FALSE,
-  has_daylight BOOLEAN DEFAULT FALSE,
-  is_hybrid_meeting_possible BOOLEAN DEFAULT FALSE,
-  technical_support_available BOOLEAN DEFAULT FALSE,
-  technical_notes TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (event_id) REFERENCES onboarding_events(id) ON DELETE CASCADE

@@ -188,6 +188,27 @@ export const createEvent = async (req, res, next) => {
             return res.status(400).json({ error: `Hotel with id ${eventsMainData.hotel_id} does not exist.` });
         }
 
+        // DUPLICATE PREVENTION: Check for recent duplicate events (within last 5 seconds)
+        // This prevents accidental double-submissions from creating duplicate events
+        const [recentEvents] = await connection.query(
+            `SELECT id, created_at FROM events 
+             WHERE hotel_id = ? 
+             AND created_at >= DATE_SUB(NOW(), INTERVAL 5 SECOND)
+             ORDER BY created_at DESC LIMIT 1`,
+            [eventsMainData.hotel_id]
+        );
+        
+        if (recentEvents.length > 0) {
+            await connection.rollback();
+            const existingEventId = recentEvents[0].id;
+            console.warn(`Duplicate event creation prevented for hotel_id ${eventsMainData.hotel_id}. Returning existing event ID: ${existingEventId}`);
+            return res.status(409).json({ 
+                error: 'An event for this hotel was just created. Please wait a few seconds before creating another event.',
+                existingEventId: existingEventId,
+                code: 'DUPLICATE_EVENT_DETECTED'
+            });
+        }
+
         const eventFields = Object.keys(eventsMainData);
         const eventPlaceholders = eventFields.map(() => '?').join(', ');
         const eventValues = eventFields.map(f => eventsMainData[f]);

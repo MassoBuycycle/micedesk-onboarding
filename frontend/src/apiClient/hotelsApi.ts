@@ -38,10 +38,15 @@ export interface Hotel {
   parking_cost_per_day?: number;
   parking_remarks?: string;
   distance_to_airport_km?: number;
+  airport_note?: string;
   distance_to_highway_km?: number;
+  highway_note?: string;
   distance_to_fair_km?: number;
+  fair_note?: string;
   distance_to_train_station?: number;
+  train_station_note?: string;
   distance_to_public_transport?: number;
+  public_transport_note?: string;
   opening_time_pool?: string;
   opening_time_fitness_center?: string;
   opening_time_spa_area?: string;
@@ -89,10 +94,15 @@ export interface HotelInput {
   pms_system?: string;
 
   distance_to_airport_km?: number;
+  airport_note?: string;
   distance_to_highway_km?: number;
+  highway_note?: string;
   distance_to_fair_km?: number;
+  fair_note?: string;
   distance_to_train_station?: number;
+  train_station_note?: string;
   distance_to_public_transport?: number;
+  public_transport_note?: string;
 
   no_of_parking_spaces?: number;
   no_of_parking_spaces_garage?: number;

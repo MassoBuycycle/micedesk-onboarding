@@ -275,6 +275,13 @@ const ContractOnboardingForm: React.FC<ContractOnboardingFormProps> = ({
     </Card>
   ), [localData, t, readOnly, handleFieldChange, otherSystemInput, handleAddOtherSystem]);
 
+  // Call onUpdateData with initial data on component mount for live preview
+  useEffect(() => {
+    if (onUpdateData && localData) {
+      onUpdateData(localData);
+    }
+  }, []);
+
   return (
     <div className="space-y-6">
       {contractingSection}
