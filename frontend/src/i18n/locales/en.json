@@ -700,7 +700,6 @@
     "formIntro": "Enter details about rooms and guest facilities for {{hotelName}}.",
     "mainContactDescription": "Main contact for room-related inquiries",
     "lateCheckOutFee": "Late Check-out Fee",
-    "connectedRooms": "Connected Rooms",
     "earlyCheckInTimeFrame": "Early Check-in Time Frame",
     "earlyCheckInTimeFrameDescription": "Time window for early check-in",
     "earlyCheckInFee": "Early Check-in Fee",
