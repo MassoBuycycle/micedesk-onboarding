@@ -226,9 +226,9 @@ export const createEventSpace = async (req, res, next) => {
         spaceData.event_id = eventId;
         
         // Insert the new space
-        const fields = Object.keys(spaceData);
+        const fields = Object.keys(spaceData).filter(f => f && f.trim().length > 0);
         const placeholders = Array(fields.length).fill('?').join(', ');
-        const values = Object.values(spaceData);
+        const values = fields.map(f => spaceData[f]);
         
         const [insertResult] = await connection.query(
           `INSERT INTO event_spaces (${fields.join(', ')}) VALUES (${placeholders})`,

@@ -114,7 +114,7 @@ export const createOrUpdateEventFinancials = async (req, res) => {
         }
       } else {
         // Insert new
-        const fields = Object.keys(financialsData);
+        const fields = Object.keys(financialsData).filter(f => f && f.trim().length > 0);
         const placeholders = fields.map(() => '?').join(', ');
         const values = fields.map(f => financialsData[f]);
         await connection.query(

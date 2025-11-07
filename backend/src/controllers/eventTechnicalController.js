@@ -83,8 +83,9 @@ export const createOrUpdateTechnical = async (req, res, next) => {
     technicalData.event_id = eventId;
     
     // Extract fields and values from technicalData
-    const fields = Object.keys(technicalData);
-    const values = Object.values(technicalData);
+    const allFields = Object.keys(technicalData).filter(f => f && f.trim().length > 0);
+    const fields = allFields;
+    const values = allFields.map(f => technicalData[f]);
     
     let result;
     

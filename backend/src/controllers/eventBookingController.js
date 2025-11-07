@@ -106,7 +106,7 @@ export const createOrUpdateEventBooking = async (req, res) => {
       });
     } else {
       // Create new booking data
-      const fields = Object.keys(bookingData).filter(key => key !== 'event_id');
+      const fields = Object.keys(bookingData).filter(key => key !== 'event_id').filter(f => f && f.trim().length > 0);
       const placeholders = fields.map(() => '?').join(', ');
       const values = fields.map(f => bookingData[f]);
 

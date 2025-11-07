@@ -80,8 +80,9 @@ export const createOrUpdateContracting = async (req, res, next) => {
     contractingData.event_id = eventId;
     
     // Extract fields and values from contractingData
-    const fields = Object.keys(contractingData);
-    const values = Object.values(contractingData);
+    const allFields = Object.keys(contractingData).filter(f => f && f.trim().length > 0);
+    const fields = allFields;
+    const values = allFields.map(f => contractingData[f]);
     
     let result;
     
