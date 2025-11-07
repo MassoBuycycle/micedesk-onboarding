@@ -34,8 +34,7 @@ const EVENT_OPERATIONS_FIELDS = [
     'final_invoice_handling_event',
     
     // Fields from event_contracting
-    'contracted_companies',
-    'refused_requests',
+    // NOTE: contracted_companies, refused_requests, commission_rules are in other arrays - removed duplicates
     'unwanted_marketing_tools',
     'first_second_option',
     'split_options',
@@ -43,13 +42,12 @@ const EVENT_OPERATIONS_FIELDS = [
     'overbooking_policy',
     'deposit_required',
     'accepted_payment_methods',
-    'commission_rules',
     'second_signature_required',
     
     // Fields with alternative naming from new schema
     'has_overtime_material',
-    'has_storage',
-    'has_minimum_spent'
+    'has_storage'
+    // NOTE: has_minimum_spent is in FINANCIALS - removed duplicate
 ];
 
 const EVENT_SPACES_FIELDS = [ // For creating a single primary event space. Multiple spaces need a different approach.
