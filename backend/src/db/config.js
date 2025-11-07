@@ -64,7 +64,9 @@ const TABLES_TO_PREFIX = [
   'hotel_announcements',
   
   // Event management tables
-  'events',
+  // NOTE: 'events' is NOT auto-prefixed because it appears in column names
+  // (e.g., payment_methods_events, final_invoice_handling_event)
+  // Manually prefix 'events' table in queries.
   'event_av_equipment',
   'event_details',
   'event_equipment',
@@ -81,8 +83,9 @@ const TABLES_TO_PREFIX = [
   'information_policy_item_details',
   
   // Lookup tables
-  'payment_methods',
-  'standard_features',
+  // NOTE: 'payment_methods' and 'standard_features' are NOT auto-prefixed
+  // because they appear in column names (e.g., accepted_payment_methods, payment_methods column)
+  // Manually prefix these tables in queries where needed.
   
   // Room management tables
   'rooms',
