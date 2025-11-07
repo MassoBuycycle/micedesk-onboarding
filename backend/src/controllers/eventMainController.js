@@ -233,11 +233,15 @@ export const createEvent = async (req, res, next) => {
         const bookingData = extractDataForTable(eventDataMapped, EVENT_BOOKING_FIELDS) || {};
         const financialsData = extractDataForTable(eventDataMapped, EVENT_FINANCIALS_FIELDS) || {};
         const operationsData = extractDataForTable(eventDataMapped, EVENT_OPERATIONS_FIELDS) || {};
+        // Convert JSON fields to strings
         if (financialsData.payment_methods && typeof financialsData.payment_methods !== 'string') {
             financialsData.payment_methods = JSON.stringify(financialsData.payment_methods);
         }
         if (operationsData.payment_methods_events && typeof operationsData.payment_methods_events !== 'string') {
             operationsData.payment_methods_events = JSON.stringify(operationsData.payment_methods_events);
+        }
+        if (operationsData.accepted_payment_methods && typeof operationsData.accepted_payment_methods !== 'string') {
+            operationsData.accepted_payment_methods = JSON.stringify(operationsData.accepted_payment_methods);
         }
         const unified = { ...bookingData, ...financialsData, ...operationsData };
         
@@ -287,6 +291,17 @@ export const createEvent = async (req, res, next) => {
             console.log('SQL Query (first 200 chars):', sql.substring(0, 200) + '...');
             console.log('=== FULL SQL QUERY ===');
             console.log(sql);
+            
+            // Generate executable SQL with actual values for testing in MySQL
+            const allValues = [eventId, ...values];
+            const executableSQL = `INSERT INTO onboarding_event_details (event_id, ${allFields.join(', ')}) VALUES (${allValues.map(v => {
+              if (v === null || v === undefined) return 'NULL';
+              if (typeof v === 'string') return `'${v.replace(/'/g, "\\\\'")}'`;
+              if (typeof v === 'boolean') return v ? 'true' : 'false';
+              return v;
+            }).join(', ')});`;
+            console.log('=== EXECUTABLE SQL (test in MySQL) ===');
+            console.log(executableSQL);
             console.log('=== EXECUTING QUERY ===');
             
             await connection.query(sql, [eventId, ...values]);
