@@ -211,16 +211,24 @@ export const createEvent = async (req, res, next) => {
 
         // Filter out any empty or invalid field names
         const eventFields = Object.keys(eventsMainData).filter(f => f && f.trim().length > 0);
+        
+        // Debug logging
+        console.log('=== EVENTS TABLE DEBUG ===');
+        console.log('Event fields:', eventFields);
+        console.log('Event field count:', eventFields.length);
+        
         if (eventFields.length === 0) {
             await connection.rollback();
             return res.status(400).json({ error: 'No valid event fields provided' });
         }
         const eventPlaceholders = eventFields.map(() => '?').join(', ');
         const eventValues = eventFields.map(f => eventsMainData[f]);
-        const [eventResult] = await connection.query(
-            `INSERT INTO events (${eventFields.join(', ')}) VALUES (${eventPlaceholders})`,
-            eventValues
-        );
+        const eventSql = `INSERT INTO events (${eventFields.join(', ')}) VALUES (${eventPlaceholders})`;
+        
+        console.log('SQL Query:', eventSql);
+        console.log('Values count:', eventValues.length);
+        
+        const [eventResult] = await connection.query(eventSql, eventValues);
         const eventId = eventResult.insertId;
 
         // 2-4. Insert unified details into `event_details` table
@@ -236,13 +244,21 @@ export const createEvent = async (req, res, next) => {
         const unified = { ...bookingData, ...financialsData, ...operationsData };
         // Filter out empty/invalid field names
         const allFields = Object.keys(unified).filter(f => f && f.trim().length > 0);
+        
+        // Debug logging
+        console.log('=== EVENT DETAILS DEBUG ===');
+        console.log('All fields:', allFields);
+        console.log('Field count:', allFields.length);
+        console.log('Has empty fields:', allFields.some(f => !f || f.trim().length === 0));
+        
         if (allFields.length > 0) {
             const placeholders = allFields.map(() => '?').join(', ');
             const values = allFields.map(f => unified[f]);
-            await connection.query(
-                `INSERT INTO event_details (event_id, ${allFields.join(', ')}) VALUES (?, ${placeholders})`,
-                [eventId, ...values]
-            );
+            const sql = `INSERT INTO event_details (event_id, ${allFields.join(', ')}) VALUES (?, ${placeholders})`;
+            console.log('SQL Query:', sql);
+            console.log('Values count:', values.length + 1); // +1 for eventId
+            
+            await connection.query(sql, [eventId, ...values]);
         } else {
             // ensure row exists
             await connection.query('INSERT INTO event_details (event_id) VALUES (?)', [eventId]);
