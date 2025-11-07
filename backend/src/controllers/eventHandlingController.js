@@ -98,8 +98,9 @@ export const createOrUpdateHandling = async (req, res, next) => {
     }
     
     // Extract fields and values from filtered data
-    const fields = Object.keys(filteredData);
-    const values = Object.values(filteredData);
+    const allFields = Object.keys(filteredData).filter(f => f && f.trim().length > 0);
+    const fields = allFields;
+    const values = allFields.map(f => filteredData[f]);
     
     let result;
     
