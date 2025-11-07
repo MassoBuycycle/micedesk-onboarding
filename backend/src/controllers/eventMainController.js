@@ -264,17 +264,27 @@ export const createEvent = async (req, res, next) => {
         if (allFields.length > 0) {
             const placeholders = allFields.map(() => '?').join(', ');
             const values = allFields.map(f => cleanedUnified[f]);
-            const sql = `INSERT INTO event_details (event_id, ${allFields.join(', ')}) VALUES (?, ${placeholders})`;
-            console.log('SQL Query:', sql);
-            console.log('Placeholder count:', placeholders.split(',').length);
-            console.log('Values count:', values.length + 1); // +1 for eventId
-            console.log('Field/Value match:', allFields.length === values.length);
             
-            // Final validation before query
-            if (allFields.length !== values.length) {
-                console.error('MISMATCH: Fields and values count do not match!');
-                throw new Error(`Field/value count mismatch: ${allFields.length} fields vs ${values.length} values`);
+            // Count placeholders (including event_id)
+            const placeholderCount = placeholders.split(',').length + 1; // +1 for event_id
+            const valueCount = values.length + 1; // +1 for eventId
+            
+            console.log('=== VALIDATION ===');
+            console.log('Field count:', allFields.length);
+            console.log('Placeholder count (with event_id):', placeholderCount);
+            console.log('Value count (with event_id):', valueCount);
+            console.log('Match:', placeholderCount === valueCount);
+            
+            // Validate counts match
+            if (placeholderCount !== valueCount) {
+                await connection.rollback();
+                const error = `SQL syntax error: ${placeholderCount} placeholders but ${valueCount} values`;
+                console.error('ERROR:', error);
+                return res.status(400).json({ error });
             }
+            
+            const sql = `INSERT INTO event_details (event_id, ${allFields.join(', ')}) VALUES (?, ${placeholders})`;
+            console.log('SQL Query (first 200 chars):', sql.substring(0, 200) + '...');
             
             await connection.query(sql, [eventId, ...values]);
         } else {
@@ -296,10 +306,27 @@ export const createEvent = async (req, res, next) => {
              if (fields.length > 0) {
                 const placeholders = fields.map(() => '?').join(', ');
                 const values = fields.map(f => spaceData[f]);
+                
+                // Count placeholders (including event_id)
+                const placeholderCount = placeholders.split(',').length + 1;
+                const valueCount = values.length + 1;
+                
+                console.log('=== SPACE VALIDATION ===');
+                console.log('Field count:', fields.length);
+                console.log('Placeholder count (with event_id):', placeholderCount);
+                console.log('Value count (with event_id):', valueCount);
+                console.log('Match:', placeholderCount === valueCount);
+                
+                // Validate counts match
+                if (placeholderCount !== valueCount) {
+                    await connection.rollback();
+                    const error = `Event space SQL error: ${placeholderCount} placeholders but ${valueCount} values`;
+                    console.error('ERROR:', error);
+                    return res.status(400).json({ error });
+                }
+                
                 const sql = `INSERT INTO event_spaces (event_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`;
-                console.log('SQL Query:', sql);
-                console.log('Values count:', values.length + 1);
-                console.log('Field/Value match:', fields.length === values.length);
+                console.log('SQL Query (first 200 chars):', sql.substring(0, 200) + '...');
                 
                 const [spaceResult] = await connection.query(sql, [eventId, ...values]);
                 createdSpace = { id: spaceResult.insertId, ...spaceData };
