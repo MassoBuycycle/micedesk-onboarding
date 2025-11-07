@@ -286,14 +286,22 @@ export const createEvent = async (req, res, next) => {
         const spaceData = extractDataForTable(eventDataMapped, EVENT_SPACES_FIELDS);
         let createdSpace = null;
         if (spaceData && spaceData.name) { // 'name' is NOT NULL for event_spaces
+            console.log('=== EVENT SPACES DEBUG ===');
+            console.log('Space data keys (raw):', Object.keys(spaceData));
+            
             const fields = Object.keys(spaceData).filter(f => f && f.trim().length > 0);
+            console.log('Space fields (filtered):', fields);
+            console.log('Space field count:', fields.length);
+            
              if (fields.length > 0) {
                 const placeholders = fields.map(() => '?').join(', ');
                 const values = fields.map(f => spaceData[f]);
-                const [spaceResult] = await connection.query(
-                    `INSERT INTO event_spaces (event_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`,
-                    [eventId, ...values]
-                );
+                const sql = `INSERT INTO event_spaces (event_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`;
+                console.log('SQL Query:', sql);
+                console.log('Values count:', values.length + 1);
+                console.log('Field/Value match:', fields.length === values.length);
+                
+                const [spaceResult] = await connection.query(sql, [eventId, ...values]);
                 createdSpace = { id: spaceResult.insertId, ...spaceData };
             }
         }
