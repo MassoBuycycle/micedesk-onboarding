@@ -283,13 +283,16 @@ export const createEvent = async (req, res, next) => {
                 return res.status(400).json({ error });
             }
             
-            const sql = `INSERT INTO event_details (event_id, ${allFields.join(', ')}) VALUES (?, ${placeholders})`;
+            const sql = `INSERT INTO onboarding_event_details (event_id, ${allFields.join(', ')}) VALUES (?, ${placeholders})`;
             console.log('SQL Query (first 200 chars):', sql.substring(0, 200) + '...');
+            console.log('=== FULL SQL QUERY ===');
+            console.log(sql);
+            console.log('=== EXECUTING QUERY ===');
             
             await connection.query(sql, [eventId, ...values]);
         } else {
             // ensure row exists
-            await connection.query('INSERT INTO event_details (event_id) VALUES (?)', [eventId]);
+            await connection.query('INSERT INTO onboarding_event_details (event_id) VALUES (?)', [eventId]);
         }
         
         // 5. Insert into `event_spaces` (handling for a single space if data present)

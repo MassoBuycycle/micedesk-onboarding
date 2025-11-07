@@ -64,11 +64,11 @@ const TABLES_TO_PREFIX = [
   'hotel_announcements',
   
   // Event management tables
-  // NOTE: 'events' is NOT auto-prefixed because it appears in column names
-  // (e.g., payment_methods_events, final_invoice_handling_event)
-  // Manually prefix 'events' table in queries.
+  // NOTE: 'events' and 'event_details' are NOT auto-prefixed because:
+  // - 'events' appears in column names (payment_methods_events, etc.)
+  // - 'event_details' is manually prefixed to avoid double-prefixing
+  // Manually prefix these tables in queries.
   'event_av_equipment',
-  'event_details',
   'event_equipment',
   'event_spaces',
   
@@ -104,10 +104,30 @@ const TABLES_TO_PREFIX = [
 
 function prefixSQL(sql) {
   let modified = sql;
+  const changes = [];
+  
+  // Always log INSERT queries to onboarding_event_details
+  if (sql.includes('INSERT INTO onboarding_event_details')) {
+    console.log('=== PREFIX FUNCTION CALLED ===');
+    console.log('SQL BEFORE prefix:', sql);
+  }
+  
   TABLES_TO_PREFIX.forEach((tbl) => {
     const regex = new RegExp(`\\b${tbl}\\b`, 'gi');
+    const matches = sql.match(regex);
+    if (matches) {
+      changes.push(`${tbl} -> ${TABLE_PREFIX}${tbl} (${matches.length} times)`);
+    }
     modified = modified.replace(regex, `${TABLE_PREFIX}${tbl}`);
   });
+  
+  // Always log INSERT queries to onboarding_event_details
+  if (sql.includes('INSERT INTO onboarding_event_details')) {
+    console.log('Changes made:', changes);
+    console.log('SQL AFTER prefix:', modified);
+    console.log('=== END PREFIX FUNCTION ===');
+  }
+  
   return modified;
 }
 

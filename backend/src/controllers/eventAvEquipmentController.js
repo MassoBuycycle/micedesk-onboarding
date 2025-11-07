@@ -13,7 +13,7 @@ export const getAvEquipmentByEventId = async (req, res, next) => {
     
     // Check if event exists
     const [events] = await connection.query(
-      'SELECT id FROM events WHERE id = ?',
+      'SELECT id FROM onboarding_events WHERE id = ?',
       [eventId]
     );
     
@@ -80,7 +80,7 @@ export const createAvEquipment = async (req, res, next) => {
     }
 
     // Optional: Check if eventId and equipment_id exist in their respective tables
-    // const [events] = await connection.query('SELECT id FROM events WHERE id = ?', [eventId]);
+    // const [events] = await connection.query('SELECT id FROM onboarding_events WHERE id = ?', [eventId]);
     // const [eqTypes] = await connection.query('SELECT id FROM equipment_types WHERE id = ?', [equipment_id]);
     // if (events.length === 0 || eqTypes.length === 0) { ... return 404 ... }
 

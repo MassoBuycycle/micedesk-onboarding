@@ -28,9 +28,9 @@ export const getTechnicalByEventId = async (req, res, next) => {
       return res.status(404).json({ error: 'Event not found' });
     }
     
-    // Get technical info from unified event_details
+    // Get technical info from unified onboarding_event_details
     const [technicalInfo] = await connection.query(
-      'SELECT event_id, beamer_lumens, copy_cost, software_presentation, wifi_data_rate, has_ac_or_ventilation, has_blackout_curtains, is_soundproof, has_daylight, is_hybrid_meeting_possible, technical_support_available, technical_notes, created_at, updated_at FROM event_details WHERE event_id = ?',
+      'SELECT event_id, beamer_lumens, copy_cost, software_presentation, wifi_data_rate, has_ac_or_ventilation, has_blackout_curtains, is_soundproof, has_daylight, is_hybrid_meeting_possible, technical_support_available, technical_notes, created_at, updated_at FROM onboarding_event_details WHERE event_id = ?',
       [eventId]
     );
     
@@ -75,7 +75,7 @@ export const createOrUpdateTechnical = async (req, res, next) => {
     
     // Check if unified record already exists
     const [existingInfo] = await connection.query(
-      'SELECT event_id FROM event_details WHERE event_id = ?',
+      'SELECT event_id FROM onboarding_event_details WHERE event_id = ?',
       [eventId]
     );
     
@@ -93,7 +93,7 @@ export const createOrUpdateTechnical = async (req, res, next) => {
       // Create new record
       const placeholders = fields.map(() => '?').join(', ');
       const query = `
-        INSERT INTO event_details (${fields.join(', ')}, created_at, updated_at)
+        INSERT INTO onboarding_event_details (${fields.join(', ')}, created_at, updated_at)
         VALUES (${placeholders}, NOW(), NOW())
       `;
       
@@ -102,7 +102,7 @@ export const createOrUpdateTechnical = async (req, res, next) => {
       // Update existing record
       const updateFields = fields.map(field => `${field} = ?`).join(', ');
       const query = `
-        UPDATE event_details 
+        UPDATE onboarding_event_details 
         SET ${updateFields}, updated_at = NOW()
         WHERE event_id = ?
       `;
@@ -112,7 +112,7 @@ export const createOrUpdateTechnical = async (req, res, next) => {
     
     // Get the updated record
     const [technicalInfo] = await connection.query(
-      'SELECT event_id, beamer_lumens, copy_cost, software_presentation, wifi_data_rate, has_ac_or_ventilation, has_blackout_curtains, is_soundproof, has_daylight, is_hybrid_meeting_possible, technical_support_available, technical_notes, created_at, updated_at FROM event_details WHERE event_id = ?',
+      'SELECT event_id, beamer_lumens, copy_cost, software_presentation, wifi_data_rate, has_ac_or_ventilation, has_blackout_curtains, is_soundproof, has_daylight, is_hybrid_meeting_possible, technical_support_available, technical_notes, created_at, updated_at FROM onboarding_event_details WHERE event_id = ?',
       [eventId]
     );
     

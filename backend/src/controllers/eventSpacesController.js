@@ -11,7 +11,7 @@ export const getEventSpaces = async (req, res) => {
     }
     
     // Check if event exists
-    const [eventRows] = await pool.query('SELECT id FROM events WHERE id = ?', [eventId]);
+    const [eventRows] = await pool.query('SELECT id FROM onboarding_events WHERE id = ?', [eventId]);
     if (eventRows.length === 0) {
       return res.status(404).json({ error: 'Event not found' });
     }
@@ -71,7 +71,7 @@ export const createEventSpace = async (req, res, next) => {
     
     
     // Check if event exists
-    const [events] = await connection.query('SELECT id FROM events WHERE id = ?', [eventId]);
+    const [events] = await connection.query('SELECT id FROM onboarding_events WHERE id = ?', [eventId]);
     if (events.length === 0) {
       return res.status(404).json({ error: 'Event not found' });
     }

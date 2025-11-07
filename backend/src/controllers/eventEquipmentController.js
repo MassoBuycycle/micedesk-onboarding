@@ -30,7 +30,7 @@ export const getEventEquipment = async (req, res, next) => {
     }
     
     // Check if event exists
-    const [events] = await connection.query('SELECT id FROM events WHERE id = ?', [eventId]);
+    const [events] = await connection.query('SELECT id FROM onboarding_events WHERE id = ?', [eventId]);
     if (events.length === 0) {
       return res.status(404).json({ error: 'Event not found' });
     }
@@ -74,7 +74,7 @@ export const upsertEventEquipment = async (req, res, next) => {
     }
     
     // Check if event exists
-    const [events] = await connection.query('SELECT id FROM events WHERE id = ?', [eventId]);
+    const [events] = await connection.query('SELECT id FROM onboarding_events WHERE id = ?', [eventId]);
     if (events.length === 0) {
       return res.status(404).json({ error: 'Event not found' });
     }

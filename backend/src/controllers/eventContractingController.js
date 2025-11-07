@@ -21,13 +21,13 @@ export const getContractingByEventId = async (req, res, next) => {
       return res.status(404).json({ error: 'Event not found' });
     }
     
-    // Get contracting info from unified event_details
+    // Get contracting info from unified onboarding_event_details
     const [contractingInfo] = await connection.query(
       `SELECT event_id, contracted_companies, refused_requests, unwanted_marketing_tools,
               first_second_option, split_options, option_hold_duration, overbooking_policy,
               deposit_required, accepted_payment_methods, commission_rules, second_signature_required,
               created_at, updated_at
-       FROM event_details WHERE event_id = ?`,
+       FROM onboarding_event_details WHERE event_id = ?`,
       [eventId]
     );
     
@@ -72,7 +72,7 @@ export const createOrUpdateContracting = async (req, res, next) => {
     
     // Check if unified record already exists
     const [existingInfo] = await connection.query(
-      'SELECT event_id FROM event_details WHERE event_id = ?',
+      'SELECT event_id FROM onboarding_event_details WHERE event_id = ?',
       [eventId]
     );
     
@@ -90,7 +90,7 @@ export const createOrUpdateContracting = async (req, res, next) => {
       // Create new record
       const placeholders = fields.map(() => '?').join(', ');
       const query = `
-        INSERT INTO event_details (${fields.join(', ')}, created_at, updated_at)
+        INSERT INTO onboarding_event_details (${fields.join(', ')}, created_at, updated_at)
         VALUES (${placeholders}, NOW(), NOW())
       `;
       
@@ -99,7 +99,7 @@ export const createOrUpdateContracting = async (req, res, next) => {
       // Update existing record
       const updateFields = fields.map(field => `${field} = ?`).join(', ');
       const query = `
-        UPDATE event_details 
+        UPDATE onboarding_event_details 
         SET ${updateFields}, updated_at = NOW()
         WHERE event_id = ?
       `;
@@ -113,7 +113,7 @@ export const createOrUpdateContracting = async (req, res, next) => {
               first_second_option, split_options, option_hold_duration, overbooking_policy,
               deposit_required, accepted_payment_methods, commission_rules, second_signature_required,
               created_at, updated_at
-       FROM event_details WHERE event_id = ?`,
+       FROM onboarding_event_details WHERE event_id = ?`,
       [eventId]
     );
     

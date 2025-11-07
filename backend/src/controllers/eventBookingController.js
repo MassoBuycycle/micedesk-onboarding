@@ -15,7 +15,7 @@ export const getEventBooking = async (req, res) => {
     connection = await pool.getConnection();
 
     const [rows] = await connection.query(
-      'SELECT event_id, has_options, allows_split_options, option_duration, allows_overbooking, rooms_only, last_minute_leadtime, contracted_companies, refused_requests, unwanted_marketing, requires_second_signature, exclusive_clients FROM event_details WHERE event_id = ?',
+      'SELECT event_id, has_options, allows_split_options, option_duration, allows_overbooking, rooms_only, last_minute_leadtime, contracted_companies, refused_requests, unwanted_marketing, requires_second_signature, exclusive_clients FROM onboarding_event_details WHERE event_id = ?',
       [eventId]
     );
     
@@ -47,7 +47,7 @@ export const createOrUpdateEventBooking = async (req, res) => {
 
     // Check if unified record already exists for this event
     const [existingRows] = await connection.query(
-      'SELECT event_id FROM event_details WHERE event_id = ?',
+      'SELECT event_id FROM onboarding_event_details WHERE event_id = ?',
       [eventId]
     );
     
@@ -89,7 +89,7 @@ export const createOrUpdateEventBooking = async (req, res) => {
         const setClause = fields.map(field => `${field} = ?`).join(', ');
         const values = fields.map(f => bookingData[f]);
         await connection.query(
-          `UPDATE event_details SET ${setClause} WHERE event_id = ?`,
+          `UPDATE onboarding_event_details SET ${setClause} WHERE event_id = ?`,
           [...values, eventId]
         );
       }
@@ -112,19 +112,19 @@ export const createOrUpdateEventBooking = async (req, res) => {
 
       if (fields.length > 0) {
         await connection.query(
-          `INSERT INTO event_details (event_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`,
+          `INSERT INTO onboarding_event_details (event_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`,
           [eventId, ...values]
         );
       } else {
         // If no additional fields provided just insert event_id
         await connection.query(
-          'INSERT INTO event_details (event_id) VALUES (?)',
+          'INSERT INTO onboarding_event_details (event_id) VALUES (?)',
           [eventId]
         );
       }
 
       const [createdRows] = await connection.query(
-        'SELECT event_id, has_options, allows_split_options, option_duration, allows_overbooking, rooms_only, last_minute_leadtime, contracted_companies, refused_requests, unwanted_marketing, requires_second_signature, exclusive_clients FROM event_details WHERE event_id = ?',
+        'SELECT event_id, has_options, allows_split_options, option_duration, allows_overbooking, rooms_only, last_minute_leadtime, contracted_companies, refused_requests, unwanted_marketing, requires_second_signature, exclusive_clients FROM onboarding_event_details WHERE event_id = ?',
         [eventId]
       );
 

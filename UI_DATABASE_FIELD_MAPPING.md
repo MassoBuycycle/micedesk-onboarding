@@ -147,7 +147,7 @@ SELECT
   eav.equipment_name,
   eav.quantity,
   eav.price_per_unit
-FROM events e
+FROM onboarding_events e
 LEFT JOIN event_operations eo ON e.id = eo.event_id
 LEFT JOIN event_technical et ON e.id = et.event_id  
 LEFT JOIN event_contracting ec ON e.id = ec.event_id
@@ -158,7 +158,7 @@ WHERE e.id = ?;
 ### Finding events with specific criteria:
 ```sql
 SELECT e.contact_name 
-FROM events e
+FROM onboarding_events e
 JOIN event_operations eo ON e.id = eo.event_id
 WHERE eo.has_minimum_spent = TRUE 
 AND eo.has_storage = TRUE;

@@ -26,7 +26,7 @@ Added duplicate detection logic that:
 ```javascript
 // Check for recent duplicate events (within last 5 seconds)
 const [recentEvents] = await connection.query(
-    `SELECT id, created_at FROM events 
+    `SELECT id, created_at FROM onboarding_events 
      WHERE hotel_id = ? 
      AND created_at >= DATE_SUB(NOW(), INTERVAL 5 SECOND)
      ORDER BY created_at DESC LIMIT 1`,

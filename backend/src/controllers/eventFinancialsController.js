@@ -17,9 +17,9 @@ export const getEventFinancials = async (req, res) => {
         return res.status(404).json({ error: 'Event not found' });
       }
       
-      // Get financials data from unified event_details
+      // Get financials data from unified onboarding_event_details
       const [financialsRows] = await connection.query(
-        'SELECT event_id, requires_deposit, deposit_rules, deposit_invoicer, has_info_invoice, payment_methods, invoice_handling, commission_rules, has_minimum_spent, created_at, updated_at FROM event_details WHERE event_id = ?',
+        'SELECT event_id, requires_deposit, deposit_rules, deposit_invoicer, has_info_invoice, payment_methods, invoice_handling, commission_rules, has_minimum_spent, created_at, updated_at FROM onboarding_event_details WHERE event_id = ?',
         [eventId]
       );
       
@@ -97,7 +97,7 @@ export const createOrUpdateEventFinancials = async (req, res) => {
       
       // Check if unified details record exists
       const [existingRows] = await connection.query(
-        'SELECT event_id FROM event_details WHERE event_id = ?',
+        'SELECT event_id FROM onboarding_event_details WHERE event_id = ?',
         [eventId]
       );
       
@@ -108,7 +108,7 @@ export const createOrUpdateEventFinancials = async (req, res) => {
           const setClause = fields.map(f => `${f} = ?`).join(', ');
           const values = fields.map(f => financialsData[f]);
           await connection.query(
-            `UPDATE event_details SET ${setClause} WHERE event_id = ?`,
+            `UPDATE onboarding_event_details SET ${setClause} WHERE event_id = ?`,
             [...values, eventId]
           );
         }
@@ -118,14 +118,14 @@ export const createOrUpdateEventFinancials = async (req, res) => {
         const placeholders = fields.map(() => '?').join(', ');
         const values = fields.map(f => financialsData[f]);
         await connection.query(
-          `INSERT INTO event_details (event_id${fields.length ? ', ' + fields.join(', ') : ''}) VALUES (?${fields.length ? ', ' + placeholders : ''})`,
+          `INSERT INTO onboarding_event_details (event_id${fields.length ? ', ' + fields.join(', ') : ''}) VALUES (?${fields.length ? ', ' + placeholders : ''})`,
           [eventId, ...values]
         );
       }
       
       // Retrieve updated record
       const [financialsRows] = await connection.query(
-        'SELECT event_id, requires_deposit, deposit_rules, deposit_invoicer, has_info_invoice, payment_methods, invoice_handling, commission_rules, has_minimum_spent, created_at, updated_at FROM event_details WHERE event_id = ?',
+        'SELECT event_id, requires_deposit, deposit_rules, deposit_invoicer, has_info_invoice, payment_methods, invoice_handling, commission_rules, has_minimum_spent, created_at, updated_at FROM onboarding_event_details WHERE event_id = ?',
         [eventId]
       );
       if (financialsRows[0] && typeof financialsRows[0].payment_methods === 'string') {
