@@ -209,7 +209,12 @@ export const createEvent = async (req, res, next) => {
             });
         }
 
-        const eventFields = Object.keys(eventsMainData);
+        // Filter out any empty or invalid field names
+        const eventFields = Object.keys(eventsMainData).filter(f => f && f.trim().length > 0);
+        if (eventFields.length === 0) {
+            await connection.rollback();
+            return res.status(400).json({ error: 'No valid event fields provided' });
+        }
         const eventPlaceholders = eventFields.map(() => '?').join(', ');
         const eventValues = eventFields.map(f => eventsMainData[f]);
         const [eventResult] = await connection.query(
@@ -229,12 +234,13 @@ export const createEvent = async (req, res, next) => {
             operationsData.payment_methods_events = JSON.stringify(operationsData.payment_methods_events);
         }
         const unified = { ...bookingData, ...financialsData, ...operationsData };
-        if (Object.keys(unified).length > 0) {
-            const fields = Object.keys(unified);
-            const placeholders = fields.map(() => '?').join(', ');
-            const values = fields.map(f => unified[f]);
+        // Filter out empty/invalid field names
+        const allFields = Object.keys(unified).filter(f => f && f.trim().length > 0);
+        if (allFields.length > 0) {
+            const placeholders = allFields.map(() => '?').join(', ');
+            const values = allFields.map(f => unified[f]);
             await connection.query(
-                `INSERT INTO event_details (event_id, ${fields.join(', ')}) VALUES (?, ${placeholders})`,
+                `INSERT INTO event_details (event_id, ${allFields.join(', ')}) VALUES (?, ${placeholders})`,
                 [eventId, ...values]
             );
         } else {
@@ -246,7 +252,7 @@ export const createEvent = async (req, res, next) => {
         const spaceData = extractDataForTable(eventDataMapped, EVENT_SPACES_FIELDS);
         let createdSpace = null;
         if (spaceData && spaceData.name) { // 'name' is NOT NULL for event_spaces
-            const fields = Object.keys(spaceData);
+            const fields = Object.keys(spaceData).filter(f => f && f.trim().length > 0);
              if (fields.length > 0) {
                 const placeholders = fields.map(() => '?').join(', ');
                 const values = fields.map(f => spaceData[f]);

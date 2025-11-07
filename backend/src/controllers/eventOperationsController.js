@@ -116,7 +116,7 @@ export const createOrUpdateEventOperations = async (req, res) => {
         }
       } else {
         // Create new operations record
-        const fields = Object.keys(operationsData);
+        const fields = Object.keys(operationsData).filter(f => f && f.trim().length > 0);
         const placeholders = fields.map(() => '?').join(', ');
         const values = fields.map(f => operationsData[f]);
         await connection.query(
