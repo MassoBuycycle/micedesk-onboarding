@@ -242,21 +242,41 @@ export const createEvent = async (req, res, next) => {
             operationsData.payment_methods_events = JSON.stringify(operationsData.payment_methods_events);
         }
         const unified = { ...bookingData, ...financialsData, ...operationsData };
-        // Filter out empty/invalid field names
-        const allFields = Object.keys(unified).filter(f => f && f.trim().length > 0);
+        
+        // Remove any properties with empty/invalid keys from the unified object
+        const cleanedUnified = {};
+        Object.keys(unified).forEach(key => {
+            if (key && typeof key === 'string' && key.trim().length > 0) {
+                cleanedUnified[key] = unified[key];
+            } else {
+                console.warn('Filtered out invalid key:', JSON.stringify(key));
+            }
+        });
+        
+        const allFields = Object.keys(cleanedUnified);
         
         // Debug logging
         console.log('=== EVENT DETAILS DEBUG ===');
-        console.log('All fields:', allFields);
+        console.log('Booking fields:', Object.keys(bookingData));
+        console.log('Financials fields:', Object.keys(financialsData));
+        console.log('Operations fields:', Object.keys(operationsData));
+        console.log('Unified fields (after cleaning):', allFields);
         console.log('Field count:', allFields.length);
-        console.log('Has empty fields:', allFields.some(f => !f || f.trim().length === 0));
         
         if (allFields.length > 0) {
             const placeholders = allFields.map(() => '?').join(', ');
-            const values = allFields.map(f => unified[f]);
+            const values = allFields.map(f => cleanedUnified[f]);
             const sql = `INSERT INTO event_details (event_id, ${allFields.join(', ')}) VALUES (?, ${placeholders})`;
             console.log('SQL Query:', sql);
+            console.log('Placeholder count:', placeholders.split(',').length);
             console.log('Values count:', values.length + 1); // +1 for eventId
+            console.log('Field/Value match:', allFields.length === values.length);
+            
+            // Final validation before query
+            if (allFields.length !== values.length) {
+                console.error('MISMATCH: Fields and values count do not match!');
+                throw new Error(`Field/value count mismatch: ${allFields.length} fields vs ${values.length} values`);
+            }
             
             await connection.query(sql, [eventId, ...values]);
         } else {
