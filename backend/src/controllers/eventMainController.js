@@ -72,7 +72,7 @@ export const getAllEvents = async (req, res, next) => {
   try {
     const [events] = await connection.query(`
       SELECT e.*, h.name as hotel_name 
-      FROM events e
+      FROM onboarding_events e
       JOIN hotels h ON e.hotel_id = h.id
     `);
     res.status(200).json(events);
@@ -105,7 +105,7 @@ export const getEventsByHotelId = async (req, res, next) => {
     }
     
     const [events] = await connection.query(
-      'SELECT * FROM events WHERE hotel_id = ?',
+      'SELECT * FROM onboarding_events WHERE hotel_id = ?',
       [hotelId]
     );
     
@@ -130,7 +130,7 @@ export const getEventById = async (req, res, next) => {
     
     const [events] = await connection.query(`
       SELECT e.*, h.name as hotel_name 
-      FROM events e
+      FROM onboarding_events e
       JOIN hotels h ON e.hotel_id = h.id
       WHERE e.id = ?
     `, [eventId]);
@@ -191,7 +191,7 @@ export const createEvent = async (req, res, next) => {
         // DUPLICATE PREVENTION: Check for recent duplicate events (within last 5 seconds)
         // This prevents accidental double-submissions from creating duplicate events
         const [recentEvents] = await connection.query(
-            `SELECT id, created_at FROM events 
+            `SELECT id, created_at FROM onboarding_events 
              WHERE hotel_id = ? 
              AND created_at >= DATE_SUB(NOW(), INTERVAL 5 SECOND)
              ORDER BY created_at DESC LIMIT 1`,
@@ -223,7 +223,7 @@ export const createEvent = async (req, res, next) => {
         }
         const eventPlaceholders = eventFields.map(() => '?').join(', ');
         const eventValues = eventFields.map(f => eventsMainData[f]);
-        const eventSql = `INSERT INTO events (${eventFields.join(', ')}) VALUES (${eventPlaceholders})`;
+        const eventSql = `INSERT INTO onboarding_events (${eventFields.join(', ')}) VALUES (${eventPlaceholders})`;
         
         console.log('SQL Query:', eventSql);
         console.log('Values count:', eventValues.length);
@@ -335,7 +335,7 @@ export const updateEvent = async (req, res, next) => {
 
     // Check if event exists
     const [existingEvents] = await connection.query(
-      'SELECT id FROM events WHERE id = ?',
+      'SELECT id FROM onboarding_events WHERE id = ?',
       [eventId]
     );
     if (existingEvents.length === 0) {
@@ -344,13 +344,13 @@ export const updateEvent = async (req, res, next) => {
 
     // Execute update
     await connection.query(
-      `UPDATE events SET ${updateFields.join(', ')} WHERE id = ?`,
+      `UPDATE onboarding_events SET ${updateFields.join(', ')} WHERE id = ?`,
       queryParams
     );
 
     // Get updated event (core fields only)
     const [events] = await connection.query(
-      'SELECT * FROM events WHERE id = ?',
+      'SELECT * FROM onboarding_events WHERE id = ?',
       [eventId]
     );
 
@@ -380,7 +380,7 @@ export const deleteEvent = async (req, res, next) => {
     
     // Check if event exists
     const [existingEvents] = await connection.query(
-      'SELECT id FROM events WHERE id = ?',
+      'SELECT id FROM onboarding_events WHERE id = ?',
       [eventId]
     );
     
@@ -390,7 +390,7 @@ export const deleteEvent = async (req, res, next) => {
     
     // Delete the event (cascade will delete related records)
     await connection.query(
-      'DELETE FROM events WHERE id = ?',
+      'DELETE FROM onboarding_events WHERE id = ?',
       [eventId]
     );
     
