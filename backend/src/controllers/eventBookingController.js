@@ -95,7 +95,7 @@ export const createOrUpdateEventBooking = async (req, res) => {
       }
 
       const [updatedRows] = await connection.query(
-        'SELECT * FROM event_booking WHERE event_id = ?',
+        'SELECT event_id, has_options, allows_split_options, option_duration, allows_overbooking, rooms_only, last_minute_leadtime, contracted_companies, refused_requests, unwanted_marketing, requires_second_signature, exclusive_clients FROM onboarding_event_details WHERE event_id = ?',
         [eventId]
       );
 
