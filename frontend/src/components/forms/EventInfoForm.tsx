@@ -463,9 +463,26 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
       
       // Step 1: Create the event with full payload
       const eventPayload = buildEventPayload();
-      const createRes = await apiCreateEvent(eventPayload as any);
-      const eventId = createRes.eventId;
-      toast.success(`Event created! ID: ${eventId}`);
+      let eventId: number;
+      
+      try {
+        const createRes = await apiCreateEvent(eventPayload as any);
+        eventId = createRes.eventId;
+        toast.success(`Event created! ID: ${eventId}`);
+      } catch (createError: any) {
+        // Handle duplicate event error by using the existing event ID
+        if (createError.response?.data?.code === 'DUPLICATE_EVENT_DETECTED') {
+          const existingEventId = createError.response.data.existingEventId;
+          if (existingEventId) {
+            eventId = existingEventId;
+            toast.warning(`Using existing event (ID: ${existingEventId}) that was just created.`);
+          } else {
+            throw new Error("Duplicate event detected but no existing event ID returned");
+          }
+        } else {
+          throw createError;
+        }
+      }
       
       // Step 2: Try to save equipment data if available
       try {
@@ -500,9 +517,9 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
       toast.success("Event created successfully!");
       onNext(fullPayload);
     } catch (error) {
-      // Handle duplicate event error specifically
+      // Handle any remaining errors
       if (error.response?.data?.code === 'DUPLICATE_EVENT_DETECTED') {
-        toast.error("This event was just created. Please wait a moment before creating another event for this hotel.");
+        toast.error("This event was just created but the event ID could not be retrieved. Please refresh and try again.");
       } else {
         toast.error(`Failed to create event: ${error.message}`);
       }
