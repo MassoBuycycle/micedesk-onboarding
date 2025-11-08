@@ -38,9 +38,8 @@ import {
   PaymentMethodsField
 } from '@/components/shared/FormFields';
 import { API_BASE_URL } from '@/apiClient/config';
-import { createEvent as apiCreateEvent, upsertEquipment } from '@/apiClient/eventsApi';
+// Event creation is now handled by useHotelFormState to prevent duplicate requests
 import { getAuthToken } from "@/apiClient/authApi";
-import { mapEventFormToApi } from '@/utils/eventMapping';
 import { useTranslation } from 'react-i18next';
 
 export interface EventEquipmentItem {
@@ -338,30 +337,6 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
     // Skip equipment fetching since the endpoint doesn't work
   }, [form]);
 
-  // Mapping helper will build the flattened payload for backend
-  const buildEventPayload = (): Record<string, any> => {
-    const values = form.getValues();
-    const hotelId = selectedHotel?.id;
-    
-    if (!hotelId) {
-      throw new Error("Hotel ID is required but not provided");
-    }
-    
-    const fullData: EventInfoData = {
-      contact: {
-        hotel_id: hotelId,
-        ...values.contact,
-      },
-      booking: values.booking,
-      operations: values.operations,
-      financials: values.financials,
-      equipment: values.equipment as any,
-      technical: values.technical,
-      contracting: values.contracting,
-    } as EventInfoData;
-    return mapEventFormToApi(fullData);
-  };
-
   // Get equipment - this endpoint doesn't work correctly, so we'll skip it
   const getEquipment = async (eventId) => {
     try {
@@ -377,34 +352,6 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
       }));
     } catch (error) {
       return [];
-    }
-  };
-
-  // Call to save equipment with correct field names
-  const saveEventEquipment = async (eventId: number, equipmentItems: any[]) => {
-    if (!equipmentItems || equipmentItems.length === 0) {
-      return;
-    }
-    
-    try {
-      // Map to the correct field names expected by the backend
-      const equipmentData = equipmentItems
-        .filter(item => item.quantity > 0 || item.price > 0) // Only send non-zero items
-        .map(item => ({
-          equipment_name: item.name || "", // Use equipment_name as expected by EventEquipmentInput
-          quantity: item.quantity || 0,
-          price: item.price || 0
-        }));
-      
-      if (equipmentData.length === 0) {
-        return;
-      }
-      
-      // Use the API function
-      const result = await upsertEquipment(eventId, equipmentData);
-      return result;
-    } catch (error) {
-      throw error;
     }
   };
 
