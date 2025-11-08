@@ -430,70 +430,11 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
       }
       
       
-      // If we're in edit mode and already have an event ID, don't create a new one
-      if (mode === 'edit' && createdEventId) {
-        
-        // Create the full payload for onNext
-        const fullPayload: EventInfoData = {
-          contact: { 
-            hotel_id: hotelId,
-            contact_name: values.contact.contact_name,
-            contact_phone: values.contact.contact_phone,
-            contact_email: values.contact.contact_email,
-            contact_position: values.contact.contact_position
-          },
-          booking: values.booking || {},
-          operations: values.operations || {},
-          financials: values.financials || {},
-          equipment: values.equipment.map(item => ({
-            name: item.name || "",
-            quantity: item.quantity || 0,
-            price: item.price || 0
-          })),
-          technical: values.technical || {},
-          contracting: values.contracting || {},
-        };
-        
-        onNext(fullPayload);
-        return;
-      }
+      // Don't create the event here - let useHotelFormState handle it
+      // This prevents duplicate event creation
       
-      // Only create a new event in add mode
-      toast.info("Creating event...");
-      
-      // Step 1: Create the event with full payload
-      const eventPayload = buildEventPayload();
-      let eventId: number;
-      
-      try {
-        const createRes = await apiCreateEvent(eventPayload as any);
-        eventId = createRes.eventId;
-        toast.success(`Event created! ID: ${eventId}`);
-      } catch (createError: any) {
-        // Handle duplicate event error by using the existing event ID
-        if (createError.response?.data?.code === 'DUPLICATE_EVENT_DETECTED') {
-          const existingEventId = createError.response.data.existingEventId;
-          if (existingEventId) {
-            eventId = existingEventId;
-            toast.warning(`Using existing event (ID: ${existingEventId}) that was just created.`);
-          } else {
-            throw new Error("Duplicate event detected but no existing event ID returned");
-          }
-        } else {
-          throw createError;
-        }
-      }
-      
-      // Step 2: Try to save equipment data if available
-      try {
-        if (values.equipment && values.equipment.some(item => item.quantity > 0 || item.price > 0)) {
-          await saveEventEquipment(eventId, values.equipment);
-        }
-      } catch (equipError) {
-        toast.warning("Could not save equipment data, but continuing to next step");
-      }
-      
-      // Create the full payload for onNext
+      // Just prepare the full payload and pass it to onNext
+      // useHotelFormState will handle creating the event and saving all related data including equipment
       const fullPayload: EventInfoData = {
         contact: { 
           hotel_id: hotelId,
@@ -514,15 +455,11 @@ const EventInfoForm: React.FC<EventInfoFormProps> = ({ selectedHotel, initialDat
         contracting: values.contracting || {},
       };
       
-      toast.success("Event created successfully!");
+      toast.success("Event information validated!");
       onNext(fullPayload);
     } catch (error) {
-      // Handle any remaining errors
-      if (error.response?.data?.code === 'DUPLICATE_EVENT_DETECTED') {
-        toast.error("This event was just created but the event ID could not be retrieved. Please refresh and try again.");
-      } else {
-        toast.error(`Failed to create event: ${error.message}`);
-      }
+      // Handle any errors
+      toast.error(`Failed to prepare event data: ${error.message}`);
     } finally {
       setIsSubmitting(false);
     }
